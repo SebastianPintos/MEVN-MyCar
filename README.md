@@ -7,12 +7,7 @@ Proyecto generado con MEVN stack technologies que utiliza (**VueJS**) para el Fr
 
 
 = Proyecto Profesional I : TP PRINCIPAL
-@SebastianPintos <spintos@campus.ungs.edu.ar>; @PierozziLuque <solpierozzi@hotmail.com>; jmcorbera <jmcorbera@gmail.com>; @Simon Ramirez <simonNR35@gmail.com>; @Franco Barberis <francobarberissic3@gmail.com>; @Cristian Yoel Garay <cristianyg100@hotmail.com>;
-v1, {docdate}. 	Juan Carlos Monteros y Francisco Orozco De La Hoz (COM-01)
-:title-page:
-:numbered:
-:source-highlighter: coderay
-:tabsize: 4
+
 
 == Introducción
 .
