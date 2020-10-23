@@ -1,7 +1,7 @@
 <template>
     <div class="registro">
         <div class="container">
-            <h1> Registrarse </h1>
+            <h1 class="titulo"> Registrarse </h1>
             <br><br>
             <label for="nombre"><b>Nombre</b></label>
             <input type="text" v-model="nombre" id="nombre" placeholder="Nombre">
