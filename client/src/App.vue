@@ -8,7 +8,7 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn class="success" >Ingresar</v-btn>
+      <v-btn class="success" >Ingresa</v-btn>
 
       </v-toolbar>
        <v-navigation-drawer
