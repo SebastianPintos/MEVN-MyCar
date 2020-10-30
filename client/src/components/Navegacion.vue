@@ -1,5 +1,5 @@
 <template>
-  <v-card app>
+  <div>
 
       <v-app-bar 
       app
@@ -49,21 +49,21 @@
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
           
-          <v-list-item >
+          <v-list-item :to="'/clientes'">
             <v-list-item-icon>
               <v-icon>mdi-account</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Clientes</v-list-item-title>
           </v-list-item>
 
-          <v-list-item >
+          <v-list-item :to="'/automoviles'">
             <v-list-item-icon>
               <v-icon>mdi-car</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Automoviles</v-list-item-title>
           </v-list-item>
 
-          <v-list-item >
+          <v-list-item :to="'/repuestos'">
             <v-list-item-icon>
               <v-icon>mdi-hammer-wrench</v-icon>
             </v-list-item-icon>
@@ -73,7 +73,7 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-  </v-card>
+  </div>
 </template>
 
 <script>
