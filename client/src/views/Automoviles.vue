@@ -1,16 +1,6 @@
 <template>
   <v-container>
     <h1 class="titulo">Automoviles</h1>
-    <h2>Seleccionados: {{selected}}</h2>
-    <v-card-title>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
-    </v-card-title>
     <v-data-table
     v-model="selected"
     show-select
@@ -25,26 +15,56 @@
       <v-toolbar
         flat
       >
-        <v-toolbar-title>My CRUD</v-toolbar-title>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
+      
         <v-divider
           class="mx-4"
-          inset
+          dark
           vertical
         ></v-divider>
         <v-spacer></v-spacer>
+
+        <v-btn
+          color="primary"
+          dark
+          class="mb-2"
+          v-bind="attrs"
+          v-on="on"
+          @click="editItem(selected[0])"
+        >
+          Editar
+        </v-btn>
+
+        <v-btn
+          color="error"
+          dark
+          class="mb-2"
+          v-bind="attrs"
+          v-on="on"
+          @click="deleteItem(selected)"
+        >
+          Borrar
+        </v-btn>
+
         <v-dialog
           v-model="dialog"
           max-width="500px"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              color="primary"
+              color="success"
               dark
               class="mb-2"
               v-bind="attrs"
               v-on="on"
             >
-              New Item
+              Nuevo
             </v-btn>
           </template>
           <v-card>
@@ -141,21 +161,6 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:[`item.actions`]="{ item }">
-      <v-icon
-        small
-        class="mr-2"
-        @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-        small
-        @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
-    </template>
     <template v-slot:no-data>
       <v-btn
         color="primary"
@@ -171,7 +176,7 @@
 <script>
 export default {
     data: () => ({
-      selected: [],
+      selected: '',
       search: '',
       dialog: false,
       dialogDelete: false,
@@ -186,7 +191,6 @@ export default {
         { text: 'Fat (g)', value: 'fat' },
         { text: 'Carbs (g)', value: 'carbs' },
         { text: 'Protein (g)', value: 'protein' },
-        { text: 'Actions', value: 'actions', sortable: false },
       ],
       desserts: [],
       editedIndex: -1,
@@ -302,19 +306,24 @@ export default {
       },
 
       editItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
+        if(this.selected.length === 1){
+          this.editedIndex = this.desserts.indexOf(item)
+          this.editedItem = Object.assign({}, item)
+          this.dialog = true
+        }
       },
 
-      deleteItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
-        this.editedItem = Object.assign({}, item)
+      deleteItem (items) {
+          this.editedIndex = this.desserts.indexOf(items)
+          this.editedItem = Object.assign({}, items)
+        
         this.dialogDelete = true
       },
 
       deleteItemConfirm () {
-        this.desserts.splice(this.editedIndex, 1)
+        this.selected.forEach(item => {
+          this.desserts.splice(this.desserts.indexOf(item), 1);
+        });
         this.closeDelete()
       },
 
@@ -338,7 +347,7 @@ export default {
         if (this.editedIndex > -1) {
           Object.assign(this.desserts[this.editedIndex], this.editedItem)
         } else {
-          this.desserts.push(this.editedItem)
+          this.desserts.unshift(this.editedItem)
         }
         this.close()
       },
@@ -350,5 +359,9 @@ export default {
 .titulo{
   text-align: center;
   margin: 20px;
-  }
+}
+.mb-2{
+  margin-left: 3px;
+  margin-right: 3px;
+}
 </style>
