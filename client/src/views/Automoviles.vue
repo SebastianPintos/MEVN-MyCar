@@ -2,11 +2,21 @@
   <v-container>
     <h1 class="titulo">Automoviles</h1>
     <h2>Seleccionados: {{selected}}</h2>
+    <v-card-title>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
+    </v-card-title>
     <v-data-table
     v-model="selected"
     show-select
     :headers="headers"
     :items="desserts"
+    :search="search"
     item-key="name"
     sort-by="calories"
     class="elevation-1"
@@ -162,6 +172,7 @@
 export default {
     data: () => ({
       selected: [],
+      search: '',
       dialog: false,
       dialogDelete: false,
       headers: [
