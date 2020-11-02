@@ -26,7 +26,7 @@ export default {
 };
 </script>
 <style >
-.automoviles{
+.bkg-img{
   padding-bottom: 80px;
 }
 .titulo{

@@ -1,6 +1,11 @@
 <template>
+<v-img 
+ src="../assets/Sun-Tornado.svg"
+ gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)"
+ class="bkg-img"
+ >
 <v-container>
-    <h1 class="titulo">Clientes</h1>
+    <h1 class="titulo">CLIENTES</h1>
     <v-data-table v-model="selected" show-select :headers="headers" :items="clientes" :search="search" item-key="cuit" sort-by="nombre" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
@@ -96,6 +101,7 @@
         </template>
     </v-snackbar>
 </v-container>
+</v-img>
 </template>
 
 <script>
@@ -323,10 +329,6 @@ export default {
 </script>
 
 <style>
-.titulo {
-    text-align: center;
-    margin: 20px;
-}
 
 .mb-2 {
     margin-left: 3px;
