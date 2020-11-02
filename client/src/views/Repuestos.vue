@@ -34,37 +34,28 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
+                                            <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre"></v-text-field>
                                         </v-col>
+                                        
                                         <v-col cols="12" sm="6" md="4">
                                             <v-text-field :rules="reglaCUIT" v-model="editedItem.codigo" label="Código"></v-text-field>
                                         </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.categoría" label="Categoría"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaDNI" v-model="editedItem.sub" label="Subcategoría"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.marca" label="Marca"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.descripción" label="Descripción"></v-text-field>
-                                        </v-col>
 
-                                        <!--Agregado Menú-->
-                                        <v-menu :key="text" :rounded="rounded" offset-y>
-                                            <template v-slot:activator="{ attrs, on }">
-                                                <v-btn :color="colors[index]" class="white--text ma-8" v-bind="attrs" v-on="on">
-                                                    Razón Social
-                                                </v-btn>
-                                            </template>
-                                            <v-list>
-                                                <v-list-item v-for="item in items" :key="item" link>
-                                                    <v-list-item-title v-text="item"></v-list-item-title>
-                                                </v-list-item>
-                                            </v-list>
-                                        </v-menu>
+                                        <v-flex xs12 sm6>
+                                            <v-select v-model="editedItem.categoría" :rules="reglaNombre" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría" required></v-select>
+                                        </v-flex>
+
+                                        <v-flex xs12 sm6>
+                                            <v-select v-model="editedItem.sub" :rules="reglaNombre" :items="['SubCategoría Aa','SubCategoría Bb', 'SubCategoría Cc', 'SubCategoría Dd']" label="Subcategoría" required></v-select>
+                                        </v-flex>
+
+                                        <v-flex xs12 sm6>
+                                            <v-select v-model="editedItem.marca" :rules="reglaNombre" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca" required></v-select>
+                                        </v-flex>
+
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-textarea :rules="reglaNombre" v-model="editedItem.descripción" label="Descripción"></v-textarea>
+                                        </v-col>
 
                                     </v-row>
                                 </v-container>
@@ -123,7 +114,6 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
-        items: ['Responsable Inscripto', 'Otro Tipo', 'Otro Tipo'],
         headers: [{
                 text: 'Nombre',
                 value: 'nombre',
@@ -157,7 +147,7 @@ export default {
             value => !!value || 'Requerido.',
             value => (value || '').length <= 50 || 'Máximo 50 caracteres',
             value => {
-                const pattern = /^([A-Z]{1}[a-z]{1,15}\s{1}[A-Z]{1}[a-z]{1,15}){1}(\s{1}[A-Z]{1}[a-z]{1,15}){0,}$/
+                const pattern = /^([A-Z0]{1}[a-z]{1,15}\s{1}[A-Z]{1}[a-z]{1,15}){1}(\s{1}[A-Z]{1}[a-z]{1,15}){0,}$/
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
@@ -217,7 +207,7 @@ export default {
 
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? 'Nuevo Cliente' : 'Editar Cliente'
+            return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Repuesto'
         },
     },
 
@@ -237,26 +227,26 @@ export default {
     methods: {
         initialize() {
             this.repuestos = [{
-                    categoría: 'Categoria 1',
+                    categoría: 'Categoria Aa',
                     nombre: 'Lubricante',
                     codigo: '32-42221144-2',
-                    sub: 'Sub cat-1',
+                    sub: 'Sub Cat',
                     marca: '11442255',
                     descripción: 'Este repuesto....',
                 },
                 {
-                    categoría: 'Cat 2',
+                    categoría: 'Cat Bb',
                     nombre: 'Radiador',
                     codigo: '24-42431232-2',
-                    sub: '42324232',
+                    sub: 'Sub Cat',
                     marca: '1192848293',
                     descripción: 'Descripción...',
                 },
                 {
-                    categoría: 'Cat 3',
+                    categoría: 'Cat Cc',
                     nombre: 'Radiador',
                     codigo: '27-42433311-3',
-                    sub: 'Sub cat-2',
+                    sub: 'Sub Cat',
                     marca: '1151103863',
                     descripción: 'Descripción ...',
                 },
@@ -291,7 +281,6 @@ export default {
             if (!this.mensajeNoSelecciono()) {
                 this.editedIndex = this.clientes.indexOf(items)
                 this.editedItem = Object.assign({}, items)
-
                 this.dialogDelete = true
             }
         },

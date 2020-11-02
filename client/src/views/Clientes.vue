@@ -48,7 +48,6 @@
                                         <v-col cols="12" sm="6" md="4">
                                             <v-text-field :rules="reglaEmail" v-model="editedItem.email" label="Email"></v-text-field>
                                         </v-col>
-
                                         <v-flex xs12 sm6>
                                             <v-select v-model="editedItem.razonSocial" :rules="reglaRazonSocial" :items="['Responsable Inscripto', 'Otra razón Social', 'Otra..', 'etc..']" label="Razón Social" required></v-select>
                                         </v-flex>
@@ -109,7 +108,6 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
-        items: ['Responsable Inscripto', 'Otro Tipo', 'Otro Tipo'],
         headers: [{
                 text: 'Nombre y Apellido',
                 value: 'nombre',
