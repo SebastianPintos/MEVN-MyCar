@@ -24,42 +24,45 @@
                         </v-btn>
                     </template>
                     <v-card>
-                        <v-card-title>
-                            <span class="headline">{{ formTitle }}</span>
-                        </v-card-title>
+                        <v-form ref="form" v-model="valid" lazy-validation>
 
-                        <v-card-text>
-                            <v-container>
-                                <v-row>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.cuit" label="CUIT"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.dni" label="DNI"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.tel" label="Teléfono"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.email" label="Email"></v-text-field>
-                                    </v-col>
+                            <v-card-title>
+                                <span class="headline">{{ formTitle }}</span>
+                            </v-card-title>
 
-                                </v-row>
-                            </v-container>
-                        </v-card-text>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field :rules="reglaCUIT" v-model="editedItem.cuit" label="CUIT"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field :rules="reglaDNI" v-model="editedItem.dni" label="DNI"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field :rules="reglaTelefono" v-model="editedItem.tel" label="Teléfono"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field :rules="reglaEmail" v-model="editedItem.email" label="Email"></v-text-field>
+                                        </v-col>
 
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="close">
-                                Cancel
-                            </v-btn>
-                            <v-btn color="blue darken-1" text @click="save">
-                                Save
-                            </v-btn>
-                        </v-card-actions>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="close">
+                                    Cancel
+                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="save">
+                                    Save
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
                     </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
@@ -81,7 +84,7 @@
             </v-btn>
         </template>
     </v-data-table>
-      <v-snackbar v-model="snackbar">
+    <v-snackbar v-model="snackbar">
         {{ mensaje }}
 
         <template v-slot:action="{ attrs }">
@@ -98,6 +101,7 @@ export default {
     data: () => ({
         selected: [],
         search: '',
+        valid: true,
         snackbar: false,
         mensaje: "",
         dialog: false,
@@ -126,6 +130,44 @@ export default {
             },
         ],
         clientes: [],
+
+        reglaNombre: [
+            value => !!value || 'Requerido.',
+            value => (value || '').length <= 50 || 'Máximo 50 caracteres',
+            value => {
+                const pattern = /^([A-Z]{1}[a-z]{1,15}\s{1}[A-Z]{1}[a-z]{1,15}){1}(\s{1}[A-Z]{1}[a-z]{1,15}){0,}$/
+                return pattern.test(value) || 'Nombre inválido'
+            },
+        ],
+        reglaTelefono: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^11\d{8}$/
+                return pattern.test(value) || 'Sólo se permiten números del formato 11xxxxxxxx!'
+            },
+        ],
+        reglaDNI: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^\d{8}$/
+                return pattern.test(value) || 'Sólo se permiten números de 8 caracteres!'
+            },
+        ],
+        reglaCUIT: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^\d{2}-\d{8}-\d{1}$/
+                return pattern.test(value) || 'Formato requerido: XX-XXXXXXXX-X'
+            },
+        ],
+        reglaEmail: [
+            value => !!value || 'Requerido.',
+            value => (value || '').length <= 35 || 'Máximo 35 caracteres',
+            value => {
+                const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                return pattern.test(value) || 'Email inválido'
+            },
+        ],
         editedIndex: -1,
         attrs: '',
         on: '',
@@ -167,52 +209,31 @@ export default {
     methods: {
         initialize() {
             this.clientes = [{
-                    email: 'Frozen Yogurt',
-                    nombre: '159',
-                    cuit: '6.0',
-                    dni: '24',
-                    tel: '4.0',
+                    email: 'pepito@gmail.com.ar',
+                    nombre: 'Pepe Gomez',
+                    cuit: '32-42221144-2',
+                    dni: '42222144',
+                    tel: '11442255',
                 },
                 {
-                    email: 'Ice cream sandwich',
-                    nombre: '237',
-                    cuit: '9.0',
-                    dni: '37',
-                    tel: '4.3',
+                    email: 'juan_diego1394@hotmail.com',
+                    nombre: 'Juan Lopez',
+                    cuit: '24-42431232-2',
+                    dni: '42324232',
+                    tel: '1192848293',
                 },
                 {
-                    email: 'Eclair',
-                    nombre: '262',
-                    cuit: '16.0',
-                    dni: '23',
-                    tel: '6.0',
-                },
-                {
-                    email: 'Cupcake',
-                    nombre: '305',
-                    cuit: '3.7',
-                    dni: '67',
-                    tel: '4.3',
-                },
-                {
-                    email: 'Gingerbread',
-                    nombre: '356',
-                    cuit: '100',
-                    dni: '49',
-                    tel: '3.9',
-                },
-                {
-                    email: 'Jelly bean',
-                    nombre: '375',
-                    cuit: '0.0',
-                    dni: '94',
-                    tel: '0.0',
+                    email: 'solpierozzi@hotmail.com',
+                    nombre: 'Sol Pierozzi',
+                    cuit: '27-42433311-3',
+                    dni: '42433311',
+                    tel: '1151103863',
                 },
 
             ]
         },
         haySeleccionado() {
-            return this.selected.length>0;
+            return this.selected.length > 0;
         },
         mensajeNoSelecciono() {
             if (!this.haySeleccionado()) {
@@ -224,20 +245,25 @@ export default {
         },
 
         editItem(item) {
-            if (!this.mensajeNoSelecciono() & this.selected.length === 1) {
-                this.editedIndex = this.clientes.indexOf(item)
-                this.editedItem = Object.assign({}, item)
-                this.dialog = true
+            if (!this.mensajeNoSelecciono()) {
+                if (this.selected.length === 1) {
+                    this.editedIndex = this.clientes.indexOf(item)
+                    this.editedItem = Object.assign({}, item)
+                    this.dialog = true
+                } else {
+                    this.mensaje = "Sólo puede editar un elemento a la vez!"
+                    this.snackbar = true
+                }
             }
         },
 
         deleteItem(items) {
-          if(!this.mensajeNoSelecciono()){
-            this.editedIndex = this.clientes.indexOf(items)
-            this.editedItem = Object.assign({}, items)
+            if (!this.mensajeNoSelecciono()) {
+                this.editedIndex = this.clientes.indexOf(items)
+                this.editedItem = Object.assign({}, items)
 
-            this.dialogDelete = true
-          }
+                this.dialogDelete = true
+            }
         },
 
         deleteItemConfirm() {
@@ -246,33 +272,37 @@ export default {
             });
             this.closeDelete()
         },
-
-        close() {
-            this.dialog = false
-            this.selected= []
+        reset() {
+            this.selected = []
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
+        },
+        close() {
+            this.dialog = false
+            this.reset()
         },
 
         closeDelete() {
             this.dialogDelete = false
-            this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem)
-                this.editedIndex = -1
-            })
+            this.reset()
+        },
+        validate() {
+            return this.$refs.form.validate()
         },
 
         save() {
-            if (this.editedIndex > -1) {
-                Object.assign(this.clientes[this.editedIndex], this.editedItem)
-            } else {
-                this.clientes.unshift(this.editedItem)
+            if (this.validate()) {
+                if (this.editedIndex > -1) {
+                    Object.assign(this.clientes[this.editedIndex], this.editedItem)
+                } else {
+                    this.clientes.push(this.editedItem)
+                }
+                this.close()
             }
-            this.close()
-            this.selected= []
         },
+
     },
 }
 </script>
