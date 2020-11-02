@@ -49,6 +49,24 @@
                                             <v-text-field :rules="reglaEmail" v-model="editedItem.email" label="Email"></v-text-field>
                                         </v-col>
 
+                                        <v-flex xs12 sm6>
+                                            <v-select v-model="editedItem.razonSocial" :rules="reglaRazonSocial" :items="['Responsable Inscripto', 'Otra razón Social', 'Otra..', 'etc..']" label="Razón Social" required></v-select>
+                                        </v-flex>
+
+                                        <!--Agregado Menú-->
+                                        <v-menu :key="text" :rounded="rounded" offset-y>
+                                            <template v-slot:activator="{ attrs, on }">
+                                                <v-btn :color="colors[index]" class="white--text ma-8" v-bind="attrs" v-on="on">
+                                                    Razón Social
+                                                </v-btn>
+                                            </template>
+                                            <v-list>
+                                                <v-list-item v-for="item in items" :key="item" link>
+                                                    <v-list-item-title v-text="item"></v-list-item-title>
+                                                </v-list-item>
+                                            </v-list>
+                                        </v-menu>
+
                                     </v-row>
                                 </v-container>
                             </v-card-text>
@@ -56,10 +74,10 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="blue darken-1" text @click="close">
-                                    Cancel
+                                    Cancelar
                                 </v-btn>
                                 <v-btn color="blue darken-1" text @click="save">
-                                    Save
+                                    Guardar
                                 </v-btn>
                             </v-card-actions>
                         </v-form>
@@ -67,11 +85,11 @@
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
                     <v-card>
-                        <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
+                        <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
@@ -106,6 +124,7 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
+        items: ['Responsable Inscripto', 'Otro Tipo', 'Otro Tipo'],
         headers: [{
                 text: 'Nombre y Apellido',
                 value: 'nombre',
@@ -128,6 +147,10 @@ export default {
                 text: 'Teléfono',
                 value: 'tel'
             },
+            {
+                text: 'Razón Social',
+                value: 'razonSocial'
+            }
         ],
         clientes: [],
 
@@ -168,6 +191,10 @@ export default {
                 return pattern.test(value) || 'Email inválido'
             },
         ],
+
+        reglaRazonSocial: [
+            value => !!value || 'Requerido.',
+        ],
         editedIndex: -1,
         attrs: '',
         on: '',
@@ -177,6 +204,7 @@ export default {
             cuit: '',
             dni: '',
             tel: '',
+            razonSocial: '',
         },
         defaultItem: {
             email: '',
@@ -184,6 +212,7 @@ export default {
             cuit: '',
             dni: '',
             tel: '',
+            razonSocial: '',
         },
     }),
 
@@ -214,6 +243,7 @@ export default {
                     cuit: '32-42221144-2',
                     dni: '42222144',
                     tel: '11442255',
+                    razonSocial: 'Responsable Inscripto',
                 },
                 {
                     email: 'juan_diego1394@hotmail.com',
@@ -221,6 +251,7 @@ export default {
                     cuit: '24-42431232-2',
                     dni: '42324232',
                     tel: '1192848293',
+                    razonSocial: 'Responsable Inscripto',
                 },
                 {
                     email: 'solpierozzi@hotmail.com',
@@ -228,8 +259,8 @@ export default {
                     cuit: '27-42433311-3',
                     dni: '42433311',
                     tel: '1151103863',
+                    razonSocial: 'Responsable Inscripto',
                 },
-
             ]
         },
         haySeleccionado() {
@@ -295,6 +326,7 @@ export default {
         save() {
             if (this.validate()) {
                 if (this.editedIndex > -1) {
+
                     Object.assign(this.clientes[this.editedIndex], this.editedItem)
                 } else {
                     this.clientes.push(this.editedItem)
