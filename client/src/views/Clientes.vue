@@ -52,21 +52,6 @@
                                         <v-flex xs12 sm6>
                                             <v-select v-model="editedItem.razonSocial" :rules="reglaRazonSocial" :items="['Responsable Inscripto', 'Otra razón Social', 'Otra..', 'etc..']" label="Razón Social" required></v-select>
                                         </v-flex>
-
-                                        <!--Agregado Menú-->
-                                        <v-menu :key="text" :rounded="rounded" offset-y>
-                                            <template v-slot:activator="{ attrs, on }">
-                                                <v-btn :color="colors[index]" class="white--text ma-8" v-bind="attrs" v-on="on">
-                                                    Razón Social
-                                                </v-btn>
-                                            </template>
-                                            <v-list>
-                                                <v-list-item v-for="item in items" :key="item" link>
-                                                    <v-list-item-title v-text="item"></v-list-item-title>
-                                                </v-list-item>
-                                            </v-list>
-                                        </v-menu>
-
                                     </v-row>
                                 </v-container>
                             </v-card-text>
