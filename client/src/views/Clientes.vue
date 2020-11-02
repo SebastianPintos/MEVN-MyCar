@@ -31,41 +31,32 @@
         <v-spacer></v-spacer>
 
         <v-btn
-          color="primary"
-          dark
-          class="mb-2"
-          v-bind="attrs"
-          v-on="on"
-          @click="editItem(selected[0])"
-        >
-          Editar
-        </v-btn>
+            color="primary"
+            dark
+            class="mb-2"
+            v-bind="attrs"
+            v-on="on"
+            @click="editItem(selected[0])"
+          >
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
 
-        <v-btn
-          color="error"
-          dark
-          class="mb-2"
-          v-bind="attrs"
-          v-on="on"
-          @click="deleteItem(selected)"
-        >
-          Borrar
-        </v-btn>
+          <v-btn
+            color="error"
+            dark
+            class="mb-2"
+            v-bind="attrs"
+            v-on="on"
+            @click="deleteItem(selected)"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
 
-        <v-dialog
-          v-model="dialog"
-          max-width="500px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="success"
-              dark
-              class="mb-2"
-              v-bind="attrs"
-              v-on="on"
-            >
-              Nuevo
-            </v-btn>
+          <v-dialog v-model="dialog" max-width="500px">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
           </template>
           <v-card>
             <v-card-title>
@@ -176,7 +167,7 @@
 <script>
 export default {
     data: () => ({
-      selected: '',
+      selected: [],
       search: '',
       dialog: false,
       dialogDelete: false,
@@ -194,6 +185,8 @@ export default {
       ],
       desserts: [],
       editedIndex: -1,
+      attrs: '',
+      on: '',
       editedItem: {
         name: '',
         calories: 0,
