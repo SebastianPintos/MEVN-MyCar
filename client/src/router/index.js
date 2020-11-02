@@ -16,16 +16,15 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "automoviles" */ "../views/Automoviles.vue")
+      import(/* webpackChunkName: "automoviles" */ "../views/Automoviles.vue"),
+    meta: { title: 'Automoviles' }
   },
   {
     path: "/login",
     name: "Login",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "login" */ "../views/Login.vue")
+      import(/* webpackChunkName: "login" */ "../views/Login.vue"),
+    meta: { title: 'Login' }
   },
   {
     path: "/registro",
@@ -34,7 +33,8 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "registro" */ "../views/Registro.vue")
+      import(/* webpackChunkName: "registro" */ "../views/Registro.vue"),
+    meta: { title: 'Registro' }
   }
   ,
   {
@@ -44,7 +44,8 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "repuestos" */ "../views/Repuestos.vue")
+      import(/* webpackChunkName: "repuestos" */ "../views/Repuestos.vue"),
+    meta: { title: 'Repuestos' }
   },
   {
     path: "/clientes",
@@ -53,7 +54,8 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "clientes" */ "../views/Clientes.vue")
+      import(/* webpackChunkName: "clientes" */ "../views/Clientes.vue"),
+    meta: { title: 'Clientes' }
   }
 ];
 
@@ -61,6 +63,13 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes
+});
+
+const DEFAULT_TITLE = 'My Car - Home';
+router.afterEach((to) => {
+    Vue.nextTick(() => {
+        document.title = to.meta.title || DEFAULT_TITLE;
+    });
 });
 
 export default router;
