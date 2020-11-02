@@ -1,11 +1,6 @@
 <template>
-<v-img 
- src="../assets/Sun-Tornado.svg"
- gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)"
- class="bkg-img"
- >
 <v-container>
-    <h1 class="titulo">CLIENTES</h1>
+    <h1 class="titulo">Clientes</h1>
     <v-data-table v-model="selected" show-select :headers="headers" :items="clientes" :search="search" item-key="cuit" sort-by="nombre" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
@@ -14,64 +9,6 @@
                 <v-divider class="mx-4" dark vertical></v-divider>
                 <v-spacer></v-spacer>
 
-                <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
-                    <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-
-                <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
-                    <v-icon>mdi-delete</v-icon>
-                </v-btn>
-
-                <v-dialog v-model="dialog" max-width="500px">
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                            <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                    </template>
-                    <v-card>
-                        <v-form ref="form" v-model="valid" lazy-validation>
-
-                            <v-card-title>
-                                <span class="headline">{{ formTitle }}</span>
-                            </v-card-title>
-
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaCUIT" v-model="editedItem.cuit" label="CUIT"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaDNI" v-model="editedItem.dni" label="DNI"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaTelefono" v-model="editedItem.tel" label="Teléfono"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaEmail" v-model="editedItem.email" label="Email"></v-text-field>
-                                        </v-col>
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.razonSocial" :rules="reglaRazonSocial" :items="['Responsable Inscripto', 'Otra razón Social', 'Otra..', 'etc..']" label="Razón Social" required></v-select>
-                                        </v-flex>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">
-                                    Cancelar
-                                </v-btn>
-                                <v-btn color="blue darken-1" text @click="save">
-                                    Guardar
-                                </v-btn>
-                            </v-card-actions>
-                        </v-form>
-                    </v-card>
-                </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
                     <v-card>
                         <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
@@ -85,6 +22,69 @@
                 </v-dialog>
             </v-toolbar>
         </template>
+
+        <template v-slot:footer>
+
+            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+
+            <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                <v-icon>mdi-delete</v-icon>
+            </v-btn>
+
+            <v-dialog v-model="dialog" max-width="500px">
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                        <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                </template>
+                <v-card>
+                    <v-form ref="form" v-model="valid" lazy-validation>
+
+                        <v-card-title>
+                            <span class="headline">{{ formTitle }}</span>
+                        </v-card-title>
+
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-col cols="12" sm="6" md="4">
+                                        <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4">
+                                        <v-text-field :rules="reglaCUIT" v-model="editedItem.cuit" label="CUIT"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4">
+                                        <v-text-field :rules="reglaDNI" v-model="editedItem.dni" label="DNI"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4">
+                                        <v-text-field :rules="reglaTelefono" v-model="editedItem.tel" label="Teléfono"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="4">
+                                        <v-text-field :rules="reglaEmail" v-model="editedItem.email" label="Email"></v-text-field>
+                                    </v-col>
+                                    <v-flex xs12 sm6>
+                                        <v-select v-model="editedItem.razonSocial" :rules="reglaRazonSocial" :items="['Responsable Inscripto', 'Otra razón Social', 'Otra..', 'etc..']" label="Razón Social" required></v-select>
+                                    </v-flex>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue darken-1" text @click="close">
+                                Cancelar
+                            </v-btn>
+                            <v-btn color="blue darken-1" text @click="save">
+                                Guardar
+                            </v-btn>
+                        </v-card-actions>
+                    </v-form>
+                </v-card>
+            </v-dialog>
+        </template>
+
         <template v-slot:no-data>
             <v-btn color="primary" @click="initialize">
                 Reset
@@ -101,7 +101,6 @@
         </template>
     </v-snackbar>
 </v-container>
-</v-img>
 </template>
 
 <script>
@@ -329,6 +328,10 @@ export default {
 </script>
 
 <style>
+.titulo {
+    text-align: center;
+    margin: 20px;
+}
 
 .mb-2 {
     margin-left: 3px;
