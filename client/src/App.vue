@@ -1,11 +1,14 @@
 <template>
-  <v-app>
+  <div class="cont">
+<v-app >
     <Navegacion/>
     <v-main>
       <router-view></router-view>
     </v-main>
     
   </v-app>
+  </div>
+  
 </template>
 
 <script>
@@ -22,3 +25,25 @@ export default {
   }
 };
 </script>
+<style >
+.automoviles{
+  padding-bottom: 80px;
+}
+.titulo{
+  text-align: center;
+  margin: 40px;
+  margin-bottom: 70px;
+  font-size: 75px;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  border-bottom: ridge;
+}
+.mb-2{
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.cont {
+ background-image: url("./assets/Hellcat.jpg");
+ background-color: #cccccc;
+}
+</style>

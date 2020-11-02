@@ -1,6 +1,11 @@
 <template>
-  <v-container>
-    <h1 class="titulo">Repuestos</h1>
+<v-img 
+ src="../assets/Sun-Tornado.svg"
+ gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)"
+ class="automoviles"
+ >
+  <v-container class="repuestos">
+    <h1 class="titulo">REPUESTOS</h1>
     <v-data-table
     v-model="selected"
     show-select
@@ -161,6 +166,7 @@
     </template>
   </v-data-table>
   </v-container>
+</v-img>
 </template>
 
 <script>
@@ -348,12 +354,4 @@ export default {
 </script>
 
 <style>
-.titulo{
-  text-align: center;
-  margin: 20px;
-}
-.mb-2{
-  margin-left: 3px;
-  margin-right: 3px;
-}
 </style>
