@@ -12,7 +12,7 @@ var ClientSchema = new Schema({
         number: Number,
         city: String,
     },
-    cars: [{type: mongoose.Schema.Types.ObjectId, ref: Car}]
+    cars: [{type: mongoose.Schema.Types.ObjectId, ref: 'Car'}]
   });
   
   var Client = mongoose.model("Client", ClientSchema);

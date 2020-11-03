@@ -12,6 +12,44 @@ const mongodb_conn_module = require('./mongodbConnModule');
 var db = mongodb_conn_module.connect();
 
 var Post = require("../models/post");
+var Client = require("../models/client");
+
+app.get('/', (req, res) => {
+	Client.find()
+	.exec()
+	.then(client => {
+		console.log(client);
+		res.status(200).json(client);
+	})
+	.catch(err => {
+		console.log(err);
+		res.status(500).json({
+			error: err
+		});
+	});
+})
+
+app.post('/add', (req, res) => {
+	console.log(req.body);
+	client = new Client({
+		name: req.body.name,
+		lastname: req.body.lastname,
+		dni: req.body.dni,
+		email: req.body.email,
+		phone: req.body.phone,
+	});
+	client.save()
+	.then(result => {
+		console.log(result);
+		res.redirect('/');
+	})	
+	.catch(err => {
+		console.log(err);
+		res.status(500).json({
+			error: err
+		});
+	});
+})
 
 app.get('/posts', (req, res) => {
   Post.find({}, 'title description', function (error, posts) {

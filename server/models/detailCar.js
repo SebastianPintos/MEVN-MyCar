@@ -8,7 +8,7 @@ var DetailCarSchema = new Schema({
     sellerprice: String,
     state: String,
     detail: String,
-    car:{type: mongoose.Schema.Types.ObjectId, ref: Car}
+    car:{type: mongoose.Schema.Types.ObjectId, ref: 'Car'}
   });
   
   var detailCar = mongoose.model("DetailCar", DetailCarSchema);

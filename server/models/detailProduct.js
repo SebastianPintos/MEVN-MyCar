@@ -8,7 +8,7 @@ var DetailProductSchema = new Schema({
     dealer: String,
     deliverytime: String,
     detail: String,
-    product:{type: mongoose.Schema.Types.ObjectId, ref: Product}
+    product:{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}
   });
   
   var detailProduct = mongoose.model("DetailProduct", DetailProductSchema);
