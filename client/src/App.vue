@@ -1,14 +1,10 @@
 <template>
-  <div class="cont">
 <v-app >
     <Navegacion/>
     <v-main>
       <router-view></router-view>
     </v-main>
-    
   </v-app>
-  </div>
-  
 </template>
 
 <script>
@@ -41,9 +37,5 @@ export default {
 .mb-2{
   margin-left: 3px;
   margin-right: 3px;
-}
-.cont {
- background-image: url("./assets/Hellcat.jpg");
- background-color: #cccccc;
 }
 </style>
