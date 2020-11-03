@@ -1,112 +1,124 @@
 <template>
-<v-img 
- src="../assets/Sun-Tornado.svg"
- gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)"
- class="bkg-img"
- >
-<v-container>
-    <h1 class="titulo">REPUESTOS</h1>
-    <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="codigo" sort-by="nombre" class="elevation-1">
-        <template v-slot:top>
-            <v-toolbar flat>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+<v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
+    <v-container>
+        <h1 class="titulo">REPUESTOS</h1>
+        <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="codigo" sort-by="nombre" class="elevation-1" :single-expand="singleExpand" :expanded.sync="expanded" show-expand>
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
 
-                <v-divider class="mx-4" dark vertical></v-divider>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
-                    <v-icon>mdi-pencil</v-icon>
-                </v-btn>
+                    <v-divider class="mx-4" dark vertical></v-divider>
+                    <v-spacer></v-spacer>
 
-                <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
-                    <v-icon>mdi-delete</v-icon>
-                </v-btn>
+                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                        <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
 
-                <v-dialog v-model="dialog" max-width="500px">
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                            <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                    </template>
-                    <v-card>
-                        <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                        <v-icon>mdi-delete</v-icon>
+                    </v-btn>
 
-                            <v-card-title>
-                                <span class="headline">{{ formTitle }}</span>
-                            </v-card-title>
+                    <v-dialog v-model="dialog" max-width="500px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                                <v-icon>mdi-plus</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-card>
+                            <v-form ref="form" v-model="valid" lazy-validation>
 
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre"></v-text-field>
-                                        </v-col>
+                                <v-card-title>
+                                    <span class="headline">{{ formTitle }}</span>
+                                </v-card-title>
 
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaCUIT" v-model="editedItem.codigo" label="Código"></v-text-field>
-                                        </v-col>
+                                <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre"></v-text-field>
+                                            </v-col>
 
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.categoría" :rules="reglaNombre" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría" required></v-select>
-                                        </v-flex>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-text-field :rules="reglaCUIT" v-model="editedItem.codigo" label="Código"></v-text-field>
+                                            </v-col>
 
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.sub" :rules="reglaNombre" :items="['SubCategoría Aa','SubCategoría Bb', 'SubCategoría Cc', 'SubCategoría Dd']" label="Subcategoría" required></v-select>
-                                        </v-flex>
+                                            <v-flex xs12 sm6>
+                                                <v-select v-model="editedItem.categoría" :rules="reglaNombre" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría" required></v-select>
+                                            </v-flex>
 
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.marca" :rules="reglaNombre" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca" required></v-select>
-                                        </v-flex>
+                                            <v-flex xs12 sm6>
+                                                <v-select v-model="editedItem.sub" :rules="reglaNombre" :items="['SubCategoría Aa','SubCategoría Bb', 'SubCategoría Cc', 'SubCategoría Dd']" label="Subcategoría" required></v-select>
+                                            </v-flex>
 
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-textarea :rules="reglaNombre" v-model="editedItem.descripción" label="Descripción"></v-textarea>
-                                        </v-col>
+                                            <v-flex xs12 sm6>
+                                                <v-select v-model="editedItem.marca" :rules="reglaNombre" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca" required></v-select>
+                                            </v-flex>
 
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-textarea :rules="reglaNombre" v-model="editedItem.descripción" label="Descripción"></v-textarea>
+                                            </v-col>
 
+                                        </v-row>
+                                    </v-container>
+                                </v-card-text>
+
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" text @click="close">
+                                        Cancelar
+                                    </v-btn>
+                                    <v-btn color="blue darken-1" text @click="save">
+                                        Guardar
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-form>
+                        </v-card>
+                    </v-dialog>
+                    <v-dialog v-model="dialogDelete" max-width="500px">
+                        <v-card>
+                            <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">
-                                    Cancelar
-                                </v-btn>
-                                <v-btn color="blue darken-1" text @click="save">
-                                    Guardar
-                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+                                <v-spacer></v-spacer>
                             </v-card-actions>
-                        </v-form>
-                    </v-card>
-                </v-dialog>
-                <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
-                        <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
-                            <v-spacer></v-spacer>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
 
-        <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">
-                Reset
-            </v-btn>
-        </template>
-    </v-data-table>
-    <v-snackbar v-model="snackbar">
-        {{ mensaje }}
+            </template>
 
-        <template v-slot:action="{ attrs }">
-            <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-                Aceptar
-            </v-btn>
-        </template>
-    </v-snackbar>
-</v-container>
+            <template>
+                <v-toolbar flat>
+                    <v-spacer></v-spacer>
+                    <v-switch v-model="singleExpand" label="Single expand" class="mt-2"></v-switch>
+                </v-toolbar>
+            </template>
+            <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">
+                    <h3 class="mb-2"> Descripción: </h3>
+                    <p class="mb-2">{{ item.descripción }}</p>
+                </td>
+            </template>
+
+            <template v-slot:no-data>
+                <v-btn color="primary" @click="initialize">
+                    Reset
+                </v-btn>
+            </template>
+
+        </v-data-table>
+
+        <v-snackbar v-model="snackbar">
+            {{ mensaje }}
+            <template v-slot:action="{ attrs }">
+                <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+                    Aceptar
+                </v-btn>
+            </template>
+        </v-snackbar>
+    </v-container>
 </v-img>
 </template>
 
@@ -114,6 +126,8 @@
 export default {
     data: () => ({
         selected: [],
+        expanded: [],
+        singleExpand: false,
         search: '',
         valid: true,
         snackbar: false,
@@ -142,18 +156,16 @@ export default {
                 text: 'Marca',
                 value: 'marca'
             },
-            {
-                text: 'Descripción',
-                value: 'descripción'
-            }
+
         ],
+
         repuestos: [],
 
         reglaNombre: [
             value => !!value || 'Requerido.',
             value => (value || '').length <= 50 || 'Máximo 50 caracteres',
             value => {
-                const pattern =   /^[A-Z ÑÁÉÍÓÚ a-z ñáéíóú]{3,}(\s{1}[A-Z ÑÁÉÍÓÚ]{0,}[0-9]{0,}){0,}$/
+                const pattern = /^[A-Z ÑÁÉÍÓÚ a-z ñáéíóú]{3,}(\s{1}[A-Z ÑÁÉÍÓÚ]{0,}[0-9]{0,}){0,}$/
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
@@ -238,7 +250,7 @@ export default {
                     codigo: '32-42221144-2',
                     sub: 'Sub Cat',
                     marca: 'Marca Aa',
-                    descripción: 'Este repuesto....',
+                    descripción: 'Descrip 1',
                 },
                 {
                     categoría: 'Categoría Bb',
@@ -246,7 +258,7 @@ export default {
                     codigo: '24-42431232-2',
                     sub: 'Subcategoría Aa',
                     marca: 'Marca Aa',
-                    descripción: 'Descripción...',
+                    descripción: 'Descrip 1',
                 },
                 {
                     categoría: 'Categoría Cc',
@@ -254,7 +266,7 @@ export default {
                     codigo: '27-42433311-3',
                     sub: 'Subcategoría Aa',
                     marca: 'Marca Aa',
-                    descripción: 'Descripción ...',
+                    descripción: 'Descrip 1',
                 },
             ]
         },
