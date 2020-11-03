@@ -5,7 +5,7 @@
  class="bkg-img"
  >
   <v-container>
-    <h1 class="titulo">Automoviles</h1>
+    <h1 class="titulo">AUTOMOVILES</h1>
     <v-data-table
       v-model="selected"
       show-select

@@ -5,7 +5,7 @@
  class="bkg-img"
  >
 <v-container>
-    <h1 class="titulo">Clientes</h1>
+    <h1 class="titulo">CLIENTES</h1>
     <v-data-table v-model="selected" show-select :headers="headers" :items="clientes" :search="search" item-key="cuit" sort-by="nombre" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
@@ -13,24 +13,7 @@
 
                 <v-divider class="mx-4" dark vertical></v-divider>
                 <v-spacer></v-spacer>
-
-                <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
-                        <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
-                            <v-spacer></v-spacer>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
-
-        <template v-slot:footer>
-
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                 <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                 <v-icon>mdi-pencil</v-icon>
             </v-btn>
 
@@ -38,7 +21,7 @@
                 <v-icon>mdi-delete</v-icon>
             </v-btn>
 
-            <v-dialog v-model="dialog" max-width="500px">
+             <v-dialog v-model="dialog" max-width="500px">
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                         <v-icon>mdi-plus</v-icon>
@@ -88,6 +71,19 @@
                     </v-form>
                 </v-card>
             </v-dialog>
+
+                <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-card>
+                        <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+                            <v-spacer></v-spacer>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-toolbar>
         </template>
 
         <template v-slot:no-data>
@@ -335,7 +331,7 @@ export default {
 
 <style>
 .mb-2 {
-    margin-left: 3px;
-    margin-right: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
 }
 </style>
