@@ -1,9 +1,12 @@
 <template>
 <v-app >
+  <div class="appl">
     <Navegacion/>
     <v-main>
       <router-view></router-view>
     </v-main>
+  </div>
+    
   </v-app>
 </template>
 
@@ -22,6 +25,12 @@ export default {
 };
 </script>
 <style >
+.appl{
+background-image: url("./assets/Hellcat.jpg");
+height: 100vh;
+background-size: cover;
+background-position-x: center;
+}
 .bkg-img{
   padding-bottom: 80px;
 }
