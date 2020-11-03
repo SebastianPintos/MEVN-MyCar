@@ -153,7 +153,7 @@ export default {
             value => !!value || 'Requerido.',
             value => (value || '').length <= 50 || 'Máximo 50 caracteres',
             value => {
-                const pattern = /^([A-Z0]{1}[a-z]{1,15}\s{1}[A-Z]{1}[a-z]{1,15}){1}(\s{1}[A-Z]{1}[a-z]{1,15}){0,}$/
+                const pattern =   /^[A-Z ÑÁÉÍÓÚ a-z ñáéíóú]{3,}(\s{1}[A-Z ÑÁÉÍÓÚ]{0,}[0-9]{0,}){0,}$/
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
