@@ -97,8 +97,8 @@
             </template>
             <template v-slot:expanded-item="{ headers, item }">
                 <td :colspan="headers.length">
-                    <h3 class="mb-2"> Descripción: </h3>
-                    <p class="mb-2">{{ item.descripción }}</p>
+                    <h3 class="mb-3"> Descripción: </h3>
+                    <p class="mb-3">{{ item.descripción }}</p>
                 </td>
             </template>
 
@@ -250,7 +250,7 @@ export default {
                     codigo: '32-42221144-2',
                     sub: 'Sub Cat',
                     marca: 'Marca Aa',
-                    descripción: 'Descrip 1',
+                    descripción: 'Este producto ....',
                 },
                 {
                     categoría: 'Categoría Bb',
@@ -258,7 +258,7 @@ export default {
                     codigo: '24-42431232-2',
                     sub: 'Subcategoría Aa',
                     marca: 'Marca Aa',
-                    descripción: 'Descrip 1',
+                    descripción: 'El Radiador ... posee ..',
                 },
                 {
                     categoría: 'Categoría Cc',
@@ -266,7 +266,7 @@ export default {
                     codigo: '27-42433311-3',
                     sub: 'Subcategoría Aa',
                     marca: 'Marca Aa',
-                    descripción: 'Descrip 1',
+                    descripción: 'Descripción Detallada sasakjfdklsjfksdjfksljdflskjdf',
                 },
             ]
         },
@@ -348,5 +348,11 @@ export default {
 .mb-2 {
     margin-left: 3px;
     margin-right: 3px;
+}
+.mb-3{
+    margin-left: 5%;
+}
+h3{
+    padding-top: 1%;
 }
 </style>
