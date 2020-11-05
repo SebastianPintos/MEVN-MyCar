@@ -2,18 +2,57 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var ClientSchema = new Schema({
-    name: String,
-    lastname: String,
-    dni: String,
-    email: String,
-    phone: String,
-    direccion: {
-        street: String,
-        number: Number,
-        city: String,
-    },
-    cars: [{type: mongoose.Schema.Types.ObjectId, ref: 'Car'}]
+        Name: {
+        type: String,
+        required: true
+        },
+        LastName: {
+        type: String,
+        required: true
+        },
+        Phone: {
+        type: String,
+        required: true
+        },
+        Email: {
+        type: String,
+        required: true
+        },
+        Vehicle: [{
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'Vehicle'
+        }],
+        State: {
+        type: String,
+        required: true
+        },
+        DNI: {
+        type: String,
+        required: true
+        },
+        CUIT: {
+        type: String
+        },
+        CompanyName: {
+        type: String
+        },
+        TaxCategory: {
+        type: String
+        },
+        ChangeState: [{
+        Motive: {
+            type: String
+        },
+        EmployerID: {
+            type: Schema.Types.ObjectId,
+            required: true
+        },
+        Date: {
+            type: Date
+        }
+        }]
   });
   
-  var Client = mongoose.model("Client", ClientSchema);
-  module.exports = Client;
+  var client = mongoose.model("Client", ClientSchema);
+  module.exports = client;
