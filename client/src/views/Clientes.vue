@@ -141,6 +141,7 @@ export default {
         selected: [],
         categorias: ['Responsable Inscripto', 'Excento', 'Consumidor Final'],
         search: '',
+        poblacion:'',
         valid: true,
         snackbar: false,
         mensaje: "",
@@ -202,6 +203,7 @@ export default {
 
         reglaTelefono: [
             value => !!value || 'Requerido.',
+            value => value[0]!="0" || 'El primer dígito no puede ser 0',
             value => {
                 const pattern = /^\d{7,12}$/
                 return pattern.test(value) || 'Sólo se permiten números!'
@@ -210,11 +212,6 @@ export default {
         reglaRazonSocial: [],
 
         reglaDNI: [
-            value => !!value || 'Requerido.',
-            value => {
-                const pattern = /^\d{8}$/
-                return pattern.test(value) || 'Sólo se permiten números de 8 caracteres!'
-            },
         ],
 
         reglaCUIT: [
@@ -290,7 +287,7 @@ export default {
     created() {
         this.iniciar()
 
-        axios.get('https://restcountries.eu/rest/v2/lang/es')
+        axios.get('https://restcountries.eu/rest/v2/all')
             .then(res => {
                 this.paises = res.data;
             })
@@ -341,17 +338,26 @@ export default {
             }
         },
 
-        obtenerCodigoTel(valor) {
+        obtenerDatosPorNacion(valor) {
+            let datos=['','']
             for (let i = 0; i < this.paises.length; i++) {
                 if (this.paises[i].name == valor) {
-                    return this.paises[i].callingCodes
+                    datos[0] =  this.paises[i].callingCodes
+                    datos[1] = this.paises[i].population
                 }
             }
-            return ''
+            return datos
         },
 
         changeState(valor) {
-            this.prefijo = this.obtenerCodigoTel(valor)
+            
+            this.prefijo = this.obtenerDatosPorNacion(valor)[0]
+            this.poblacion = this.obtenerDatosPorNacion(valor)[1]
+            let cantidad = (JSON.stringify(this.poblacion).length)
+       
+            this.reglaDNI =   [value => !!value || 'Requerido.',
+                              value => value[0]!="0" || 'El primer dígito no puede ser 0',
+                              value => (value || '').length <= cantidad || 'Máximo '+cantidad+' caracteres']
         },
 
         haySeleccionado() {
