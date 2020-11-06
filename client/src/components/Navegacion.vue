@@ -3,7 +3,7 @@
 
       <v-app-bar 
       app
-      color="indigo accent-3"
+      color="#2764c4"
       dark
       tile
       >
@@ -56,11 +56,11 @@
             <v-list-item-title>Clientes</v-list-item-title>
           </v-list-item>
 
-          <v-list-item :to="'/automoviles'">
+          <v-list-item :to="'/vehiculos'">
             <v-list-item-icon>
               <v-icon>mdi-car</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Automoviles</v-list-item-title>
+            <v-list-item-title>Vehiculos</v-list-item-title>
           </v-list-item>
 
           <v-list-item :to="'/repuestos'">

@@ -20,5 +20,6 @@ export default {
   color: white;
   text-align: center;
   margin-top: 25vh;
+  font-family: 'Montserrat', sans-serif;
 }
 </style>

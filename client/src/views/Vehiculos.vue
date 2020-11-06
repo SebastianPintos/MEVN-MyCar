@@ -5,8 +5,8 @@
  class="bkg-img"
  >
 <v-container>
-    <h1 class="titulo">AUTOMÓVILES</h1>
-    <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="codigo" sort-by="nombre" class="elevation-1">
+    <h1 class="titulo">VEHÍCULOS</h1>
+    <v-data-table v-model="selected" show-select :headers="headers" :items="vehículos" :search="search" item-key="modelo" sort-by="nombre" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -28,7 +28,7 @@
                         </v-btn>
                     </template>
                     <v-card>
-                        <v-form ref="form" v-model="valid" lazy-validation>
+                        <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
 
                             <v-card-title>
                                 <span class="headline">{{ formTitle }}</span>
@@ -38,27 +38,30 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre"></v-text-field>
+                                            <v-text-field v-model="editedItem.categoría" label="Categoria"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field :rules="reglaCUIT" v-model="editedItem.codigo" label="Código"></v-text-field>
+                                            <v-text-field v-model="editedItem.marca" label="Marca"></v-text-field>
                                         </v-col>
 
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.categoría" :rules="reglaNombre" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría" required></v-select>
-                                        </v-flex>
-
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.sub" :rules="reglaNombre" :items="['SubCategoría Aa','SubCategoría Bb', 'SubCategoría Cc', 'SubCategoría Dd']" label="Subcategoría" required></v-select>
-                                        </v-flex>
-
-                                        <v-flex xs12 sm6>
-                                            <v-select v-model="editedItem.marca" :rules="reglaNombre" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca" required></v-select>
-                                        </v-flex>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-select v-model="editedItem.modelo" :items="vehículos" item-text="modelo" item-value="modelo" label="Modelo" required></v-select>
+                                        </v-col>
 
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-textarea :rules="reglaNombre" v-model="editedItem.descripción" label="Descripción"></v-textarea>
+                                            <v-select v-model="editedItem.version" :items="vehículos" item-text="version" item-value="Version" label="Version" required></v-select>
+                                        </v-col>
+
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-select v-model="editedItem.año" :items="vehículos" item-text="año" item-value="Año" label="Año" required></v-select>
+                                        </v-col>
+
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedItem.color" label="Color"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.precioFinal" prefix="$" label="Precio"></v-text-field>
                                         </v-col>
 
                                     </v-row>
@@ -76,6 +79,39 @@
                             </v-card-actions>
                         </v-form>
                     </v-card>
+
+                    <v-card>
+                        <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
+
+                            <v-card-title>
+                                <span class="headline">Editar varios</span>
+                            </v-card-title>
+
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.precioFinal" prefix="$" label="Precio"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.precioFinal" label="Stock minimo"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="close">
+                                    Cancelar
+                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="save">
+                                    Guardar
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
+                    </v-card>
+
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
                     <v-card>
@@ -121,99 +157,63 @@ export default {
         dialog: false,
         dialogDelete: false,
         headers: [{
-                text: 'Nombre',
-                value: 'nombre',
+                text: 'Categoria',
+                value: 'categoría',
                 align: 'start',
-                sortable: false,
-            },
-            {
-                text: 'Código',
-                value: 'codigo'
-            },
-            {
-                text: 'Categoría',
-                value: 'categoría'
-            },
-            {
-                text: 'Subcategoría',
-                value: 'sub'
             },
             {
                 text: 'Marca',
                 value: 'marca'
             },
             {
-                text: 'Descripción',
-                value: 'descripción'
-            }
-        ],
-        repuestos: [],
+                text: 'Modelo',
+                value: 'modelo'
+            },
+            {
+                text: 'Version',
+                value: 'version'
+            },
+            {
+                text: 'Año',
+                value: 'año'
+            },
+            {
+                text: 'Color',
+                value: 'color'
+            },
+            {
+                text: 'Precio',
+                value: 'precioFinal'
+            },
 
-        reglaNombre: [
-            value => !!value || 'Requerido.',
-            value => (value || '').length <= 50 || 'Máximo 50 caracteres',
-            value => {
-                const pattern =   /^[A-Z ÑÁÉÍÓÚ a-z ñáéíóú]{3,}(\s{1}[A-Z ÑÁÉÍÓÚ]{0,}[0-9]{0,}){0,}$/
-                return pattern.test(value) || 'Nombre inválido'
-            },
         ],
-        reglaTelefono: [
-            value => !!value || 'Requerido.',
-            value => {
-                const pattern = /^11\d{8}$/
-                return pattern.test(value) || 'Sólo se permiten números del formato 11xxxxxxxx!'
-            },
-        ],
-        reglaDNI: [
-            value => !!value || 'Requerido.',
-            value => {
-                const pattern = /^\d{8}$/
-                return pattern.test(value) || 'Sólo se permiten números de 8 caracteres!'
-            },
-        ],
-        reglaCUIT: [
-            value => !!value || 'Requerido.',
-            value => {
-                const pattern = /^\d{2}-\d{8}-\d{1}$/
-                return pattern.test(value) || 'Formato requerido: XX-XXXXXXXX-X'
-            },
-        ],
-        reglaEmail: [
-            value => !!value || 'Requerido.',
-            value => (value || '').length <= 35 || 'Máximo 35 caracteres',
-            value => {
-                const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                return pattern.test(value) || 'Email inválido'
-            },
-        ],
+        vehículos: [],
 
-        reglaRazonSocial: [
-            value => !!value || 'Requerido.',
-        ],
         editedIndex: -1,
         attrs: '',
         on: '',
         editedItem: {
             categoría: '',
-            nombre: '',
-            codigo: '',
-            sub: '',
             marca: '',
-            descripción: '',
+            modelo: '',
+            version: '',
+            año: '',
+            color: '',
         },
         defaultItem: {
             categoría: '',
-            nombre: '',
-            codigo: '',
-            sub: '',
             marca: '',
-            descripción: '',
+            modelo: '',
+            version: '',
+            año: '',
+            color: '',
+            precioFinal: '',
         },
     }),
 
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Repuesto'
+            return this.editedIndex === -1 ? 'Nuevo Vehículo' : 'Editar Vehículo'
         },
     },
 
@@ -232,29 +232,23 @@ export default {
 
     methods: {
         initialize() {
-            this.repuestos = [{
-                    categoría: 'Categoría Aa',
-                    nombre: 'Lubricante',
-                    codigo: '32-42221144-2',
-                    sub: 'Sub Cat',
-                    marca: 'Marca Aa',
-                    descripción: 'Este repuesto....',
+            this.vehículos = [{
+                    categoría: 'SUV',
+                    marca: 'Chevrolet',
+                    modelo: 'Tracker',
+                    version: 'LTZ',
+                    año: '2020',
+                    color: 'Rojo',
+                    precioFinal: 1140000,
                 },
                 {
-                    categoría: 'Categoría Bb',
-                    nombre: 'Radiador',
-                    codigo: '24-42431232-2',
-                    sub: 'Subcategoría Aa',
-                    marca: 'Marca Aa',
-                    descripción: 'Descripción...',
-                },
-                {
-                    categoría: 'Categoría Cc',
-                    nombre: 'Radiador',
-                    codigo: '27-42433311-3',
-                    sub: 'Subcategoría Aa',
-                    marca: 'Marca Aa',
-                    descripción: 'Descripción ...',
+                    categoría: 'PickUp',
+                    marca: 'Volkwagen',
+                    modelo: 'Amarok',
+                    version: 'Confort-Line',
+                    año: '2019',
+                    color: 'Blanco',
+                    precioFinal: 1299999,
                 },
             ]
         },
@@ -273,19 +267,18 @@ export default {
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
                 if (this.selected.length === 1) {
-                    this.editedIndex = this.repuestos.indexOf(item)
+                    this.editedIndex = this.vehículos.indexOf(item)
                     this.editedItem = Object.assign({}, item)
                     this.dialog = true
                 } else {
-                    this.mensaje = "Sólo puede editar un elemento a la vez!"
-                    this.snackbar = true
+                    this.dialog = true
                 }
             }
         },
 
         deleteItem(items) {
             if (!this.mensajeNoSelecciono()) {
-                this.editedIndex = this.repuestos.indexOf(items)
+                this.editedIndex = this.vehículos.indexOf(items)
                 this.editedItem = Object.assign({}, items)
                 this.dialogDelete = true
             }
@@ -293,7 +286,7 @@ export default {
 
         deleteItemConfirm() {
             this.selected.forEach(item => {
-                this.repuestos.splice(this.repuestos.indexOf(item), 1);
+                this.vehículos.splice(this.vehículos.indexOf(item), 1);
             });
             this.closeDelete()
         },
@@ -320,9 +313,14 @@ export default {
         save() {
             if (this.validate()) {
                 if (this.editedIndex > -1) {
-                    Object.assign(this.repuestos[this.editedIndex], this.editedItem)
+                    if(this.selected.length > 1){
+                        console.log("mas de uno")
+                    }
+                    else{
+                        Object.assign(this.vehículos[this.editedIndex], this.editedItem)
+                    }
                 } else {
-                    this.repuestos.push(this.editedItem)
+                    this.vehículos.push(this.editedItem)
                 }
                 this.close()
             }
