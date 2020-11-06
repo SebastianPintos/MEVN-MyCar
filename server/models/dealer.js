@@ -24,7 +24,7 @@ var DealerSchema = new Schema({
         type: String
         }
     }
-})
+});
 
 var dealer = mongoose.model('Dealer', DealerSchema);
 module.exports = dealer;

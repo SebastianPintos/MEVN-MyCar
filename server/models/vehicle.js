@@ -41,7 +41,7 @@ var VehicleSchema = new Schema({
     Detail: {
       type: String
     }
-})
+});
   
 var vehicle = mongoose.model("Vehicle", VehicleSchema);
 module.exports = vehicle;

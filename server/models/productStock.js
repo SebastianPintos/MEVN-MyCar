@@ -25,7 +25,8 @@ var ProductStockSchema = new Schema({
     ref: 'Product'
   }
 });
-  var ProductStock = mongoose.model("ProductStock", ProductStockSchema);
-  module.exports = ProductStock;
+
+var ProductStock = mongoose.model("ProductStock", ProductStockSchema);
+module.exports = ProductStock;
 
   

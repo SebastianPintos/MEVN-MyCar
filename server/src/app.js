@@ -1,19 +1,22 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const morgan = require('morgan')
-
-const app = express()
-app.use(morgan('combined'))
-app.use(bodyParser.json())
-app.use(cors())
+const express = require('express');
+const config = require('./config');
+const app = config(express());
 
 const mongodb_conn_module = require('./mongodbConnModule');
 var db = mongodb_conn_module.connect();
 
+//Starting Server
+//app.listen(process.env.PORT || 8081)
+app.listen(app.get('port'), () => {
+	console.log('Server on Port ', app.get('port'))
+});
+
+/*
 var Post = require("../models/post");
 var Client = require("../models/client");
+*/
 
+/*
 app.get('/', (req, res) => {
 	Client.find()
 	.exec()
@@ -118,4 +121,4 @@ app.get('/post/:id', (req, res) => {
 	})
 })
 
-app.listen(process.env.PORT || 8081)
+*/
