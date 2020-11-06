@@ -16,32 +16,32 @@
                             <h2>Filtros</h2>
                             <v-row>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-select v-model="editedItem.categoría" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría"></v-select>
+                                    <v-select v-model="filtros.categoría" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-select v-model="editedItem.sub" :items="['Sub A','Sub B', 'Sub C', 'Sub D']" label="Subcategoría"></v-select>
+                                    <v-select v-model="filtros.sub" :items="['Sub A','Sub B', 'Sub C', 'Sub D']" label="Subcategoría"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-select v-model="editedItem.marca" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca"></v-select>
+                                    <v-select v-model="filtros.marca" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="editedItem.nroLote" label="N° de Lote"></v-text-field>
+                                    <v-text-field v-model="filtros.nroLote" label="N° de Lote"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="editedItem.sku" label="SKU"></v-text-field>
+                                    <v-text-field v-model="filtros.sku" label="SKU"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="editedItem.estado" label="Estado"></v-text-field>
+                                    <v-text-field v-model="filtros.estado" label="Estado"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="editedItem.precioVenta" label="Precio de Venta"></v-text-field>
+                                    <v-text-field v-model="filtros.precioVenta" label="Precio de Venta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="editedItem.idProveedor" label="ID Proveedor"></v-text-field>
+                                    <v-text-field v-model="filtros.idProveedor" label="ID Proveedor"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="6">
-                                    <v-btn class="success">Aplicar Filtros</v-btn>
-                                    <v-btn class="warning">Reiniciar Filtros</v-btn>
+                                    <v-btn class="success" @click="aplicarFiltros">Aplicar Filtros</v-btn>
+                                    <v-btn class="warning" @click="reiniciarFiltros">Reiniciar Filtros</v-btn>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -51,7 +51,7 @@
         </template>
 
         <!-- Tabla -->
-        <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="codigo" sort-by="nombre" class="elevation-1" :single-expand="singleExpand" :expanded.sync="expanded" show-expand>
+        <v-data-table v-model="selected" show-select :headers="headers" :items="repuestosFiltrados" :search="search" item-key="codigo" sort-by="nombre" class="elevation-1" :single-expand="singleExpand" :expanded.sync="expanded" show-expand>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rápida" single-line hide-details></v-text-field>
@@ -66,7 +66,8 @@
                     <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
-
+                    
+                    <!--Dialog Nuevo Repuesto/Editar Repuesto-->
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -118,7 +119,6 @@
                                             <v-col cols="12" sm="12" md="12">
                                                 <v-textarea v-model="editedItem.descripción" label="Descripción"></v-textarea>
                                             </v-col>
-
                                         </v-row>
                                     </v-container>
                                 </v-card-text>
@@ -135,6 +135,8 @@
                             </v-form>
                         </v-card>
                     </v-dialog>
+
+                    <!--Dialog eliminar Repuesto-->
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
@@ -195,6 +197,20 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
+        
+        filtros:[{
+            categoría: "",
+            sub:"",
+            marca:"",
+            nroLote:"",
+            sku:"",
+            estado:"",
+            precioVenta:"",
+            idProveedor:"",
+        }],
+
+        repuestosFiltrados:[],
+
         headers: [{
                 text: 'Categoría',
                 value: 'categoría',
@@ -338,6 +354,7 @@ export default {
                     idProveedor: '233',
                 },
             ]
+            this.repuestosFiltrados = this.repuestos
         },
         haySeleccionado() {
             return this.selected.length > 0;
@@ -396,6 +413,61 @@ export default {
         },
         validate() {
             return this.$refs.form.validate()
+        },
+        aplicarFiltros(){
+            let categoría = this.filtros.categoría != null & this.filtros.categoría != ""
+            let sub = this.filtros.sub != null & this.filtros.sub !=""
+            let marca = this.filtros.marca != null & this.filtros.marca != ""
+            let sku = this.filtros.sku != null & this.filtros.sku != ""
+            let estado = this.filtros.estado != null & this.filtros.estado != ""
+            let precioVenta = this.filtros.precioVenta != null & this.filtros.precioVenta != ""
+            let idProveedor = this.filtros.idProveedor != null & this.filtros.idProveedor != ""
+        
+            if(!categoría & !sub & !marca & !sku & !estado & !precioVenta & !idProveedor){
+                return
+            }
+            let coincideCategoría = true
+            let coincideSub = true
+            let coincideMarca = true
+            let coincideSku = true
+            let coincideEstado = true
+            let coincidePrecioVenta = true
+            let coincideIdProveedor = true
+
+            let repAux = []
+            let cant = 0
+
+            for(var i=0; i<this.repuestos.length;i++){
+            
+                    coincideCategoría = categoría ? this.repuestos[i].categoría === this.filtros.categoría: coincideCategoría
+                    coincideSub = sub ? this.repuestos[i].sub === this.filtros.sub : coincideSub
+                    coincideMarca = marca ? this.repuestos[i].marca === this.filtros.marca : coincideMarca
+                    coincideSku = sku ? this.repuestos[i].sku === this.filtros.sku : coincideSku
+                    coincidePrecioVenta = precioVenta ? this.repuestos[i].precioVenta === this.filtros.precioVenta : coincidePrecioVenta
+                    coincideIdProveedor = idProveedor ? this.repuestos[i].idProveedor === this.filtros.idProveedor : coincideIdProveedor
+                    coincideEstado = estado ? this.repuestos[i].estado === this.filtros.estado : coincideEstado
+             
+                if(coincideCategoría & coincideSub & coincideMarca & coincideSku & coincideEstado & coincidePrecioVenta & coincideIdProveedor){
+                    repAux[cant] = this.repuestos[i]
+                    cant++
+                }
+            }
+        this.repuestosFiltrados = repAux
+        
+        },
+
+        reiniciarFiltros(){
+                this.filtros=[{
+            categoría: "",
+            sub:"",
+            marca:"",
+            nroLote:"",
+            sku:"",
+            estado:"",
+            precioVenta:"",
+            idProveedor:"",
+            }]
+            this.repuestosFiltrados = this.repuestos
         },
 
         save() {
