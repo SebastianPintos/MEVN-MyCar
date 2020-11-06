@@ -10,6 +10,7 @@ module.exports = app => {
     router.get('/', home.index);
     router.get('/client', client.index);
     router.post('/client/add', client.create);
+    router.post('/client/:client_id/update', client.update);
     router.delete('/client/:client_id/delete', client.remove);
     
     app.use(router);

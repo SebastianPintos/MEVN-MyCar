@@ -12,13 +12,18 @@ ctrl.index = (req, res) => {
 };
 
 ctrl.create = (req, res) => {
+    var body = req.body.client;
+    console.log(req.body.client); 
     var client = new Client({
-        Name: 'Carlos',
-        LastName: 'Fernandez',
-        Phone: '1135353535',
-        Email: 'Cfernandez@gmail.com',
+        Name: body.Name,
+        LastName: body.LastName,
+        Phone: body.Phone,
+        Email: body.Email,
         State: 'Active',
-        DNI: '32456789',
+        DNI: body.DNI,
+        CUIT: body.CUIT,
+        CompanyName: body.CompanyName,
+        TaxCategory: body.TaxCategory,
     });
 
     client.save((err) => {
@@ -29,8 +34,54 @@ ctrl.create = (req, res) => {
     });
 };
 
+ctrl.update = (req, res) => {
+    var id = req.params.client_id;
+    var body = req.body.client;
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                client.Name = body.Name;
+                client.LastName = body.LastName;
+                client.Phone = body.Phone;
+                client.Email = body.Email;
+                client.State = body.State;
+                client.DNI = body.DNI;
+                client.CUIT = body.CUIT;
+                client.CompanyName = body.CompanyName;
+                client.TaxCategory = body.TaxCategory;
+
+                client.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+    
+};
+
 ctrl.remove = (req, res) => {
-    res.send('Client delete');
+    var id = req.params.client_id;
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                client.State = 'Baja';
+
+                client.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
 };
 
 module.exports = ctrl;
