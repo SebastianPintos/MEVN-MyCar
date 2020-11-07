@@ -85,7 +85,7 @@
                                     <v-container>
                                         <v-row>
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.categoría" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría" required></v-select>
+                                                <v-select v-model="editedItem.categoría" :rules="requerido" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría"></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="12">
@@ -93,7 +93,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.marca" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca" required></v-select>
+                                                <v-select v-model="editedItem.marca" :rules="requerido" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca"></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -205,7 +205,7 @@ export default {
             nroLote:"",
             sku:"",
             estado:"",
-            precioVenta:"",
+            precioVenta:0,
             idProveedor:"",
         }],
 
@@ -267,6 +267,10 @@ export default {
                 return pattern.test(value) || 'N° de lote inválido'
             },
         ],
+        
+        requerido: [
+         value => !!value || 'Requerido.'
+        ],
 
         editedIndex: -1,
         attrs: '',
@@ -281,7 +285,7 @@ export default {
             descripción: '',
             sku: '',
             estado: '',
-            precioVenta: '',
+            precioVenta: 0,
             idProveedor: '',
         },
         defaultItem: {
@@ -294,7 +298,7 @@ export default {
             descripción: '',
             sku: '',
             estado: '',
-            precioVenta: '',
+            precioVenta: 0,
             idProveedor: '',
         },
     }),
@@ -307,7 +311,7 @@ export default {
 
     watch: {
         dialog(val) {
-            val || this.close()
+            val || this.reiniciar()
         },
         dialogDelete(val) {
             val || this.closeDelete()
@@ -330,7 +334,7 @@ export default {
                     nroLote: '29182920',
                     sku: 'ABC-123566',
                     estado: 'Disponible',
-                    precioVenta: '600',
+                    precioVenta: 600,
                     idProveedor: '233',
                 },
                 {
@@ -343,7 +347,7 @@ export default {
                     nroLote: '29182920',
                     sku: 'ABC-123566',
                     estado: 'Disponible',
-                    precioVenta: '600',
+                    precioVenta: 600,
                     idProveedor: '233',
                 },
                 {
@@ -356,7 +360,7 @@ export default {
                     nroLote: '29182920',
                     sku: 'ABC-123566',
                     estado: 'Disponible',
-                    precioVenta: '600',
+                    precioVenta: 600,
                     idProveedor: '233',
                 },
             ]
@@ -475,6 +479,11 @@ export default {
             }]
             this.repuestosFiltrados = this.repuestos
         },
+        
+        reiniciar(){
+            this.close()
+            this.$refs.form.resetValidation()
+        },
 
         save() {
             if (this.validate()) {
@@ -483,10 +492,9 @@ export default {
                 } else {
                     this.repuestos.push(this.editedItem)
                 }
-                this.close()
+                this.reiniciar()
             }
         },
-
     },
 }
 </script>

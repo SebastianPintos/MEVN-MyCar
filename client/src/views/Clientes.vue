@@ -37,7 +37,7 @@
 
                                         <v-row>
                                             <v-col cols="12" sm="12" md="6">
-                                                <v-select v-model="editedItem.nacionalidad" :items="paises" item-text="name" label="Nacionalidad" @change="(valor) => changeState(valor)"></v-select>
+                                                <v-select :rules="reglaNacionalidad" v-model="editedItem.nacionalidad" :items="paises" item-text="name" label="Nacionalidad" @change="(valor) => changeState(valor)"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="12" md="6">
                                                 <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
@@ -223,7 +223,8 @@ export default {
     • Si es Mujer, entonces Z (Dígito de Verificación) es igual a 4 (cuatro) y XY es igual a 23 (veintitrés).
     • En cualquier otro caso Z (Dígito de Verificación) es igual a 11 (once) menos el resto del cociente.
     */
-        reglaIDFiscal: [true || ''],
+        reglaIDFiscal: [],
+
         reglaCUIT: [
             value => (value || '').length <= 13 || 'Máximo 13 caracteres',
             value => {
@@ -273,9 +274,9 @@ export default {
             },
         ],
 
-        reglaRazonSocial: [true || ''],
+        reglaRazonSocial: [],
 
-        reglaID: [true || ''],
+        reglaID: [value => !!value || 'Requerido.'],
 
         reglaPrincipioEmail: [
             value => !!value || 'Requerido.',
@@ -519,6 +520,7 @@ export default {
             this.num = ''
             this.principioEmail = ''
             this.finEmail = ''
+            this.$refs.form.resetValidation()
         },
 
         separarTel(value) {
