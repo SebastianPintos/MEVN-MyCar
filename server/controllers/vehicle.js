@@ -1,5 +1,7 @@
 const ctrl = {};
+const vehicle = require('../models/vehicle');
 var Vehicle = require('../models/vehicle');
+var VehicleStock = require('../models/vehicleStock');
 
 ctrl.index = (req, res) => {
     Vehicle.find((err, vehicle) => {
@@ -9,6 +11,7 @@ ctrl.index = (req, res) => {
         })
     })
 };
+
 
 ctrl.create = (req, res) => {
     var body = req.body.vehicle;
@@ -79,7 +82,92 @@ ctrl.remove = (req, res) => {
                     if(err) {console.log(err)}
                     res.send({
                         success: true
-                        
+
+                    })
+                });
+            }
+        }
+    })
+};
+
+ctrl.indexStock = (req, res) => {
+    VehicleStock.find((err, vehicle) => {
+        if (err) {console.log(err)}
+        res.send({
+            vehicle: vehicle
+        })
+    })
+};
+
+ctrl.createStock = (req, res) => {
+    var body = req.body.vehicleStock;
+    console.log(req.body.vehicleStock);
+    var vehicleStock = new VehicleStock({
+        ChasisNum: body.ChasisNum,
+        EngineNum: body.EngineNum,
+        Domain: body.Domain,
+        Color: body.Color,
+        PurchasedPrice: body.PurchasedPrice,
+        Detail: body.Detail,
+        Vehicle: body.Vehicle,
+        UsedDetail: body.UsedDetail,
+        Status: 'AVAILABLE'
+    });
+
+    vehicleStock.save((err) => {
+        if(err) {console.log(err)}
+        res.send({
+            success: true
+        })
+    });
+};
+
+ctrl.updateStock = (req, res) => {
+    var id = req.params.vehicleStock_id;
+    var body = req.body.vehicleStock;
+
+    VehicleStock.findOne({_id: id}, (err, vehicleStock) => {
+        if(err) {console.log(err)}
+        else {
+            if(!vehicleStock) {console.log(' no se encontro')}
+            else {
+                vehicleStock.ChasisNum = body.ChasisNum;
+                vehicleStock.EngineNum = body.EngineNum;
+                vehicleStock.Domain = body.Domain;
+                vehicleStock.Color = body.Color;
+                vehicleStock.PurchasedPrice = body.PurchasedPrice;
+                vehicleStock.Detail = body.Detail;
+                vehicleStock.Vehicle = body.Vehicle;
+                vehicleStock.UsedDetail = body.UsedDetail;
+                vehicleStock.Status = body.Status;
+                vehicleStock.ChangeStatus.push(body.ChangeStatus)
+
+                vehicleStock.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+
+};
+
+ctrl.removeStock = (req, res) => {
+    var id = req.params.vehicleStock_id;
+    VehicleStock.findOne({_id: id}, (err, vehicleStock) => {
+        if(err) {console.log(err)}
+        else {
+            if(!vehicleStock) {console.log(' no se encontro')}
+            else {
+                vehicleStock.Status = 'NOT AVAILABLE';
+                vehicleStock.ChangeStatus.push(req.body.vehicleStock.ChangeStatus);
+                vehicleStock.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+
                     })
                 });
             }

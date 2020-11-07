@@ -10,16 +10,15 @@ var ClientSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Vehicle'
         }],
-        State: {type: String, required: true},
+        Status: {type: String, required: true},
         DNI: {type: String, required: true, unique: true},
         CUIT: {type: String},
         CompanyName: {type: String},
         TaxCategory: {type: String},
-        ChangeState: [{
+        ChangeStatus: [{
             Motive: {type: String},
-            EmployerID: {type: Schema.Types.ObjectId, required: true},
-            Date: {type: Date}
-        }]
+            EmployerID: {type: Schema.Types.ObjectId, required: true}
+        },{timestamps: true}]
   });
   
   var client = mongoose.model("Client", ClientSchema);

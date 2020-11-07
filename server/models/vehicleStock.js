@@ -2,46 +2,26 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var VehicleStockSchema = new Schema({
-    ChasisNum: {
-      type: String,
-      required: true
-    },
-    EngineNum: {
-      type: String,
-      required: true
-    },
-    Domain: {
-      type: String,
-      required: true
-    },
-    Color: {
-      type: String,
-      required: true
-    },
-    PurchasedPrice: {
-      type: Number,
-      required: true
-    },
-    Detail: {
-      type: String
-    },
+    ChasisNum: {type: String, required: true},
+    EngineNum: {type: String, required: true},
+    Domain: {type: String, required: true},
+    Color: {type: String, required: true}, 
+    PurchasedPrice: {type: Number, required: true},
+    Detail: {type: String},
     Vehicle: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'Vehicle'
+        type: Schema.Types.ObjectId, 
+        required: true, 
+        ref: 'Vehicle'
     },
     UsedDetail: [{
-      Detail: {
-        type: String
-      },
-      PriceModifier: {
-        type: String
-      }
+        Detail: {type: String},
+        PriceModifier: {type: Number}
     }],
-    State: {
-      type: String,
-      required: true
-    }
+    Status: {type: String, enum: ['AVAILABLE', 'RESERVED', 'SOLD', 'NOT AVAILABLE'], required: true},
+    ChangeStatus: [{
+      Motive: {type: String},
+      EmployerID: {type: Schema.Types.ObjectId, required: true}
+    },{timestamps: true}]
 });
 
 var vehicleStock = mongoose.model("VehicleStock", VehicleStockSchema);
