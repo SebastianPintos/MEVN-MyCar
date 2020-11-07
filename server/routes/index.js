@@ -7,6 +7,7 @@ const productStock = require('../controllers/productStock');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const ProductStock = require('../models/productStock');
+const employee = require('../models/employee');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -25,6 +26,11 @@ module.exports = app => {
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
     router.delete('/productStock/:productStock_id/delete', productStock.remove);
+
+    router.get('/employee', employee.index);
+    router.post('/employee/add', employee.create);
+    router.post('/employee/:employee_id/update', employee.update);
+    router.delete('/employee/:employee_id/delete', employee.remove);
 
     
     app.use(router);
