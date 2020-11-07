@@ -148,30 +148,34 @@ export default {
         dialog: false,
         dialogDelete: false,
         headers: [{
-                text: 'Nombre y Apellido',
-                value: 'nombre',
+                text: 'Nombre',
+                value: 'Name',
                 align: 'start',
                 sortable: false,
             },
             {
+                text: 'Apellido',
+                value: 'LastName'
+            },
+            {
                 text: 'DNI',
-                value: 'dni'
+                value: 'DNI'
             },
             {
                 text: 'CUIT',
-                value: 'cuit'
+                value: 'CUIT'
             },
             {
                 text: 'Categoría',
-                value: 'categoría'
+                value: 'TaxCategory'
             },
             {
                 text: 'Email',
-                value: 'email'
+                value: 'Email'
             },
             {
                 text: 'Teléfono',
-                value: 'tel'
+                value: 'Phone'
             },
             {
                 text: 'Nacionalidad',
@@ -287,9 +291,15 @@ export default {
     created() {
         this.iniciar()
 
-        axios.get('https://restcountries.eu/rest/v2/all')
+        axios.get('http://localhost:8081/client')
             .then(res => {
                 this.paises = res.data;
+            })
+
+        axios.get('http://localhost:8081/client')
+            .then(res => {
+                console.log(res)
+                this.clientes = res.data.client;
             })
     },
 

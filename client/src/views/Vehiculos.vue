@@ -6,7 +6,7 @@
  >
 <v-container>
     <h1 class="titulo">VEHÍCULOS</h1>
-    <v-data-table v-model="selected" show-select :headers="headers" :items="vehículos" :search="search" item-key="modelo" sort-by="nombre" class="elevation-1">
+    <v-data-table v-model="selected" show-select :headers="headers" :items="vehículos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -147,6 +147,7 @@
 </template>
 
 <script>
+import axios from "axios"
 export default {
     data: () => ({
         selected: [],
@@ -157,33 +158,37 @@ export default {
         dialog: false,
         dialogDelete: false,
         headers: [{
-                text: 'Categoria',
-                value: 'categoría',
+                text: 'Marca',
+                value: 'Brand',
                 align: 'start',
             },
             {
-                text: 'Marca',
-                value: 'marca'
-            },
-            {
                 text: 'Modelo',
-                value: 'modelo'
+                value: 'Model'
             },
             {
-                text: 'Version',
-                value: 'version'
+                text: 'Categoria',
+                value: 'Category'
+            },
+            {
+                text: 'Tipo',
+                value: 'Type'
+            },
+            {
+                text: 'Transmision',
+                value: 'transmission'
+            },
+            {
+                text: 'Origen',
+                value: 'origin'
             },
             {
                 text: 'Año',
-                value: 'año'
+                value: 'year'
             },
             {
-                text: 'Color',
-                value: 'color'
-            },
-            {
-                text: 'Precio',
-                value: 'precioFinal'
+                text: 'Precio Sugerido',
+                value: 'SuggestedPrice'
             },
 
         ],
@@ -228,29 +233,18 @@ export default {
 
     created() {
         this.initialize()
+
+        axios.get('http://localhost:8081/vehicle')
+            .then(res => {
+                console.log(res)
+                this.vehículos = res.data.vehicle;
+                
+            })
     },
 
     methods: {
         initialize() {
-            this.vehículos = [{
-                    categoría: 'SUV',
-                    marca: 'Chevrolet',
-                    modelo: 'Tracker',
-                    version: 'LTZ',
-                    año: '2020',
-                    color: 'Rojo',
-                    precioFinal: 1140000,
-                },
-                {
-                    categoría: 'PickUp',
-                    marca: 'Volkwagen',
-                    modelo: 'Amarok',
-                    version: 'Confort-Line',
-                    año: '2019',
-                    color: 'Blanco',
-                    precioFinal: 1299999,
-                },
-            ]
+            this.vehículos = [ ]
         },
         haySeleccionado() {
             return this.selected.length > 0;
