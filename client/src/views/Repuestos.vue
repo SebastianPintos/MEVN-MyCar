@@ -34,7 +34,7 @@
                                     <v-text-field v-model="filtros.estado" label="Estado"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.precioVenta" label="Precio de Venta"></v-text-field>
+                                    <v-text-field v-model="filtros.precioVenta" prefix="$" label="Precio de Venta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.idProveedor" label="ID Proveedor"></v-text-field>
@@ -109,7 +109,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.precioVenta" :rules="reglaPrecio" label="Precio de Venta"></v-text-field>
+                                                <v-text-field v-model="editedItem.precioVenta" prefix="$" :rules="reglaPrecio" label="Precio de Venta"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">

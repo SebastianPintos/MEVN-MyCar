@@ -358,6 +358,11 @@ export default {
                 console.log(res)
                 this.clientes = res.data.client;
             })
+        
+        axios.get('https://restcountries.eu/rest/v2/all')
+            .then(res => {
+                this.paises = res.data;
+            })
     },
 
     methods: {
