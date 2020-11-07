@@ -2,7 +2,8 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <v-container>
         <h1 class="titulo">CLIENTES</h1>
-        <v-data-table v-model="selected" show-select :headers="headers" :items="clientes" :search="search" item-key="cuit" sort-by="nombre" class="elevation-1">
+
+        <v-data-table v-model="selected" show-select :headers="headers" :items="clientes" :search="search" item-key="id" sort-by="nombre" class="elevation-1">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -36,33 +37,32 @@
 
                                         <v-row>
                                             <v-col cols="12" sm="12" md="6">
-                                                <v-select v-model="editedItem.nacionalidad" :items="paises" item-text="name" label="Nacionalidad" required @change="(valor) => changeState(valor)"></v-select>
+                                                <v-select v-model="editedItem.nacionalidad" :items="paises" item-text="name" label="Nacionalidad" @change="(valor) => changeState(valor)"></v-select>
                                             </v-col>
-
                                             <v-col cols="12" sm="12" md="6">
                                                 <v-text-field :rules="reglaNombre" v-model="editedItem.nombre" label="Nombre y Apellido"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field :rules="reglaDNI" v-model="editedItem.dni" label="DNI"></v-text-field>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-text-field :rules="reglaID" v-model="editedItem.id" label="ID"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field :rules="reglaCUIT" v-model="editedItem.cuit" label="CUIT"></v-text-field>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-text-field :rules="reglaIDFiscal" v-model="editedItem.idFiscal" label="ID Fiscal"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="6">
-                                                <v-select ref="categoría" v-model="editedItem.categoría" :items="categorias" label="Categoría" required @change="(valor) => cambiarRequired(valor)"></v-select>
+                                                <v-select ref="categoría" :disabled="disabled" v-model="editedItem.categoría" :items="categorias" label="Categoría" @change="(valor) => cambiarRequired(valor)"></v-select>
                                             </v-col>
 
-                                            <v-col cols="12" sm="12" md="4">
-                                                <v-text-field :rules="reglaRazonSocial" ref="razonSocial" v-model="editedItem.razonSocial" label="Razón Social"></v-text-field>
+                                            <v-col cols="12" sm="12" md="6">
+                                                <v-text-field :rules="reglaRazonSocial" :disabled="disabled" ref="razonSocial" v-model="editedItem.razonSocial" label="Razón Social"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="4" md="3">
                                                 <v-text-field v-model="prefijo" readonly label="Prefijo"></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="8" md="8">
+                                            <v-col cols="12" sm="8" md="9">
                                                 <v-text-field :rules="reglaTelefono" v-model="num" label="Número"></v-text-field>
                                             </v-col>
 
@@ -98,9 +98,9 @@
 
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-col cols="12" sm="12" md="5">        
-                            <p class="headline">Ingrese los Motivos: </p>    
-                            <v-textarea class="headline" label="Motivos" required></v-textarea>
+                            <v-col cols="12" sm="12" md="12">
+                                <p class="headline">Ingrese los Motivos: </p>
+                                <v-textarea class="headline" v-model="motivos" label="Motivos" required></v-textarea>
                             </v-col>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -110,7 +110,7 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
-                      
+
                 </v-toolbar>
             </template>
 
@@ -136,12 +136,11 @@
 <script>
 import axios from "axios"
 export default {
-    //https://medium.com/@hemnys25/creaci%C3%B3n-de-un-select-dependiente-con-laravel-5-4-vue-js-select2-957ac043bbdd
     data: () => ({
         selected: [],
         categorias: ['Responsable Inscripto', 'Excento', 'Consumidor Final'],
         search: '',
-        poblacion:'',
+        poblacion: '',
         valid: true,
         snackbar: false,
         mensaje: "",
@@ -154,16 +153,12 @@ export default {
                 sortable: false,
             },
             {
-                text: 'Apellido',
-                value: 'LastName'
+                text: 'ID',
+                value: 'id'
             },
             {
-                text: 'DNI',
-                value: 'DNI'
-            },
-            {
-                text: 'CUIT',
-                value: 'CUIT'
+                text: 'ID Fiscal',
+                value: 'idFiscal'
             },
             {
                 text: 'Categoría',
@@ -184,7 +179,7 @@ export default {
             {
                 text: 'Razón Social',
                 value: 'razonSocial'
-            }
+            },
         ],
 
         clientes: [],
@@ -204,27 +199,84 @@ export default {
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
+        /*
+    El CUIL/T es el Código Único de Identificación Laboral – Código Único de Identificación Tributaria. El mismo consta de 11 (once) números. Los 10 (diez) primeros (2 + 8) conforman el Código de Identificación y el último conforma el Digito de Verificación.
+    Para obtener los elementos mencionados en el párrafo anterior se aplica el siguiente algoritmo matemático:
+
+    XY – 12345678 – Z
+
+    XY: Indican el Tipo (Hombre, Mujer, Sociedad o Empresa)
+    Z: Dígito de Verificación
+
+    Se determina XY de la siguiente manera:
+    Hombre = 20
+    Mujer = 27
+    Empresa o Sociedad = 30
+
+    Se multiplica XY 12345678 por un número [5432765432] de forma separada:
+    Se suman los resultados de las multiplicaciones
+    El resultado calculado en el paso anterior se divide por 11 (once) y se obtiene el resto de dicha división
+    Una vez determinado el resto se aplican las siguientes reglas:
+    Si el resto es igual a 0 (cero), entonces Z (Dígito de Verificación) es igual a 0 (cero).
+    Si el resto es igual a 1 (uno) ocurre lo siguiente:
+    • Si es Hombre, entonces Z (Dígito de Verificación) es igual a 9 (nueve) y XY es igual a 23 (veintitrés).
+    • Si es Mujer, entonces Z (Dígito de Verificación) es igual a 4 (cuatro) y XY es igual a 23 (veintitrés).
+    • En cualquier otro caso Z (Dígito de Verificación) es igual a 11 (once) menos el resto del cociente.
+    */
+        reglaIDFiscal: [true || ''],
+        reglaCUIT: [
+            value => (value || '').length <= 13 || 'Máximo 13 caracteres',
+            value => {
+                const pattern = /^20|23|24|27|30|33|34([1-9]{1}\d{7}){1}-\d{1}$/
+                return pattern.test(value) || 'Formato de CUIT inválido'
+            },
+            value => {
+                let auxCuit = value
+                let cuitValido = false
+                auxCuit = auxCuit.split("-")
+                var sCUIT = auxCuit[0] + auxCuit[1] + auxCuit[2]
+                var aMult = '5432765432'
+                aMult = aMult.split('')
+
+                if (sCUIT && sCUIT.length == 11) {
+                    var aCUIT = sCUIT.split('')
+                    var iResult = 0
+                    for (var i = 0; i <= 9; i++) {
+                        iResult += aCUIT[i] * aMult[i]
+                    }
+                    iResult = (iResult % 11)
+                    iResult = 11 - iResult
+
+                    if (iResult == 11) {
+                        iResult = 0
+                    }
+                    if (iResult == 10) {
+                        iResult = 9
+                    }
+                    if (iResult == aCUIT[10]) {
+                        cuitValido = true
+                    }
+                }
+                console.log("CUIT VALIDO: ? " + cuitValido)
+                return cuitValido || 'CUIT ingresado inválido'
+
+            },
+        ],
 
         reglaTelefono: [
             value => !!value || 'Requerido.',
-            value => value[0]!="0" || 'El primer dígito no puede ser 0',
+            value => (value || '').length <= 12 || 'Máximo 12 caracteres',
+            value => (value || '').length >= 8 || 'Mínimo 8 caracteres',
             value => {
-                const pattern = /^\d{7,12}$/
+                const pattern = /^\d{8,12}$/
                 return pattern.test(value) || 'Sólo se permiten números!'
             },
         ],
-        reglaRazonSocial: [],
 
-        reglaDNI: [
-        ],
+        reglaRazonSocial: [true || ''],
 
-        reglaCUIT: [
-            value => !!value || 'Requerido.',
-            value => {
-                const pattern = /^\d{2}-\d{8}-\d{1}$/
-                return pattern.test(value) || 'Formato requerido: XX-XXXXXXXX-X'
-            },
-        ],
+        reglaID: [true || ''],
+
         reglaPrincipioEmail: [
             value => !!value || 'Requerido.',
             value => (value || '').length <= 20 || 'Máximo 20 caracteres',
@@ -242,6 +294,7 @@ export default {
                 return pattern.test(value) || 'Email inválido'
             },
         ],
+
         reglaNacionalidad: [
             value => !!value || 'Requerido.',
         ],
@@ -249,12 +302,12 @@ export default {
         editedIndex: -1,
         attrs: '',
         on: '',
-
+        motivos: '',
         editedItem: {
             email: '',
             nombre: '',
-            cuit: '',
-            dni: '',
+            idFiscal: '',
+            id: '',
             tel: '',
             nacionalidad: '',
             razonSocial: '',
@@ -264,8 +317,8 @@ export default {
         defaultItem: {
             email: '',
             nombre: '',
-            cuit: '',
-            dni: '',
+            idFiscal: '',
+            id: '',
             tel: '',
             nacionalidad: '',
             razonSocial: '',
@@ -277,11 +330,14 @@ export default {
         formTitle() {
             return this.editedIndex === -1 ? 'Nuevo Cliente' : 'Editar Cliente'
         },
+        disabled() {
+            return this.editedItem.nacionalidad != 'Argentina'
+        }
     },
 
     watch: {
         dialog(val) {
-            val || this.close()
+            val || this.reiniciar()
         },
         dialogDelete(val) {
             val || this.closeDelete()
@@ -308,18 +364,18 @@ export default {
             this.clientes = [{
                     email: 'pepito@gmail.com.ar',
                     nombre: 'Pepe Gomez',
-                    cuit: '32-42221144-2',
-                    dni: '42222144',
+                    idFiscal: '32-42221144-2',
+                    id: '42222144',
                     tel: '54-1144225533',
                     nacionalidad: 'Argentina',
                     razonSocial: '',
-                    categoría: 'Consumidor Final'
+                    categoría: 'Consumidor Final',
                 },
                 {
                     email: 'juan_diego1394@hotmail.com',
                     nombre: 'Juan Lopez',
-                    cuit: '24-42431232-2',
-                    dni: '42324232',
+                    idFiscal: '24-42431232-2',
+                    id: '42324232',
                     tel: '54-1192848293',
                     nacionalidad: 'Argentina',
                     razonSocial: '',
@@ -328,8 +384,8 @@ export default {
                 {
                     email: 'solpierozzi@hotmail.com',
                     nombre: 'Sol Pierozzi',
-                    cuit: '27-42433311-3',
-                    dni: '42433311',
+                    idFiscal: '27-42433311-3',
+                    id: '42433311',
                     tel: '54-1151103863',
                     nacionalidad: 'Argentina',
                     razonSocial: '',
@@ -349,10 +405,10 @@ export default {
         },
 
         obtenerDatosPorNacion(valor) {
-            let datos=['','']
+            let datos = ['', '']
             for (let i = 0; i < this.paises.length; i++) {
                 if (this.paises[i].name == valor) {
-                    datos[0] =  this.paises[i].callingCodes
+                    datos[0] = this.paises[i].callingCodes
                     datos[1] = this.paises[i].population
                 }
             }
@@ -360,14 +416,20 @@ export default {
         },
 
         changeState(valor) {
-            
+
             this.prefijo = this.obtenerDatosPorNacion(valor)[0]
             this.poblacion = this.obtenerDatosPorNacion(valor)[1]
             let cantidad = (JSON.stringify(this.poblacion).length)
-       
-            this.reglaDNI =   [value => !!value || 'Requerido.',
-                              value => value[0]!="0" || 'El primer dígito no puede ser 0',
-                              value => (value || '').length <= cantidad || 'Máximo '+cantidad+' caracteres']
+
+            this.reglaID = [value => !!value || 'Requerido.',
+                value => value[0] != "0" || 'El primer dígito no puede ser 0',
+                value => (value || '').length <= cantidad || 'Máximo ' + cantidad + ' caracteres'
+            ]
+            if (this.editedItem.nacionalidad == 'Argentina') {
+                this.reglaIDFiscal = this.reglaCUIT
+            } else {
+                this.reglaIDFiscal = []
+            }
         },
 
         haySeleccionado() {
@@ -413,6 +475,7 @@ export default {
 
         reset() {
             this.selected = []
+            this.motivos = ''
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
@@ -437,23 +500,33 @@ export default {
             let clienteAGuardar = {
                 email: this.principioEmail + "@" + this.finEmail,
                 nombre: this.editedItem.nombre,
-                cuit: this.editedItem.cuit,
-                dni: this.editedItem.dni,
+                idFiscal: this.editedItem.idFiscal,
+                id: this.editedItem.id,
                 tel: this.prefijo + "-" + this.num,
                 nacionalidad: this.editedItem.nacionalidad,
                 razonSocial: this.editedItem.razonSocial,
                 categoría: this.editedItem.categoría,
             }
             this.editedItem = clienteAGuardar
+
             if (this.validate()) {
                 if (this.editedIndex > -1) {
-                    Object.assign(this.clientes[this.editedIndex], this.editedItem);
+                    Object.assign(this.clientes[this.editedIndex], this.editedItem)
+                } else {
+                    this.clientes.push(this.editedItem)
                 }
-            } else {
-                this.clientes.push(this.editedItem);
+                this.reiniciar()
             }
-            this.close()
         },
+
+        reiniciar() {
+            this.close()
+            this.prefijo = ''
+            this.num = ''
+            this.principioEmail = ''
+            this.finEmail = ''
+        },
+
         separarTel(value) {
             try {
                 this.prefijo = value.tel.split("-")[0]
@@ -476,8 +549,8 @@ export default {
             this.separarTel(value)
             this.separarEmail(value)
         },
-    },
 
+    },
 };
 </script>
 
@@ -491,9 +564,10 @@ export default {
     width: 12%;
     margin-left: -10%;
 }
-p, .motivos{
+
+p,
+.motivos {
     text-align: center;
     font-size: 4%;
 }
-
 </style>
