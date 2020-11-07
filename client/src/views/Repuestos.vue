@@ -97,15 +97,15 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.nroLote" label="N° de Lote"></v-text-field>
+                                                <v-text-field :rules="reglaNroLote" v-model="editedItem.nroLote" label="N° de Lote"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="06" md="6">
                                                 <v-text-field :rules="reglaSKU" v-model="editedItem.sku" label="SKU"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.estado" label="Estado"></v-text-field>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <v-select v-model="editedItem.estado" :items="['Disponible','No Disponible', 'En tránsito','Reservado']" label="Categoría" required></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -251,17 +251,23 @@ export default {
         repuestos: [],
 
         reglaSKU: [
-            value => !!value || 'Requerido.',
-            value => (value || '').length <= 35 || 'Máximo 35 caracteres',
+            value => (value || '').length <= 12 || 'Máximo 12 caracteres',
+            value => (value || '').length >= 8 || 'Mínimo 8 caracteres',
             value => {
-                const pattern = /^[0-9 A-Z]{1}[0-9 A-Z -]{9,34}$/
-                return pattern.test(value) || 'Email inválido'
+                const pattern = /^[0-9 A-Z]{8,12}$/
+                return pattern.test(value) || 'SKU inválido'
             },
         ],
 
-        reglaRazonSocial: [
-            value => !!value || 'Requerido.',
+        reglaNroLote: [
+        value => (value || '').length <= 12 || 'Máximo 12 caracteres',
+            value => (value || '').length >= 4 || (value || '').length==0 || 'Mínimo 4 caracteres',
+            value => {
+                const pattern = /^([0-9 A-Z]{4,12}){0,1}$/
+                return pattern.test(value) || 'N° de lote inválido'
+            },
         ],
+
         editedIndex: -1,
         attrs: '',
         on: '',
