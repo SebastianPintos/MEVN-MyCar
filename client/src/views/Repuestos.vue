@@ -109,11 +109,11 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.precioVenta" label="Precio de Venta"></v-text-field>
+                                                <v-text-field v-model="editedItem.precioVenta" :rules="reglaPrecio" label="Precio de Venta"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.idProveedor" label="ID Proveedor"></v-text-field>
+                                                <v-text-field v-model="editedItem.idProveedor" :rules="reglaIdProveedor" label="ID Proveedor"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="12">
@@ -268,6 +268,23 @@ export default {
             },
         ],
         
+        reglaIdProveedor: [
+        value => (value || '').length <= 12 || 'Máximo 12 caracteres',
+            value => (value || '').length >= 1 || (value || '').length==0 || 'Mínimo 1 caracter',
+            value => {
+                const pattern = /^([0-9]{1,12}){0,1}$/
+                return pattern.test(value) || 'ID de Proveedor inválido'
+            },
+        ],
+        
+        reglaPrecio: [
+             value => !!value || 'Requerido.',
+             value => {
+                const pattern = /^[0-9]{1,}(,[0-9]{1,}){0,1}$/
+                return pattern.test(value) || 'Sólo se permiten números!'
+            },
+        ],
+
         requerido: [
          value => !!value || 'Requerido.'
         ],
@@ -474,7 +491,7 @@ export default {
             nroLote:"",
             sku:"",
             estado:"",
-            precioVenta:"",
+            precioVenta:0,
             idProveedor:"",
             }]
             this.repuestosFiltrados = this.repuestos
