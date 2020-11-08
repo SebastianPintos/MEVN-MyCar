@@ -6,7 +6,6 @@ const product = require('../controllers/product');
 const productStock = require('../controllers/productStock');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
-const ProductStock = require('../models/productStock');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -26,6 +25,10 @@ module.exports = app => {
     router.post('/productStock/:productStock_id/update', productStock.update);
     router.delete('/productStock/:productStock_id/delete', productStock.remove);
 
-    
+    router.get('/product', product.index);
+    router.post('/product/add', product.create);
+    router.post('/product/:product_id', product.update);
+    router.delete('/product/:product_id/delete', product.remove);
+
     app.use(router);
 }
