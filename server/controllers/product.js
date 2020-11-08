@@ -25,7 +25,7 @@ ctrl.create = (req, res) => {
         SalePrice: body.SalePrice,
         Dealer: body.Dealer,
         State: 'active',
-    )};
+    });
     Product.save((err) => {
         if(err) {console.log(err)}
         res.send({
