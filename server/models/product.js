@@ -12,6 +12,6 @@ var ProductSchema = new Schema({
     SalePrice: {type: Number,required: true},
     Dealer: {type: Schema.Types.ObjectId,required: true,ref: 'Dealer'}
 });
-
+ 
 var product = mongoose.model("Product", ProductSchema);
 module.exports = product;
