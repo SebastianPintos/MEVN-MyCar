@@ -2,10 +2,10 @@ const ctrl = {};
 var Dealer = require('../models/dealer');
 
 ctrl.index = (req, res) => {
-    Dealer.find((err, dealers) => {
+    Dealer.find((err, dealer) => {
         if (err) {console.log(err)}
         res.send({
-            client: dealers
+            dealer: dealer
         })
     })
 };
