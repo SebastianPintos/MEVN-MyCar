@@ -15,7 +15,7 @@
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem()">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
@@ -420,10 +420,7 @@ export default {
             } 
         },
 
-        deleteItem(items) {
-            //this.editedIndex = this.vehículos.indexOf(items[0])
-            //this.client = Object.assign({}, items)
-            console.log(items);
+        deleteItem() {
             this.dialogDelete = true;
         },
 
@@ -432,9 +429,7 @@ export default {
                 this.editar("INACTIVE", this.selected[i]);
                 this.clients.splice(this.clients.indexOf(this.selected[i]), 1);
             }
-            this.motivos = '';
             this.closeDelete()
-            this.getClients();
         },
 
         reset() {
@@ -508,9 +503,9 @@ export default {
             //Editar Cliente
             else {
                 if(this.validate()){
-                Object.assign(this.clients[this.editedIndex], this.client)
-                this.editar("ACTIVE", this.client);
-                this.reiniciar();
+                    Object.assign(this.clients[this.editedIndex], this.client)
+                    this.editar("ACTIVE", this.client);
+                    this.reiniciar();
                 }
             }
         },
