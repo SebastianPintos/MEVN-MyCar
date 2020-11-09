@@ -407,22 +407,17 @@ export default {
 
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
-                if(this.selected.length > 0){
+                if(this.selected.length > 1){
                      this.snackbar = true
                      this.mensaje = "Sólo puede editar un elemento a la vez!"
                      return;
                 }
                 this.editedIndex = this.clients.indexOf(item);
                 this.client = Object.assign({}, item);
-                //this.client = item;
                 this.separarDatos(item);
                 this.formTitle = "Editar Cliente";
                 this.dialog = true;
-
-            } else {
-                this.mensaje = "Sólo puede editar un elemento a la vez!";
-                this.snackbar = true;
-            }
+            } 
         },
 
         deleteItem(items) {
