@@ -10,6 +10,8 @@ var DealerSchema = new Schema({
         City: {type: String}
     },
     Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+
+
 });
 
 var dealer = mongoose.model('Dealer', DealerSchema);

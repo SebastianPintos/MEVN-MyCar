@@ -16,6 +16,6 @@ var ProductSchema = new Schema({
       ref: 'Dealer'
     }
 });
-
+ 
 var product = mongoose.model("Product", ProductSchema);
 module.exports = product;

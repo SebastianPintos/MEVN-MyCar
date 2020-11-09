@@ -20,6 +20,6 @@ var ClientSchema = new Schema({
             EmployerID: {type: Schema.Types.ObjectId, required: true}
         },{timestamps: true}]
   });
-  
-  var client = mongoose.model("Client", ClientSchema);
-  module.exports = client; 
+
+var client = mongoose.model("Client", ClientSchema);
+module.exports = client; 
