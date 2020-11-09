@@ -2,7 +2,6 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var ProductSchema = new Schema({
-    Name: {type: String, required: true},
     Description: {type: String},
     Category: {type: String, required: true},
     SubCategory: {type: String},
@@ -14,7 +13,8 @@ var ProductSchema = new Schema({
       type: Schema.Types.ObjectId,
       required: true,
       ref: 'Dealer'
-    }
+    },
+    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });
  
 var product = mongoose.model("Product", ProductSchema);

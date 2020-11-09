@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var DealerSchema = new Schema({
     Name: {type: String, required: true},
-    Phone: {type: Number, required: true},
+    Phone: {type: String, required: true},
     Email: {type: String, required: true},
     Address: {
         Street: {type: String},
@@ -10,7 +10,6 @@ var DealerSchema = new Schema({
         City: {type: String}
     },
     Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
-
 
 });
 
