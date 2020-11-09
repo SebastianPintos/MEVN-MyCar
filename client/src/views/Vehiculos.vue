@@ -37,31 +37,37 @@
                             <v-card-text>
                                 <v-container>
                                     <v-row>
-                                        <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.categoría" label="Categoria"></v-text-field>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.Brand" label="Marca"></v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.Model" label="Modelo"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.marca" label="Marca"></v-text-field>
+                                            <v-text-field v-model="editedItem.Category" label="Categoria"></v-text-field>
                                         </v-col>
-
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-select v-model="editedItem.modelo" :items="vehículos" item-text="modelo" item-value="modelo" label="Modelo" required></v-select>
+                                            <v-text-field v-model="editedItem.Type" label="Tipo"></v-text-field>
                                         </v-col>
-
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-select v-model="editedItem.version" :items="vehículos" item-text="version" item-value="Version" label="Version" required></v-select>
+                                            <v-text-field v-model="editedItem.Fuel" label="Combustible"></v-text-field>
                                         </v-col>
-
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-select v-model="editedItem.año" :items="vehículos" item-text="año" item-value="Año" label="Año" required></v-select>
+                                            <v-text-field v-model="editedItem.transmission" label="Transmision"></v-text-field>
                                         </v-col>
-
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.color" label="Color"></v-text-field>
+                                            <v-text-field v-model="editedItem.origin" label="Origen"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-select v-model="editedItem.year" :items="años" item-text="año" item-value="year" label="Año" required></v-select>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.precioFinal" prefix="$" label="Precio"></v-text-field>
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-select v-model="editedItem.Status" :items="statusList" label="Estado" required></v-select>
                                         </v-col>
 
                                     </v-row>
@@ -91,10 +97,10 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.precioFinal" prefix="$" label="Precio"></v-text-field>
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.precioFinal" label="Stock minimo"></v-text-field>
+                                            <v-select v-model="editedItem.Status" :items="statusList" label="Estado" required></v-select>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -171,6 +177,10 @@ export default {
                 value: 'Category'
             },
             {
+                text: 'Combustible',
+                value: 'Fuel'
+            },
+            {
                 text: 'Tipo',
                 value: 'Type'
             },
@@ -193,26 +203,36 @@ export default {
 
         ],
         vehículos: [],
+        allvehiculos: [],
+        años:[2020,2019,2018,2017,2016,2015,2014,2013,2012,2011,2010,2009,2008,2007,2006],
+        statusList: ["Activo", "Inactivo"],
 
         editedIndex: -1,
         attrs: '',
         on: '',
         editedItem: {
-            categoría: '',
-            marca: '',
-            modelo: '',
-            version: '',
-            año: '',
-            color: '',
+            Brand: '',
+            Model: '',
+            Category: '',
+            Fuel: '',
+            Type: '',
+            transmission: '',
+            origin: '',
+            year: '',
+            SuggestedPrice: 0,
+            Status: '',
+            
         },
         defaultItem: {
-            categoría: '',
-            marca: '',
-            modelo: '',
-            version: '',
-            año: '',
-            color: '',
-            precioFinal: '',
+            Brand: '',
+            Model: '',
+            Category: '',
+            Fuel: '',
+            Type: '',
+            transmission: '',
+            origin: '',
+            year: '',
+            SuggestedPrice: 0,
         },
     }),
 
@@ -236,10 +256,15 @@ export default {
 
         axios.get('http://localhost:8081/vehicle')
             .then(res => {
-                console.log(res)
-                this.vehículos = res.data.vehicle;
-                
+                this.allvehiculos = res.data.vehicle;
+                this.allvehiculos.forEach(vehiculo => {
+            if(vehiculo.Status === "ACTIVE"){
+                this.vehículos.push(vehiculo);
+            } 
+        })
             })
+
+        
     },
 
     methods: {
@@ -280,7 +305,8 @@ export default {
 
         deleteItemConfirm() {
             this.selected.forEach(item => {
-                this.vehículos.splice(this.vehículos.indexOf(item), 1);
+                this.vehículos.splice(this.vehículos.indexOf(item), 1)
+                this.deleteVehicle(item)
             });
             this.closeDelete()
         },
@@ -303,21 +329,81 @@ export default {
         validate() {
             return this.$refs.form.validate()
         },
+        
+        deleteVehicle(item){
+            axios.delete('http://localhost:8081/vehicle/'+ item._id +'/delete')
+        },
+
+        updateVehicle(){
+            axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update',{
+                "vehicle":{
+                    "Brand": this.editedItem.Brand,
+                    "Model": this.editedItem.Model,
+                    "Type": this.editedItem.Type,
+                    "Category": this.editedItem.Category,
+                    "Fuel": this.editedItem.Fuel,
+                    "transmission": this.editedItem.transmission,
+                    "origin": this.editedItem.origin,
+                    "year": this.editedItem.year,
+                    "SuggestedPrice": this.editedItem.SuggestedPrice,
+                    "Status": (this.editedItem.Status == "Activo")? "ACTIVE":"INACTIVE",
+                }
+            })
+        },
+
+        updateManyVehicles(){
+            this.selected.forEach(vehicle => {
+                axios.post('http://localhost:8081/vehicle/' + vehicle._id + '/update',{
+                "vehicle":{
+                    "Brand": vehicle.Brand,
+                    "Model": vehicle.Model,
+                    "Type": vehicle.Type,
+                    "Category": vehicle.Category,
+                    "Fuel": vehicle.Fuel,
+                    "transmission": vehicle.transmission,
+                    "origin": vehicle.origin,
+                    "year": vehicle.year,
+                    "SuggestedPrice": this.editedItem.SuggestedPrice,
+                    "Status": (this.editedItem.Status == "Activo")? "ACTIVE":"INACTIVE",
+                }
+            })
+            })
+        },
+
+        createVehicle(){
+            axios.post('http://localhost:8081/vehicle/add',{
+                "vehicle":{
+                    "Brand": this.editedItem.Brand,
+                    "Model": this.editedItem.Model,
+                    "Type": this.editedItem.Type,
+                    "Category": this.editedItem.Category,
+                    "Fuel": this.editedItem.Fuel,
+                    "transmission": this.editedItem.transmission,
+                    "origin": this.editedItem.origin,
+                    "year": this.editedItem.year,
+                    "SuggestedPrice": this.editedItem.SuggestedPrice,
+                }
+            })
+        },
 
         save() {
-            if (this.validate()) {
-                if (this.editedIndex > -1) {
-                    if(this.selected.length > 1){
-                        console.log("mas de uno")
-                    }
-                    else{
-                        Object.assign(this.vehículos[this.editedIndex], this.editedItem)
-                    }
-                } else {
-                    this.vehículos.push(this.editedItem)
+            if (this.editedIndex > -1) {
+                    console.log("One")
+                    Object.assign(this.vehículos[this.editedIndex], this.editedItem)
+                    this.updateVehicle();
+            } else {
+                if(this.selected.length > 1){
+                    console.log("Many")
+                    this.updateManyVehicles()
                 }
-                this.close()
+                else{
+                    console.log("Create")
+                this.vehículos.push(this.editedItem)
+                this.createVehicle()
+                }
+                
             }
+            this.close()
         },
 
     },
