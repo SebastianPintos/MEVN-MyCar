@@ -53,7 +53,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field :rules="reglaIDFiscal" v-model="client.CUIT" label="ID Fiscal"></v-text-field>
+                                                <v-text-field :rules="reglaCUITAux" v-model="client.CUIT" label="ID Fiscal" @input="(value)=> cambiarReglaCUIT(value)"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="6">
@@ -223,11 +223,8 @@ export default {
             },
         ],
         reglaID: [value => !!value || 'Requerido.'],
-        reglaIDFiscal: [],
 
-        reglaCUIT: [ 
-            value => !!value || 'Requerido.',
-            value => (value || '').length <= 13 || 'Máximo 13 caracteres',
+        reglaCUIT: [ value => (value || '').length <= 13|| 'Máximo 13 caracteres',
             value => {
                 const pattern = /^20|23|24|27|30|33|34([1-9]{1}\d{7}){1}-\d{1}$/
                 return pattern.test(value) || 'Formato de CUIT inválido'
@@ -266,7 +263,7 @@ export default {
 
             },
         ],
-
+        reglaCUITAux:[],
         reglaTelefono: [
             value => !!value || 'Requerido.',
             value => (value || '').length <= 12 || 'Máximo 12 caracteres',
@@ -355,7 +352,13 @@ export default {
             } else {
                 this.reglaRazonSocial = [];
             }
-            this.cambiarReglaIDFiscal();
+        },
+        cambiarReglaCUIT(value) {
+            if (value != '') {
+                this.reglaCUITAux = this.reglaCUIT;
+            } else {
+                this.reglaCUITAux = [];
+            }
         },
 
         obtenerDatosPorNacion(value) {
@@ -386,21 +389,9 @@ export default {
                     const pattern = /^[0-9]{1,}$/
                     return pattern.test(value) || 'Sólo se permiten números!'
                 },
-            ]
-
-            this.cambiarReglaIDFiscal();        
+            ]   
         },
 
-        cambiarReglaIDFiscal(){
-            if (this.client.Nationality === 'Argentina' && this.client.TaxCategory === this.categorias[0]) {
-                console.log("Coincide regla cuit");
-                this.reglaIDFiscal = this.reglaCUIT;
-            } else {
-                this.reglaIDFiscal = [];
-                console.log("no coincide regla cuit");
-            }
-        },
-        
         haySeleccionado() {
             return this.selected.length > 0;
         },
