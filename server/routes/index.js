@@ -14,6 +14,7 @@ module.exports = app => {
     router.post('/client/add', client.create);
     router.post('/client/:client_id/update', client.update);
     router.delete('/client/:client_id/delete', client.remove);
+    router.post('/client/:client_id/addvehicle', client.addVehicle);
 
     router.get('/vehicle', vehicle.index);
     router.post('/vehicle/add', vehicle.create);

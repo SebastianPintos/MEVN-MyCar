@@ -25,6 +25,7 @@ ctrl.create = (req, res) => {
         CompanyName: body.CompanyName,
         Nationality: body.Nationality,
         TaxCategory: body.TaxCategory,
+        Vehicle: body.Vehicle
     });
 
     client.save((err) => {
@@ -53,6 +54,7 @@ ctrl.update = (req, res) => {
                 client.CompanyName = body.CompanyName;
                 client.Nationality = body.Nationality;
                 client.TaxCategory = body.TaxCategory;
+                client.Vehicle = body.Vehicle;
 
                 client.save((err) => {
                     if(err) {console.log(err)}
@@ -63,7 +65,6 @@ ctrl.update = (req, res) => {
             }
         }
     })
-    
 };
 
 ctrl.remove = (req, res) => {
@@ -85,5 +86,27 @@ ctrl.remove = (req, res) => {
         }
     })
 };
+
+ctrl.addVehicle = (req, res) => {
+    var id = req.params.client_id;
+    var body = req.body.vehicle;
+    console.log(body);
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                client.Vehicle.push(body);
+
+                client.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+}
 
 module.exports = ctrl;
