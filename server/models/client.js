@@ -14,6 +14,7 @@ var ClientSchema = new Schema({
         DNI: {type: String, required: true, unique: true},
         CUIT: {type: String},
         CompanyName: {type: String},
+        Nationality: {type: String},
         TaxCategory: {type: String},
         ChangeStatus: [{
             Motive: {type: String},

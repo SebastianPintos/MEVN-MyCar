@@ -19,10 +19,11 @@ ctrl.create = (req, res) => {
         LastName: body.LastName,
         Phone: body.Phone,
         Email: body.Email,
-        Status: 'Active',
+        Status: 'ACTIVE',
         DNI: body.DNI,
         CUIT: body.CUIT,
         CompanyName: body.CompanyName,
+        Nationality: body.Nationality,
         TaxCategory: body.TaxCategory,
     });
 
@@ -50,6 +51,7 @@ ctrl.update = (req, res) => {
                 client.DNI = body.DNI;
                 client.CUIT = body.CUIT;
                 client.CompanyName = body.CompanyName;
+                client.Nationality = body.Nationality;
                 client.TaxCategory = body.TaxCategory;
 
                 client.save((err) => {
