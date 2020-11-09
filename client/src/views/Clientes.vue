@@ -15,7 +15,7 @@
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem()">
+                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
@@ -47,7 +47,7 @@
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field :rules="reglaNombre" v-model="client.LastName" label="Apellido"></v-text-field>
                                             </v-col>
-                                           
+
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field :rules="reglaID" v-model="client.DNI" label="ID"></v-text-field>
                                             </v-col>
@@ -152,6 +152,8 @@ import axios from "axios";
 export default {
     data: () => ({
         client: new client(),
+        editedIndex: -1,
+        defaultClient: new client(),
         selected: [],
         categorias: ['Responsable Inscripto', 'Excento', 'Consumidor Final'],
         search: '',
@@ -161,6 +163,7 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
+        
         headers: [{
                 text: 'Nombre',
                 value: 'Name',
@@ -180,8 +183,16 @@ export default {
                 value: 'CUIT'
             },
             {
-                text: 'Categoría',
+                text: 'Categoría Fiscal',
                 value: 'TaxCategory'
+            },
+            {
+                text: 'Razón Social',
+                value: 'CompanyName'
+            },
+            {
+                text: 'Nacionalidad',
+                value: 'Nationality'
             },
             {
                 text: 'Email',
@@ -191,14 +202,7 @@ export default {
                 text: 'Teléfono',
                 value: 'Phone'
             },
-            {
-                text: 'Razón Social',
-                value: 'CompanyName'
-            },
-            {
-                text: 'Razón Social',
-                value: 'CompanyName'
-            },
+            
         ],
 
         clients: [],
@@ -218,18 +222,19 @@ export default {
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
-        reglaID : [value => !!value || 'Requerido.'],
+        reglaID: [value => !!value || 'Requerido.'],
         reglaIDFiscal: [],
 
-        reglaCUIT: [
+        reglaCUIT: [ 
+            value => !!value || 'Requerido.',
             value => (value || '').length <= 13 || 'Máximo 13 caracteres',
             value => {
                 const pattern = /^20|23|24|27|30|33|34([1-9]{1}\d{7}){1}-\d{1}$/
                 return pattern.test(value) || 'Formato de CUIT inválido'
             },
             value => {
-                if(value === undefined){
-                    return  true || 'CUIT ingresado inválido';
+                if (value === undefined) {
+                    return true || 'CUIT ingresado inválido';
                 }
                 let auxCuit = value
                 let cuitValido = false
@@ -257,7 +262,7 @@ export default {
                         cuitValido = true
                     }
                 }
-               return cuitValido || 'CUIT ingresado inválido'
+                return cuitValido || 'CUIT ingresado inválido'
 
             },
         ],
@@ -302,9 +307,6 @@ export default {
     }),
 
     computed: {
-        /*  formTitle() {
-              return this.editedIndex === -1 ? 'Nuevo Cliente' : 'Editar Cliente'
-          },*/
         disabled() {
             return this.client.Nationality != 'Argentina';
             // return this.editedItem.nacionalidad != 'Argentina'
@@ -325,33 +327,35 @@ export default {
         this.iniciar();
     },
 
+
     methods: {
-       iniciar() {
-             this.getClients();
-             this.getPaises();
+        iniciar() {
+            this.getClients();
+            this.getPaises();
         },
 
-         getPaises(){
-                axios.get('https://restcountries.eu/rest/v2/all')
+        getPaises() {
+            axios.get('https://restcountries.eu/rest/v2/all')
                 .then(res => {
                     this.paises = res.data;
                 });
 
         },
-        async getClients(){
-                await axios.get('http://localhost:8081/client')
+        getClients() {
+            axios.get('http://localhost:8081/client')
                 .then(res => {
-                    this.clients = res.data.client.filter(aClient => aClient.Status==="ACTIVE")
+                    this.clients = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
                 });
         },
         cambiarRequired(value) {
             if (value === 'Responsable Inscripto') {
                 this.reglaRazonSocial = [
                     value => !!value || 'Requerido.'
-                ]
+                ];
             } else {
-                this.reglaRazonSocial = []
+                this.reglaRazonSocial = [];
             }
+            this.cambiarReglaIDFiscal();
         },
 
         obtenerDatosPorNacion(value) {
@@ -366,31 +370,37 @@ export default {
         },
 
         changeState(value) {
-              let datos = this.obtenerDatosPorNacion(value);
-              this.prefijo = datos[0]
-              this.poblacion = datos[1]
-              let cantidad = JSON.stringify(this.poblacion).length;
-     
-            this.reglaID=[];
-              this.reglaID = [value =>  !!value || 'Requerido.',
-                  value => (value || '').length <= cantidad || 'Máximo ' + cantidad + ' caracteres',
-                  value => {
+            let datos = this.obtenerDatosPorNacion(value);
+            this.prefijo = datos[0]
+            this.poblacion = datos[1]
+            let cantidad = JSON.stringify(this.poblacion).length;
+
+           // this.reglaID = [];
+            this.reglaID = [value => !!value || 'Requerido.',
+                value => (value || '').length <= cantidad || 'Máximo ' + cantidad + ' caracteres',
+                value => {
                     const pattern = /^0$/
                     return !pattern.test(value) || 'El primer elemento no puede ser 0!'
                 },
-                  value => {
+                value => {
                     const pattern = /^[0-9]{1,}$/
                     return pattern.test(value) || 'Sólo se permiten números!'
                 },
-              ]
+            ]
 
-              if (this.client.Nationality == 'Argentina' && this.client.TaxCategory===this.categorias[0]) {
-                  this.reglaIDFiscal = this.reglaCUIT
-              } else {
-                  this.reglaIDFiscal = []
-              }
+            this.cambiarReglaIDFiscal();        
         },
 
+        cambiarReglaIDFiscal(){
+            if (this.client.Nationality === 'Argentina' && this.client.TaxCategory === this.categorias[0]) {
+                console.log("Coincide regla cuit");
+                this.reglaIDFiscal = this.reglaCUIT;
+            } else {
+                this.reglaIDFiscal = [];
+                console.log("no coincide regla cuit");
+            }
+        },
+        
         haySeleccionado() {
             return this.selected.length > 0;
         },
@@ -405,9 +415,15 @@ export default {
         },
 
         editItem(item) {
-        
             if (!this.mensajeNoSelecciono()) {
-                this.client = item;
+                if(this.selected.length > 0){
+                     this.snackbar = true
+                     this.mensaje = "Sólo puede editar un elemento a la vez!"
+                     return;
+                }
+                this.editedIndex = this.clients.indexOf(item);
+                this.client = Object.assign({}, item);
+                //this.client = item;
                 this.separarDatos(item);
                 this.formTitle = "Editar Cliente";
                 this.dialog = true;
@@ -418,23 +434,30 @@ export default {
             }
         },
 
-        deleteItem() {
+        deleteItem(items) {
+            //this.editedIndex = this.vehículos.indexOf(items[0])
+            //this.client = Object.assign({}, items)
+            console.log(items);
             this.dialogDelete = true;
         },
 
-        async deleteItemConfirm() {    
-            for(let i = 0; i< this.selected.length; i++ ){
-                await this.editar("INACTIVE",this.selected[i]);
+        deleteItemConfirm() {
+            for (let i = 0; i < this.selected.length; i++) {
+                this.editar("INACTIVE", this.selected[i]);
+                this.clients.splice(this.clients.indexOf(this.selected[i]), 1);
             }
-            await this.getClients();
-            this.reiniciar();
-            this.motivos = ''; 
+            this.motivos = '';
             this.closeDelete()
+            this.getClients();
         },
 
         reset() {
-            this.selected = []
-            this.motivos = ''
+            this.selected = [];
+            this.motivos='';
+            this.$nextTick(() => {
+                this.client = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
         },
 
         close() {
@@ -450,6 +473,7 @@ export default {
         validate() {
             return this.$refs.form.validate()
         },
+
         getClient(selected) {
             return new client(selected.Name, selected.LastName, this.prefijo + "-" + this.num,
                 this.principioEmail + "@" + this.finEmail, "ACTIVE", selected.DNI,
@@ -473,8 +497,8 @@ export default {
                 }
             };
         },
-        async post(url, data) {
-            await axios.post(url, data, {
+        post(url, data) {
+            axios.post(url, data, {
                     headers: {
                         "Accept": "application/json",
                         "Content-Type": "application/json; charset=utf-8"
@@ -485,65 +509,66 @@ export default {
                 });
         },
 
-        async save(id) {
+         save(id) {
             //Cliente Nuevo
             if (id === -1) {
                 this.client = this.getClient(this.client);
                 if (this.validate()) {
                     this.post('http://localhost:8081/client/add', JSON.stringify(this.getJSONClient(this.client)));
-                    await this.getClients();
+                    this.clients.push(this.client);
                     this.reiniciar();
                 }
             }
             //Editar Cliente
             else {
-              //  this.separarDatos(this.client);
-                await this.editar("ACTIVE",this.client);
-                await this.getClients();
+                if(this.validate()){
+                Object.assign(this.clients[this.editedIndex], this.client)
+                this.editar("ACTIVE", this.client);
                 this.reiniciar();
+                }
             }
-    },
+        },
 
-    async editar(estado,selected){
-        selected.Status=estado;
-        await this.post('http://localhost:8081/client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)));
-    },
+        editar(estado, selected) {
+            selected.Status = estado;
+            this.post('http://localhost:8081/client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)));
+        },
 
-    reiniciar() {
-        this.close();
-        this.selected = [];
-        this.client = new client();
-        this.prefijo = '';
-        this.num = '';
-        this.principioEmail = '';
-        this.finEmail = '';
-        this.$refs.form.resetValidation();
-    },
+        reiniciar() {
+            this.close();
+            this.selected = [];
+            this.client = new client();
+            this.prefijo = '';
+            this.num = '';
+            this.principioEmail = '';
+            this.finEmail = '';
+            this.$refs.form.resetValidation();
+        },
 
-    separarTel(value) {
-        try {
-            this.prefijo = value.Phone.split("-")[0]
-            this.num = value.Phone.split("-")[1]
-        } catch (e) {
-            return
-        }
-    },
-    separarEmail(value) {
-        try {
-            this.principioEmail = value.Email.split("@")[0]
-            this.finEmail = value.Email.split("@")[1]
+        separarTel(value) {
+            try {
+                this.prefijo = value.Phone.split("-")[0]
+                this.num = value.Phone.split("-")[1]
+            } catch (e) {
+                return
+            }
+        },
+        separarEmail(value) {
+            try {
+                this.principioEmail = value.Email.split("@")[0]
+                this.finEmail = value.Email.split("@")[1]
 
-        } catch (e) {
-            return
-        }
-    },
+            } catch (e) {
+                return
+            }
+        },
 
-    separarDatos(value) {
-        this.separarTel(value)
-        this.separarEmail(value)
-    },
+        separarDatos(value) {
+            this.separarTel(value)
+            this.separarEmail(value)
+        },
 
-},
+    },
 };
 </script>
 
