@@ -10,7 +10,7 @@ var ClientSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Vehicle'
         }],
-        Status: {type: String, required: true},
+        Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
         DNI: {type: String, required: true, unique: true},
         CUIT: {type: String},
         CompanyName: {type: String},

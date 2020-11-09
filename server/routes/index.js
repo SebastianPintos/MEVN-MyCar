@@ -5,6 +5,7 @@ const client = require('../controllers/client');
 const product = require('../controllers/product');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
+const dealer = require('../controllers/dealer');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -22,7 +23,10 @@ module.exports = app => {
     router.post('/vehiclestock/:vehicleStock_id/update', vehicle.updateStock);
     router.delete('/vehiclestock/:vehicleStock_id/delete', vehicle.removeStock);
 
-    //router.get('/product', product.index);
+    router.get('/dealer', dealer.index);
+    router.post('/dealer/add', dealer.create);
+    router.post('/dealer/:dealer_id/update', dealer.update);
+    router.delete('/dealer/:dealer_id/delete', dealer.remove);
 
     app.use(router);
 }

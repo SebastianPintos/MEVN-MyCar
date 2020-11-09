@@ -27,7 +27,7 @@ ctrl.create = (req, res) => {
         year: body.year,
         SuggestedPrice: body.SuggestedPrice,
         Detail: body.Detail,
-        Status: 'Active'
+        Status: 'ACTIVE'
     });
 
     vehicle.save((err) => {
@@ -73,10 +73,10 @@ ctrl.remove = (req, res) => {
     var id = req.params.vehicle_id;
     Vehicle.findOne({_id: id}, (err, vehicle) => {
         if(err) {console.log(err)}
-        else {
+        else { 
             if(!vehicle) {console.log(' no se encontro')}
             else {
-                vehicle.Status = 'Baja';
+                vehicle.Status = 'INACTIVE';
 
                 vehicle.save((err) => {
                     if(err) {console.log(err)}
@@ -96,6 +96,9 @@ ctrl.indexStock = (req, res) => {
         res.send({
             vehicle: vehicle
         })
+    }).populate('Vehicle',(err, story) =>{
+        if (err) {console.log(err)}
+        else {console.log(story)}
     })
 };
 
@@ -156,13 +159,16 @@ ctrl.updateStock = (req, res) => {
 
 ctrl.removeStock = (req, res) => {
     var id = req.params.vehicleStock_id;
+    var ChangeStatus = req.body.ChangeStatus;
     VehicleStock.findOne({_id: id}, (err, vehicleStock) => {
         if(err) {console.log(err)}
         else {
             if(!vehicleStock) {console.log(' no se encontro')}
             else {
                 vehicleStock.Status = 'NOT AVAILABLE';
-                vehicleStock.ChangeStatus.push(req.body.vehicleStock.ChangeStatus);
+                if(ChangeStatus){
+                    vehicleStock.ChangeStatus.push(ChangeStatus);
+                }
                 vehicleStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
