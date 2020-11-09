@@ -11,7 +11,7 @@ var EmployeeSchema = new Schema({
     State: {type: String,required: true},
     hierarchy: {type: String,required: true},
     StartDate: {type: Date,required: true},
-    DischargeDate: {type: Date,required: true},
+    DischargeDate: {type: Date,required: false},
     Address: {Street: {type: String},Number: {type: Number},City: {type: String}}
 });
 
