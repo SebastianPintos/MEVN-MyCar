@@ -19,7 +19,7 @@ ctrl.create = (req, res) => {
         LastName: body.LastName,
         Phone: body.Phone,
         Email: body.Email,
-        State: 'Active',
+        Status: 'Active',
         DNI: body.DNI,
         CUIT: body.CUIT,
         CompanyName: body.CompanyName,
@@ -46,7 +46,7 @@ ctrl.update = (req, res) => {
                 client.LastName = body.LastName;
                 client.Phone = body.Phone;
                 client.Email = body.Email;
-                client.State = body.State;
+                client.Status = body.Status;
                 client.DNI = body.DNI;
                 client.CUIT = body.CUIT;
                 client.CompanyName = body.CompanyName;
@@ -71,7 +71,7 @@ ctrl.remove = (req, res) => {
         else {
             if(!client) {console.log(' no se encontro')}
             else {
-                client.State = 'Baja';
+                client.Status = 'Baja';
 
                 client.save((err) => {
                     if(err) {console.log(err)}

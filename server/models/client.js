@@ -6,14 +6,20 @@ var ClientSchema = new Schema({
         LastName: {type: String, required: true},
         Phone: {type: String, required: true},
         Email: {type: String, required: true, unique: true},
-        Vehicle: [{type: Schema.Types.ObjectId,ref: 'Vehicle'}],
-        State: {type: String, required: true},
+        Vehicle: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Vehicle'
+        }],
+        Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
         DNI: {type: String, required: true, unique: true},
         CUIT: {type: String},
         CompanyName: {type: String},
         TaxCategory: {type: String},
-        ChangeState: [{Motive: {type: String},EmployerID: {type: Schema.Types.ObjectId, required: true},Date: {type: Date}}]
-});
-  
+        ChangeStatus: [{
+            Motive: {type: String},
+            EmployerID: {type: Schema.Types.ObjectId, required: true}
+        },{timestamps: true}]
+  });
+
 var client = mongoose.model("Client", ClientSchema);
 module.exports = client; 

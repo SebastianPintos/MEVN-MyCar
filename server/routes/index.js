@@ -6,10 +6,10 @@ const product = require('../controllers/product');
 const productStock = require('../controllers/productStock');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
+const dealer = require('../controllers/dealer');
 
 module.exports = app => {
     router.get('/', home.index);
-
     router.get('/client', client.index);
     router.post('/client/add', client.create);
     router.post('/client/:client_id/update', client.update);
@@ -19,7 +19,15 @@ module.exports = app => {
     router.post('/vehicle/add', vehicle.create);
     router.post('/vehicle/:vehicle_id/update', vehicle.update);
     router.delete('/vehicle/:vehicle_id/delete', vehicle.remove);
+    router.get('/vehiclestock', vehicle.indexStock);
+    router.post('/vehiclestock/add', vehicle.createStock);
+    router.post('/vehiclestock/:vehicleStock_id/update', vehicle.updateStock);
+    router.delete('/vehiclestock/:vehicleStock_id/delete', vehicle.removeStock);
 
+    router.get('/dealer', dealer.index);
+    router.post('/dealer/add', dealer.create);
+    router.post('/dealer/:dealer_id/update', dealer.update);
+    router.delete('/dealer/:dealer_id/delete', dealer.remove);
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
@@ -29,6 +37,6 @@ module.exports = app => {
     router.post('/product/add', product.create);
     router.post('/product/:product_id', product.update);
     router.delete('/product/:product_id/delete', product.remove);
-
+  
     app.use(router);
 }

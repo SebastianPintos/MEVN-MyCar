@@ -12,7 +12,7 @@ var VehicleSchema = new Schema({
     year: {type: String, required: true},
     SuggestedPrice: {type: Number, required: true},
     Detail: {type: String},
-    Status: {type:String, required: true}
+    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true}
 });
   
 var vehicle = mongoose.model("Vehicle", VehicleSchema);
