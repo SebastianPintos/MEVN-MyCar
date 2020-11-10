@@ -8,6 +8,21 @@ Proyecto generado con MEVN stack technologies que utiliza (**VueJS**) para el Fr
 
 = Proyecto Profesional I : TP PRINCIPAL
 
+## Puesta en Marcha
+
+### Frontend
+``` bash
+# ingresar al proyecto
+cd client
+
+# instalar dependencias
+npm install
+
+# correr frontend puerto 8080
+npm run serve
+```
+
+
 
 == Introducción
 .

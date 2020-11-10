@@ -1,34 +1,50 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/login">Login</router-link> |
-      <router-link to="/registro">Registrarse</router-link>
-    </div>
-    <router-view />
+<v-app >
+  <div class="appl">
+    <Navegacion/>
+    <v-main>
+      <router-view></router-view>
+    </v-main>
   </div>
+    
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+<script>
+import Navegacion from "@/components/Navegacion.vue";
+
+export default {
+  name: "App",
+
+  data: () => ({
+
+  }),
+  components: {
+    Navegacion
+  }
+};
+</script>
+<style >
+.appl{
+background-image: url("./assets/Hellcat.jpg");
+height: 100vh;
+background-size: cover;
+background-position-x: center;
+}
+.bkg-img{
+  padding-bottom: 80px;
+}
+.titulo{
   text-align: center;
-  color: #2c3e50;
+  margin: 40px;
+  margin-bottom: 70px;
+  font-size: 75px;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  border-bottom: ridge;
 }
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.mb-2{
+  margin-left: 3px;
+  margin-right: 3px;
 }
 </style>

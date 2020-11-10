@@ -6,7 +6,7 @@ var ProductSchema = new Schema({
     Category: {type: String, required: true},
     SubCategory: {type: String},
     Brand: {type: String, required: true},
-    SKU: {type: Number, required: true},
+    SKU: {type: String, required: true},
     LastPurchasePrice: {type: Number, required: true},
     SalePrice: {type: Number, required: true},
     Dealer: {
