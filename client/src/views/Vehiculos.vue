@@ -151,10 +151,10 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio"></v-text-field>
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
                                         </v-col>
                                     </v-row>
                                 </v-container>
