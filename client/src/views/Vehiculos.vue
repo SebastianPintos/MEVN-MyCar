@@ -92,36 +92,36 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.Brand" label="Marca"></v-text-field>
+                                            <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.Model" label="Modelo"></v-text-field>
+                                            <v-text-field v-model="editedItem.Model" label="Modelo" :rules="requerido"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.Category" label="Categoria"></v-text-field>
+                                            <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.Type" label="Tipo"></v-text-field>
+                                            <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.Fuel" label="Combustible"></v-text-field>
+                                            <v-text-field v-model="editedItem.Fuel" label="Combustible" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.transmission" label="Transmision"></v-text-field>
+                                            <v-text-field v-model="editedItem.transmission" label="Transmision" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.origin" label="Origen"></v-text-field>
+                                            <v-text-field v-model="editedItem.origin" label="Origen" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" required></v-select>
+                                            <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
                                         </v-col>
                                          <v-col cols="12" sm="6" md="6">
-                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido" :rules="requerido"></v-text-field>
                                         </v-col>
 
                                     </v-row>
@@ -266,6 +266,9 @@ export default {
         años:["2020","2019","2018","2017","2016","2015","2014","2013","2012","2011","2010","2009","2008","2007","2006"],
         statusList: ["Activo", "Inactivo"],
         dealersList: [],
+        requerido: [
+            value => !!value || 'Requerido.',
+        ],
 
         filtros:[{
             Brand: '',
@@ -382,7 +385,6 @@ export default {
                 }
             }
         },
-
         deleteItem(items) {
             if (!this.mensajeNoSelecciono()) {
                 this.editedIndex = this.vehículos.indexOf(items)
@@ -546,7 +548,8 @@ export default {
         },
 
         save() {
-            if (this.editedIndex > -1) {
+            if(this.validate()){
+if (this.editedIndex > -1) {
                     Object.assign(this.vehículos[this.editedIndex], this.editedItem)
                     this.updateVehicle();
             } else {
@@ -560,7 +563,11 @@ export default {
                 
             }
             this.close()
+            }
+            
         },
+
+
 
     },
 }
