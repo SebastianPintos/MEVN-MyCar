@@ -31,10 +31,10 @@
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                    <v-text-field prefix="$" v-model="filtros.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
+                                    <v-text-field prefix="$" v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor"></v-select>
@@ -84,31 +84,33 @@
                                     <v-container>
                                         <v-row>
 
-                                            <v-col cols="12" sm="6" md="3">
+                                            <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="3">
+                                            <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.SubCategory" label="Sub Categoría"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="3">
+                                            <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="4" md="3">
+                                            <v-col cols="12" sm="4" md="6">
                                                 <v-text-field :rules="reglaSKU" v-model="editedItem.SKU" label="SKU"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="4" md="3">
+                                            <v-col cols="12" sm="4" md="6">
                                                 <v-text-field :rules="reglaPrecio" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="4" md="3">
+                                            <v-col cols="12" sm="4" md="6">
                                                 <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="4" md="3">
+                                            <v-col cols="12" sm="4" md="6">
                                                 <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
-
+                                            </v-col>
+                                             <v-col cols="12" sm="12" md="6">
+                                                <v-textarea v-model="editedItem.Description" label="Descripción"></v-textarea>
                                             </v-col>
                                         </v-row>
                                     </v-container>
@@ -277,6 +279,10 @@ export default {
             {
                 text: 'Proveedor',
                 value: 'Dealer.Email'
+            },
+            {
+                text: 'Descripción',
+                value: 'Description'
             }
         ],
         repuestos: [],
@@ -322,7 +328,7 @@ export default {
     }),
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Vehículo'
+            return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Repuesto'
         }
     },
     watch: {
@@ -575,7 +581,7 @@ export default {
                 if (this.validate()) {
                     Object.assign(this.repuestos[this.editedIndex], this.editedItem)
                     this.updateproduct();
-                     this.reset();
+                    this.reset();
                     this.reiniciar();
                 }
             } else {

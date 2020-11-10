@@ -57,11 +57,11 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="6">
-                                                <v-select ref="categoría" :disabled="disabled" v-model="client.TaxCategory" :items="categorias" label="Categoría" @change="(value) => cambiarRequired(value)"></v-select>
+                                                <v-select ref="categoría" v-model="client.TaxCategory" :items="categorias" label="Categoría" @change="(value) => cambiarRequired(value)"></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="6">
-                                                <v-text-field :rules="reglaRazonSocial" :disabled="disabled" ref="razonSocial" v-model="client.CompanyName" label="Razón Social"></v-text-field>
+                                                <v-text-field :rules="reglaRazonSocial" ref="razonSocial" v-model="client.CompanyName" label="Razón Social"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="4" md="3">
@@ -303,14 +303,6 @@ export default {
         formTitle: '',
     }),
 
-    computed: {
-        disabled() {
-            return this.client.Nationality != 'Argentina';
-            // return this.editedItem.nacionalidad != 'Argentina'
-            //return true;
-        }
-    },
-
     watch: {
         dialog(val) {
             val || this.reiniciar()
@@ -354,7 +346,7 @@ export default {
             }
         },
         cambiarReglaCUIT(value) {
-            if (value != '') {
+            if (value != null & value!= '') {
                 this.reglaCUITAux = this.reglaCUIT;
             } else {
                 this.reglaCUITAux = [];
@@ -474,7 +466,7 @@ export default {
                     "CUIT": selected.CUIT,
                     "CompanyName": selected.CompanyName,
                     "Nationality": selected.Nationality,
-                    "TaxtCategory": selected.TaxCategory,
+                    "TaxCategory": selected.TaxCategory,
                 }
             };
         },
