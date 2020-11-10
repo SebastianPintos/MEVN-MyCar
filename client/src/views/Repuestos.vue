@@ -609,12 +609,15 @@ export default {
                 if (this.selected.length > 1) {
                     if (this.$refs.editarVarios.validate()) {
                         this.updateManyproducts()
-                        this.$refs.editarVarios.resetValidation()
-                        this.nombrePrecioCompra = this.textoBoton[0]
-                        this.nombrePrecioVenta = this.textoBoton[0]
-                        this.nombreProveedor = this.textoBoton[0]
-                        this.reset()
-                        this.close()
+                        this.$refs.editarVarios.resetValidation();
+                        this.nombrePrecioCompra = this.textoBoton[0];
+                        this.nombrePrecioVenta = this.textoBoton[0];
+                        this.nombreProveedor = this.textoBoton[0];
+                        this.deshabilitarPrecioCompra = true;
+                        this.deshabilitarPrecioVenta = true;
+                        this.deshabilitarProveedor = true;
+                        this.reset();
+                        this.close();
                     }
                 } else {
                     if (this.validate()) {
