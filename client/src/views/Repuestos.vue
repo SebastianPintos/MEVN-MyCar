@@ -206,11 +206,7 @@
                 </v-toolbar>
             </template>
 
-            <template v-slot:no-data>
-                <v-btn color="primary" @click="initialize">
-                    Reset
-                </v-btn>
-            </template>
+        
         </v-data-table>
         <v-snackbar v-model="snackbar">
             {{ mensaje }}
@@ -616,6 +612,9 @@ export default {
                         this.deshabilitarPrecioCompra = true;
                         this.deshabilitarPrecioVenta = true;
                         this.deshabilitarProveedor = true;
+                        this.reglaEditarCompra = [];
+                        this.reglaEditarProveedor = [];
+                        this.reglaEditarVenta = [];
                         this.reset();
                         this.close();
                     }
