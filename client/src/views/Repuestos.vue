@@ -267,12 +267,12 @@ export default {
         ],
 
         headers: [{
-                text: 'Category',
+                text: 'Categoría',
                 value: 'Category',
                 align: 'start',
             },
             {
-                text: 'SubCategory',
+                text: 'Sub Categoría',
                 value: 'SubCategory'
             },
             {
