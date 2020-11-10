@@ -43,7 +43,7 @@
                                     <v-select v-model="filtros.year" :items="años" label="Año"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
+                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor" required></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
@@ -92,36 +92,36 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.Brand" label="Marca"></v-text-field>
+                                            <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.Model" label="Modelo"></v-text-field>
+                                            <v-text-field v-model="editedItem.Model" label="Modelo" :rules="requerido"></v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.Category" label="Categoria"></v-text-field>
+                                            <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.Type" label="Tipo"></v-text-field>
+                                            <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.Fuel" label="Combustible"></v-text-field>
+                                            <v-text-field v-model="editedItem.Fuel" label="Combustible" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.transmission" label="Transmision"></v-text-field>
+                                            <v-text-field v-model="editedItem.transmission" label="Transmision" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-text-field v-model="editedItem.origin" label="Origen"></v-text-field>
+                                            <v-text-field v-model="editedItem.origin" label="Origen" :rules="requerido"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="4">
-                                            <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" required></v-select>
+                                            <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
                                         </v-col>
                                          <v-col cols="12" sm="6" md="6">
-                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido" :rules="requerido"></v-text-field>
                                         </v-col>
 
                                     </v-row>
@@ -266,6 +266,9 @@ export default {
         años:["2020","2019","2018","2017","2016","2015","2014","2013","2012","2011","2010","2009","2008","2007","2006"],
         statusList: ["Activo", "Inactivo"],
         dealersList: [],
+        requerido: [
+            value => !!value || 'Requerido.',
+        ],
 
         filtros:[{
             Brand: '',
@@ -382,7 +385,6 @@ export default {
                 }
             }
         },
-
         deleteItem(items) {
             if (!this.mensajeNoSelecciono()) {
                 this.editedIndex = this.vehículos.indexOf(items)
@@ -427,8 +429,10 @@ export default {
             let origin = this.filtros.origin != null & this.filtros.origin != ""
             let year = this.filtros.year != null & this.filtros.year != ""
             let SuggestedPrice = this.filtros.SuggestedPrice != null & this.filtros.SuggestedPrice != ""
+            let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
+
         
-            if(!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice){
+            if(!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer){
                 return
             }
             let BrandMatches = true
@@ -440,12 +444,12 @@ export default {
             let originMatches = true
             let yearMatches = true
             let SuggestedPriceMatches = true
+            let DealerMatches = true
 
             let repAux = []
             let cant = 0
 
             for(var i=0; i<this.vehículos.length;i++){
-            
                     BrandMatches = Brand ? this.vehículos[i].Brand === this.filtros.Brand: BrandMatches
                     ModelMatches = Model ? this.vehículos[i].Model === this.filtros.Model : ModelMatches
                     CategoryMatches = Category ? this.vehículos[i].Category === this.filtros.Category : CategoryMatches
@@ -455,8 +459,9 @@ export default {
                     originMatches = origin ? this.vehículos[i].origin === this.filtros.origin : originMatches
                     yearMatches = year ? this.vehículos[i].year == this.filtros.year : yearMatches
                     SuggestedPriceMatches = SuggestedPrice ? this.vehículos[i].SuggestedPrice == this.filtros.SuggestedPrice : SuggestedPriceMatches
-             
-                if(BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches){
+                    DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
+
+                if(BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches){
                     repAux[cant] = this.vehículos[i]
                     cant++
                 }
@@ -543,7 +548,8 @@ export default {
         },
 
         save() {
-            if (this.editedIndex > -1) {
+            if(this.validate()){
+if (this.editedIndex > -1) {
                     Object.assign(this.vehículos[this.editedIndex], this.editedItem)
                     this.updateVehicle();
             } else {
@@ -557,7 +563,11 @@ export default {
                 
             }
             this.close()
+            }
+            
         },
+
+
 
     },
 }
