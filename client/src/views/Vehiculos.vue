@@ -329,16 +329,9 @@ export default {
     created() {
         this.initialize()
 
-        axios.get('http://localhost:8081/vehicle')
-            .then(res => {
-                this.allvehiculos = res.data.vehicle;
-                this.allvehiculos.forEach(vehiculo => {
-                    if(vehiculo.Status === "ACTIVE"){
-                        this.vehículos.push(vehiculo);
-                    } 
-                })
-        })
-        this.vehículosFiltrados = this.vehículos;
+        this.getVehicles()
+
+        
 
         axios.get('http://localhost:8081/dealer')
             .then(res => {
@@ -348,6 +341,21 @@ export default {
     },
 
     methods: {
+        getVehicles(){
+        this.vehículos=[]
+            axios.get('http://localhost:8081/vehicle')
+            .then(res => {
+                this.allvehiculos = res.data.vehicle;
+                this.allvehiculos.forEach(vehiculo => {
+                    if(vehiculo.Status === "ACTIVE"){
+                        this.vehículos.push(vehiculo);
+                    } 
+                })
+        })
+        this.vehículosFiltrados = this.vehículos;
+        console.log(this.vehículos)
+        },
+
         initialize() {
             this.vehículos = [ ]
         },
@@ -496,8 +504,8 @@ export default {
             })
         },
 
-        updateManyVehicles(){
-            this.selected.forEach(vehicle => {
+        async updateManyVehicles(){
+             await this.selected.forEach(vehicle => {
                 axios.post('http://localhost:8081/vehicle/' + vehicle._id + '/update',{
                 "vehicle":{
                     "Brand": vehicle.Brand,
@@ -514,6 +522,7 @@ export default {
                 }
             })
             })
+            this.getVehicles()
         },
 
         createVehicle(){
