@@ -9,7 +9,7 @@ ctrl.index = (req, res) => {
         res.send({
             vehicle: vehicle
         })
-    })
+    }).populate('Dealer');
 };
 
 
