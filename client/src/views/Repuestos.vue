@@ -1,7 +1,6 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <v-container>
-
         <h1 class="titulo">REPUESTOS</h1>
 
         <!--Filtros-->
@@ -16,28 +15,30 @@
                             <h2>Filtros</h2>
                             <v-row>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-select v-model="filtros.categoría" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría"></v-select>
+                                    <v-text-field v-model="filtros.Category" label="Categoria"></v-text-field>
                                 </v-col>
+
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-select v-model="filtros.sub" :items="['Sub A','Sub B', 'Sub C', 'Sub D']" label="Subcategoría"></v-select>
+                                    <v-text-field v-model="filtros.SubCategory" label="Sub Categoría"></v-text-field>
                                 </v-col>
+
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-select v-model="filtros.marca" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca"></v-select>
+                                    <v-text-field v-model="filtros.Brand" label="Marca"></v-text-field>
+                                </v-col>
+
+                                <v-col cols="12" sm="4" md="3">
+                                    <v-text-field v-model="filtros.SKU" label="SKU"></v-text-field>
+                                </v-col>
+
+                                <v-col cols="12" sm="4" md="3">
+                                    <v-text-field v-model="filtros.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.nroLote" label="N° de Lote"></v-text-field>
+                                    <v-text-field v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.sku" label="SKU"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.estado" label="Estado"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.precioVenta" prefix="$" label="Precio de Venta"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.idProveedor" label="ID Proveedor"></v-text-field>
+                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="_id" item-value="_id" label="Proveedor"></v-select>
+
                                 </v-col>
                                 <v-col cols="12" sm="6" md="6">
                                     <v-btn class="success" @click="aplicarFiltros">Aplicar Filtros</v-btn>
@@ -51,14 +52,13 @@
         </template>
 
         <!-- Tabla -->
-        <v-data-table v-model="selected" show-select :headers="headers" :items="repuestosFiltrados" :search="search" item-key="codigo" sort-by="nombre" class="elevation-1" :single-expand="singleExpand" :expanded.sync="expanded" show-expand>
+        <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rápida" single-line hide-details></v-text-field>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-
                     <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
@@ -66,8 +66,7 @@
                     <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
-                    
-                    <!--Dialog Nuevo Repuesto/Editar Repuesto-->
+
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -75,7 +74,7 @@
                             </v-btn>
                         </template>
                         <v-card>
-                            <v-form ref="form" v-model="valid" lazy-validation>
+                            <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
 
                                 <v-card-title>
                                     <span class="headline">{{ formTitle }}</span>
@@ -84,40 +83,32 @@
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.categoría" :rules="requerido" :items="['Categoría Aa','Categoría Bb', 'Categoría Cc', 'Categoría Dd']" label="Categoría"></v-select>
+
+                                            <v-col cols="12" sm="6" md="3">
+                                                <v-text-field v-model="editedItem.Category" label="Categoria"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.sub" :items="['Sub A','Sub B', 'Sub C', 'Sub D']" label="Subcategoría"></v-select>
+                                            <v-col cols="12" sm="6" md="3">
+                                                <v-text-field v-model="editedItem.SubCategory" label="Sub Categoría"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.marca" :rules="requerido" :items="['Marca Aa','Marca Bb', 'Marca Cc', 'Marca Dd']" label="Marca"></v-select>
+                                            <v-col cols="12" sm="6" md="3">
+                                                <v-text-field v-model="editedItem.Brand" label="Marca"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field :rules="reglaNroLote" v-model="editedItem.nroLote" label="N° de Lote"></v-text-field>
+                                            <v-col cols="12" sm="4" md="3">
+                                                <v-text-field v-model="editedItem.SKU" label="SKU"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="06" md="6">
-                                                <v-text-field :rules="reglaSKU" v-model="editedItem.sku" label="SKU"></v-text-field>
+                                            <v-col cols="12" sm="4" md="3">
+                                                <v-text-field v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                             </v-col>
-
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.estado" :items="['Disponible','No Disponible', 'En tránsito','Reservado']" label="Categoría" required></v-select>
+                                            <v-col cols="12" sm="4" md="3">
+                                                <v-text-field v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                             </v-col>
+                                            <v-col cols="12" sm="4" md="3">
+                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="Nam" label="Proveedor" required></v-select>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.precioVenta" prefix="$" :rules="reglaPrecio" label="Precio de Venta"></v-text-field>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.idProveedor" :rules="reglaIdProveedor" label="ID Proveedor"></v-text-field>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-textarea v-model="editedItem.descripción" label="Descripción"></v-textarea>
                                             </v-col>
                                         </v-row>
                                     </v-container>
@@ -134,9 +125,44 @@
                                 </v-card-actions>
                             </v-form>
                         </v-card>
-                    </v-dialog>
 
-                    <!--Dialog eliminar Repuesto-->
+                        <v-card>
+                            <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
+
+                                <v-card-title>
+                                    <span class="headline">Editar varios</span>
+                                </v-card-title>
+
+                                <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-text-field v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-text-field v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
+                                            </v-col>
+
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="_id" label="ID Proveedor" required></v-select>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-card-text>
+
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" text @click="close">
+                                        Cancelar
+                                    </v-btn>
+                                    <v-btn color="blue darken-1" text @click="save">
+                                        Guardar
+                                    </v-btn>
+                                </v-card-actions>
+                            </v-form>
+                        </v-card>
+
+                    </v-dialog>
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
@@ -149,20 +175,6 @@
                         </v-card>
                     </v-dialog>
                 </v-toolbar>
-
-            </template>
-
-            <template>
-                <v-toolbar flat>
-                    <v-spacer></v-spacer>
-                    <v-switch v-model="singleExpand" label="Single expand" class="mt-2"></v-switch>
-                </v-toolbar>
-            </template>
-            <template v-slot:expanded-item="{ headers, item }">
-                <td :colspan="headers.length">
-                    <h3 class="mb-3"> Descripción: </h3>
-                    <p class="mb-3">{{ item.descripción }}</p>
-                </td>
             </template>
 
             <template v-slot:no-data>
@@ -170,11 +182,10 @@
                     Reset
                 </v-btn>
             </template>
-
         </v-data-table>
-
         <v-snackbar v-model="snackbar">
             {{ mensaje }}
+
             <template v-slot:action="{ attrs }">
                 <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
                     Aceptar
@@ -186,202 +197,124 @@
 </template>
 
 <script>
+import axios from "axios"
 export default {
     data: () => ({
         selected: [],
-        expanded: [],
-        singleExpand: false,
         search: '',
         valid: true,
         snackbar: false,
         mensaje: "",
         dialog: false,
         dialogDelete: false,
-        
-        filtros:[{
-            categoría: "",
-            sub:"",
-            marca:"",
-            nroLote:"",
-            sku:"",
-            estado:"",
-            precioVenta:0,
-            idProveedor:"",
-        }],
-
-        repuestosFiltrados:[],
-
         headers: [{
-                text: 'Categoría',
-                value: 'categoría',
+                text: 'Category',
+                value: 'Category',
                 align: 'start',
-                sortable: false,
             },
             {
-                text: 'Subcategoría',
-                value: 'sub'
+                text: 'SubCategory',
+                value: 'SubCategory'
             },
             {
                 text: 'Marca',
-                value: 'marca'
-            },
-            {
-                text: 'N° de Lote',
-                value: 'nroLote'
+                value: 'Brand'
             },
             {
                 text: 'SKU',
-                value: 'sku'
-            },
-
-            {
-                text: 'Estado',
-                value: 'estado'
+                value: 'SKU'
             },
             {
-                text: 'Precio de Venta',
-                value: 'precioVenta'
+                text: 'Precio última Compra',
+                value: 'LastPurchasePrice'
             },
             {
-                text: 'ID Proveedor',
-                value: 'idProveedor'
+                text: 'Precio Venta',
+                value: 'SalePrice'
             },
+            {
+                text: 'Proveedor',
+                value: 'Dealer'
+            }
         ],
-
         repuestos: [],
-
-        reglaSKU: [
-            value => (value || '').length <= 12 || 'Máximo 12 caracteres',
-            value => (value || '').length >= 8 || 'Mínimo 8 caracteres',
-            value => {
-                const pattern = /^[0-9 A-Z]{8,12}$/
-                return pattern.test(value) || 'SKU inválido'
-            },
-        ],
-
-        reglaNroLote: [
-        value => (value || '').length <= 12 || 'Máximo 12 caracteres',
-            value => (value || '').length >= 4 || (value || '').length==0 || 'Mínimo 4 caracteres',
-            value => {
-                const pattern = /^([0-9 A-Z]{4,12}){0,1}$/
-                return pattern.test(value) || 'N° de lote inválido'
-            },
-        ],
-        
-        reglaIdProveedor: [
-        value => (value || '').length <= 12 || 'Máximo 12 caracteres',
-            value => (value || '').length >= 1 || (value || '').length==0 || 'Mínimo 1 caracter',
-            value => {
-                const pattern = /^([0-9]{1,12}){0,1}$/
-                return pattern.test(value) || 'ID de Proveedor inválido'
-            },
-        ],
-        
-        reglaPrecio: [
-             value => !!value || 'Requerido.',
-             value => {
-                const pattern = /^[0-9]{1,}(,[0-9]{1,}){0,1}$/
-                return pattern.test(value) || 'Sólo se permiten números!'
-            },
-        ],
-
-        requerido: [
-         value => !!value || 'Requerido.'
-        ],
-
+        allRepuestos: [],
+        repuestosFiltrados: [],
+        statusList: ["Activo", "Inactivo"],
+        dealersList: [],
+        filtros: [{
+            Description: '',
+            Category: '',
+            SubCategory: '',
+            Brand: '',
+            SKU: '',
+            LastPurchasePrice: 0,
+            SalePrice: 0,
+            Dealer: '',
+            Status:'',
+        }],
         editedIndex: -1,
         attrs: '',
         on: '',
         editedItem: {
-            categoría: '',
-            nombre: '',
-            codigo: '',
-            sub: '',
-            marca: '',
-            nroLote: '',
-            descripción: '',
-            sku: '',
-            estado: '',
-            precioVenta: 0,
-            idProveedor: '',
+            Description: '',
+            Category: '',
+            SubCategory: '',
+            Brand: '',
+            SKU: '',
+            LastPurchasePrice: 0,
+            SalePrice: 0,
+            Dealer: '',
+            Status: '',
         },
         defaultItem: {
-            categoría: '',
-            nombre: '',
-            codigo: '',
-            sub: '',
-            marca: '',
-            nroLote: '',
-            descripción: '',
-            sku: '',
-            estado: '',
-            precioVenta: 0,
-            idProveedor: '',
+            Description: '',
+            Category: '',
+            SubCategory: '',
+            Brand: '',
+            SKU: '',
+            LastPurchasePrice: 0,
+            SalePrice: 0,
+            Dealer: '',
         },
     }),
-
     computed: {
         formTitle() {
-            return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Repuesto'
+            return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Vehículo'
         },
     },
-
     watch: {
         dialog(val) {
-            val || this.reiniciar()
+            val || this.close()
         },
         dialogDelete(val) {
             val || this.closeDelete()
         },
     },
-
     created() {
-        this.initialize()
+        this.initialize();
+        this.getRepuestos();
+        this.repuestosFiltrados = this.repuestos;
+        axios.get('http://localhost:8081/dealer')
+            .then(res => {
+                this.dealersList = res.data.dealer;
+            })
     },
 
     methods: {
         initialize() {
-            this.repuestos = [{
-                    categoría: 'Categoría Aa',
-                    nombre: 'Lubricante',
-                    codigo: '32-42221144-2',
-                    sub: 'Sub B',
-                    marca: 'Marca Aa',
-                    descripción: 'Este producto ....',
-                    nroLote: '29182920',
-                    sku: 'ABC-123566',
-                    estado: 'Disponible',
-                    precioVenta: 600,
-                    idProveedor: '233',
-                },
-                {
-                    categoría: 'Categoría Bb',
-                    nombre: 'Radiador',
-                    codigo: '24-42431232-2',
-                    sub: 'Sub A',
-                    marca: 'Marca Aa',
-                    descripción: 'El Radiador ... posee ..',
-                    nroLote: '29182920',
-                    sku: 'ABC-123566',
-                    estado: 'Disponible',
-                    precioVenta: 600,
-                    idProveedor: '233',
-                },
-                {
-                    categoría: 'Categoría Cc',
-                    nombre: 'Radiador',
-                    codigo: '27-42433311-3',
-                    sub: 'Sub A',
-                    marca: 'Marca Aa',
-                    descripción: 'Descripción Detallada sasakjfdklsjfksdjfksljdflskjdf',
-                    nroLote: '29182920',
-                    sku: 'ABC-123566',
-                    estado: 'Disponible',
-                    precioVenta: 600,
-                    idProveedor: '233',
-                },
-            ]
-            this.repuestosFiltrados = this.repuestos
+            this.repuestos = []
+        },
+        getRepuestos(){
+        axios.get('http://localhost:8081/product')
+            .then(res => {
+                this.allRepuestos = res.data.product;
+                this.allRepuestos.forEach(repuesto => {
+                    if (repuesto.Status === "ACTIVE") {
+                        this.repuestos.push(repuesto);
+                    }
+                })
+            })
         },
         haySeleccionado() {
             return this.selected.length > 0;
@@ -394,7 +327,6 @@ export default {
             }
             return false;
         },
-
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
                 if (this.selected.length === 1) {
@@ -402,12 +334,10 @@ export default {
                     this.editedItem = Object.assign({}, item)
                     this.dialog = true
                 } else {
-                    this.mensaje = "Sólo puede editar un elemento a la vez!"
-                    this.snackbar = true
+                    this.dialog = true
                 }
             }
         },
-
         deleteItem(items) {
             if (!this.mensajeNoSelecciono()) {
                 this.editedIndex = this.repuestos.indexOf(items)
@@ -415,10 +345,10 @@ export default {
                 this.dialogDelete = true
             }
         },
-
         deleteItemConfirm() {
             this.selected.forEach(item => {
-                this.repuestos.splice(this.repuestos.indexOf(item), 1);
+                this.repuestos.splice(this.repuestos.indexOf(item), 1)
+                this.deleteproduct(item)
             });
             this.closeDelete()
         },
@@ -433,7 +363,6 @@ export default {
             this.dialog = false
             this.reset()
         },
-
         closeDelete() {
             this.dialogDelete = false
             this.reset()
@@ -441,76 +370,133 @@ export default {
         validate() {
             return this.$refs.form.validate()
         },
-        aplicarFiltros(){
-            let categoría = this.filtros.categoría != null & this.filtros.categoría != ""
-            let sub = this.filtros.sub != null & this.filtros.sub !=""
-            let marca = this.filtros.marca != null & this.filtros.marca != ""
-            let sku = this.filtros.sku != null & this.filtros.sku != ""
-            let estado = this.filtros.estado != null & this.filtros.estado != ""
-            let precioVenta = this.filtros.precioVenta != null & this.filtros.precioVenta != ""
-            let idProveedor = this.filtros.idProveedor != null & this.filtros.idProveedor != ""
-        
-            if(!categoría & !sub & !marca & !sku & !estado & !precioVenta & !idProveedor){
+        aplicarFiltros() {
+            let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
+            let SubCategory = this.filtros.SubCategory != null & this.filtros.SubCategory != ""
+            let Category = this.filtros.Category != null & this.filtros.Category != ""
+            let SKU = this.filtros.SKU != null & this.filtros.SKU != ""
+            let LastPurchasePrice = this.filtros.LastPurchasePrice != null & this.filtros.LastPurchasePrice != ""
+            let SalePrice = this.filtros.SalePrice != null & this.filtros.SalePrice != ""
+            let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
+            let Status = this.filtros.Satus != null & this.filtros.Status != ""
+
+            if (!Brand && !Category && !SubCategory && !LastPurchasePrice && !SalePrice && !Dealer && !Status && !SKU) {
                 return
             }
-            let coincideCategoría = true
-            let coincideSub = true
-            let coincideMarca = true
-            let coincideSku = true
-            let coincideEstado = true
-            let coincidePrecioVenta = true
-            let coincideIdProveedor = true
-
+            let BrandMatches = true
+            let SubCategoryMatches = true
+            let CategoryMatches = true
+            let SKUMatches = true
+            let LastPurchasePriceMatches = true
+            let SalePriceMatches = true
+            let StatusMatches = true
+            let DealerMatches = true
             let repAux = []
             let cant = 0
-
-            for(var i=0; i<this.repuestos.length;i++){
-            
-                    coincideCategoría = categoría ? this.repuestos[i].categoría === this.filtros.categoría: coincideCategoría
-                    coincideSub = sub ? this.repuestos[i].sub === this.filtros.sub : coincideSub
-                    coincideMarca = marca ? this.repuestos[i].marca === this.filtros.marca : coincideMarca
-                    coincideSku = sku ? this.repuestos[i].sku === this.filtros.sku : coincideSku
-                    coincidePrecioVenta = precioVenta ? this.repuestos[i].precioVenta === this.filtros.precioVenta : coincidePrecioVenta
-                    coincideIdProveedor = idProveedor ? this.repuestos[i].idProveedor === this.filtros.idProveedor : coincideIdProveedor
-                    coincideEstado = estado ? this.repuestos[i].estado === this.filtros.estado : coincideEstado
-             
-                if(coincideCategoría & coincideSub & coincideMarca & coincideSku & coincideEstado & coincidePrecioVenta & coincideIdProveedor){
+            for (var i = 0; i < this.repuestos.length; i++) {
+                BrandMatches = Brand ? this.repuestos[i].Brand === this.filtros.Brand : BrandMatches
+                SubCategoryMatches = SubCategory ? this.repuestos[i].SubCategory === this.filtros.SubCategory : SubCategoryMatches
+                CategoryMatches = Category ? this.repuestos[i].Category === this.filtros.Category : CategoryMatches
+                SKUMatches = SKU ? this.repuestos[i].SKU === this.filtros.SKU : SKUMatches
+                LastPurchasePriceMatches = LastPurchasePrice ? this.repuestos[i].LastPurchasePrice === this.filtros.LastPurchasePrice : LastPurchasePriceMatches
+                SalePriceMatches = SalePrice ? this.repuestos[i].SalePrice === this.filtros.SalePrice : SalePriceMatches
+                StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
+                DealerMatches = Dealer ? this.repuestos[i].Dealer == this.filtros.Dealer : DealerMatches
+               if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
                     repAux[cant] = this.repuestos[i]
                     cant++
                 }
             }
-        this.repuestosFiltrados = repAux
-        
+            this.repuestosFiltrados = repAux
+            this.repuestos = this.repuestosFiltrados
+
         },
 
-        reiniciarFiltros(){
-                this.filtros=[{
-            categoría: "",
-            sub:"",
-            marca:"",
-            nroLote:"",
-            sku:"",
-            estado:"",
-            precioVenta:0,
-            idProveedor:"",
+        reiniciarFiltros() {
+            this.filtros = [{
+                Description: '',
+                Category: '',
+                SubCategory: '',
+                Brand: '',
+                SKU: '',
+                LastPurchasePrice: 0,
+                SalePrice: 0,
+                Dealer: '',
+                Status:'',
             }]
+            this.repuestosFiltrados = []
+            this.initialize();
+            this.getRepuestos();
             this.repuestosFiltrados = this.repuestos
         },
-        
-        reiniciar(){
-            this.close()
-            this.$refs.form.resetValidation()
+
+        deleteproduct(item) {
+            axios.delete('http://localhost:8081/product/' + item._id + '/delete')
         },
 
+        updateproduct() {
+            axios.post('http://localhost:8081/product/' + this.selected[0]._id + '/update', {
+                "product": {
+                    "Description": this.editedItem.Description,
+                    "Category": this.editedItem.Category,
+                    "SubCategory": this.editedItem.SubCategory,
+                    "Brand": this.editedItem.Brand,
+                    "SKU": this.editedItem.SKU,
+                    "LastPurchasePrice": this.editedItem.LastPurchasePrice,
+                    "SalePrice": this.editedItem.SalePrice,
+                    "Dealer": this.editedItem.Dealer,
+                    "Status": "ACTIVE",
+                }
+            })
+        },
+        updateManyproducts() {
+            this.selected.forEach(product => {
+                axios.post('http://localhost:8081/product/' + product._id + '/update', {
+                    "product": {
+                        "Description": product.Description,
+                        "Category": product.Category,
+                        "SubCategory": product.SubCategory,
+                        "Brand": product.Brand,
+                        "SKU": product.SKU,
+                        "LastPurchasePrice": this.editedItem.LastPurchasePrice,
+                        "SalePrice": this.editedItem.SalePrice,
+                        "Dealer": product.Dealer,
+                        "Status": product.Status,
+                    }
+                })
+            })
+        },
+        createproduct() {
+            axios.post('http://localhost:8081/product/add', {
+                "product": {
+                    "Description": this.editedItem.Description,
+                    "Category": this.editedItem.Category,
+                    "SubCategory": this.editedItem.SubCategory,
+                    "Brand": this.editedItem.Brand,
+                    "SKU": this.editedItem.SKU,
+                    "LastPurchasePrice": this.editedItem.LastPurchasePrice,
+                    "SalePrice": this.editedItem.SalePrice,
+                    "Dealer": this.editedItem.Dealer,
+                }
+            })
+        },
         save() {
-            if (this.validate()) {
-                if (this.editedIndex > -1) {
-                    Object.assign(this.repuestos[this.editedIndex], this.editedItem)
+            if (this.editedIndex > -1) {
+                Object.assign(this.repuestos[this.editedIndex], this.editedItem)
+                this.updateproduct();
+    
+            } else {
+                if (this.selected.length > 1) {
+                    this.updateManyproducts()
+                    this.initialize()
+                    this.getRepuestos()
                 } else {
                     this.repuestos.push(this.editedItem)
+                    this.createproduct()
                 }
-                this.reiniciar()
+
             }
+            this.close()
         },
     },
 }
@@ -520,13 +506,5 @@ export default {
 .mb-2 {
     margin-left: 3px;
     margin-right: 3px;
-}
-
-.mb-3 {
-    margin-left: 5%;
-}
-
-h3 {
-    padding-top: 1%;
 }
 </style>
