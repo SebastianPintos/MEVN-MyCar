@@ -109,7 +109,7 @@
                                             <v-col cols="12" sm="4" md="6">
                                                 <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
                                             </v-col>
-                                             <v-col cols="12" sm="12" md="6">
+                                            <v-col cols="12" sm="12" md="6">
                                                 <v-textarea v-model="editedItem.Description" label="Descripción"></v-textarea>
                                             </v-col>
                                         </v-row>
@@ -174,6 +174,24 @@
                         </v-card>
 
                     </v-dialog>
+
+                    <v-btn dark class="mb-2" color="warning" v-model="dialogStock" >
+                        Stock
+                    </v-btn>
+
+                    <v-dialog v-model="dialogStock" max-width="500px">
+                        <v-card>
+                            <v-card-title class="headline">Gestionar Stock</v-card-title>
+                           
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="dialogStock=false">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="createStockConfirm()">Confirmar</v-btn>
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
@@ -225,6 +243,7 @@ export default {
         deshabilitarPrecioVenta: true,
         deshabilitarPrecioCompra: true,
         deshabilitarProveedor: true,
+        dialogStock: false,
 
         reglaPrecio: [
             value => !!value || 'Requerido.',
@@ -371,6 +390,7 @@ export default {
         haySeleccionado() {
             return this.selected.length > 0;
         },
+
         mensajeNoSelecciono() {
             if (!this.haySeleccionado()) {
                 this.snackbar = true
@@ -379,6 +399,7 @@ export default {
             }
             return false;
         },
+
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
                 if (this.selected.length === 1) {
@@ -450,8 +471,8 @@ export default {
                 SubCategoryMatches = SubCategory ? this.repuestos[i].SubCategory === this.filtros.SubCategory : SubCategoryMatches
                 CategoryMatches = Category ? this.repuestos[i].Category === this.filtros.Category : CategoryMatches
                 SKUMatches = SKU ? this.repuestos[i].SKU === this.filtros.SKU : SKUMatches
-                LastPurchasePriceMatches = LastPurchasePrice ? this.repuestos[i].LastPurchasePrice === this.filtros.LastPurchasePrice : LastPurchasePriceMatches
-                SalePriceMatches = SalePrice ? this.repuestos[i].SalePrice === this.filtros.SalePrice : SalePriceMatches
+                LastPurchasePriceMatches = LastPurchasePrice ? String(this.repuestos[i].LastPurchasePrice) == String(this.filtros.LastPurchasePrice) : LastPurchasePriceMatches
+                SalePriceMatches = SalePrice ? String(this.repuestos[i].SalePrice) == String(this.filtros.SalePrice) : SalePriceMatches
                 StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
                 DealerMatches = Dealer ? this.repuestos[i].Dealer._id == this.filtros.Dealer._id : DealerMatches
                 if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
