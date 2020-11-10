@@ -43,7 +43,7 @@
                                     <v-select v-model="filtros.year" :items="años" label="Año"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
+                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor" required></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
@@ -427,8 +427,10 @@ export default {
             let origin = this.filtros.origin != null & this.filtros.origin != ""
             let year = this.filtros.year != null & this.filtros.year != ""
             let SuggestedPrice = this.filtros.SuggestedPrice != null & this.filtros.SuggestedPrice != ""
+            let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
+
         
-            if(!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice){
+            if(!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer){
                 return
             }
             let BrandMatches = true
@@ -440,12 +442,12 @@ export default {
             let originMatches = true
             let yearMatches = true
             let SuggestedPriceMatches = true
+            let DealerMatches = true
 
             let repAux = []
             let cant = 0
 
             for(var i=0; i<this.vehículos.length;i++){
-            
                     BrandMatches = Brand ? this.vehículos[i].Brand === this.filtros.Brand: BrandMatches
                     ModelMatches = Model ? this.vehículos[i].Model === this.filtros.Model : ModelMatches
                     CategoryMatches = Category ? this.vehículos[i].Category === this.filtros.Category : CategoryMatches
@@ -455,8 +457,9 @@ export default {
                     originMatches = origin ? this.vehículos[i].origin === this.filtros.origin : originMatches
                     yearMatches = year ? this.vehículos[i].year == this.filtros.year : yearMatches
                     SuggestedPriceMatches = SuggestedPrice ? this.vehículos[i].SuggestedPrice == this.filtros.SuggestedPrice : SuggestedPriceMatches
-             
-                if(BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches){
+                    DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
+
+                if(BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches){
                     repAux[cant] = this.vehículos[i]
                     cant++
                 }
