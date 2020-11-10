@@ -43,7 +43,7 @@
                                     <v-select v-model="filtros.year" :items="años" label="Año"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Name" item-value="_id" label="Proveedor" required></v-select>
+                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
@@ -118,7 +118,7 @@
                                             <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" required></v-select>
                                         </v-col>
                                          <v-col cols="12" sm="6" md="6">
-                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Name" item-value="_id" label="Proveedor" required></v-select>
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
@@ -154,7 +154,7 @@
                                             <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Name" item-value="_id" label="Proveedor" required></v-select>
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" required></v-select>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -252,7 +252,7 @@ export default {
             },
             {
                 text: 'Proveedor',
-                value: 'Dealer.Name'
+                value: 'Dealer.Email'
             },
             {
                 text: 'Precio Sugerido',
