@@ -136,16 +136,25 @@
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
+                                            <v-col cols="12" sm="6" md="8">
+                                                <v-text-field id="precioVenta" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-btn class="warning" @click="clickPrecioVenta()">{{nombrePrecioVenta}}</v-btn>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="8">
+                                                <v-text-field :disabled="deshabilitarPrecioCompra" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-btn class="warning" @click="clickPrecioCompra()">{{nombrePrecioCompra}}</v-btn>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="8">
+                                                <v-select :disabled="deshabilitarProveedor" :rules="reglaEditarProveedor" v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="_id" label="ID Proveedor" required></v-select>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-btn class="warning" @click="clickProveedor()">{{nombreProveedor}}</v-btn>
                                             </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="_id" label="ID Proveedor" required></v-select>
-                                            </v-col>
                                         </v-row>
                                     </v-container>
                                 </v-card-text>
@@ -207,6 +216,13 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
+        textoBoton: ['Editar', 'Cancelar'],
+        nombrePrecioCompra: 'Editar',
+        nombrePrecioVenta: 'Editar',
+        nombreProveedor: 'Editar',
+        deshabilitarPrecioVenta: true,
+        deshabilitarPrecioCompra: true,
+        deshabilitarProveedor: true,
 
         reglaPrecio: [
             value => !!value || 'Requerido.',
@@ -215,6 +231,11 @@ export default {
                 return pattern.test(value) || 'Sólo se permiten números!'
             },
         ],
+
+        reglaEditarCompra: [],
+        reglaEditarVenta: [],
+        reglaEditarProveedor: [],
+
         requerido: [
             value => !!value || 'Requerido.',
         ],
@@ -302,7 +323,7 @@ export default {
     computed: {
         formTitle() {
             return this.editedIndex === -1 ? 'Nuevo Repuesto' : 'Editar Vehículo'
-        },
+        }
     },
     watch: {
         dialog(val) {
@@ -326,8 +347,8 @@ export default {
         initialize() {
             this.repuestos = []
         },
-        getRepuestos() {
-            axios.get('http://localhost:8081/product')
+        async getRepuestos() {
+            await axios.get('http://localhost:8081/product')
                 .then(res => {
                     this.allRepuestos = res.data.product;
                     this.allRepuestos.forEach(repuesto => {
@@ -433,6 +454,39 @@ export default {
 
         },
 
+        clickPrecioVenta() {
+            this.deshabilitarPrecioVenta = !this.deshabilitarPrecioVenta;
+            if (this.nombrePrecioVenta === this.textoBoton[0]) {
+                this.reglaEditarVenta = this.requerido;
+                this.nombrePrecioVenta = this.textoBoton[1];
+            } else {
+                this.reglaEditarVenta = [];
+                this.nombrePrecioVenta = this.textoBoton[0];
+            }
+        },
+
+        clickPrecioCompra() {
+            this.deshabilitarPrecioCompra = !this.deshabilitarPrecioCompra;
+            if (this.nombrePrecioCompra === this.textoBoton[0]) {
+                this.reglaEditarCompra = this.requerido;
+                this.nombrePrecioCompra = this.textoBoton[1];
+            } else {
+                this.reglaEditarCompra = [];
+                this.nombrePrecioCompra = this.textoBoton[0];
+            }
+        },
+
+        clickProveedor() {
+            this.deshabilitarProveedor = !this.deshabilitarProveedor;
+            if (this.nombreProveedor === this.textoBoton[0]) {
+                this.reglaEditarProveedor = this.requerido;
+                this.nombreProveedor = this.textoBoton[1];
+            } else {
+                this.reglaEditarProveedor = [];
+                this.nombreProveedor = this.textoBoton[0];
+            }
+        },
+
         reiniciarFiltros() {
             this.filtros = [{
                 Description: '',
@@ -470,8 +524,11 @@ export default {
                 }
             })
         },
-        updateManyproducts() {
-            this.selected.forEach(product => {
+        async updateManyproducts() {
+            await this.selected.forEach(product => {
+                let precioVenta = this.deshabilitarPrecioVenta ? product.SalePrice : this.editedItem.SalePrice;
+                let precioCompra = this.deshabilitarPrecioCompra ? product.LastPurchasePrice : this.editedItem.LastPurchasePrice;
+                let proveedor = this.deshabilitarProveedor ? product.Dealer : this.editedItem.Dealer;
                 axios.post('http://localhost:8081/product/' + product._id + '/update', {
                     "product": {
                         "Description": product.Description,
@@ -479,9 +536,9 @@ export default {
                         "SubCategory": product.SubCategory,
                         "Brand": product.Brand,
                         "SKU": product.SKU,
-                        "LastPurchasePrice": this.editedItem.LastPurchasePrice,
-                        "SalePrice": this.editedItem.SalePrice,
-                        "Dealer": product.Dealer,
+                        "LastPurchasePrice": precioCompra,
+                        "SalePrice": precioVenta,
+                        "Dealer": proveedor,
                         "Status": product.Status,
                     }
                 })
@@ -502,25 +559,36 @@ export default {
             })
         },
         save() {
-            if (this.validate()) {
-                if (this.editedIndex > -1) {
+            if (this.editedIndex > -1) {
+                if (this.validate()) {
                     Object.assign(this.repuestos[this.editedIndex], this.editedItem)
                     this.updateproduct();
-
-                } else {
-                    if (this.selected.length > 1) {
+                    this.reiniciar();
+                }
+            } else {
+                if (this.selected.length > 1) {
+                    if (this.$refs.editarVarios.validate()) {
                         this.updateManyproducts()
+                        this.$refs.editarVarios.resetValidation()
+                        this.nombrePrecioCompra = this.textoBoton[0]
+                        this.nombrePrecioVenta = this.textoBoton[0]
+                        this.nombreProveedor = this.textoBoton[0]
+                        this.reset()
                         this.initialize()
                         this.getRepuestos()
-                    } else {
+                        this.close()
+                    }
+                } else {
+                    if (this.validate()) {
                         this.repuestos.push(this.editedItem)
                         this.createproduct()
+                        this.reiniciar();
                     }
                 }
-                this.reiniciar();
+
             }
         },
-        
+
         reiniciar() {
             this.close()
             this.$refs.form.resetValidation()
