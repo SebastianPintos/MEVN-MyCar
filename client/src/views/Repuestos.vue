@@ -31,10 +31,10 @@
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                    <v-text-field prefix="$" v-model="filtros.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
+                                    <v-text-field prefix="$" v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor"></v-select>
@@ -447,7 +447,7 @@ export default {
                 LastPurchasePriceMatches = LastPurchasePrice ? this.repuestos[i].LastPurchasePrice === this.filtros.LastPurchasePrice : LastPurchasePriceMatches
                 SalePriceMatches = SalePrice ? this.repuestos[i].SalePrice === this.filtros.SalePrice : SalePriceMatches
                 StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
-                DealerMatches = Dealer ? this.repuestos[i].Dealer == this.filtros.Dealer : DealerMatches
+                DealerMatches = Dealer ? this.repuestos[i].Dealer._id == this.filtros.Dealer._id : DealerMatches
                 if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
                     repAux[cant] = this.repuestos[i]
                     cant++
@@ -574,7 +574,7 @@ export default {
                 if (this.validate()) {
                     Object.assign(this.repuestos[this.editedIndex], this.editedItem)
                     this.updateproduct();
-                     this.reset();
+                    this.reset();
                     this.reiniciar();
                 }
             } else {
