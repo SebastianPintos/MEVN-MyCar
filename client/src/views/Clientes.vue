@@ -354,7 +354,7 @@ export default {
             }
         },
         cambiarReglaCUIT(value) {
-            if (value != '') {
+            if (value != null & value!= '') {
                 this.reglaCUITAux = this.reglaCUIT;
             } else {
                 this.reglaCUITAux = [];
