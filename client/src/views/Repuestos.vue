@@ -85,7 +85,7 @@
                                         <v-row>
 
                                             <v-col cols="12" sm="6" md="3">
-                                                <v-text-field v-model="editedItem.Category" label="Categoria"></v-text-field>
+                                                <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="3">
@@ -93,21 +93,21 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="3">
-                                                <v-text-field v-model="editedItem.Brand" label="Marca"></v-text-field>
+                                                <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="4" md="3">
-                                                <v-text-field v-model="editedItem.SKU" label="SKU"></v-text-field>
+                                                <v-text-field :rules="reglaSKU" v-model="editedItem.SKU" label="SKU"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="4" md="3">
-                                                <v-text-field v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                                <v-text-field :rules="reglaPrecio" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="4" md="3">
-                                                <v-text-field v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
+                                                <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="4" md="3">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="Nam" label="Proveedor" required></v-select>
+                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="Nam" label="Proveedor" :rules="requerido"></v-select>
 
                                             </v-col>
                                         </v-row>
@@ -207,6 +207,27 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
+
+        reglaPrecio: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^[0-9]{1,}(.[0-9]{1,}){0,1}$/
+                return pattern.test(value) || 'Sólo se permiten números!'
+            },
+        ],
+        requerido: [
+            value => !!value || 'Requerido.',
+        ],
+
+        reglaSKU: [
+            value => (value || '').length <= 12 || 'Máximo 12 caracteres',
+            value => (value || '').length >= 8 || 'Mínimo 8 caracteres',
+            value => {
+                const pattern = /^[0-9 A-Z]{8,12}$/
+                return pattern.test(value) || 'SKU inválido'
+            },
+        ],
+
         headers: [{
                 text: 'Category',
                 value: 'Category',
@@ -251,7 +272,7 @@ export default {
             LastPurchasePrice: 0,
             SalePrice: 0,
             Dealer: '',
-            Status:'',
+            Status: '',
         }],
         editedIndex: -1,
         attrs: '',
@@ -305,16 +326,16 @@ export default {
         initialize() {
             this.repuestos = []
         },
-        getRepuestos(){
-        axios.get('http://localhost:8081/product')
-            .then(res => {
-                this.allRepuestos = res.data.product;
-                this.allRepuestos.forEach(repuesto => {
-                    if (repuesto.Status === "ACTIVE") {
-                        this.repuestos.push(repuesto);
-                    }
+        getRepuestos() {
+            axios.get('http://localhost:8081/product')
+                .then(res => {
+                    this.allRepuestos = res.data.product;
+                    this.allRepuestos.forEach(repuesto => {
+                        if (repuesto.Status === "ACTIVE") {
+                            this.repuestos.push(repuesto);
+                        }
+                    })
                 })
-            })
         },
         haySeleccionado() {
             return this.selected.length > 0;
@@ -402,7 +423,7 @@ export default {
                 SalePriceMatches = SalePrice ? this.repuestos[i].SalePrice === this.filtros.SalePrice : SalePriceMatches
                 StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
                 DealerMatches = Dealer ? this.repuestos[i].Dealer == this.filtros.Dealer : DealerMatches
-               if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
+                if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
                     repAux[cant] = this.repuestos[i]
                     cant++
                 }
@@ -422,7 +443,7 @@ export default {
                 LastPurchasePrice: 0,
                 SalePrice: 0,
                 Dealer: '',
-                Status:'',
+                Status: '',
             }]
             this.repuestosFiltrados = []
             this.initialize();
@@ -481,25 +502,32 @@ export default {
             })
         },
         save() {
-            if (this.editedIndex > -1) {
-                Object.assign(this.repuestos[this.editedIndex], this.editedItem)
-                this.updateproduct();
-    
-            } else {
-                if (this.selected.length > 1) {
-                    this.updateManyproducts()
-                    this.initialize()
-                    this.getRepuestos()
-                } else {
-                    this.repuestos.push(this.editedItem)
-                    this.createproduct()
-                }
+            if (this.validate()) {
+                if (this.editedIndex > -1) {
+                    Object.assign(this.repuestos[this.editedIndex], this.editedItem)
+                    this.updateproduct();
 
+                } else {
+                    if (this.selected.length > 1) {
+                        this.updateManyproducts()
+                        this.initialize()
+                        this.getRepuestos()
+                    } else {
+                        this.repuestos.push(this.editedItem)
+                        this.createproduct()
+                    }
+                }
+                this.reiniciar();
             }
-            this.close()
         },
+        
+        reiniciar() {
+            this.close()
+            this.$refs.form.resetValidation()
+        },
+
     },
-}
+};
 </script>
 
 <style>
