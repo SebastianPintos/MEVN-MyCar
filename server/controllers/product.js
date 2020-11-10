@@ -8,7 +8,7 @@ ctrl.index = (req, res) => {
         res.send({
             product: product
         })
-    })
+    }).populate('Dealer');
 };
 
 ctrl.create = (req, res) => {
@@ -20,10 +20,10 @@ ctrl.create = (req, res) => {
         SubCategory: body.SubCategory,
         Brand: body.Brand,
         SKU: body.SKU,
-        LastPurchase: body.LastPurchase,
+        LastPurchasePrice: body.LastPurchasePrice,
         SalePrice: body.SalePrice,
         Dealer: body.Dealer,
-        Status: body.Statuts,
+        Status: 'ACTIVE',
     });
     product.save((err) => {
         if(err) {console.log(err)}
@@ -33,24 +33,34 @@ ctrl.create = (req, res) => {
     });
 };
 
-ctrl.update = (req, res) =>{
+ctrl.update = (req, res) => {
     var id = req.params.product_id;
     var body = req.body.product;
     Product.findOne({_id: id}, (err, product) => {
-        if(!product) {console.log(err)}
-        else{
-            product.Description = body.Description;
-            product.Category = body.Category;
-            product.SubCategory = body.SubCategory;
-            product.Brand = body.Brand;
-            product.SKU = body.SKU;
-            product.LastPurchase = body.LastPurchase;
-            product.SalePrice = body.SalePrice;
-            product.Dealer = body.Dealer;
-            product.Status = body.Status;
+        if(err) {console.log(req.body.vehicle)}
+        else {
+            if(!product) {console.log(' no se encontro')}
+            else {
+                product.Description= body.Description,
+                product.Category=body.Category,
+                product.SubCategory= body.SubCategory,
+                product.Brand=body.Brand,
+                product.SKU=body.SKU,
+                product.LastPurchasePrice= body.LastPurchasePrice,
+                product.SalePrice= body.SalePrice,
+                product.Dealer= body.Dealer,
+                product.Status= body.Status,
+                product.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
         }
     })
 };
+
 ctrl.remove = (req, res) =>{
     var id = req.params.product_id;
     Product.findOne({_id: id}, (err, product) => {
@@ -58,9 +68,9 @@ ctrl.remove = (req, res) =>{
         else {
             if(!product) {console.log(' no se encontro')}
             else {
-                Product.State = 'Baja';
+                product.Status = 'INACTIVE';
 
-                Product.save((err) => {
+                product.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
                         success: true

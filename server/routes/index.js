@@ -29,6 +29,8 @@ module.exports = app => {
     router.post('/dealer/add', dealer.create);
     router.post('/dealer/:dealer_id/update', dealer.update);
     router.delete('/dealer/:dealer_id/delete', dealer.remove);
+    router.get('/dealer/:dealer_id', dealer.getOne);
+
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
@@ -36,7 +38,7 @@ module.exports = app => {
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);
-    router.post('/product/:product_id', product.update);
+    router.post('/product/:product_id/update', product.update);
     router.delete('/product/:product_id/delete', product.remove);
   
     app.use(router);

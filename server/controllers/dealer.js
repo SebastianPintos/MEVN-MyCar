@@ -10,6 +10,16 @@ ctrl.index = (req, res) => {
     })
 };
 
+ctrl.getOne = (req, res) => {
+    var id = req.params.dealer_id;
+    Dealer.findById(id, (err, dealer) => {
+        if (err) {console.log(err)}
+        res.send({
+            dealer: dealer
+        })
+    });
+}
+
 ctrl.create = (req, res) => {
     var body = req.body.dealer;
     console.log(req.body.dealer);

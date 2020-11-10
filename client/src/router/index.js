@@ -7,26 +7,24 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () =>
-      import(/* webpackChunkName: "home" */ "../views/Home.vue")
+    component: () => import(/* webpackChunkName: "home" */ "../views/Home.vue")
   },
   {
-    path: "/about",
-    name: "About",
+    path: "/vehiculos",
+    name: "Vehiculos",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue")
+      import(/* webpackChunkName: "vehiculos" */ "../views/Vehiculos.vue"),
+    meta: { title: 'Vehiculos' }
   },
   {
     path: "/login",
     name: "Login",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "login" */ "../views/Login.vue")
+      import(/* webpackChunkName: "login" */ "../views/Login.vue"),
+    meta: { title: 'Login' }
   },
   {
     path: "/registro",
@@ -35,7 +33,29 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "registro" */ "../views/Registro.vue")
+      import(/* webpackChunkName: "registro" */ "../views/Registro.vue"),
+    meta: { title: 'Registro' }
+  }
+  ,
+  {
+    path: "/repuestos",
+    name: "Repuestos",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "repuestos" */ "../views/Repuestos.vue"),
+    meta: { title: 'Repuestos' }
+  },
+  {
+    path: "/clientes",
+    name: "Clientes",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "clientes" */ "../views/Clientes.vue"),
+    meta: { title: 'Clientes' }
   }
 ];
 
@@ -43,6 +63,13 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes
+});
+
+const DEFAULT_TITLE = 'My Car - Home';
+router.afterEach((to) => {
+    Vue.nextTick(() => {
+        document.title = to.meta.title || DEFAULT_TITLE;
+    });
 });
 
 export default router;
