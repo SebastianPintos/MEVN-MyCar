@@ -514,8 +514,8 @@ export default {
             axios.delete('http://localhost:8081/product/' + item._id + '/delete')
         },
 
-        updateproduct() {
-            axios.post('http://localhost:8081/product/' + this.selected[0]._id + '/update', {
+        async updateproduct() {
+            await axios.post('http://localhost:8081/product/' + this.selected[0]._id + '/update', {
                 "product": {
                     "Description": this.editedItem.Description,
                     "Category": this.editedItem.Category,
@@ -553,8 +553,8 @@ export default {
             this.initialize();
             this.getRepuestos();
         },
-        createproduct() {
-            axios.post('http://localhost:8081/product/add', {
+        async createproduct() {
+            await axios.post('http://localhost:8081/product/add', {
                 "product": {
                     "Description": this.editedItem.Description,
                     "Category": this.editedItem.Category,
@@ -566,6 +566,8 @@ export default {
                     "Dealer": this.editedItem.Dealer,
                 }
             })
+            this.initialize();
+            this.getRepuestos();
         },
         save() {
             if (this.editedIndex > -1) {
