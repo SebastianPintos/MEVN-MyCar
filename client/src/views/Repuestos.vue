@@ -37,7 +37,7 @@
                                     <v-text-field v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="_id" item-value="_id" label="Proveedor"></v-select>
+                                    <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor"></v-select>
 
                                 </v-col>
                                 <v-col cols="12" sm="6" md="6">
@@ -107,7 +107,7 @@
                                                 <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="4" md="3">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="Nam" label="Proveedor" :rules="requerido"></v-select>
+                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
 
                                             </v-col>
                                         </v-row>
@@ -149,7 +149,7 @@
                                                 <v-btn class="warning" @click="clickPrecioCompra()">{{nombrePrecioCompra}}</v-btn>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="8">
-                                                <v-select :disabled="deshabilitarProveedor" :rules="reglaEditarProveedor" v-model="editedItem.Dealer" :items="dealersList" item-text="_id" item-value="_id" label="ID Proveedor" required></v-select>
+                                                <v-select :disabled="deshabilitarProveedor" :rules="reglaEditarProveedor" v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="ID Proveedor" required></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-btn class="warning" @click="clickProveedor()">{{nombreProveedor}}</v-btn>
@@ -276,7 +276,7 @@ export default {
             },
             {
                 text: 'Proveedor',
-                value: 'Dealer'
+                value: 'Dealer.Email'
             }
         ],
         repuestos: [],
@@ -337,16 +337,20 @@ export default {
         this.initialize();
         this.getRepuestos();
         this.repuestosFiltrados = this.repuestos;
-        axios.get('http://localhost:8081/dealer')
-            .then(res => {
-                this.dealersList = res.data.dealer;
-            })
+        this.getProveedores();
     },
 
     methods: {
         initialize() {
             this.repuestos = []
         },
+        async getProveedores() {
+            await axios.get('http://localhost:8081/dealer')
+                .then(res => {
+                    this.dealersList = res.data.dealer;
+                })
+        },
+
         async getRepuestos() {
             await axios.get('http://localhost:8081/product')
                 .then(res => {
@@ -502,6 +506,7 @@ export default {
             this.repuestosFiltrados = []
             this.initialize();
             this.getRepuestos();
+            this.getProveedores();
             this.repuestosFiltrados = this.repuestos
         },
 
@@ -523,6 +528,8 @@ export default {
                     "Status": "ACTIVE",
                 }
             })
+            this.initialize();
+            this.getRepuestos();
         },
         async updateManyproducts() {
             await this.selected.forEach(product => {
@@ -543,6 +550,8 @@ export default {
                     }
                 })
             })
+            this.initialize();
+            this.getRepuestos();
         },
         createproduct() {
             axios.post('http://localhost:8081/product/add', {
@@ -563,6 +572,7 @@ export default {
                 if (this.validate()) {
                     Object.assign(this.repuestos[this.editedIndex], this.editedItem)
                     this.updateproduct();
+                     this.reset();
                     this.reiniciar();
                 }
             } else {
@@ -574,8 +584,6 @@ export default {
                         this.nombrePrecioVenta = this.textoBoton[0]
                         this.nombreProveedor = this.textoBoton[0]
                         this.reset()
-                        this.initialize()
-                        this.getRepuestos()
                         this.close()
                     }
                 } else {

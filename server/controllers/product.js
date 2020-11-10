@@ -8,7 +8,7 @@ ctrl.index = (req, res) => {
         res.send({
             product: product
         })
-    })
+    }).populate('Dealer');
 };
 
 ctrl.create = (req, res) => {
