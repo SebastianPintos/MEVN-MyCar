@@ -491,8 +491,8 @@ export default {
             axios.delete('http://localhost:8081/vehicle/'+ item._id +'/delete')
         },
 
-        updateVehicle(){
-            axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update',{
+        async updateVehicle(){
+            await axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update',{
                 "vehicle":{
                     "Brand": this.editedItem.Brand,
                     "Model": this.editedItem.Model,
@@ -507,6 +507,7 @@ export default {
                     "Status": "ACTIVE",
                 }
             })
+            this.getVehicles()
         },
 
         async updateManyVehicles(){
@@ -530,8 +531,8 @@ export default {
             this.getVehicles()
         },
 
-        createVehicle(){
-            axios.post('http://localhost:8081/vehicle/add',{
+        async createVehicle(){
+            await axios.post('http://localhost:8081/vehicle/add',{
                 "vehicle":{
                     "Brand": this.editedItem.Brand,
                     "Model": this.editedItem.Model,
@@ -545,11 +546,12 @@ export default {
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
                 }
             })
+            this.getVehicles()
         },
 
         save() {
             if(this.validate()){
-if (this.editedIndex > -1) {
+                if (this.editedIndex > -1) {
                     Object.assign(this.vehículos[this.editedIndex], this.editedItem)
                     this.updateVehicle();
             } else {
