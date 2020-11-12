@@ -73,11 +73,11 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
+                                    <v-btn class="info" text @click="close">
+                                        <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save()">
-                                        Guardar
+                                    <v-btn class="info" text @click="save()">
+                                        <v-icon>mdi-check</v-icon>
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>
@@ -92,8 +92,10 @@
                             </v-col>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+                                <v-btn class="info" text @click="closeDelete">
+                                <v-icon>mdi-cancel</v-icon></v-btn>
+                                <v-btn class="info" text @click="deleteItemConfirm">
+                                <v-icon>mdi-check</v-icon></v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -106,8 +108,8 @@
             {{ mensaje }}
 
             <template v-slot:action="{ attrs }">
-                <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-                    Aceptar
+                <v-btn class="info" text v-bind="attrs" @click="snackbar = false">
+                    <v-icon>mdi-check</v-icon>
                 </v-btn>
             </template>
         </v-snackbar>

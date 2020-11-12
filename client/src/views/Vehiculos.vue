@@ -48,9 +48,11 @@
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
                                 </v-col>
-                                <v-col cols="12" sm="6" md="6">
-                                    <v-btn class="success" @click="aplicarFiltros">Aplicar Filtros</v-btn>
-                                    <v-btn class="warning" @click="reiniciarFiltros">Reiniciar Filtros</v-btn>
+                                <v-col cols="12" sm="6" md="12">
+                                    <v-btn class="success" @click="aplicarFiltros">
+                                    <v-icon>mdi-check</v-icon></v-btn>
+                                    <v-btn class="warning" @click="reiniciarFiltros">
+                                    <v-icon>mdi-cancel</v-icon></v-btn>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -63,7 +65,7 @@
     <v-data-table v-model="selected" show-select :headers="headers" :items="vehículosFiltrados" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+                <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rápida" single-line hide-details></v-text-field>
 
                 <v-divider class="mx-4" dark vertical></v-divider>
                 <v-spacer></v-spacer>
@@ -130,11 +132,11 @@
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">
-                                    Cancelar
+                                <v-btn class="info" text @click="close">
+                                    <v-icon>mdi-cancel</v-icon>
                                 </v-btn>
-                                <v-btn color="blue darken-1" text @click="save">
-                                    Guardar
+                                <v-btn class="info" text @click="save">
+                                    <v-icon>mdi-check</v-icon>
                                 </v-btn>
                             </v-card-actions>
                         </v-form>
@@ -178,8 +180,10 @@
                         <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
-                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+                            <v-btn class="info" text @click="closeDelete">
+                            <v-icon>mdi-cancel</v-icon></v-btn>
+                            <v-btn class="info" text @click="deleteItemConfirm">
+                            <v-icon>mdi-check</v-icon></v-btn>
                             <v-spacer></v-spacer>
                         </v-card-actions>
                     </v-card>
@@ -197,8 +201,8 @@
         {{ mensaje }}
 
         <template v-slot:action="{ attrs }">
-            <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-                Aceptar
+            <v-btn class="info" text v-bind="attrs" @click="snackbar = false">
+                <v-icon>mdi-check</v-icon>
             </v-btn>
         </template>
     </v-snackbar>
