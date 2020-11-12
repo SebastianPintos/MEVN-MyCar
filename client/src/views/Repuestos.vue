@@ -620,7 +620,7 @@ export default {
             await this.selected.forEach(product => {
                 let precioVenta = this.deshabilitarPrecioVenta ? product.SalePrice : this.editedItem.SalePrice;
                 let precioCompra = this.deshabilitarPrecioCompra ? product.LastPurchasePrice : this.editedItem.LastPurchasePrice;
-
+                    
                 if (precioVenta != product.SalePrice) {
                     if (this.toggle_none1 === 1) {
                         precioVenta = -precioVenta;
