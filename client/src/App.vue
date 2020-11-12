@@ -43,6 +43,13 @@ background-position-x: center;
   font-family: 'Montserrat', sans-serif;
   border-bottom: ridge;
 }
+.tituloChico{
+  align: center;
+  font-size: 25px;
+  margin-left: 35%;
+  color: black;
+  font-family: 'Montserrat', sans-serif;
+}
 .mb-2{
   margin-left: 3px;
   margin-right: 3px;
