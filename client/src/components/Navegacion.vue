@@ -77,6 +77,13 @@
             <v-list-item-title>Repuestos</v-list-item-title>
           </v-list-item>
 
+            <v-list-item :to="'/reservas'">
+            <v-list-item-icon>
+              <v-icon>mdi-calendar</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Reservas</v-list-item-title>
+          </v-list-item>
+
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
