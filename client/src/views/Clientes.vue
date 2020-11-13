@@ -498,6 +498,8 @@ export default {
             //Editar Cliente
             else {
                 if(this.validate()){
+                    this.client.Email = this.principioEmail + "@" + this.finEmail;
+                    this.client.Phone = this.num;
                     Object.assign(this.clients[this.editedIndex], this.client)
                     this.editar("ACTIVE", this.client);
                     this.reiniciar();
