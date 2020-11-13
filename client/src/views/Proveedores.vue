@@ -93,9 +93,11 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn class="info" text @click="closeDelete">
-                                <v-icon>mdi-cancel</v-icon></v-btn>
+                                    <v-icon>mdi-cancel</v-icon>
+                                </v-btn>
                                 <v-btn class="info" text @click="deleteItemConfirm">
-                                <v-icon>mdi-check</v-icon></v-btn>
+                                    <v-icon>mdi-check</v-icon>
+                                </v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -302,20 +304,20 @@ export default {
                     return;
                 }
                 this.editedIndex = this.dealers.indexOf(item);
-                
+
                 this.separarDatos(item);
                 this.Dealer = Object.assign({}, item);
-                
+
                 this.formTitle = "Editar Proveedor";
                 this.dialog = true;
-                try{
-                    this.DealerProvince = this.Dealer.Address.Province;
-                    this.DealerStreet = this.Dealer.Address.Street;
+                console.log("Item province: " + item.Address.Province);
+                try {
+                    this.DealerProvince = item.Address.Province;
+                    this.DealerStreet = item.Address.Street;
                     this.localidades = this.getLocalidades(this.DealerProvince);
-                    this.DealerCity = this.Dealer.Address.City;
-                    this.DealerNumber = this.Dealer.Address.Number;
-                }
-                catch(err){
+                    this.DealerCity = item.Address.City;
+                    this.DealerNumber = item.Address.Number;
+                } catch (err) {
                     console.log(err);
                 }
             }
@@ -376,57 +378,84 @@ export default {
 
         async post(url, data) {
             await axios.post(url, data, {
-                    headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json; charset=utf-8"
-                    }})
-                this.dealers = [];
-                        this.getDealers();
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json; charset=utf-8"
+                }
+            })
+            this.dealers = [];
+            this.getDealers();
         },
 
         save() {
             if (this.editedIndex > -1) {
 
                 if (this.validate()) {
-                    Object.assign(this.dealers[this.editedIndex], this.Dealer)
-                    this.guardar('ACTIVE', this.Dealer,'/update',this.Dealer._id);
-                    this.reset();
+                    let DealerAux = {
+                        "dealer": {
+                            "Name": this.selected[0].Name,
+                            "Phone": this.selected[0].Phone,
+                            "Email": this.principioEmail + "@" + this.finEmail,
+                            "Address": {
+                                "Street": this.DealerStreet,
+                                "Number": this.DealerNumber,
+                                "City": this.DealerCity,
+                                "Province": this.DealerProvince,
+                            },
+                            "Status": this.selected[0].Status,
+                        }
+                    }
+
+                    Object.assign(this.dealers[this.editedIndex], DealerAux);
+                    this.update(JSON.stringify(DealerAux));
+                    //this.reset();
                     this.reiniciar();
                 }
-            } else {
-                if (this.validate()) {
-                    this.guardar('ACTIVE',this.Dealer,'add','');
-                    this.dealers.push(this.Dealer);
-                    this.reiniciar();
+                } else {
+                    if (this.validate()) {
+                        this.guardar('ACTIVE', this.Dealer, 'add', '');
+                        this.dealers.push(this.Dealer);
+                        this.reiniciar();
+                    }
                 }
-            }
+            },
+
+            async update(data) {
+                    await axios.post('http://localhost:8081/dealer/' + this.selected[0]._id + '/update', data, {
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json; charset=utf-8"
+                        }
+                    })
+                    this.dealers = [];
+                    this.getDealers();
+                },
+
+                guardar(estado, selected, accion, id) {
+                    this.post('http://localhost:8081/dealer/' + id + accion, JSON.stringify(this.getJSONDealer(selected, estado)));
+                },
+
+                reiniciar() {
+                    this.close();
+                    this.selected = [];
+                    this.Dealer = new Dealer();
+                    this.principioEmail = '';
+                    this.finEmail = '';
+                    this.$refs.form.resetValidation();
+                },
+
+                separarDatos(value) {
+                    try {
+                        this.principioEmail = value.Email.split("@")[0]
+                        this.finEmail = value.Email.split("@")[1]
+
+                    } catch (e) {
+                        return
+                    }
+                },
+
         },
-
-        guardar(estado, selected,accion, id) {
-            this.post('http://localhost:8081/dealer/' + id + accion, JSON.stringify(this.getJSONDealer(selected, estado)));
-        },
-
-        reiniciar() {
-            this.close();
-            this.selected = [];
-            this.Dealer = new Dealer();
-            this.principioEmail = '';
-            this.finEmail = '';
-            this.$refs.form.resetValidation();
-        },
-
-        separarDatos(value) {
-            try {
-                this.principioEmail = value.Email.split("@")[0]
-                this.finEmail = value.Email.split("@")[1]
-
-            } catch (e) {
-                return
-            }
-        },
-
-    },
-};
+    };
 </script>
 
 <style>
