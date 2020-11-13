@@ -1,5 +1,5 @@
 <template>
-  <div>
+      <div>
     <v-sheet
       tile
       height="54"
@@ -22,6 +22,25 @@
         label="Tipo de Vista"
         @change="cambiarTipo"
       ></v-select>
+
+        <v-select
+        :items="tipoServicio"
+        dense
+        outlined
+        hide-details
+        class="ma-2"
+        label="Tipo de Reserva"
+      ></v-select>
+
+       <v-select
+        :items="sucursales"
+        dense
+        outlined
+        hide-details
+        class="ma-2"
+        label="Sucursal"
+      ></v-select>
+
       <v-spacer></v-spacer>
       <v-btn
         icon
@@ -52,6 +71,8 @@
 <script>
   export default {
     data: () => ({
+    tipoServicio: ['Manenimiento','Service'],
+     sucursales: ['Sucursal A','Sucursal B'],
       type: 'month',
       typeEs: 'Mes',
       typesEs: ['Mes','Semana','Día'],
@@ -119,3 +140,9 @@
     },
   }
 </script>
+<style>
+.contA {
+    background-color: "white";
+    color:"white";
+}
+</style>
