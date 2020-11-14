@@ -1,5 +1,5 @@
 <template>
-      <div>
+      <div class="page">
     <v-sheet
       tile
       height="54"

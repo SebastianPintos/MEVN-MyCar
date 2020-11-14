@@ -1,8 +1,6 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
-    <v-container>
-        <h1 class="titulo">VEHÍCULOS</h1>
-
+<div class="page">
         <!--Filtros-->
         <template>
             <v-expansion-panels>
@@ -225,7 +223,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-    </v-container>
+            </div>
 </v-img>
 </template>
 

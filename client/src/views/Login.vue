@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div class="page">
       <v-form>
       
     <v-container fluid class="md-2">
