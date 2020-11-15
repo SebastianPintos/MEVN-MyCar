@@ -1,6 +1,8 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
-    <div class="page">
+    <v-container>
+        <h1 class="titulo">REPUESTOS</h1>
+
         <!--Filtros-->
         <template>
             <v-expansion-panels>
@@ -39,12 +41,8 @@
 
                                 </v-col>
                                 <v-col cols="12" sm="6" md="6">
-                                    <v-btn class="success" @click="aplicarFiltros">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
-                                    <v-btn class="warning" @click="reiniciarFiltros">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
+                                    <v-btn class="success" @click="aplicarFiltros">Aplicar Filtros</v-btn>
+                                    <v-btn class="warning" @click="reiniciarFiltros">Reiniciar Filtros</v-btn>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -58,14 +56,17 @@
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
                     <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
+
                     <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
+
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -74,12 +75,15 @@
                         </template>
                         <v-card>
                             <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
+
                                 <v-card-title>
                                     <span class="headline">{{ formTitle }}</span>
                                 </v-card-title>
+
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
+
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
                                             </v-col>
@@ -99,15 +103,12 @@
                                             <v-col cols="12" sm="4" md="6">
                                                 <v-text-field :rules="reglaPrecio" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                             </v-col>
-
                                             <v-col cols="12" sm="4" md="6">
                                                 <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                             </v-col>
-
                                             <v-col cols="12" sm="4" md="6">
                                                 <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
                                             </v-col>
-
                                             <v-col cols="12" sm="12" md="6">
                                                 <v-textarea v-model="editedItem.Description" label="Descripción"></v-textarea>
                                             </v-col>
@@ -117,11 +118,11 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn text @click="close" class="info">
-                                        <v-icon>mdi-cancel</v-icon>
+                                    <v-btn color="blue darken-1" text @click="close">
+                                        Cancelar
                                     </v-btn>
-                                    <v-btn text @click="save" class="info">
-                                        <v-icon>mdi-check</v-icon>
+                                    <v-btn color="blue darken-1" text @click="save">
+                                        Guardar
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>
@@ -131,56 +132,29 @@
                             <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
 
                                 <v-card-title>
-                                    <span class="tituloChico">Editar varios</span>
+                                    <span class="headline">Editar varios</span>
                                 </v-card-title>
 
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
-
-                                            <v-btn-toggle v-model="toggle_none1">
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-plus</v-icon>
-                                                </v-btn>
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-minus</v-icon>
-                                                </v-btn>
-                                            </v-btn-toggle>
-
-                                            <v-col cols="12" sm="6" md="10">
-                                                <v-text-field id="precioVenta" suffix="%" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
+                                            <v-col cols="12" sm="6" md="8">
+                                                <v-text-field id="precioVenta" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonVenta" @click="clickPrecioVenta()">
-                                                    <v-icon>{{nombrePrecioVenta}}</v-icon>
-                                                </v-btn>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-btn class="warning" @click="clickPrecioVenta()">{{nombrePrecioVenta}}</v-btn>
                                             </v-col>
-
-                                            <v-btn-toggle v-model="toggle_none2">
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-plus</v-icon>
-                                                </v-btn>
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-minus</v-icon>
-                                                </v-btn>
-                                            </v-btn-toggle>
-
-                                            <v-col cols="12" sm="6" md="10">
-                                                <v-text-field :disabled="deshabilitarPrecioCompra" suffix="%" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
+                                            <v-col cols="12" sm="6" md="8">
+                                                <v-text-field :disabled="deshabilitarPrecioCompra" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
                                             </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonCompra" @click="clickPrecioCompra()">
-                                                    <v-icon>{{nombrePrecioCompra}}</v-icon>
-                                                </v-btn>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-btn class="warning" @click="clickPrecioCompra()">{{nombrePrecioCompra}}</v-btn>
                                             </v-col>
-
-                                            <v-col cols="12" sm="6" md="10">
+                                            <v-col cols="12" sm="6" md="8">
                                                 <v-select :disabled="deshabilitarProveedor" :rules="reglaEditarProveedor" v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="ID Proveedor" required></v-select>
                                             </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonProveedor" @click="clickProveedor()">
-                                                    <v-icon>{{nombreProveedor}}</v-icon>
-                                                </v-btn>
+                                            <v-col cols="12" sm="6" md="4">
+                                                <v-btn class="warning" @click="clickProveedor()">{{nombreProveedor}}</v-btn>
                                             </v-col>
 
                                         </v-row>
@@ -189,11 +163,11 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="close">
-                                        <v-icon>mdi-cancel</v-icon>
+                                    <v-btn color="blue darken-1" text @click="close">
+                                        Cancelar
                                     </v-btn>
-                                    <v-btn class="info" text @click="save">
-                                        <v-icon>mdi-check</v-icon>
+                                    <v-btn color="blue darken-1" text @click="save">
+                                        Guardar
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>
@@ -201,22 +175,18 @@
 
                     </v-dialog>
 
-                    <v-btn dark class="mb-2" color="warning" v-model="dialogStock">
+                    <v-btn dark class="mb-2" color="warning" v-model="dialogStock" >
                         Stock
                     </v-btn>
 
                     <v-dialog v-model="dialogStock" max-width="500px">
                         <v-card>
                             <v-card-title class="headline">Gestionar Stock</v-card-title>
-
+                           
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn text @click="dialogStock=false" class="info">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                                <v-btn text @click="createStockConfirm()" class="info">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="dialogStock=false">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="createStockConfirm()">Confirmar</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -227,12 +197,8 @@
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn text @click="closeDelete" class="info">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                                <v-btn text @click="deleteItemConfirm" class="info">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -240,6 +206,7 @@
                 </v-toolbar>
             </template>
 
+        
         </v-data-table>
         <v-snackbar v-model="snackbar">
             {{ mensaje }}
@@ -250,7 +217,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-    </div>
+    </v-container>
 </v-img>
 </template>
 
@@ -259,22 +226,16 @@ import axios from "axios"
 export default {
     data: () => ({
         selected: [],
-        toggle_none1: null,
-        toggle_none2: null,
         search: '',
         valid: true,
         snackbar: false,
         mensaje: "",
         dialog: false,
         dialogDelete: false,
-        textoBoton: ['mdi-pencil', 'mdi-eyedropper-minus'],
-        classBoton: ['success', 'error'],
-        classBotonVenta: 'success',
-        classBotonCompra: 'success',
-        classBotonProveedor: 'success',
-        nombrePrecioCompra: 'mdi-pencil',
-        nombrePrecioVenta: 'mdi-pencil',
-        nombreProveedor: 'mdi-pencil',
+        textoBoton: ['Editar', 'Cancelar'],
+        nombrePrecioCompra: 'Editar',
+        nombrePrecioVenta: 'Editar',
+        nombreProveedor: 'Editar',
         deshabilitarPrecioVenta: true,
         deshabilitarPrecioCompra: true,
         deshabilitarProveedor: true,
@@ -468,22 +429,8 @@ export default {
             })
         },
         close() {
-            this.dialog = false;
-            this.toggle_none1 = null;
-            this.toggle_none2 = null;
-            this.nombrePrecioCompra = this.textoBoton[0];
-            this.nombrePrecioVenta = this.textoBoton[0];
-            this.nombreProveedor = this.textoBoton[0];
-            this.classBotonCompra = this.classBoton[0];
-            this.classBotonProveedor = this.classBoton[0];
-            this.classBotonVenta = this.classBoton[0];
-            this.deshabilitarPrecioCompra = true;
-            this.deshabilitarPrecioVenta = true;
-            this.deshabilitarProveedor = true;
-            this.reglaEditarCompra = [];
-            this.reglaEditarProveedor = [];
-            this.reglaEditarVenta = [];
-            this.reset();
+            this.dialog = false
+            this.reset()
         },
         closeDelete() {
             this.dialogDelete = false
@@ -524,7 +471,7 @@ export default {
                 SalePriceMatches = SalePrice ? String(this.repuestos[i].SalePrice) == String(this.filtros.SalePrice) : SalePriceMatches
                 StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
                 DealerMatches = Dealer ? this.repuestos[i].Dealer.Email == this.filtros.Dealer : DealerMatches
-
+                
                 if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
                     repAux[cant] = this.repuestos[i]
                     cant++
@@ -532,6 +479,7 @@ export default {
             }
             this.repuestosFiltrados = repAux
             this.repuestos = this.repuestosFiltrados
+
         },
 
         clickPrecioVenta() {
@@ -539,11 +487,9 @@ export default {
             if (this.nombrePrecioVenta === this.textoBoton[0]) {
                 this.reglaEditarVenta = this.requerido;
                 this.nombrePrecioVenta = this.textoBoton[1];
-                this.classBotonVenta = this.classBoton[1];
             } else {
                 this.reglaEditarVenta = [];
                 this.nombrePrecioVenta = this.textoBoton[0];
-                this.classBotonVenta = this.classBoton[0];
             }
         },
 
@@ -552,11 +498,9 @@ export default {
             if (this.nombrePrecioCompra === this.textoBoton[0]) {
                 this.reglaEditarCompra = this.requerido;
                 this.nombrePrecioCompra = this.textoBoton[1];
-                this.classBotonCompra = this.classBoton[1];
             } else {
                 this.reglaEditarCompra = [];
                 this.nombrePrecioCompra = this.textoBoton[0];
-                this.classBotonCompra = this.classBoton[0];
             }
         },
 
@@ -565,11 +509,9 @@ export default {
             if (this.nombreProveedor === this.textoBoton[0]) {
                 this.reglaEditarProveedor = this.requerido;
                 this.nombreProveedor = this.textoBoton[1];
-                this.classBotonProveedor = this.classBoton[1];
             } else {
                 this.reglaEditarProveedor = [];
                 this.nombreProveedor = this.textoBoton[0];
-                this.classBotonProveedor = this.classBoton[0];
             }
         },
 
@@ -613,24 +555,10 @@ export default {
             this.initialize();
             this.getRepuestos();
         },
-
         async updateManyproducts() {
             await this.selected.forEach(product => {
                 let precioVenta = this.deshabilitarPrecioVenta ? product.SalePrice : this.editedItem.SalePrice;
                 let precioCompra = this.deshabilitarPrecioCompra ? product.LastPurchasePrice : this.editedItem.LastPurchasePrice;
-                    
-                if (precioVenta != product.SalePrice) {
-                    if (this.toggle_none1 === 1) {
-                        precioVenta = -precioVenta;
-                    }
-                    precioVenta = product.SalePrice + ((product.SalePrice * precioVenta) / 100);
-                }
-                if (precioCompra != product.LastPurchasePrice) {
-                    if (this.toggle_none2 === 1) {
-                        precioCompra = -precioCompra;
-                    }
-                    precioCompra = product.LastPurchasePrice + ((product.LastPurchasePrice * precioCompra) / 100);
-                }
                 let proveedor = this.deshabilitarProveedor ? product.Dealer : this.editedItem.Dealer;
                 axios.post('http://localhost:8081/product/' + product._id + '/update', {
                     "product": {
@@ -649,7 +577,6 @@ export default {
             this.initialize();
             this.getRepuestos();
         },
-
         async createproduct() {
             await axios.post('http://localhost:8081/product/add', {
                 "product": {
@@ -679,6 +606,15 @@ export default {
                     if (this.$refs.editarVarios.validate()) {
                         this.updateManyproducts()
                         this.$refs.editarVarios.resetValidation();
+                        this.nombrePrecioCompra = this.textoBoton[0];
+                        this.nombrePrecioVenta = this.textoBoton[0];
+                        this.nombreProveedor = this.textoBoton[0];
+                        this.deshabilitarPrecioCompra = true;
+                        this.deshabilitarPrecioVenta = true;
+                        this.deshabilitarProveedor = true;
+                        this.reglaEditarCompra = [];
+                        this.reglaEditarProveedor = [];
+                        this.reglaEditarVenta = [];
                         this.reset();
                         this.close();
                     }
@@ -706,9 +642,5 @@ export default {
 .mb-2 {
     margin-left: 3px;
     margin-right: 3px;
-}
-
-.btnMasMenos {
-    margin: -10%;
 }
 </style>

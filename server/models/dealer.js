@@ -5,10 +5,9 @@ var DealerSchema = new Schema({
     Phone: {type: String, required: true},
     Email: {type: String, required: true},
     Address: {
-        Street: {type: String, required: true},
-        Number: {type: String, required: true},
-        City: {type: String, required: true},
-        Province: {type: String, required: true},
+        Street: {type: String},
+        Number: {type: Number},
+        City: {type: String}
     },
     Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 

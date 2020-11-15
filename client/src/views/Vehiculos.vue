@@ -1,7 +1,13 @@
 <template>
-<v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
-<div class="page">
-        <!--Filtros-->
+<v-img 
+ src="../assets/Sun-Tornado.svg"
+ gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)"
+ class="bkg-img"
+ >
+<v-container>
+    <h1 class="titulo">VEHÍCULOS</h1>
+    
+     <!--Filtros-->
         <template>
             <v-expansion-panels>
                 <v-expansion-panel>
@@ -31,7 +37,7 @@
                                     <v-text-field v-model="filtros.transmission" label="Transmision"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.origin" label="Origen"></v-text-field>
+                                    <v-text-field v-model="filtros.origin"  label="Origen"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.year" :items="años" label="Año"></v-select>
@@ -42,13 +48,9 @@
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
                                 </v-col>
-                                <v-col cols="12" sm="6" md="12">
-                                    <v-btn class="success" @click="aplicarFiltros">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
-                                    <v-btn class="warning" @click="reiniciarFiltros">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
+                                <v-col cols="12" sm="6" md="6">
+                                    <v-btn class="success" @click="aplicarFiltros">Aplicar Filtros</v-btn>
+                                    <v-btn class="warning" @click="reiniciarFiltros">Reiniciar Filtros</v-btn>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -58,172 +60,149 @@
         </template>
 
         <!-- Tabla -->
-        <v-data-table v-model="selected" show-select :headers="headers" :items="vehículosFiltrados" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
-            <template v-slot:top>
-                <v-toolbar flat>
-                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rápida" single-line hide-details></v-text-field>
+    <v-data-table v-model="selected" show-select :headers="headers" :items="vehículosFiltrados" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+        <template v-slot:top>
+            <v-toolbar flat>
+                <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
 
-                    <v-divider class="mx-4" dark vertical></v-divider>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
+                <v-divider class="mx-4" dark vertical></v-divider>
+                <v-spacer></v-spacer>
+                <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                    <v-icon>mdi-pencil</v-icon>
+                </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                    <v-icon>mdi-delete</v-icon>
+                </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px">
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                                <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
+                <v-dialog v-model="dialog" max-width="500px">
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                            <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                    </template>
+                    <v-card>
+                        <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
 
-                                <v-card-title>
-                                    <span class="headline">{{ formTitle }}</span>
-                                </v-card-title>
+                            <v-card-title>
+                                <span class="headline">{{ formTitle }}</span>
+                            </v-card-title>
 
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
-                                            </v-col>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Model" label="Modelo" :rules="requerido"></v-text-field>
-                                            </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.Model" label="Modelo" :rules="requerido"></v-text-field>
+                                        </v-col>
 
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Fuel" label="Combustible" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.transmission" label="Transmision" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.origin" label="Origen" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido" :rules="requerido"></v-text-field>
-                                            </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedItem.Fuel" label="Combustible" :rules="requerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedItem.transmission" label="Transmision" :rules="requerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-text-field v-model="editedItem.origin" label="Origen" :rules="requerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="4">
+                                            <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
+                                        </v-col>
+                                         <v-col cols="12" sm="6" md="6">
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido" :rules="requerido"></v-text-field>
+                                        </v-col>
 
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
 
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="close">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
-                                    <v-btn class="info" text @click="save">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                        <v-card>
-                            <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
-
-                                <v-card-title>
-                                    <span class="headline">Editar varios</span>
-                                </v-card-title>
-
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-btn-toggle v-model="toggle_none">
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-plus</v-icon>
-                                                </v-btn>
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-minus</v-icon>
-                                                </v-btn>
-                                            </v-btn-toggle>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.SuggestedPrice" :disabled="deshabilitarPorcentaje" suffix="%" label="Precio" :rules="reglaEditarPorcentaje"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonPorcentaje" @click="clickPorcentaje()">
-                                                    <v-icon>{{nombrePorcentaje}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" :disabled="deshabilitarProveedor" item-text="Email" item-value="_id" label="Proveedor" :rules="reglaEditarProveedor"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonProveedor" @click="clickProveedor()">
-                                                    <v-icon>{{nombreProveedor}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
-                                    </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save">
-                                        Guardar
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                    </v-dialog>
-                    <v-dialog v-model="dialogDelete" max-width="500px">
-                        <v-card>
-                            <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn class="info" text @click="closeDelete">
-                                    <v-icon>mdi-cancel</v-icon>
+                                <v-btn color="blue darken-1" text @click="close">
+                                    Cancelar
                                 </v-btn>
-                                <v-btn class="info" text @click="deleteItemConfirm">
-                                    <v-icon>mdi-check</v-icon>
+                                <v-btn color="blue darken-1" text @click="save">
+                                    Guardar
                                 </v-btn>
-                                <v-spacer></v-spacer>
                             </v-card-actions>
-                        </v-card>
-                    </v-dialog>
-                </v-toolbar>
-            </template>
+                        </v-form>
+                    </v-card>
 
-            <template v-slot:no-data>
-                <v-btn color="primary" @click="initialize">
-                    Reset
-                </v-btn>
-            </template>
-        </v-data-table>
-        <v-snackbar v-model="snackbar">
-            {{ mensaje }}
+                    <v-card>
+                        <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
 
-            <template v-slot:action="{ attrs }">
-                <v-btn class="info" text v-bind="attrs" @click="snackbar = false">
-                    <v-icon>mdi-check</v-icon>
-                </v-btn>
-            </template>
-        </v-snackbar>
-            </div>
+                            <v-card-title>
+                                <span class="headline">Editar varios</span>
+                            </v-card-title>
+
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio" :rules="requerido"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue darken-1" text @click="close">
+                                    Cancelar
+                                </v-btn>
+                                <v-btn color="blue darken-1" text @click="save">
+                                    Guardar
+                                </v-btn>
+                            </v-card-actions>
+                        </v-form>
+                    </v-card>
+
+                </v-dialog>
+                <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-card>
+                        <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+                            <v-spacer></v-spacer>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+            </v-toolbar>
+        </template>
+
+        <template v-slot:no-data>
+            <v-btn color="primary" @click="initialize">
+                Reset
+            </v-btn>
+        </template>
+    </v-data-table>
+    <v-snackbar v-model="snackbar">
+        {{ mensaje }}
+
+        <template v-slot:action="{ attrs }">
+            <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+                Aceptar
+            </v-btn>
+        </template>
+    </v-snackbar>
+</v-container>
 </v-img>
 </template>
 
@@ -231,13 +210,6 @@
 import axios from "axios"
 export default {
     data: () => ({
-        textoBoton: ['mdi-pencil', 'mdi-eyedropper-minus'],
-        classBoton: ['success', 'error'],
-        classBotonPorcentaje: 'success',
-        classBotonProveedor: 'success',
-        nombrePorcentaje: 'mdi-pencil',
-        nombreProveedor: 'mdi-pencil',
-        toggle_none: null,
         selected: [],
         search: '',
         valid: true,
@@ -245,10 +217,6 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
-        deshabilitarPorcentaje: true,
-        deshabilitarProveedor: true,
-        reglaEditarProveedor: [],
-        reglaEditarPorcentaje: [],
         headers: [{
                 text: 'Marca',
                 value: 'Brand',
@@ -295,14 +263,14 @@ export default {
         vehículos: [],
         allvehiculos: [],
         vehículosFiltrados: [],
-        años: ["2020", "2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007", "2006"],
+        años:["2020","2019","2018","2017","2016","2015","2014","2013","2012","2011","2010","2009","2008","2007","2006"],
         statusList: ["Activo", "Inactivo"],
         dealersList: [],
         requerido: [
             value => !!value || 'Requerido.',
         ],
 
-        filtros: [{
+        filtros:[{
             Brand: '',
             Model: '',
             Category: '',
@@ -330,7 +298,7 @@ export default {
             Dealer: '',
             SuggestedPrice: 0,
             Status: '',
-
+            
         },
         defaultItem: {
             Brand: '',
@@ -366,31 +334,33 @@ export default {
 
         this.getVehicles()
 
+        
+
         axios.get('http://localhost:8081/dealer')
             .then(res => {
                 this.dealersList = res.data.dealer;
-            })
-
+        })
+        
     },
 
     methods: {
-        getVehicles() {
-            this.vehículos = []
+        getVehicles(){
+        this.vehículos=[]
             axios.get('http://localhost:8081/vehicle')
-                .then(res => {
-                    this.allvehiculos = res.data.vehicle;
-                    this.allvehiculos.forEach(vehiculo => {
-                        if (vehiculo.Status === "ACTIVE") {
-                            this.vehículos.push(vehiculo);
-                        }
-                    })
+            .then(res => {
+                this.allvehiculos = res.data.vehicle;
+                this.allvehiculos.forEach(vehiculo => {
+                    if(vehiculo.Status === "ACTIVE"){
+                        this.vehículos.push(vehiculo);
+                    } 
                 })
-            this.vehículosFiltrados = this.vehículos;
-            console.log(this.vehículos)
+        })
+        this.vehículosFiltrados = this.vehículos;
+        console.log(this.vehículos)
         },
 
         initialize() {
-            this.vehículos = []
+            this.vehículos = [ ]
         },
         haySeleccionado() {
             return this.selected.length > 0;
@@ -415,32 +385,6 @@ export default {
                 }
             }
         },
-
-        clickProveedor() {
-            this.deshabilitarProveedor = !this.deshabilitarProveedor;
-            if (this.nombreProveedor === this.textoBoton[0]) {
-                this.reglaEditarProveedor = this.requerido;
-                this.nombreProveedor = this.textoBoton[1];
-                this.classBotonProveedor = this.classBoton[1];
-            } else {
-                this.reglaEditarProveedor = [];
-                this.nombreProveedor = this.textoBoton[0];
-                this.classBotonProveedor = this.classBoton[0];
-            }
-        },
-
-        clickPorcentaje() {
-            this.deshabilitarPorcentaje = !this.deshabilitarPorcentaje;
-            if (this.nombrePorcentaje === this.textoBoton[0]) {
-                this.reglaEditarPorcentaje = this.requerido;
-                this.nombrePorcentaje = this.textoBoton[1];
-                this.classBotonPorcentaje = this.classBoton[1];
-            } else {
-                this.reglaEditarPorcentaje = [];
-                this.nombrePorcentaje = this.textoBoton[0];
-                this.classBotonPorcentaje = this.classBoton[0];
-            }
-        },
         deleteItem(items) {
             if (!this.mensajeNoSelecciono()) {
                 this.editedIndex = this.vehículos.indexOf(items)
@@ -462,15 +406,6 @@ export default {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
-            this.toggle_none = null;
-            this.nombrePorcentaje = this.textoBoton[0];
-            this.nombreProveedor = this.textoBoton[0];
-            this.classBotonPorcentaje = this.classBoton[0];
-            this.classBotonProveedor = this.classBoton[0];
-            this.deshabilitarPorcentaje = true;
-            this.deshabilitarProveedor = true;
-            this.reglaEditarPorcentaje = [];
-            this.reglaEditarProveedor = [];
         },
         close() {
             this.dialog = false
@@ -484,9 +419,9 @@ export default {
         validate() {
             return this.$refs.form.validate()
         },
-        aplicarFiltros() {
+        aplicarFiltros(){
             let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
-            let Model = this.filtros.Model != null & this.filtros.Model != ""
+            let Model = this.filtros.Model != null & this.filtros.Model !=""
             let Category = this.filtros.Category != null & this.filtros.Category != ""
             let Fuel = this.filtros.Fuel != null & this.filtros.Fuel != ""
             let Type = this.filtros.Type != null & this.filtros.Type != ""
@@ -496,7 +431,8 @@ export default {
             let SuggestedPrice = this.filtros.SuggestedPrice != null & this.filtros.SuggestedPrice != ""
             let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
 
-            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer) {
+        
+            if(!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer){
                 return
             }
             let BrandMatches = true
@@ -513,50 +449,51 @@ export default {
             let repAux = []
             let cant = 0
 
-            for (var i = 0; i < this.vehículos.length; i++) {
-                BrandMatches = Brand ? this.vehículos[i].Brand === this.filtros.Brand : BrandMatches
-                ModelMatches = Model ? this.vehículos[i].Model === this.filtros.Model : ModelMatches
-                CategoryMatches = Category ? this.vehículos[i].Category === this.filtros.Category : CategoryMatches
-                FuelMatches = Fuel ? this.vehículos[i].Fuel === this.filtros.Fuel : FuelMatches
-                TypeMatches = Type ? this.vehículos[i].Type === this.filtros.Type : TypeMatches
-                transmissionMatches = transmission ? this.vehículos[i].transmission === this.filtros.transmission : transmissionMatches
-                originMatches = origin ? this.vehículos[i].origin === this.filtros.origin : originMatches
-                yearMatches = year ? this.vehículos[i].year == this.filtros.year : yearMatches
-                SuggestedPriceMatches = SuggestedPrice ? this.vehículos[i].SuggestedPrice == this.filtros.SuggestedPrice : SuggestedPriceMatches
-                DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
+            for(var i=0; i<this.vehículos.length;i++){
+                    BrandMatches = Brand ? this.vehículos[i].Brand === this.filtros.Brand: BrandMatches
+                    ModelMatches = Model ? this.vehículos[i].Model === this.filtros.Model : ModelMatches
+                    CategoryMatches = Category ? this.vehículos[i].Category === this.filtros.Category : CategoryMatches
+                    FuelMatches = Fuel ? this.vehículos[i].Fuel === this.filtros.Fuel : FuelMatches
+                    TypeMatches = Type ? this.vehículos[i].Type === this.filtros.Type : TypeMatches
+                    transmissionMatches = transmission ? this.vehículos[i].transmission === this.filtros.transmission : transmissionMatches
+                    originMatches = origin ? this.vehículos[i].origin === this.filtros.origin : originMatches
+                    yearMatches = year ? this.vehículos[i].year == this.filtros.year : yearMatches
+                    SuggestedPriceMatches = SuggestedPrice ? this.vehículos[i].SuggestedPrice == this.filtros.SuggestedPrice : SuggestedPriceMatches
+                    DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
 
-                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches) {
+                if(BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches){
                     repAux[cant] = this.vehículos[i]
                     cant++
                 }
             }
-            this.vehículosFiltrados = repAux
-
+        this.vehículosFiltrados = repAux
+        
         },
 
-        reiniciarFiltros() {
-            this.filtros = [{
-                Brand: '',
-                Model: '',
-                Category: '',
-                Fuel: '',
-                Type: '',
-                transmission: '',
-                origin: '',
-                year: '',
-                Dealer: '',
-                SuggestedPrice: 0,
+        reiniciarFiltros(){
+                this.filtros=[{
+            Brand: '',
+            Model: '',
+            Category: '',
+            Fuel: '',
+            Type: '',
+            transmission: '',
+            origin: '',
+            year: '',
+            Dealer: '',
+            SuggestedPrice: 0,
             }]
             this.vehículosFiltrados = this.vehículos
         },
-
-        deleteVehicle(item) {
-            axios.delete('http://localhost:8081/vehicle/' + item._id + '/delete')
+        
+        
+        deleteVehicle(item){
+            axios.delete('http://localhost:8081/vehicle/'+ item._id +'/delete')
         },
 
-        async updateVehicle() {
-            await axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update', {
-                "vehicle": {
+        async updateVehicle(){
+            await axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update',{
+                "vehicle":{
                     "Brand": this.editedItem.Brand,
                     "Model": this.editedItem.Model,
                     "Type": this.editedItem.Type,
@@ -573,44 +510,30 @@ export default {
             this.getVehicles()
         },
 
-        async updateManyVehicles() {
-            await this.selected.forEach(vehicle => {
-                let suggestedPrice = this.deshabilitarPorcentaje ? vehicle.SuggestedPrice : this.editedItem.SuggestedPrice;
-                let dealer = this.deshabilitarProveedor ? vehicle.Dealer : this.editedItem.Dealer;
-
-                if (suggestedPrice != vehicle.SuggestedPrice) {
-                    let porcentaje = (vehicle.SuggestedPrice * suggestedPrice)/100;
-          
-                    if (this.toggle_none === 1) {
-                        suggestedPrice = vehicle.SuggestedPrice - porcentaje;
-                    }
-                    else{
-                        suggestedPrice = vehicle.SuggestedPrice + porcentaje;
-                    }
+        async updateManyVehicles(){
+             await this.selected.forEach(vehicle => {
+                axios.post('http://localhost:8081/vehicle/' + vehicle._id + '/update',{
+                "vehicle":{
+                    "Brand": vehicle.Brand,
+                    "Model": vehicle.Model,
+                    "Type": vehicle.Type,
+                    "Category": vehicle.Category,
+                    "Fuel": vehicle.Fuel,
+                    "transmission": vehicle.transmission,
+                    "origin": vehicle.origin,
+                    "year": vehicle.year,
+                    "Dealer": this.editedItem.Dealer,
+                    "SuggestedPrice": this.editedItem.SuggestedPrice,
+                    "Status": "ACTIVE",
                 }
-
-                axios.post('http://localhost:8081/vehicle/' + vehicle._id + '/update', {
-                    "vehicle": {
-                        "Brand": vehicle.Brand,
-                        "Model": vehicle.Model,
-                        "Type": vehicle.Type,
-                        "Category": vehicle.Category,
-                        "Fuel": vehicle.Fuel,
-                        "transmission": vehicle.transmission,
-                        "origin": vehicle.origin,
-                        "year": vehicle.year,
-                        "Dealer": dealer,
-                        "SuggestedPrice": suggestedPrice,
-                        "Status": "ACTIVE",
-                    }
-                })
+            })
             })
             this.getVehicles()
         },
 
-        async createVehicle() {
-            await axios.post('http://localhost:8081/vehicle/add', {
-                "vehicle": {
+        async createVehicle(){
+            await axios.post('http://localhost:8081/vehicle/add',{
+                "vehicle":{
                     "Brand": this.editedItem.Brand,
                     "Model": this.editedItem.Model,
                     "Type": this.editedItem.Type,
@@ -627,28 +550,27 @@ export default {
         },
 
         save() {
-
-            if (this.editedIndex > -1) {
-                if (this.validate()) {
+            if(this.validate()){
+                if (this.editedIndex > -1) {
                     Object.assign(this.vehículos[this.editedIndex], this.editedItem)
                     this.updateVehicle();
-                }
             } else {
-                if (this.selected.length > 1) {
-                    if (this.$refs.editarVarios.validate()) {
-                        this.updateManyVehicles()
-                    }
-                } else {
-                    if (this.validate()) {
-                        this.vehículos.push(this.editedItem);
-                        this.createVehicle();
-
-                    }
+                if(this.selected.length > 1){
+                    this.updateManyVehicles()
                 }
-
+                else{
+                this.vehículos.push(this.editedItem)
+                this.createVehicle()
+                }
+                
             }
             this.close()
-        }
+            }
+            
+        },
+
+
+
     },
 }
 </script>
