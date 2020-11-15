@@ -27,7 +27,7 @@ export default {
 <style >
 .appl{
 background-image: url("./assets/Hellcat.jpg");
-height: 100vh;
+height: 100%;
 background-size: cover;
 background-position-x: center;
 }
@@ -43,8 +43,17 @@ background-position-x: center;
   font-family: 'Montserrat', sans-serif;
   border-bottom: ridge;
 }
+.tituloChico{
+  font-size: 25px;
+  margin-left: 35%;
+  color: black;
+  font-family: 'Montserrat', sans-serif;
+}
 .mb-2{
   margin-left: 3px;
   margin-right: 3px;
+}
+.page{
+  margin: 4%;
 }
 </style>
