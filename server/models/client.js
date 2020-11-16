@@ -7,8 +7,8 @@ var ClientSchema = new Schema({
         Phone: {type: String, required: true},
         Email: {type: String, required: true, unique: true},
         Vehicle: [{
-            type: Schema.Types.ObjectId,
-            ref: 'Vehicle'
+            VehicleID : {type: Schema.Types.ObjectId, ref: 'Vehicle'},
+            Domain: {type: String}            
         }],
         Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
         DNI: {type: String, required: true, unique: true},
