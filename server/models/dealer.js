@@ -10,6 +10,7 @@ var DealerSchema = new Schema({
         City: {type: String, required: true},
         Province: {type: String, required: true},
     },
+
     Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
     Kind: {type: String, enum: ['VEHICLE', 'PRODUCT'], required: true},
 });

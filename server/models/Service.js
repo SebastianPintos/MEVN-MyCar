@@ -6,17 +6,18 @@ var ServiceSchema = new Schema({
     LaborPrice: {type: Number},
     Time: {type: Number},
     Vehicle: {
-     type: Schema.Types.ObjectId,
-     ref: 'Vehicle'
-  },
-  Product: [{
-     type: Schema.Types.ObjectId,
-     ref: 'Product'
-  }],
-  BranchOffice: [{
-     type:Schema.Types.ObjectId,
-     ref: 'BranchOffice'
-  }]
+        type: Schema.Types.ObjectId,
+        ref: 'Vehicle'
+    },
+    Product: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
+    BranchOffice: [{
+        type:Schema.Types.ObjectId,
+        ref: 'BranchOffice'
+    }],
+    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true}
 });
 
 var service = mongoose.model('Service', ServiceSchema);

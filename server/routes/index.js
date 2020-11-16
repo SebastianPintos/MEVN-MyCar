@@ -7,10 +7,11 @@ const productStock = require('../controllers/productStock');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
+const service = require('../controllers/services');
 
 module.exports = app => {
     router.get('/', home.index);
-    
+
     router.get('/client', client.index);
     router.post('/client/add', client.create);
     router.post('/client/:client_id/update', client.update);
@@ -41,6 +42,11 @@ module.exports = app => {
     router.post('/product/add', product.create);
     router.post('/product/:product_id/update', product.update);
     router.delete('/product/:product_id/delete', product.remove);
+
+    router.get('/service', service.index);
+    router.post('/service/add', service.create);
+    router.post('/service/:service_id/update', service.update);
+    router.delete('/service/:service_id/delete', service.remove);    
   
     app.use(router);
 }
