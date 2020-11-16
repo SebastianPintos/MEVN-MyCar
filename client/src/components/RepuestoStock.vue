@@ -112,7 +112,6 @@ export default {
         defectuosos: 0,
         noRecibidos: 0,
         reglaNumero: [
-            value => !!value || 'Requerido.',
             value => {
                 const pattern = /^[0-9]{1,}$/
                 return pattern.test(value) || 'Sólo se permiten números!'
@@ -151,24 +150,7 @@ export default {
         editedIndex: -1,
         attrs: '',
         on: '',
-        editedItem: {
-            Code: '',
-            BatchNum: '',
-            Reserved: '',
-            Available: '',
-            OutOfService: '',
-            Expiration: '',
-            Product: ''
-        },
-        defaultItem: {
-            Code: '',
-            BatchNum: '',
-            Reserved: '',
-            Available: '',
-            OutOfService: '',
-            Expiration: '',
-            Product: ''
-        },
+        
         files: [],
         data: null,
         chosenFile: null,
@@ -278,6 +260,7 @@ export default {
                     this.defectuosos = 0;
                     this.noRecibidos = 0;
                     this.dialogConfirm = false;
+                    this.selected=[];
                     this.$refs.form.resetValidation();
                     Object.assign(this.repuestosStock[this.editedIndex], productEdited);
                     this.editedIndex = -1;
