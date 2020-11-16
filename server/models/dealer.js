@@ -11,7 +11,7 @@ var DealerSchema = new Schema({
         Province: {type: String, required: true},
     },
     Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
-
+    Kind: {type: String, enum: ['VEHICLE', 'PRODUCT'], required: true},
 });
 
 var dealer = mongoose.model('Dealer', DealerSchema);

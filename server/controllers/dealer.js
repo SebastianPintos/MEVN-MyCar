@@ -28,7 +28,8 @@ ctrl.create = (req, res) => {
         Phone: body.Phone,
         Email: body.Email,
         Address: body.Address,
-        Status: 'ACTIVE'
+        Status: 'ACTIVE',
+        Kind: body.Kind
     });
 
     dealer.save((err) => {
@@ -51,7 +52,8 @@ ctrl.update = (req, res) => {
                 dealer.Phone= body.Phone;
                 dealer.Email= body.Email;
                 dealer.Address = body.Address;
-                dealer.Status = body.Status
+                dealer.Status = body.Status;
+                dealer.Kind = body.Kind
 
                 dealer.save((err) => {
                     if(err) {console.log(err)}

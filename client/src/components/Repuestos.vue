@@ -417,8 +417,15 @@ export default {
         async getProveedores() {
             await axios.get('http://localhost:8081/dealer')
                 .then(res => {
-                    this.dealersList = res.data.dealer;
-                })
+                let dealersList = res.data.dealer;
+                if(dealersList!= null){
+                    dealersList.forEach(dealer => {
+                        if(dealer.Kind == "PRODUCT" && dealer.Status == "ACTIVE"){
+                            this.dealersList.push();
+                        }
+                    })
+                }
+            })
         },
 
         async getRepuestos() {
@@ -664,6 +671,7 @@ export default {
                     "SalePrice": this.editedItem.SalePrice,
                     "Dealer": this.editedItem.Dealer,
                     "Status": "ACTIVE",
+                    "Kind": "PRODUCT",
                 }
             })
             this.initialize();
@@ -699,6 +707,7 @@ export default {
                         "SalePrice": precioVenta,
                         "Dealer": proveedor,
                         "Status": product.Status,
+                        "Kind": "PRODUCT",
                     }
                 })
             })
@@ -717,6 +726,7 @@ export default {
                     "LastPurchasePrice": this.editedItem.LastPurchasePrice,
                     "SalePrice": this.editedItem.SalePrice,
                     "Dealer": this.editedItem.Dealer,
+                    "Kind": "PRODUCT",
                 }
             })
             this.initialize();

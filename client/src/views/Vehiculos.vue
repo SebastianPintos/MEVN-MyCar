@@ -362,15 +362,9 @@ export default {
     },
 
     created() {
-        this.initialize()
-
-        this.getVehicles()
-
-        axios.get('http://localhost:8081/dealer')
-            .then(res => {
-                this.dealersList = res.data.dealer;
-            })
-
+        this.initialize();
+        this.getVehicles();
+        this.getDealers();
     },
 
     methods: {
@@ -386,15 +380,30 @@ export default {
                     })
                 })
             this.vehículosFiltrados = this.vehículos;
-            console.log(this.vehículos)
+        },
+
+        async getDealers(){
+            await axios.get('http://localhost:8081/dealer')
+            .then(res => {
+                let dealersList = res.data.dealer;
+                if(dealersList!= null){
+                    dealersList.forEach(dealer => {
+                        if(dealer.Kind == "VEHICLE" && dealer.Status == "ACTIVE"){
+                            this.dealersList.push();
+                        }
+                    })
+                }
+            })
         },
 
         initialize() {
             this.vehículos = []
         },
+
         haySeleccionado() {
             return this.selected.length > 0;
         },
+        
         mensajeNoSelecciono() {
             if (!this.haySeleccionado()) {
                 this.snackbar = true
@@ -568,6 +577,7 @@ export default {
                     "Dealer": this.editedItem.Dealer,
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
                     "Status": "ACTIVE",
+                    "Kind": "VEHICLE",
                 }
             })
             this.getVehicles()
@@ -602,6 +612,7 @@ export default {
                         "Dealer": dealer,
                         "SuggestedPrice": suggestedPrice,
                         "Status": "ACTIVE",
+                        "Kind": "VEHICLE",
                     }
                 })
             })
@@ -621,6 +632,7 @@ export default {
                     "year": this.editedItem.year,
                     "Dealer": this.editedItem.Dealer,
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
+                    "Kind": "VEHICLE",
                 }
             })
             this.getVehicles()
