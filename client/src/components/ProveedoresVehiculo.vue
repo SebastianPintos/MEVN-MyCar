@@ -1,6 +1,6 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
-    <div class="page">
+    <div>
 
         <v-data-table v-model="selected" show-select :headers="headers" :items="dealers" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
 
