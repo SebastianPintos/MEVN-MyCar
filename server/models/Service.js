@@ -14,6 +14,10 @@ var ServiceSchema = new Schema({
     type: Schema.Types.ObjectId,
     required: true,
     ref: 'Product'
+  }],
+  BranchOffice: [{
+      type:Schema.Types.ObjectId,
+      ref: 'BranchOffice'
   }]
 });
 
