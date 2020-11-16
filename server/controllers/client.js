@@ -74,7 +74,7 @@ ctrl.remove = (req, res) => {
         else {
             if(!client) {console.log(' no se encontro')}
             else {
-                client.Status = 'Baja';
+                client.Status = 'INACTIVE';
 
                 client.save((err) => {
                     if(err) {console.log(err)}

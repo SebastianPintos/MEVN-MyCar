@@ -10,6 +10,7 @@ const dealer = require('../controllers/dealer');
 
 module.exports = app => {
     router.get('/', home.index);
+    
     router.get('/client', client.index);
     router.post('/client/add', client.create);
     router.post('/client/:client_id/update', client.update);
