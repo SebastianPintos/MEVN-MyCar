@@ -58,7 +58,7 @@
 
                 <v-list-item :to="'/repuestos'">
                     <v-list-item-icon>
-                        <v-icon>mdi-hammer-wrench</v-icon>
+                        <v-icon>mdi-car-cog</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title>Repuestos</v-list-item-title>
                 </v-list-item>
@@ -69,6 +69,13 @@
                     <v-list-item-title>Vehiculos</v-list-item-title>
                 </v-list-item>
             </v-list-group>
+
+            <v-list-item :to="'/servicios'">
+                <v-list-item-icon>
+                    <v-icon>mdi-hammer-wrench</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Servicios</v-list-item-title>
+            </v-list-item>
 
         </v-list>
     </v-navigation-drawer>
