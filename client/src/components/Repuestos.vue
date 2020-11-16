@@ -201,20 +201,25 @@
 
                     </v-dialog>
 
-                    <v-btn dark class="mb-2" color="warning" v-model="dialogStock">
+                    <v-btn dark class="mb-2" color="warning" @click="controlarStock">
                         Stock
                     </v-btn>
 
                     <v-dialog v-model="dialogStock" max-width="500px">
                         <v-card>
-                            <v-card-title class="headline">Gestionar Stock</v-card-title>
-
+                          <h1 class="text-center">Stock</h1>
+                            <v-card-text>
+                            <h3 class="text-center">Disponibles</h3>
+                            <p class="text-center">{{disponibles}}</p>
+                            <h3 class="text-center">Reservados</h3>
+                            <p class="text-center">{{reservados}}</p>
+                            <h3 class="text-center">Fuera de Servicio</h3>
+                            <p class="text-center">{{fueraDeServicio}}</p>
+                                                        </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn text @click="dialogStock=false" class="info">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                                <v-btn text @click="createStockConfirm()" class="info">
+                              
+                                <v-btn text  class="success" @click="reiniciarStock">
                                     <v-icon>mdi-check</v-icon>
                                 </v-btn>
                                 <v-spacer></v-spacer>
@@ -260,6 +265,10 @@ export default {
     data: () => ({
         selected: [],
         toggle_none1: null,
+        disponibles: 0,
+        reservados: 0,
+        repuestosStock: [],
+        fueraDeServicio: 0,
         toggle_none2: null,
         search: '',
         valid: true,
@@ -396,6 +405,7 @@ export default {
     created() {
         this.initialize();
         this.getRepuestos();
+        this.getrepuestosStock();
         this.repuestosFiltrados = this.repuestos;
         this.getProveedores();
     },
@@ -422,6 +432,21 @@ export default {
                     })
                 })
         },
+
+        async getrepuestosStock() {
+            await axios.get('http://localhost:8081/productStock')
+                .then(res => {
+                    let repuestosStock = res.data.productStock;
+                    if (repuestosStock != null) {
+                        repuestosStock.forEach(repuesto => {
+                            if (repuesto.Status === "ACTIVE") {
+                                this.repuestosStock.push(repuesto);
+                            }
+                        })
+                    }
+                })
+        },
+
         haySeleccionado() {
             return this.selected.length > 0;
         },
@@ -453,6 +478,37 @@ export default {
                 this.dialogDelete = true
             }
         },
+        controlarStock() {
+            if (this.selected.length != 1) {
+                this.snackbar = true;
+                this.mensaje = "Sólo puede corroborar un elemento a la vez!";
+                return;
+            }
+            this.getrepuestosStock();
+            if(this.repuestosStock==null){
+                this.disponibles = 0;
+                this.reservados = 0;
+                this.fueraDeServicio = 0;
+                return;
+            }
+            this.repuestosStock.forEach(repuesto => {
+                if(repuesto.Product._id === this.selected[0]._id){
+                    this.disponibles+=repuesto.Available;
+                    this.reservados+=repuesto.Reserved;
+                    this.fueraDeServicio+=repuesto.OutOfService;
+                   
+                }
+            });
+           this.dialogStock = true;
+        },
+
+        reiniciarStock(){
+            this.disponibles = 0;
+            this.reservados = 0;
+            this.fueraDeServicio = 0;
+            this.dialogStock = false;
+        },
+
         deleteItemConfirm() {
             this.selected.forEach(item => {
                 this.repuestos.splice(this.repuestos.indexOf(item), 1)
@@ -618,7 +674,7 @@ export default {
             await this.selected.forEach(product => {
                 let precioVenta = this.deshabilitarPrecioVenta ? product.SalePrice : this.editedItem.SalePrice;
                 let precioCompra = this.deshabilitarPrecioCompra ? product.LastPurchasePrice : this.editedItem.LastPurchasePrice;
-                    
+
                 if (precioVenta != product.SalePrice) {
                     if (this.toggle_none1 === 1) {
                         precioVenta = -precioVenta;
