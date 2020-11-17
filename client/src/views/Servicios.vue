@@ -4,11 +4,11 @@ V<template>
         <template v-slot:item.actions="{ item }">
 
             <v-btn fab small color="success">
-                <v-icon class="text-center" @click="agregar=false">
+                <v-icon class="text-center" @click="agregarAlCarrito(); console.log(item)">
                     mdi-cart-plus</v-icon>
             </v-btn>
             <v-btn fab small color="error">
-                <v-icon class="text-center" @click="editItem(item)">
+                <v-icon class="text-center" @click="eliminarDelCarrito()">
                     mdi-cart-remove</v-icon>
             </v-btn>
 
@@ -63,9 +63,10 @@ V<template>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     data: () => ({
-        agregar: true,
         selected: [],
         direction: 'top',
         fab: false,
@@ -79,6 +80,28 @@ export default {
         bottom: true,
         left: false,
         transition: 'slide-y-reverse-transition',
+        on: '',
+        attrs: '',
+
+        editedItem: {
+            Description: '',
+            LaborPrice: '',
+            Time: '',
+            Marca: '',
+            Modelo: '',
+            Año: '',
+            BranchOffice: '',
+        },
+
+        defaultItem: {
+            Description: '',
+            LaborPrice: '',
+            Time: '',
+            Marca: '',
+            Modelo: '',
+            Año: '',
+            BranchOffice: '',
+        },
 
         headers: [{
                 text: 'Nombre',
@@ -88,27 +111,27 @@ export default {
             },
             {
                 text: 'Precio',
-                value: 'Precio',
+                value: 'LaborPrice',
             },
             {
                 text: 'Sucursal',
-                value: 'Sucursal',
+                value: 'BranchOffice.Name',
             },
             {
                 text: 'Duración',
-                value: 'Duración',
+                value: 'Time',
             },
             {
-                text: 'Marca',
-                value: 'Marca'
+                text: 'Marca-Vehículo',
+                value: 'Vehicle.Brand'
             },
             {
-                text: 'Modelo',
-                value: 'Modelo'
+                text: 'Modelo-Vehículo',
+                value: 'Vehicle.Model'
             },
             {
-                text: 'Año',
-                value: 'Año'
+                text: 'Año-Vehículo',
+                value: 'Vehicle.Year'
             },
 
             {
@@ -116,79 +139,65 @@ export default {
                 value: 'actions',
                 sortable: false
             },
-
         ],
 
-        service: {
-            Description: 'Servicio de los 100km',
-            Precio: '1000',
-            Sucursal: 'Sucursal A',
-            Duración: '30 min',
-            Marca: 'Marca',
-            Modelo: 'Modelo',
-            Año: 'Año',
-            Repuestos: 'Rep1, rep2, rep3',
-            Sucursales: 'S1, S2, S3..',
-        },
-        servicios: [{
-                _id: 1,
-                Description: 'Servicio de los 100km',
-                Precio: '1000',
-                Sucursal: 'Sucursal A',
-                Duración: '30 min',
-                Marca: 'Marca',
-                Modelo: 'Modelo',
-                Año: 'Año',
-                Repuestos: 'Rep1, rep2, rep3',
-                Sucursales: 'S1, S2, S3..',
-            },
-            {
-                _id: 2,
-                Description: 'Servicio de los 100km',
-                Precio: '1000',
-                Sucursal: 'Sucursal A',
-                Duración: '30 min',
-                Marca: 'Marca',
-                Modelo: 'Modelo',
-                Año: 'Año',
-                Repuestos: 'Rep1, rep2, rep3',
-                Sucursales: 'S1, S2, S3..',
-            }, {
-                _id: 3,
-                Description: 'Servicio de los 100km',
-                Precio: '1000',
-                Sucursal: 'Sucursal A',
-                Duración: '30 min',
-                Marca: 'Marca',
-                Modelo: 'Modelo',
-                Año: 'Año',
-                Repuestos: 'Rep1, rep2, rep3',
-                Sucursales: 'S1, S2, S3..',
-            }, {
-                _id: 4,
-                Description: 'Servicio de los 100km',
-                Precio: '1000',
-                Sucursal: 'Sucursal A',
-                Duración: '30 min',
-                Marca: 'Marca',
-                Modelo: 'Modelo',
-                Año: 'Año',
-                Repuestos: 'Rep1, rep2, rep3',
-                Sucursales: 'S1, S2, S3..',
-            }, {
-                _id: 5,
-                Description: 'Servicio de los 100km',
-                Precio: '1000',
-                Sucursal: 'Sucursal A',
-                Duración: '30 min',
-                Marca: 'Marca',
-                Modelo: 'Modelo',
-                Año: 'Año',
-                Repuestos: 'Rep1, rep2, rep3',
-                Sucursales: 'S1, S2, S3..',
-            },
-        ]
+        servicios: [],
+        sucursales: [],
+        repuestos: [],
     }),
+    created() {
+        this.iniciar();
+    },
+    methods: {
+        iniciar() {
+            this.getServicios();
+            this.getSucursales();
+            this.getRepuestos();
+        },
+
+        async getServicios() {
+            let servicios = [];
+            await axios.get('http://localhost:8081/service')
+                .then(res => {
+                    servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
+                    if (servicios != null) {
+                        servicios.forEach(servicio => {
+                         if (servicio.BranchOffice.length > 0) {
+                                servicio.BranchOffice.forEach(sucursal => {
+                                    let servicioAGuardar ={
+                                            "Description": servicio.Description,
+                                            "LaborPrice": servicio.LaborPrice,
+                                            "Time": servicio.Time,
+                                            "Vehicle": servicio.Vehicle,
+                                            "BranchOffice": sucursal,
+                                        };
+                                    this.servicios.push(servicioAGuardar);
+                                })
+                            }
+                        })
+                    }
+                    console.log(JSON.stringify(this.servicios));
+                });
+        },
+        async getSucursales() {
+            await axios.get('http://localhost:8081/branchOffice')
+                .then(res => {
+                    this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
+                });
+        },
+        async getRepuestos() {
+            await axios.get('http://localhost:8081/product')
+                .then(res => {
+                    this.repuestos = res.data.product.filter(aProduct => aProduct.Status === "ACTIVE")
+                });
+        },
+        agregarAlCarrito() {
+            console.log("carrito++");
+        },
+        eliminarDelCarrito() {
+            console.log("carrito--");
+        }
+    }
 };
 </script>
 
