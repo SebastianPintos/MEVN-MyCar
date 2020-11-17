@@ -1,6 +1,6 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
-<div>
+    <div>
         <!--Filtros-->
         <template>
             <v-expansion-panels>
@@ -21,6 +21,10 @@
                                 <v-col cols="12" sm="6" md="3">
                                     <v-text-field v-model="filtros.Category" label="Categoria"></v-text-field>
                                 </v-col>
+
+                                <v-col cols="12" sm="6" md="4">
+                                    <v-select v-model="editedItem.Kind" :items="nuevoUsado" label="Nuevo/Usado" :rules="requerido"></v-select>
+                                </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.Fuel" label="Combustible"></v-text-field>
                                 </v-col>
@@ -31,7 +35,7 @@
                                     <v-text-field v-model="filtros.transmission" label="Transmision"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.origin" label="Origen"></v-text-field>
+                                    <v-select v-model="filtros.origin" :items="paises" item-text="name" label="Origen"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.year" :items="años" label="Año"></v-select>
@@ -101,6 +105,9 @@
                                                 <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
+                                                <v-select v-model="editedItem.Kind" label="Nuevo/Usado" :items="nuevoUsado" :rules="requerido"></v-select>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="4">
                                                 <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
@@ -110,7 +117,7 @@
                                                 <v-text-field v-model="editedItem.transmission" label="Transmision" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.origin" label="Origen" :rules="requerido"></v-text-field>
+                                                <v-select v-model="editedItem.origin" :items="paises" item-text="name" label="Origen" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
@@ -148,6 +155,8 @@
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
+                                        
+                                            <v-col cols="12" sm="12" md="12">
                                             <v-btn-toggle v-model="toggle_none">
                                                 <v-btn fab dark small class="warning">
                                                     <v-icon>mdi-plus</v-icon>
@@ -156,6 +165,7 @@
                                                     <v-icon>mdi-minus</v-icon>
                                                 </v-btn>
                                             </v-btn-toggle>
+                                            </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.SuggestedPrice" :disabled="deshabilitarPorcentaje" suffix="%" label="Precio" :rules="reglaEditarPorcentaje"></v-text-field>
                                             </v-col>
@@ -223,7 +233,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-            </div>
+    </div>
 </v-img>
 </template>
 
@@ -231,6 +241,7 @@
 import axios from "axios"
 export default {
     data: () => ({
+        paises: [],
         textoBoton: ['mdi-pencil', 'mdi-eyedropper-minus'],
         classBoton: ['success', 'error'],
         classBotonPorcentaje: 'success',
@@ -263,6 +274,10 @@ export default {
                 value: 'Category'
             },
             {
+                text: 'Nuevo/Usado',
+                value: 'Kind'
+            },
+            {
                 text: 'Combustible',
                 value: 'Fuel'
             },
@@ -292,6 +307,7 @@ export default {
             },
 
         ],
+        nuevoUsado: ['NUEVO', 'USADO'],
         vehículos: [],
         allvehiculos: [],
         vehículosFiltrados: [],
@@ -365,9 +381,19 @@ export default {
         this.initialize();
         this.getVehicles();
         this.getDealers();
+        this.getPaises();
     },
 
     methods: {
+
+        getPaises() {
+            axios.get('https://restcountries.eu/rest/v2/all')
+                .then(res => {
+                    this.paises = res.data;
+                });
+
+        },
+
         getVehicles() {
             this.vehículos = []
             axios.get('http://localhost:8081/vehicle')
@@ -382,18 +408,18 @@ export default {
             this.vehículosFiltrados = this.vehículos;
         },
 
-        async getDealers(){
+        async getDealers() {
             await axios.get('http://localhost:8081/dealer')
-            .then(res => {
-                let dealersList = res.data.dealer;
-                if(dealersList!= null){
-                    dealersList.forEach(dealer => {
-                        if(dealer.Kind == "VEHICLE" && dealer.Status == "ACTIVE"){
-                            this.dealersList.push();
-                        }
-                    })
-                }
-            })
+                .then(res => {
+                    let dealersList = res.data.dealer;
+                    if (dealersList != null) {
+                        dealersList.forEach(dealer => {
+                            if (dealer.Kind == "VEHICLE" & dealer.Status == "ACTIVE") {
+                                this.dealersList.push(dealer);
+                            }
+                        })
+                    }
+                })
         },
 
         initialize() {
@@ -403,7 +429,7 @@ export default {
         haySeleccionado() {
             return this.selected.length > 0;
         },
-        
+
         mensajeNoSelecciono() {
             if (!this.haySeleccionado()) {
                 this.snackbar = true
@@ -418,6 +444,13 @@ export default {
                 if (this.selected.length === 1) {
                     this.editedIndex = this.vehículos.indexOf(item)
                     this.editedItem = Object.assign({}, item)
+                    if (this.dealersList != null) {
+                        this.dealersList.forEach(dealer => {
+                            if (dealer._id == item.Dealer) {
+                                this.editedItem.Dealer = dealer.Email;
+                            }
+                        })
+                    }
                     this.dialog = true
                 } else {
                     this.dialog = true
@@ -577,7 +610,7 @@ export default {
                     "Dealer": this.editedItem.Dealer,
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
                     "Status": "ACTIVE",
-                    "Kind": "VEHICLE",
+                    "Kind": this.editedItem.Kind,
                 }
             })
             this.getVehicles()
@@ -589,12 +622,11 @@ export default {
                 let dealer = this.deshabilitarProveedor ? vehicle.Dealer : this.editedItem.Dealer;
 
                 if (suggestedPrice != vehicle.SuggestedPrice) {
-                    let porcentaje = (vehicle.SuggestedPrice * suggestedPrice)/100;
-          
+                    let porcentaje = (vehicle.SuggestedPrice * suggestedPrice) / 100;
+
                     if (this.toggle_none === 1) {
                         suggestedPrice = vehicle.SuggestedPrice - porcentaje;
-                    }
-                    else{
+                    } else {
                         suggestedPrice = vehicle.SuggestedPrice + porcentaje;
                     }
                 }
@@ -612,7 +644,7 @@ export default {
                         "Dealer": dealer,
                         "SuggestedPrice": suggestedPrice,
                         "Status": "ACTIVE",
-                        "Kind": "VEHICLE",
+                        "Kind": this.editedItem.Kind,
                     }
                 })
             })
@@ -632,7 +664,7 @@ export default {
                     "year": this.editedItem.year,
                     "Dealer": this.editedItem.Dealer,
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
-                    "Kind": "VEHICLE",
+                    "Kind": this.editedItem.Kind,
                 }
             })
             this.getVehicles()
