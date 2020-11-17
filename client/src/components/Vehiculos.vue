@@ -23,7 +23,7 @@
                                 </v-col>
 
                                 <v-col cols="12" sm="6" md="4">
-                                    <v-select v-model="editedItem.Kind" :items="nuevoUsado" label="Nuevo/Usado" :rules="requerido"></v-select>
+                                    <v-select v-model="filtros.Kind" :items="filtroNuevoUsado" label="Nuevo/Usado"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.Fuel" label="Combustible"></v-text-field>
@@ -155,16 +155,16 @@
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
-                                        
+
                                             <v-col cols="12" sm="12" md="12">
-                                            <v-btn-toggle v-model="toggle_none">
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-plus</v-icon>
-                                                </v-btn>
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-minus</v-icon>
-                                                </v-btn>
-                                            </v-btn-toggle>
+                                                <v-btn-toggle v-model="toggle_none">
+                                                    <v-btn fab dark small class="warning">
+                                                        <v-icon>mdi-plus</v-icon>
+                                                    </v-btn>
+                                                    <v-btn fab dark small class="warning">
+                                                        <v-icon>mdi-minus</v-icon>
+                                                    </v-btn>
+                                                </v-btn-toggle>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.SuggestedPrice" :disabled="deshabilitarPorcentaje" suffix="%" label="Precio" :rules="reglaEditarPorcentaje"></v-text-field>
@@ -308,6 +308,7 @@ export default {
 
         ],
         nuevoUsado: ['NUEVO', 'USADO'],
+        filtroNuevoUsado: ['TODOS','NUEVO', 'USADO'],
         vehículos: [],
         allvehiculos: [],
         vehículosFiltrados: [],
@@ -329,6 +330,7 @@ export default {
             year: '',
             Dealer: '',
             SuggestedPrice: 0,
+            Kind: '',
         }],
 
         editedIndex: -1,
@@ -346,6 +348,7 @@ export default {
             Dealer: '',
             SuggestedPrice: 0,
             Status: '',
+            Kind: '',
 
         },
         defaultItem: {
@@ -359,6 +362,7 @@ export default {
             year: '',
             Dealer: '',
             SuggestedPrice: 0,
+            Kind: '',
         },
     }),
 
@@ -537,8 +541,8 @@ export default {
             let year = this.filtros.year != null & this.filtros.year != ""
             let SuggestedPrice = this.filtros.SuggestedPrice != null & this.filtros.SuggestedPrice != ""
             let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
-
-            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer) {
+            let Kind = this.filtros.Kind != null & this.filtros.Kind != ""
+            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer & !Kind) {
                 return
             }
             let BrandMatches = true
@@ -551,7 +555,7 @@ export default {
             let yearMatches = true
             let SuggestedPriceMatches = true
             let DealerMatches = true
-
+            let KindMatches = true
             let repAux = []
             let cant = 0
 
@@ -566,8 +570,9 @@ export default {
                 yearMatches = year ? this.vehículos[i].year == this.filtros.year : yearMatches
                 SuggestedPriceMatches = SuggestedPrice ? this.vehículos[i].SuggestedPrice == this.filtros.SuggestedPrice : SuggestedPriceMatches
                 DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
+                KindMatches = Kind ? this.vehículos[i].Dealer.Kind === this.filtros.Kind || this.filtros.Kind =="TODOS": KindMatches 
 
-                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches) {
+                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches & KindMatches) {
                     repAux[cant] = this.vehículos[i]
                     cant++
                 }
