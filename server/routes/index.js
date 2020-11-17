@@ -9,6 +9,7 @@ const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
 const service = require('../controllers/services');
 const employee = require('../controllers/employee');
+const branchOffice = require('../controllers/branchOffice');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -39,7 +40,11 @@ module.exports = app => {
     router.post('/employee/:employee_id/update', employee.update);
     router.delete('/employee/:employee_id/delete', employee.remove);
     
-
+    router.get('/branchOffice', branchOffice.index);
+    router.post('/branchOffice/add', branchOffice.create);
+    router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
+    router.delete('/branchOffice/:branchOffice_id/delete', branchOffice.remove);
+    
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
