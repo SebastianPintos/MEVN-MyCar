@@ -1,23 +1,29 @@
 const ctrl = {};
-var productStock = require("../models/productStock");
+var ProductStock = require("../models/productStock");
 
 ctrl.index = (req, res) => {
-    productStock.find((err, productStock) => {
+    ProductStock.find((err, productStock) => {
         if (err) {console.log(err)}
         res.send({
             productStock: productStock
-        });
-    });
+        })
+    }).populate('Product');
 };
 
 ctrl.create = (req, res) => {
     var body = req.body.productStock;
     console.log(req.body.productStock); 
-    var productStock = new productStock({
+    var productStock = new ProductStock({
         Code: body.Code,
         BatchNum: body.BatchNum,
-        Status: 'Active',
-        Product: body.Product 
+        Status: 'ACTIVE',
+        Reserved: 0,
+        Available: 0,
+        OutOfService: 0,
+        TotalOrdered: body.TotalOrdered,
+        Expiration: body.Expiration,
+        OrderDate: body.OrderDate,
+        Product: body.Product,
     });
     
     productStock.save((err) => {
@@ -29,19 +35,25 @@ ctrl.create = (req, res) => {
 };
 
 ctrl.update = (req, res) => {
-    var id = req.params.productStock_id;
+   var id = req.params.productStock_id;
     var body = req.body.productStock;
-    productStock.findOne({_id: id}, (err, productStock) => {
+    ProductStock.findOne({_id: id}, (err, productStock) => {
         if(err) {console.log(err)}
         else {
-            if(!ProductStock) {console.log('No se encontró el producto específico')}
+            if(!productStock) {console.log('No se encontró el producto específico')}
             else {
                 productStock.Code = body.Code;
                 productStock.BatchNum = body.BatchNum;
-                productStock.Status = 'Active';
+                productStock.Status = 'ACTIVE';
+                productStock.Reserved= body.Reserved,
+                productStock.Available= body.Available,        
+                productStock.OutOfService= body.OutOfService,
+                productStock.TotalOrdered= body.TotalOrdered,
+                productStock.Expiration= body.Expiration,
                 productStock.Product = body.Product;
+                productStock.OrderDate= body.OrderDate,
+                productStock.ArrivalDate = body.ArrivalDate,
                
-
                 productStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -55,12 +67,12 @@ ctrl.update = (req, res) => {
     
 ctrl.remove = (req, res) => {
     var id = req.params.productStock_id;
-    productStock.findOne({_id: id}, (err, productStock) => {
+    ProductStock.findOne({_id: id}, (err, productStock) => {
         if(err) {console.log(err)}
         else {
             if(!productStock) {console.log('No se encontró el producto específico')}
             else {
-                productStock.Status = 'Baja';
+                productStock.Status = 'INACTIVE';
 
                 productStock.save((err) => {
                     if(err) {console.log(err)}
@@ -73,5 +85,5 @@ ctrl.remove = (req, res) => {
         }
     });
 };
-    
+
 module.exports = ctrl;

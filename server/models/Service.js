@@ -7,12 +7,10 @@ var ServiceSchema = new Schema({
     Time: {type: Number},
     Vehicle: {
         type: Schema.Types.ObjectId,
-        required: true,
         ref: 'Vehicle'
     },
     Product: [{
         type: Schema.Types.ObjectId,
-        required: true,
         ref: 'Product'
     }],
     BranchOffice: [{

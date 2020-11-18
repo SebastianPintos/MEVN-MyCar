@@ -1,6 +1,6 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
-    <div class="page">
+    <div>
 
         <v-data-table v-model="selected" show-select :headers="headers" :items="dealers" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
 
@@ -257,7 +257,7 @@ export default {
         async getDealers() {
             await axios.get('http://localhost:8081/dealer')
                 .then(res => {
-                    this.dealers = res.data.dealer.filter(aDealer => aDealer.Status === "ACTIVE")
+                    this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == "PRODUCT")
                 });
         },
 
@@ -328,7 +328,7 @@ export default {
 
         deleteItemConfirm() {
             for (let i = 0; i < this.selected.length; i++) {
-                this.editar("INACTIVE", this.selected[i]);
+                axios.delete('http://localhost:8081/dealer/' + this.selected[i]._id + '/delete')
                 this.dealers.splice(this.dealers.indexOf(this.selected[i]), 1);
             }
             this.closeDelete()
@@ -371,6 +371,7 @@ export default {
                         "Province": selected.Province,
                     },
                     "Status": estado,
+                    "Kind": "PRODUCT",
                 }
             };
         },
@@ -388,12 +389,11 @@ export default {
 
         save() {
             if (this.editedIndex > -1) {
-
                 if (this.validate()) {
                     let DealerAux = {
                         "dealer": {
-                            "Name": this.selected[0].Name,
-                            "Phone": this.selected[0].Phone,
+                            "Name": this.Dealer.Name,
+                            "Phone": this.Dealer.Phone,
                             "Email": this.principioEmail + "@" + this.finEmail,
                             "Address": {
                                 "Street": this.DealerStreet,
@@ -401,19 +401,33 @@ export default {
                                 "City": this.DealerCity,
                                 "Province": this.DealerProvince,
                             },
-                            "Status": this.selected[0].Status,
+                            "Status": this.Dealer.Status,
+                            "Kind": "PRODUCT",
                         }
                     }
-
                     Object.assign(this.dealers[this.editedIndex], DealerAux);
                     this.update(JSON.stringify(DealerAux));
-                    //this.reset();
                     this.reiniciar();
                 }
                 } else {
                     if (this.validate()) {
-                        this.guardar('ACTIVE', this.Dealer, 'add', '');
-                        this.dealers.push(this.Dealer);
+                        let DealerAux = {
+                        "dealer": {
+                            "Name": this.Dealer.Name,
+                            "Phone": this.Dealer.Phone,
+                            "Email": this.principioEmail + "@" + this.finEmail,
+                            "Address": {
+                                "Street": this.DealerStreet,
+                                "Number": this.DealerNumber,
+                                "City": this.DealerCity,
+                                "Province": this.DealerProvince,
+                            },
+                            "Status": "ACTIVE",
+                            "Kind": "PRODUCT",
+                        }
+                    }
+                        this.post('http://localhost:8081/dealer/add',DealerAux);
+                        this.dealers.push(DealerAux);
                         this.reiniciar();
                     }
                 }
