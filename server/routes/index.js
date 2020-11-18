@@ -8,6 +8,8 @@ const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
 
+const sendMail = require('../src/Email')
+
 module.exports = app => {
     router.get('/', home.index);
     router.get('/client', client.index);
@@ -41,5 +43,16 @@ module.exports = app => {
     router.post('/product/:product_id/update', product.update);
     router.delete('/product/:product_id/delete', product.remove);
   
+    router.get('/email', (req, res) => {
+        sendMail('cristiangaray101@gmail.com', 'test', 'text', function(err, data) {
+            if (err) {
+                console.log('ERROR: ', err);
+                return res.status(500).json({ message: err.message || 'Internal Error' });
+            }
+            console.log('Email sent!!!');
+            return res.json({ message: 'Email sent!!!!!' });
+        });
+    });
+
     app.use(router);
 }

@@ -1,34 +1,29 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const mailgun = require('nodemailer-mailgun-transport');
 
-const email = process.env.EMAIL;
-
-class Email{
-
-    constructor(){
-        this.createTransport = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: email, 
-                pass: process.env.PASS
-            }
-        });    
+const auth = {
+    auth: {
+        api_key: process.env.API_KEY,
+        domain: process.env.DOMAIN
     }
+};
 
-    sendMail(mailOptions){
-        this.createTransport.sendMail(mailOptions, (err, data) => {
-            if (err) {
-                return console.log('Error');
-            }
-            return console.log('Email sent!!!');
-    }) 
+const transporter = nodemailer.createTransport(mailgun(auth));
+
+const sendMail = (toEmail, subject, text, cb) => {
+    const mailOptions = {
+        from: '"nodemailer" <sandboxf762f1139bbe47978788fe273ca4738e.mailgun.org>',
+        to: toEmail,
+        subject: subject,
+        text: text
+    };
+    transporter.sendMail(mailOptions, (err,data) => {
+        if(err){
+            return cb(err,null);
+        }
+        return cb (null,data);
+    })
 }
 
-/*let mailOptions = {
-    from: email,
-    to: 'cba@gmail.com',
-    subject: 'Nodemailer - Test',
-    text: 'Wooohooo it works!!'
-};*/
-
-module.exports = Email; 
+module.exports = sendMail;
