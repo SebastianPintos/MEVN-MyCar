@@ -1,18 +1,6 @@
 V<template>
 <div>
     <v-data-table v-model="selected" :single-select="singleSelect" show-select :headers="headers" :items="servicios" :search="search" item-key="_id" class="elevation-1">
-        <template v-slot:item.actions="{ item }">
-
-            <v-btn fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(); console.log(item)">
-                    mdi-cart-plus</v-icon>
-            </v-btn>
-            <v-btn fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito()">
-                    mdi-cart-remove</v-icon>
-            </v-btn>
-
-        </template>
         <template v-slot:top>
             <v-toolbar flat>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -31,34 +19,6 @@ V<template>
             </v-toolbar>
         </template>
     </v-data-table>
-
-    <template>
-        <v-speed-dial v-model="fab" :top="top" :right="right" :direction="direction" :open-on-hover="hover" :transition="transition">
-            <template v-slot:activator>
-                <v-flex class="text-right">
-                    <v-btn v-model="fab" color="warning" dark fab>
-                        <v-icon v-if="fab">
-                            mdi-close
-                        </v-icon>
-                        <v-icon v-else>
-                            mdi-cart-outline
-                        </v-icon>
-                    </v-btn>
-                </v-flex>
-            </template>
-            <v-col class="text-right" style="margin-left: 20px; margin-top: -20px; margin-bottom: -20px">
-                <v-btn fab dark small color="info">
-                    <v-icon>mdi-check</v-icon>
-                </v-btn>
-            </v-col>
-            <v-col class="text-right" style="margin-left: 20px;">
-                <v-btn fab dark small color="info">
-                    <v-icon>mdi-cart-off </v-icon>
-                </v-btn>
-            </v-col>
-        </v-speed-dial>
-    </template>
-
 </div>
 </template>
 
@@ -68,18 +28,8 @@ import axios from "axios";
 export default {
     data: () => ({
         selected: [],
-        direction: 'top',
-        fab: false,
         search: '',
         singleSelect: true,
-        fling: false,
-        hover: false,
-        tabs: null,
-        top: true,
-        right: true,
-        bottom: true,
-        left: false,
-        transition: 'slide-y-reverse-transition',
         on: '',
         attrs: '',
 
