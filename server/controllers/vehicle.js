@@ -1,5 +1,5 @@
 const ctrl = {};
-const vehicle = require('../models/vehicle');
+
 var Vehicle = require('../models/vehicle');
 var VehicleStock = require('../models/vehicleStock');
 

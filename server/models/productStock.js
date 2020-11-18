@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var ProductStockSchema = new Schema({
   Code: {type: String,required: true},
   BatchNum: {type: String,required: true},
-  State: {type: String,required: true},
+  Status: {type: String,required: true},
   Product: {type: Schema.Types.ObjectId,required: true,ref: 'Product'},
 });
 

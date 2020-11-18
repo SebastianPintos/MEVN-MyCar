@@ -16,7 +16,7 @@ ctrl.create = (req, res) => {
     var productStock = new productStock({
         Code: body.Code,
         BatchNum: body.BatchNum,
-        State: 'Active',
+        Status: 'Active',
         Product: body.Product 
     });
     
@@ -38,7 +38,7 @@ ctrl.update = (req, res) => {
             else {
                 productStock.Code = body.Code;
                 productStock.BatchNum = body.BatchNum;
-                productStock.State = 'Active';
+                productStock.Status = 'Active';
                 productStock.Product = body.Product;
                
 

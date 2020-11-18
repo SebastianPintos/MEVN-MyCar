@@ -8,6 +8,7 @@ const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
 const service = require('../controllers/services');
+const reservation = require('../controllers/reservation');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -46,7 +47,12 @@ module.exports = app => {
     router.get('/service', service.index);
     router.post('/service/add', service.create);
     router.post('/service/:service_id/update', service.update);
-    router.delete('/service/:service_id/delete', service.remove);    
+    router.delete('/service/:service_id/delete', service.remove);
+    
+    router.get('/reservation', reservation.index);
+    router.post('/reservation/add', reservation.create);
+    router.post('/reservation/:reservation_id/update', reservation.update);
+    router.delete('/reservation/:reservation_id/delete', reservation.remove);
   
     app.use(router);
 }
