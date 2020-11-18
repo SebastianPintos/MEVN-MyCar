@@ -131,7 +131,11 @@ class Dealer {
 
 import axios from "axios";
 export default {
+      props: {
+          tipo: String,
+      },
     data: () => ({
+
         Dealer: new Dealer(),
         provincia: '',
         localidad: '',
@@ -257,7 +261,7 @@ export default {
         async getDealers() {
             await axios.get('http://localhost:8081/dealer')
                 .then(res => {
-                    this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == {{tipo}})
+                    this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == this.tipo)
                 });
         },
 
@@ -371,7 +375,7 @@ export default {
                         "Province": selected.Province,
                     },
                     "Status": estado,
-                    "Kind": {{tipo}},
+                    "Kind": this.tipo,
                 }
             };
         },
@@ -402,7 +406,7 @@ export default {
                                 "Province": this.DealerProvince,
                             },
                             "Status": this.Dealer.Status,
-                            "Kind": {{tipo}},
+                            "Kind": this.tipo,
                         }
                     }
                     Object.assign(this.dealers[this.editedIndex], DealerAux);
@@ -423,7 +427,7 @@ export default {
                                 "Province": this.DealerProvince,
                             },
                             "Status": "ACTIVE",
-                            "Kind": {{tipo}},
+                            "Kind": this.tipo,
                         }
                     }
                         this.post('http://localhost:8081/dealer/add',DealerAux);
@@ -467,8 +471,8 @@ export default {
                     }
                 },
 
+  
         },
-    props: ["tipo"]
     };
 </script>
 

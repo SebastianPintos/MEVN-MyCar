@@ -8,7 +8,7 @@
 
 <Repuestos v-show="vistaABM" />
 <RepuestoStock v-show="vistaStock" />
-<Proveedores v-show="vistaProveedores" />
+<Proveedores tipo="PRODUCT" v-show="vistaProveedores" />
 </div>
 </template>
 
