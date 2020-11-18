@@ -8,14 +8,14 @@
 
 <Repuestos v-show="vistaABM" />
 <RepuestoStock v-show="vistaStock" />
-<ProveedoresRepuestos v-show="vistaProveedores" />
+<Proveedores v-show="vistaProveedores" />
 </div>
 </template>
 
 <script>
 import Repuestos from '@/components/Repuestos.vue';
 import RepuestoStock from '@/components/RepuestoStock.vue';
-import ProveedoresRepuestos from '@/components/ProveedoresRepuestos.vue';
+import Proveedores from '@/components/Proveedores.vue';
 
 export default {
    data: () => ({
@@ -26,7 +26,7 @@ export default {
    components: {
         Repuestos,
         RepuestoStock,
-        ProveedoresRepuestos,
+        Proveedores,
     }
 };
 </script>

@@ -257,7 +257,7 @@ export default {
         async getDealers() {
             await axios.get('http://localhost:8081/dealer')
                 .then(res => {
-                    this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == "PRODUCT")
+                    this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == {{tipo}})
                 });
         },
 
@@ -371,7 +371,7 @@ export default {
                         "Province": selected.Province,
                     },
                     "Status": estado,
-                    "Kind": "PRODUCT",
+                    "Kind": {{tipo}},
                 }
             };
         },
@@ -402,7 +402,7 @@ export default {
                                 "Province": this.DealerProvince,
                             },
                             "Status": this.Dealer.Status,
-                            "Kind": "PRODUCT",
+                            "Kind": {{tipo}},
                         }
                     }
                     Object.assign(this.dealers[this.editedIndex], DealerAux);
@@ -423,7 +423,7 @@ export default {
                                 "Province": this.DealerProvince,
                             },
                             "Status": "ACTIVE",
-                            "Kind": "PRODUCT",
+                            "Kind": {{tipo}},
                         }
                     }
                         this.post('http://localhost:8081/dealer/add',DealerAux);
@@ -468,6 +468,7 @@ export default {
                 },
 
         },
+    props: ["tipo"]
     };
 </script>
 
