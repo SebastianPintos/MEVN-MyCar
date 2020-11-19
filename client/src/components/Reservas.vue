@@ -1,15 +1,10 @@
 <template>
-<div class="page">
+<div>
     <v-sheet tile height="54" class="d-flex">
         <v-btn icon class="ma-2" @click="$refs.calendar.prev()">
             <v-icon>mdi-chevron-left</v-icon>
         </v-btn>
         <v-select v-model="typeEs" :items="typesEs" dense outlined hide-details class="ma-2" label="Tipo de Vista" @change="cambiarTipo"></v-select>
-
-        <v-select :items="tipoServicio" dense outlined hide-details class="ma-2" label="Tipo de Reserva"></v-select>
-
-        <v-select :items="sucursales" dense outlined hide-details class="ma-2" label="Sucursal"></v-select>
-
         <v-spacer></v-spacer>
         <v-btn icon class="ma-2" @click="$refs.calendar.next()">
             <v-icon>mdi-chevron-right</v-icon>

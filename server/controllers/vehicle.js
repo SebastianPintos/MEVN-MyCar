@@ -161,6 +161,16 @@ ctrl.updateStock = (req, res) => {
 
 };
 
+ctrl.getOne = (req, res) => {
+    var id = req.params.vehicle_id;
+    Vehicle.findById(id, (err, vehicle) => {
+        if (err) {console.log(err)}
+        res.send({
+            vehicle: vehicle
+        })
+    });
+};
+
 ctrl.removeStock = (req, res) => {
     var id = req.params.vehicleStock_id;
     var ChangeStatus = req.body.ChangeStatus;

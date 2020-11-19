@@ -1,48 +1,6 @@
 <template>
 <div>
-    <!--Filtros-->
-    <template>
-        <v-expansion-panels>
-            <v-expansion-panel>
-                <v-expansion-panel-header class="indigo darken-4 white--text">
-                    Ver filtros Disponibles
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    <v-container>
-                        <h2>Filtros</h2>
-                        <v-row>
-                            <v-col cols="12" sm="6" md="3">
-                                <v-select v-model="filtros.BranchOffice" :items="sucursales" item-text="Name" item-value="Name" label="Sucursal"></v-select>
-                            </v-col>
-
-                            <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="filtros.Model" label="Modelo-Vehículo"></v-text-field>
-                            </v-col>
-
-                            <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="filtros.Brand" label="Marca-Vehículo"></v-text-field>
-                            </v-col>
-
-                            <v-col cols="12" sm="4" md="3">
-                                <v-text-field v-model="filtros.Year" label="Año-Vehículo"></v-text-field>
-                            </v-col>
-
-                            <v-col cols="12" sm="6" md="6">
-                                <v-btn class="success" @click="aplicarFiltros">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
-                                <v-btn class="warning" @click="reiniciarFiltros">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-        </v-expansion-panels>
-    </template>
-
-    <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
+    <v-data-table v-if="tabla" v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
         <template v-slot:item.actions="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -70,6 +28,12 @@
                 </v-flex>
             </v-toolbar>
         </template>
+
+        <template v-slot:no-data>
+                <v-btn color="primary" @click="elegirCliente = true">
+                    Volver
+                </v-btn>
+            </template>
     </v-data-table>
 
     <v-dialog v-model="dialogCarrito" max-width="400px">
@@ -88,14 +52,12 @@
                             <ol>
                                 <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
                                 <li v-for="(repuesto, j) in servicio.Product" :key="j">
-
                                     <p>Código del Producto: {{repuesto.Code}}</p>
                                     <p>Precio del Producto: ${{repuesto.Price}}</p>
                                 </li>
                             </ol>
                         </li>
                     </ol>
-
                     <h3>Tiempo Estimado Total:</h3>
                     <p>{{defaultCarritoCompleto.tiempoTotal}}</p>
                     <h3>Subtotal Mano de Obra:</h3>
@@ -114,40 +76,34 @@
                     <v-btn class="info mb-2" @click="dialogCarrito=false">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2" @click="aceptarCarrito">
-                        <v-icon>mdi-check</v-icon>
+                    <v-btn class="info mb-2" :to="'/calendario'">
+                        <v-icon>mdi-calendar</v-icon>
                     </v-btn>
                 </v-flex>
             </v-card-actions>
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="elegirCliente" max-width="300px">
-        <v-card>
-            <v-form ref="form" v-model="valid" lazy-validation>
-                <v-card-title>Elección del Vehículo</v-card-title>
-                <v-card-text>
-                    <v-select label="ID del cliente" v-model="cliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)" :rules="requerido"></v-select>
-                    <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="Vehicle._id" @change="guardarCliente" :rules="requerido">
-                    </v-select>
-                </v-card-text>
-                <v-card-actions>
-                    <v-flex class="text-right">
-                        <v-btn class="info mb-2">
-                            <v-icon>mdi-cancel</v-icon>
-                        </v-btn>
-                        <v-btn v-if="aceptado==false" class="info mb-2" @click="validarDatos">
-                            <v-icon>mdi-check</v-icon>
-                        </v-btn>
-                        <v-btn class="warning mb-2" v-else :to="'/calendario'">
-                            <v-icon>mdi-calendar</v-icon>
-                        </v-btn>
-                    </v-flex>
-                </v-card-actions>
-            </v-form>
-        </v-card>
-    </v-dialog>
-
+    <v-card v-if="elegirCliente">
+        <v-form ref="form" v-model="valid" lazy-validation>
+            <v-card-title>Vehículo y Sucursal
+            </v-card-title>
+            <v-card-text>
+                <v-select label="Sucursal" v-model="filtros.BranchOffice" :items="sucursales" item-text="Name" item-value="Name" :rules="requerido"></v-select>
+                <v-select label="ID del cliente" v-model="cliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)" :rules="requerido"></v-select>
+                <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="VehicleID" :rules="requerido">
+                </v-select>
+            </v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn block class="success mb-2" @click="validarDatos">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                    <v-btn block class="warning" :to="'/clientes'">¿Cliente o Vehículo no Registrado?</v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-form>
+    </v-card>
     <v-dialog v-model="dialogCalendario" max-width="130px">
         <v-card>
             <v-card-text></v-card-text>
@@ -205,6 +161,7 @@ export default {
 
     data: () => ({
         cliente: {},
+        tabla: false,
         aceptado: false,
         dialogCalendario: false,
         valid: true,
@@ -229,7 +186,7 @@ export default {
             total: "",
             ids: [],
         },
-        elegirCliente: false,
+        elegirCliente: true,
         serviciosCarrito: [],
         selected: [],
         singleSelect: true,
@@ -239,6 +196,7 @@ export default {
         snackbar: false,
         mensaje: '',
         dialogCarrito: false,
+        vehicle: {},
 
         editedItem: {
             Description: '',
@@ -268,6 +226,7 @@ export default {
 
         defaultCarritoCompleto: [],
         vehicles: [],
+        allVehicles: [],
         vehiculo: null,
         headers: [{
                 text: 'Nombre',
@@ -320,6 +279,7 @@ export default {
             this.getServicios();
             this.getSucursales();
             this.getClientes();
+            this.getVehiculo();
             this.obtenerDeLocalStorage();
         },
 
@@ -376,6 +336,13 @@ export default {
                 });
         },
 
+        async getVehiculo() {
+            await axios.get('http://localhost:8081/vehicle')
+                .then(res => {
+                    this.allVehicles = res.data.vehicle;
+                });
+        },
+
         obtenerDeLocalStorage() {
             let length = parseInt(JSON.parse(localStorage.getItem("length")));
             length++;
@@ -417,8 +384,8 @@ export default {
             let sumaProductos = 0;
             let sumaTiempo = 0;
             this.carritoCompleto = this.defaultCarritoCompleto;
-            if (this.servicios.length > 0) {
-                this.servicios.forEach(servicio => {
+            if (this.serviciosFiltrados.length > 0) {
+                this.serviciosFiltrados.forEach(servicio => {
                     if (servicio.carrito) {
                         this.servicioEnCarrito.Description = servicio.Description;
                         this.servicioEnCarrito.Time = servicio.Time;
@@ -473,15 +440,6 @@ export default {
             return ("" + hours + " horas, " + minutes + " minutos");
         },
 
-        verificarSeleccionado() {
-            if (this.selected.length == 0) {
-                this.snackbar = true;
-                this.mensaje = 'No ha seleccionado ningún elemento!';
-                return false;
-            }
-            return true;
-        },
-
         aplicarFiltros() {
             let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
             let Model = this.filtros.Model != null & this.filtros.Model != ""
@@ -491,25 +449,11 @@ export default {
             if (!Brand && !Model && !Year && !BranchOffice) {
                 return
             }
-            let BrandMatches = true
-            let ModelMatches = true
-            let BranchOfficeMatches = true
-            let YearMatches = true
-            let serviciosAux = []
-            let cant = 0
-            for (var i = 0; i < this.servicios.length; i++) {
-                BrandMatches = Brand ? this.servicios[i].Vehicle.Brand === this.filtros.Brand : BrandMatches
-                ModelMatches = Model ? this.servicios[i].Vehicle.Model === this.filtros.Model : ModelMatches
-                BranchOfficeMatches = BranchOffice ? this.servicios[i].BranchOffice.Name === this.filtros.BranchOffice : BranchOfficeMatches
-                YearMatches = Year ? this.servicios[i].Vehicle.Year == this.filtros.Year : YearMatches
-
-                if (BrandMatches & ModelMatches & BranchOfficeMatches & YearMatches) {
-                    serviciosAux[cant] = this.servicios[i]
-                    cant++
-                }
-            }
-            this.serviciosFiltrados = serviciosAux;
+            this.serviciosFiltrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice &&
+                (servicio.Vehicle == null || (servicio.Vehicle != null && servicio.Vehicle.Brand == this.filtros.Brand &&
+                    servicio.Vehicle.Year == this.filtros.Year && servicio.Vehicle.Model == this.filtros.Model)));
         },
+
         reiniciarFiltros() {
             this.filtros = [{
                 BranchOffice: '',
@@ -546,21 +490,34 @@ export default {
                     })
                 }
             });
-            this.guardarCliente();
+        },
+
+        obtenerVehiculo() {
+            axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
+                .then(res => {
+                    this.vehicle = res.data.vehicle;
+                    localStorage.setItem("cliente", JSON.stringify({
+                        "cliente": this.cliente,
+                        "vehiculo": this.vehicle
+                    }));
+                });
         },
 
         guardarCliente() {
-            localStorage.setItem("cliente", JSON.stringify({
-                "cliente": this.cliente,
-                "vehiculo": this.vehiculo
-            }))
+            this.obtenerVehiculo();
+            this.filtros.Model = this.vehicle.Model;
+            this.filtros.Brand = this.vehicle.Brand;
+            this.filtros.Year = this.vehicle.Year;
+            this.aplicarFiltros();
         },
 
         validarDatos() {
             if (this.$refs.form.validate()) {
-                this.aceptado = true;
-            } else {
-                this.aceptado = false;
+                this.obtenerVehiculo();
+
+                this.aplicarFiltros();
+                this.elegirCliente = false;
+                this.tabla = true;
             }
         }
 
