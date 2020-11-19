@@ -364,11 +364,6 @@ export default {
                         ids.push(this.servicios.indexOf(servicio));
                         if (servicio.Product != null & servicio.Product.length > 0) {
                             servicio.Product.forEach(product => {
-                                console.log("PRODUCT: " + JSON.stringify(product))
-                                /*     let detalleRepuesto = {
-                                         Code: product.Code,
-                                         Price: product.SalePrice,
-                                     }*/
                                 if (product.SalePrice != undefined) {
                                     sumaProductos += product.SalePrice;
                                     this.servicioEnCarrito.Product.push({
@@ -390,7 +385,6 @@ export default {
                         servicioEnCarrito.LaborPrice = this.servicioEnCarrito.LaborPrice;
                         servicioEnCarrito.Product = this.servicioEnCarrito.Product;
                         detalleCarrito.push(servicioEnCarrito);
-                        console.log(this.carritoCompleto);
                     }
                 });
                 this.carritoCompleto = this.defaultCarritoCompleto;
@@ -400,7 +394,7 @@ export default {
                 this.carritoCompleto.totalManoDeObra = sumaTrabajo;
                 this.carritoCompleto.total = sumaTrabajo + sumaProductos;
                 this.carritoCompleto.tiempoTotal = this.timeConvert(sumaTiempo);
-                console.log((this.carritoCompleto));
+         
             }
         },
 
