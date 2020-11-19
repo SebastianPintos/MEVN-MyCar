@@ -1,6 +1,48 @@
 V<template>
 <div>
-    <v-data-table v-model="selected" :single-select="singleSelect" show-select :headers="headers" :items="servicios" :search="search" item-key="_id" class="elevation-1">
+ <!--Filtros-->
+        <template>
+            <v-expansion-panels>
+                <v-expansion-panel>
+                    <v-expansion-panel-header class="indigo darken-4 white--text">
+                        Ver filtros Disponibles
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                        <v-container>
+                            <h2>Filtros</h2>
+                            <v-row>
+                                <v-col cols="12" sm="6" md="3">
+                                  <v-select v-model="filtros.BranchOffice" :items="sucursales" item-text="Name" item-value="Name" label="Sucursal"></v-select>
+                               </v-col>
+
+                                <v-col cols="12" sm="6" md="3">
+                                    <v-text-field v-model="filtros.Model" label="Modelo-Vehículo"></v-text-field>
+                                </v-col>
+
+                                <v-col cols="12" sm="6" md="3">
+                                    <v-text-field v-model="filtros.Brand" label="Marca-Vehículo"></v-text-field>
+                                </v-col>
+
+                                <v-col cols="12" sm="4" md="3">
+                                    <v-text-field v-model="filtros.Year" label="Año-Vehículo"></v-text-field>
+                                </v-col>
+ 
+                              <v-col cols="12" sm="6" md="6">
+                                    <v-btn class="success" @click="aplicarFiltros">
+                                        <v-icon>mdi-check</v-icon>
+                                    </v-btn>
+                                    <v-btn class="warning" @click="reiniciarFiltros">
+                                        <v-icon>mdi-cancel</v-icon>
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        </template>
+
+    <v-data-table v-model="selected" :single-select="singleSelect" show-select :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
         <template v-slot:item.actions="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -48,6 +90,12 @@ import axios from "axios";
 
 export default {
     data: () => ({
+          filtros: [{
+            BranchOffice: '',
+            Model: '',
+            Brand: '',
+            Year: '',
+        }],
         selected: [],
         singleSelect: true,
         search: '',
@@ -116,8 +164,8 @@ export default {
         ],
 
         servicios: [],
+        serviciosFiltrados: [],
         sucursales: [],
-        repuestos: [],
     }),
     created() {
         this.iniciar();
@@ -126,7 +174,6 @@ export default {
         iniciar() {
             this.getServicios();
             this.getSucursales();
-            this.getRepuestos();
         },
 
         async getServicios() {
@@ -147,6 +194,7 @@ export default {
                                         "carrito": false,
                                     };
                                     this.servicios.push(servicioAGuardar);
+                                    this.serviciosFiltrados.push(servicioAGuardar);
                                 })
                             }
                         })
@@ -159,12 +207,7 @@ export default {
                     this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
                 });
         },
-        async getRepuestos() {
-            await axios.get('http://localhost:8081/product')
-                .then(res => {
-                    this.repuestos = res.data.product.filter(aProduct => aProduct.Status === "ACTIVE")
-                });
-        },
+     
         agregarAlCarrito(item) {
             let seleccionado = this.servicios.indexOf(item);
             if (seleccionado != -1) {
@@ -184,7 +227,45 @@ export default {
                 return false;
             }
             return true;
-        }
+        },
+         aplicarFiltros() {
+            let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
+            let Model = this.filtros.Model != null & this.filtros.Model != ""
+            let BranchOffice = this.filtros.BranchOffice != null & this.filtros.BranchOffice != ""
+            let Year = this.filtros.Year != null & this.filtros.Year != ""
+            
+            if (!Brand && !Model && !Year && !BranchOffice) {
+                return
+            }
+            let BrandMatches = true
+            let ModelMatches = true
+            let BranchOfficeMatches = true
+            let YearMatches = true
+            let serviciosAux = []
+            let cant = 0
+            for (var i = 0; i < this.servicios.length; i++) {
+                BrandMatches = Brand ? this.servicios[i].Vehicle.Brand === this.filtros.Brand : BrandMatches
+                ModelMatches = Model ? this.servicios[i].Vehicle.Model === this.filtros.Model : ModelMatches
+                BranchOfficeMatches = BranchOffice ? this.servicios[i].BranchOffice.Name === this.filtros.BranchOffice : BranchOfficeMatches
+                YearMatches = Year ? this.servicios[i].Vehicle.Year == this.filtros.Year : YearMatches
+            
+                if (BrandMatches & ModelMatches & BranchOfficeMatches & YearMatches) {
+                    serviciosAux[cant] = this.servicios[i]
+                    cant++
+                }
+            }
+            this.serviciosFiltrados = serviciosAux;
+        },
+         reiniciarFiltros() {
+            this.filtros = [{
+                BranchOffice: '',
+                Brand: '',
+                Model: '',
+                Year: '',
+            }]
+            this.serviciosFiltrados = this.servicios
+        },
+
     }
 };
 </script>
