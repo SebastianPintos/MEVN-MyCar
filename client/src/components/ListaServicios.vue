@@ -122,6 +122,48 @@
         </v-card>
     </v-dialog>
 
+    <v-dialog v-model="elegirCliente" max-width="300px">
+        <v-card>
+            <v-form ref="form" v-model="valid" lazy-validation>
+                <v-card-title>Elección del Vehículo</v-card-title>
+                <v-card-text>
+                    <v-select label="ID del cliente" v-model="cliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)" :rules="requerido"></v-select>
+                    <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="Vehicle._id" @change="guardarCliente" :rules="requerido">
+                    </v-select>
+                </v-card-text>
+                <v-card-actions>
+                    <v-flex class="text-right">
+                        <v-btn class="info mb-2">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn v-if="aceptado==false" class="info mb-2" @click="validarDatos">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                        <v-btn class="warning mb-2" v-else :to="'/calendario'">
+                            <v-icon>mdi-calendar</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-card-actions>
+            </v-form>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogCalendario" max-width="130px">
+        <v-card>
+            <v-card-text></v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn class="error mb-2" @click="dialogCalendario=false">
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn :to="'/calendario'" class="info warning mb-2">
+                        <v-icon>mdi-calendar</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
     <v-dialog v-model="deleteCarritoConfirm" max-width="300px">
         <v-card>
             <v-card-title>
@@ -162,6 +204,10 @@ import axios from "axios";
 export default {
 
     data: () => ({
+        cliente: {},
+        aceptado: false,
+        dialogCalendario: false,
+        valid: true,
         deleteCarritoConfirm: false,
         filtros: [{
             BranchOffice: '',
@@ -183,7 +229,7 @@ export default {
             total: "",
             ids: [],
         },
-
+        elegirCliente: false,
         serviciosCarrito: [],
         selected: [],
         singleSelect: true,
@@ -216,8 +262,13 @@ export default {
             carrito: false,
         },
 
-        defaultCarritoCompleto: [],
+        requerido: [
+            value => !!value || 'Requerido.',
+        ],
 
+        defaultCarritoCompleto: [],
+        vehicles: [],
+        vehiculo: null,
         headers: [{
                 text: 'Nombre',
                 value: 'Description',
@@ -259,6 +310,7 @@ export default {
         servicios: [],
         serviciosFiltrados: [],
         sucursales: [],
+        clientes: [],
     }),
     created() {
         this.iniciar();
@@ -267,6 +319,7 @@ export default {
         iniciar() {
             this.getServicios();
             this.getSucursales();
+            this.getClientes();
             this.obtenerDeLocalStorage();
         },
 
@@ -308,12 +361,21 @@ export default {
                 })
             localStorage.setItem("length", cont);
         },
+
         async getSucursales() {
             await axios.get('http://localhost:8081/branchOffice')
                 .then(res => {
                     this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
                 });
         },
+
+        async getClientes() {
+            await axios.get('http://localhost:8081/client')
+                .then(res => {
+                    this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                });
+        },
+
         obtenerDeLocalStorage() {
             let length = parseInt(JSON.parse(localStorage.getItem("length")));
             length++;
@@ -473,7 +535,33 @@ export default {
         },
 
         aceptarCarrito() {
-            console.log("aceptado");
+            this.elegirCliente = true;
+        },
+
+        cambiarVehiculo(client) {
+            this.clientes.forEach(cliente => {
+                if (cliente._id == client) {
+                    cliente.Vehicle.forEach(vehiculo => {
+                        this.vehicles.push(vehiculo);
+                    })
+                }
+            });
+            this.guardarCliente();
+        },
+
+        guardarCliente() {
+            localStorage.setItem("cliente", JSON.stringify({
+                "cliente": this.cliente,
+                "vehiculo": this.vehiculo
+            }))
+        },
+
+        validarDatos() {
+            if (this.$refs.form.validate()) {
+                this.aceptado = true;
+            } else {
+                this.aceptado = false;
+            }
         }
 
     }
