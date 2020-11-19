@@ -1,6 +1,6 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
-const mailgun = require('nodemailer-mailgun-transport');
+//const mailgun = require('nodemailer-mailgun-transport');
 const auth = require('./auth.json');
 var Reservation = require('../models/reservation');
 
@@ -47,7 +47,7 @@ ctrl.ReservationConfirm = (req, res) => {
     Reservation.findOne({_id: id}, (err, reservation) => {
         if(err) {console.log(err)}
         else {
-            if(!reservation) {console.log('No se encontró el producto específico')}
+            if(!reservation) {console.log('No se encontró la reserva')}
             else {
                 datosReserva += reservation.Client + "\n";
                 datosReserva += reservation.service + "\n";

@@ -43,7 +43,7 @@ module.exports = app => {
     router.post('/product/:product_id/update', product.update);
     router.delete('/product/:product_id/delete', product.remove);
   
-    router.post('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
+    router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
 
     app.use(router);
 }
