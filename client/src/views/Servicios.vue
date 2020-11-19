@@ -68,12 +68,15 @@
                                 <v-card-text>
                                     <v-container>
                                         <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Description" label="Nombre" :rules="requerido"></v-text-field>
+                                            <v-col cols="12" sm="6" md="12">
+                                                <v-text-field v-model="editedItem.Description" label="Nombre del service" :rules="requerido"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field v-model="editedItem.LaborPrice" prefix="$" label="Precio mano de obra" :rules="requerido"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-text-field v-model="editedItem.Time" label="Tiempo en minutos" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="12">
                                                 <v-select v-model="editedItem.BranchOffice" label="Sucursal" multiple chips deletable-chips :items="sucursales" item-text="Name" item-value="_id" :rules="requerido"></v-select>
@@ -225,10 +228,6 @@ export default {
                 value: 'LaborPrice',
             },
             {
-                text: 'Precio Total',
-                value: '',
-            },
-            {
                 text: 'Sucursal',
                 value: 'BranchOffice.Name',
             },
@@ -327,7 +326,7 @@ export default {
                 "service":{
                     "Description": this.editedItem.Description,
                     "LaborPrice": this.editedItem.LaborPrice,
-                    "Time": 60,
+                    "Time": this.editedItem.Time,
                     "Vehicle":{
                         "_id": this.editedItem.Vehicle
                     },
@@ -346,9 +345,10 @@ export default {
         async updateService() {
             await axios.post('http://localhost:8081/service/' + this.selected[0]._id + '/update', {
                 "service":{
+                    "Status": "ACTIVE",
                     "Description": this.editedItem.Description,
                     "LaborPrice": this.editedItem.LaborPrice,
-                    "Time": 60,
+                    "Time": this.editedItem.Time,
                     "Vehicle":{
                         "_id": this.editedItem.Vehicle
                     },
@@ -378,6 +378,7 @@ export default {
                 if (this.selected.length === 1) {
                     this.editedIndex = this.servicios.indexOf(item)
                     this.editedItem = Object.assign({}, item)
+                    this.editedItem.Vehicle = this.editedItem.Vehicle._id
                     if (this.dealersList != null) {
                         this.dealersList.forEach(dealer => {
                             if (dealer._id == item.Dealer) {
