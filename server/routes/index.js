@@ -8,6 +8,8 @@ const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
 
+const Email = require('../src/Email')
+
 module.exports = app => {
     router.get('/', home.index);
     router.get('/client', client.index);
@@ -45,5 +47,7 @@ module.exports = app => {
     router.post('/reservation/add', reservation.create);
     router.post('/reservation/:reservation_id/update', reservation.update);
     router.delete('/reservation/:reservation_id/delete', reservation.remove);
+    router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
+
     app.use(router);
 }
