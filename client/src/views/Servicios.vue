@@ -343,8 +343,8 @@ export default {
             axios.delete('http://localhost:8081/service/' + item._id + '/delete').then(() => this.getServices())
         },
 
-        async updateVehicle() {
-            await axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update', {
+        async updateService() {
+            await axios.post('http://localhost:8081/service/' + this.selected[0]._id + '/update', {
                 "service":{
                     "Description": this.editedItem.Description,
                     "LaborPrice": this.editedItem.LaborPrice,
