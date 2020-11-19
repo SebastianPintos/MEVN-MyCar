@@ -42,7 +42,7 @@
         </v-expansion-panels>
     </template>
 
-    <v-data-table v-model="selected" :single-select="singleSelect" show-select :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
+    <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
         <template v-slot:item.actions="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -86,7 +86,7 @@
                             <p>Precio Mano de Obra: ${{servicio.LaborPrice}}</p>
                             <p>Tiempo estimado en Minutos: {{servicio.Time}}</p>
                             <ol>
-                                <h3>Repuestos Asociados</h3>
+                                <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
                                 <li v-for="(repuesto, j) in servicio.Product" :key="j">
 
                                     <p>Código del Producto: {{repuesto.Code}}</p>
@@ -283,8 +283,10 @@ export default {
                                 servicios[i].BranchOffice.forEach(sucursal => {
                                     let item = JSON.parse(localStorage.getItem(String(i)));
                                     let carrito = false;
-                                    if (item != null & item._id == servicios[i]._id + sucursal._id) {
-                                        carrito = item.carrito;
+                                    if (item != null) {
+                                        if (item._id == servicios[i]._id + sucursal._id) {
+                                            carrito = item.carrito;
+                                        }
                                     }
                                     servicioAGuardar = {
                                         "_id": servicios[i]._id + sucursal._id,
@@ -394,7 +396,7 @@ export default {
                 this.carritoCompleto.totalManoDeObra = sumaTrabajo;
                 this.carritoCompleto.total = sumaTrabajo + sumaProductos;
                 this.carritoCompleto.tiempoTotal = this.timeConvert(sumaTiempo);
-         
+
             }
         },
 
