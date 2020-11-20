@@ -170,7 +170,7 @@ export default {
             BranchOffice: '',
             Model: '',
             Brand: '',
-            Year: '',
+            year: '',
         }],
         servicioEnCarrito: {
             Description: "",
@@ -256,7 +256,7 @@ export default {
             },
             {
                 text: 'Año-Vehículo',
-                value: 'Vehicle.Year'
+                value: 'Vehicle.year'
             },
 
             {
@@ -465,7 +465,7 @@ export default {
                         if (servicio.Vehicle == null) {
                             this.serviciosFiltrados.push(servicio);
                         } else {
-                            let añoServicio = servicio.Vehicle.Year == null ? "" : servicio.Vehicle.Year;
+                            let añoServicio = servicio.Vehicle.year == null ? "" : servicio.Vehicle.year;
                             let modeloServicio = servicio.Vehicle.Model == null ? "" : servicio.Vehicle.Model;
                             let marcaServicio = servicio.Vehicle.Brand == null ? "" : servicio.Vehicle.Brand;
                             if (añoServicio == año && modeloServicio == modelo && marcaServicio == marca) {
@@ -480,7 +480,7 @@ export default {
                         BranchOffice: '',
                         Brand: '',
                         Model: '',
-                        Year: '',
+                        year: '',
                     }]
                     this.serviciosFiltrados = this.servicios
                 },
@@ -519,7 +519,7 @@ export default {
                             this.vehicle = res.data.vehicle;
                             this.filtros.Model = this.vehicle.Model;
                             this.filtros.Brand = this.vehicle.Brand;
-                            this.filtros.Year = this.vehicle.Year;
+                            this.filtros.year = this.vehicle.year;
                             localStorage.setItem("cliente", JSON.stringify({
                                 "cliente": this.cliente,
                                 "vehiculo": this.vehicle,
@@ -530,7 +530,7 @@ export default {
                                 localStorage.setItem("sucursal", JSON.stringify(sucursal[0]));
                             }
                             this.serviciosFiltrados = [];
-                            this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.Year);
+                            this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.year);
                         });
 
                 },
