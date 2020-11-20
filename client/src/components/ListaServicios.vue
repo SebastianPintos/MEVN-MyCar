@@ -76,7 +76,7 @@
                     <v-btn class="info mb-2" @click="dialogCarrito=false">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2" :to="'/calendario'">
+                    <v-btn class="info mb-2" @click="corroborarService">
                         <v-icon>mdi-calendar</v-icon>
                     </v-btn>
                 </v-flex>
@@ -519,7 +519,12 @@ export default {
                 this.elegirCliente = false;
                 this.tabla = true;
             }
-        }
+        },
+
+        corroborarService(){
+            console.log("corroborando stock");
+            location.href = "/turno";
+        },
 
     }
 };

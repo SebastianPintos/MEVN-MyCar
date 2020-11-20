@@ -18,6 +18,15 @@
 
 <script>
 export default {
+    created(){
+        let direccionActual = String(location.href);
+        if(direccionActual.includes("/turno")){
+            alert("Calendario!");
+        }
+        else{
+            alert("Reserva");
+        }
+    },
     data: () => ({
         tipoServicio: ['Manenimiento', 'Service'],
         sucursales: ['Sucursal A', 'Sucursal B'],

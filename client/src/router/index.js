@@ -68,14 +68,14 @@ const routes = [
     meta: { title: 'Reservas' }
   },
   {
-    path: "/calendario",
-    name: "Calendario",
+    path: "/turno",
+    name: "Reservar Turno",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () =>
-      import(/* webpackChunkName: "calendario" */ "../components/Reservas.vue"),
-    meta: { title: 'Calendario' }
+      import(/* webpackChunkName: "turno" */ "../components/Reservas.vue"),
+    meta: { title: 'Reservar Turno' }
   },
   {
     path: "/servicios",
