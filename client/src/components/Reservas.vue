@@ -88,7 +88,7 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="info" max-width="500px">
+    <v-dialog v-if="consulta==false" v-model="info" max-width="500px">
         <v-card>
             <v-flex class="text-center">
                 <v-card-title>
@@ -140,31 +140,32 @@
 import axios from "axios"
 export default {
     created() {
-        let sucursal = JSON.parse(localStorage.getItem("sucursal"));
-        let carrito = JSON.parse(localStorage.getItem("carrito"));
-        let cliente = JSON.parse(localStorage.getItem("cliente"));
-        console.log("carrito: " + carrito);
-        console.log("carrito: " + JSON.stringify(carrito));
-        if (carrito != null) {
-            this.detalle = carrito;
-        };
-        if (cliente != null) {
-            this.cliente = cliente;
-        };
-        if (sucursal != null) {
-            this.getReservas(sucursal._id);
-            this.sucursal = sucursal.Name;
-        }
         let direccionActual = String(location.href);
-        console.log("dirección actual: " + direccionActual);
         if (direccionActual.includes("/turno")) {
             this.consulta = false;
+            this.getSucursales();
+            this.getClientes();
+            this.getVehiculo();
+
+            let sucursal = JSON.parse(localStorage.getItem("sucursal"));
+            let carrito = JSON.parse(localStorage.getItem("carrito"));
+            let cliente = JSON.parse(localStorage.getItem("cliente"));
+            //console.log("carrito: " + carrito);
+            //console.log("carrito: " + JSON.stringify(carrito));
+            if (carrito != null) {
+                this.detalle = carrito;
+            };
+            if (cliente != null) {
+                this.cliente = cliente;
+            };
+            if (sucursal != null) {
+                this.getReservas(sucursal._id);
+                this.sucursal = sucursal.Name;
+            }
+
         } else {
             this.consulta = true;
         }
-        this.getSucursales();
-        this.getClientes();
-        this.getVehiculo();
     },
     data: () => ({
         consulta: false,
