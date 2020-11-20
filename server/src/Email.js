@@ -2,7 +2,7 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 //const mailgun = require('nodemailer-mailgun-transport');
 const auth = require('./auth.json');
-var Reservation = require('../models/reservation');
+//var Reservation = require('../models/reservation');
 
 const ctrl = {};
 /*
@@ -21,8 +21,10 @@ const transporter = nodemailer.createTransport({
     host: 'smtp.ethereal.email',
     port: 587,
     auth: {
-        user: 'mekhi.cruickshank55@ethereal.email',
-        pass: 'ajkdf1zUw7nuYa7Pfc'
+        user: auth.user,
+        pass: auth.pass
+        //user: 'mekhi.cruickshank55@ethereal.email',
+        //pass: 'ajkdf1zUw7nuYa7Pfc'
     }
 });
 
@@ -70,4 +72,4 @@ ctrl.ReservationConfirm = (req, res) => {
     });
 }
 
-module.exports = sendMail;
+module.exports = ctrl;
