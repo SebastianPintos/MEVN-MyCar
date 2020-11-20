@@ -39,7 +39,7 @@
     <template>
         <v-toolbar flat>
             <v-flex class="text-right">
-                <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
+                <v-btn v-if="consulta==false" color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
                 <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
