@@ -88,10 +88,11 @@ ctrl.remove = (req, res) => {
     });
 }
 
-ctrl.checkProduct = (req, res) => {
+ctrl.checkProduct = async (req, res) => {
     var services = req.body.service;
-    console.log(services);
-    var productNot = helper.checkAvailable(services);
+    //console.log(services);
+    var productNot = await helper.checkAvailable(services);
+    //console.log(productNot);
     res.send({productNot});
 }
 

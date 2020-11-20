@@ -4,7 +4,7 @@ const ProductStock = require('../models/productStock');
 
 //Recibe un lista de servicios que a su vez contiene una lista de productos. La funcion checkea si hay existencia en el stock sufuciente para cubrir todos los productos
 //Devuelve un lista con los productos que no tiene cantidad suficiente, si hay cantidad suficiente, devuelve 0.
-helperProduct.checkAvailable = (service) => {
+helperProduct.checkAvailable = async (service) => {
     
     console.log(service);
     //Recorro todos los servicios y agrego los ID de los productos al array products.
@@ -51,30 +51,29 @@ helperProduct.checkAvailable = (service) => {
     var quantity = 0;
     for(i = 0; i < arrayProductQuantity.length; i++){
         //busco los productos en la base de datos y cuanto la cantidad que tengo.
-        ProductStock.find({Product: arrayProductQuantity[i].id, Status:'AVAILABLE'}, (err, productsDB) => {
+        console.log("antes de buscar en la base" + quantity);
+        await ProductStock.find({Product: arrayProductQuantity[i].id, Status:'ACTIVE'}, (err, productsDB) => {
             if(err){console.log(err)}
             else {
                 console.log(productsDB);
                 for(y = 0; y < productsDB.length; y++){
                     quantity += productsDB[y].Available;
                 }
-                console.log(quantity);
+                console.log("despues de buscar en la base " + quantity);
             }
         });
 
         if (arrayProductQuantity[i].quantity > quantity){
-            productNotAvailable.push(productQuantity.id);
+            productNotAvailable.push(arrayProductQuantity[i].id);
         }
         quantity = 0;
+        console.log("Aca deberia estar en cero " + quantity);
     }
 
     console.log(productNotAvailable);
     
-    if(productNotAvailable){
-        return productNotAvailable;
-    }else{
-        return 0;
-    }
+    return productNotAvailable;
+    
 }
 
 helperProduct.reserveProduct = (service) => {
