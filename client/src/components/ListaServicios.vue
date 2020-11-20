@@ -513,8 +513,13 @@ export default {
                     this.filtros.Year = this.vehicle.Year;
                     localStorage.setItem("cliente", JSON.stringify({
                         "cliente": this.cliente,
-                        "vehiculo": this.vehicle
+                        "vehiculo": this.vehicle,
                     }));
+                    let sucursal = this.sucursales.filter(sucursal=> sucursal.Name == this.filtros.BranchOffice);
+                    if(sucursal!=null){
+                        localStorage.removeItem("sucursal");
+                        localStorage.setItem("sucursal",JSON.stringify(sucursal[0]));
+                    }
                     this.serviciosFiltrados = [];
                     this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.Year);
                 });
