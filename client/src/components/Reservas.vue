@@ -1,12 +1,44 @@
 <template>
 <div>
+    <!--Filtros-->
+    <template v-if="consulta">
+        <v-expansion-panels>
+            <v-expansion-panel>
+                <v-expansion-panel-header class="indigo darken-4 white--text">
+                    Ver filtros Disponibles
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                    <v-container>
+                        <h2>Filtros</h2>
+                        <v-row>
+                            <v-col cols="12" md="4">
+                                <v-select label="Sucursal" v-model="sucursal" :items="sucursales" item-text="Name" item-value="Name"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                                <v-select label="ID del cliente" v-model="cliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                                <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="VehicleID"></v-select>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-btn class="success">
+                                    <v-icon>mdi-check</v-icon>
+                                </v-btn>
+                                <v-btn class="warning">
+                                    <v-icon>mdi-cancel</v-icon>
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-expansion-panels>
+    </template>
 
+    <!--Info, Editar, Nuevo y Modificar!-->
     <template>
-        <br>
-
         <v-toolbar flat>
             <v-flex class="text-right">
-
                 <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
@@ -116,7 +148,7 @@ export default {
         if (carrito != null) {
             this.detalle = carrito;
         };
-        if(cliente!=null){
+        if (cliente != null) {
             this.cliente = cliente;
         };
         if (sucursal != null) {
@@ -124,15 +156,24 @@ export default {
             this.sucursal = sucursal.Name;
         }
         let direccionActual = String(location.href);
+        console.log("dirección actual: " + direccionActual);
         if (direccionActual.includes("/turno")) {
-            console.log("Calendario!");
+            this.consulta = false;
         } else {
-            console.log("Reserva");
+            this.consulta = true;
         }
+        this.getSucursales();
+        this.getClientes();
+        this.getVehiculo();
     },
     data: () => ({
+        consulta: false,
         cliente: {},
+        clientes: [],
+        vehiculo: {},
+        vehicles: [],
         sucursal: '',
+        sucursales: [],
         reservas: [],
         horarios: ['08:00', '08:30', '9:00', '9:30', '10:00', '10:30'],
         attrs: '',
@@ -190,6 +231,26 @@ export default {
                     this.getEvents();
                 });
         },
+        async getSucursales() {
+            await axios.get('http://localhost:8081/branchOffice')
+                .then(res => {
+                    this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
+                });
+        },
+        async getClientes() {
+            await axios.get('http://localhost:8081/client')
+                .then(res => {
+                    this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                });
+        },
+
+        async getVehiculo() {
+            await axios.get('http://localhost:8081/vehicle')
+                .then(res => {
+                    this.allVehicles = res.data.vehicle;
+                });
+        },
+
         getEvents() {
             const events = []
             for (let i = 0; i < this.reservas.length; i++) {
@@ -216,6 +277,15 @@ export default {
         },
         save(date) {
             this.$refs.menu.save(date)
+        },
+        cambiarVehiculo(client) {
+            this.clientes.forEach(cliente => {
+                if (cliente._id == client) {
+                    cliente.Vehicle.forEach(vehiculo => {
+                        this.vehicles.push(vehiculo);
+                    })
+                }
+            });
         },
     },
     watch: {
