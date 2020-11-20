@@ -30,10 +30,10 @@
         </template>
 
         <template v-slot:no-data>
-                <v-btn color="primary" @click="elegirCliente = true">
-                    Volver
-                </v-btn>
-            </template>
+            <v-btn color="primary" @click="elegirCliente = true">
+                Volver
+            </v-btn>
+        </template>
     </v-data-table>
 
     <v-dialog v-model="dialogCarrito" max-width="400px">
@@ -440,18 +440,30 @@ export default {
             return ("" + hours + " horas, " + minutes + " minutos");
         },
 
-        aplicarFiltros() {
-            let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
-            let Model = this.filtros.Model != null & this.filtros.Model != ""
-            let BranchOffice = this.filtros.BranchOffice != null & this.filtros.BranchOffice != ""
-            let Year = this.filtros.Year != null & this.filtros.Year != ""
+        aplicarFiltros(marca, modelo, año) {
+            marca = marca == null ? "" : marca;
+            modelo = modelo == null ? "" : modelo;
+            año = año == null ? "" : año;
+            console.log("Marca " + JSON.stringify(marca) + " modelo: " + JSON.stringify(modelo) + " año " + JSON.stringify(año));
 
-            if (!Brand && !Model && !Year && !BranchOffice) {
+            if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
                 return
             }
-            this.serviciosFiltrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice &&
-                (servicio.Vehicle == null || (servicio.Vehicle != null && servicio.Vehicle.Brand == this.filtros.Brand &&
-                    servicio.Vehicle.Year == this.filtros.Year && servicio.Vehicle.Model == this.filtros.Model)));
+            
+            let filtrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice);
+            filtrados.forEach(servicio => {
+                if(servicio.Vehicle == null){
+                    this.serviciosFiltrados.push(servicio);
+                }
+                else{
+                    let añoServicio = servicio.Vehicle.Year == null ? "" : servicio.Vehicle.Year;
+                    let modeloServicio = servicio.Vehicle.Model == null ? "" : servicio.Vehicle.Model;
+                    let marcaServicio = servicio.Vehicle.Brand == null ? "" : servicio.Vehicle.Brand;
+                    if(añoServicio ==  año && modeloServicio == modelo && marcaServicio == marca){
+                        this.serviciosFiltrados.push(servicio);
+                    }
+                }
+            })
         },
 
         reiniciarFiltros() {
@@ -496,32 +508,35 @@ export default {
             axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
                 .then(res => {
                     this.vehicle = res.data.vehicle;
+                    this.filtros.Model = this.vehicle.Model;
+                    this.filtros.Brand = this.vehicle.Brand;
+                    this.filtros.Year = this.vehicle.Year;
                     localStorage.setItem("cliente", JSON.stringify({
                         "cliente": this.cliente,
                         "vehiculo": this.vehicle
                     }));
+                    this.serviciosFiltrados = [];
+                    this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.Year);
                 });
+
         },
 
         guardarCliente() {
             this.obtenerVehiculo();
-            this.filtros.Model = this.vehicle.Model;
-            this.filtros.Brand = this.vehicle.Brand;
-            this.filtros.Year = this.vehicle.Year;
-            this.aplicarFiltros();
+            //  this.aplicarFiltros();
         },
 
         validarDatos() {
             if (this.$refs.form.validate()) {
                 this.obtenerVehiculo();
 
-                this.aplicarFiltros();
+                //this.aplicarFiltros();
                 this.elegirCliente = false;
                 this.tabla = true;
             }
         },
 
-        corroborarService(){
+        corroborarService() {
             console.log("corroborando stock");
             location.href = "/turno";
         },
