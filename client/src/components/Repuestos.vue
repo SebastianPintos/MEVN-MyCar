@@ -421,7 +421,7 @@ export default {
                 if(dealersList!= null){
                     dealersList.forEach(dealer => {
                         if(dealer.Kind == "PRODUCT" && dealer.Status == "ACTIVE"){
-                            this.dealersList.push();
+                            this.dealersList.push(dealer);
                         }
                     })
                 }
