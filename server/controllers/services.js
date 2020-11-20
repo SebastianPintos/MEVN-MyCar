@@ -8,7 +8,7 @@ ctrl.index = (req, res) => {
         res.send({
             service: service
         })
-    }).populate('Vehicle');
+    }).populate('Vehicle').populate('BranchOffice').populate('Product');
 };
 
 ctrl.create = (req, res) => {
@@ -63,7 +63,7 @@ ctrl.remove = (req, res) => {
     Service.findOne({_id: id}, (err, service) => {
         if(err) {console.log(err)}
         else {
-            if(!client) {console.log(' no se encontro')}
+            if(!service) {console.log(' no se encontro')}
             else {
                 service.Status = 'INACTIVE';
 

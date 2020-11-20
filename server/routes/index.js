@@ -9,6 +9,8 @@ const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
 const service = require('../controllers/services');
 const reservation = require('../controllers/reservation');
+const employee = require('../controllers/employee');
+const branchOffice = require('../controllers/branchOffice');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -23,6 +25,7 @@ module.exports = app => {
     router.post('/vehicle/add', vehicle.create);
     router.post('/vehicle/:vehicle_id/update', vehicle.update);
     router.delete('/vehicle/:vehicle_id/delete', vehicle.remove);
+    router.get('/vehicle/:vehicle_id', vehicle.getOne);
     router.get('/vehiclestock', vehicle.indexStock);
     router.post('/vehiclestock/add', vehicle.createStock);
     router.post('/vehiclestock/:vehicleStock_id/update', vehicle.updateStock);
@@ -34,6 +37,16 @@ module.exports = app => {
     router.delete('/dealer/:dealer_id/delete', dealer.remove);
     router.get('/dealer/:dealer_id', dealer.getOne);
 
+    router.get('/employee', employee.index);
+    router.post('/employee/add', employee.create);
+    router.post('/employee/:employee_id/update', employee.update);
+    router.delete('/employee/:employee_id/delete', employee.remove);
+    
+    router.get('/branchOffice', branchOffice.index);
+    router.post('/branchOffice/add', branchOffice.create);
+    router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
+    router.delete('/branchOffice/:branchOffice_id/delete', branchOffice.remove);
+    
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
