@@ -67,6 +67,8 @@ module.exports = app => {
     router.post('/reservation/:reservation_id/update', reservation.update);
     router.delete('/reservation/:reservation_id/delete', reservation.remove);
     router.post('/reservation/checkProduct', reservation.checkProduct);
+    router.post('/reservation/reserveproduct', reservation.reserveProduct);
+    router.post('/reservation/prueba', reservation.pruebas);
   
     app.use(router);
 }
