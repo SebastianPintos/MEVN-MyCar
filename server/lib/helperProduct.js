@@ -95,7 +95,18 @@ helperProduct.reserveProduct = (service) => {
         count = 0;
     }
 
-    
+    ProductStock.find({Product: productQuantity.id, Status:'AVAILABLE'}, (err, productsDB) => {
+        if(err){console.log(err)}
+        else {
+            var quantity = 0;
+            for(product in productsDB){
+                
+            }
+        }
+    });
+
+
+
 }
 
 module.exports = helperProduct;

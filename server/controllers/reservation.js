@@ -3,6 +3,7 @@ const ctrl = {};
 const Product = require('../models/product');
 var Reservation = require('../models/reservation');
 var Service = require('../models/service');
+const helper = require('../lib/helperProduct');
 
 ctrl.index = (req, res) => {
     Reservation.find((err, reservation) => {
@@ -85,6 +86,12 @@ ctrl.remove = (req, res) => {
             }
         }
     });
+}
+
+ctrl.checkProduct = (req, res) => {
+    var services = req.body.service;
+    var productNot = helper.checkAvailable(services);
+    res.send(productNot);
 }
 
 module.exports = ctrl;
