@@ -12,9 +12,6 @@
                             <h2>Filtros</h2>
                             <v-row>
                                 <v-col cols="12" sm="6" md="3">
-                                  <v-select v-model="filtros.BranchOffice" :items="sucursales" item-text="Name" item-value="Name" label="Sucursal"></v-select>
-                               </v-col>
-                                <v-col cols="12" sm="6" md="3">
                                     <v-text-field v-model="filtros.Brand" label="Marca-Vehículo"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="3">
@@ -39,7 +36,7 @@
             </v-expansion-panels>
         </template>
 
-    <v-data-table v-model="selected" show-select :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
+    <v-data-table :expanded.sync="expanded" v-model="selected" show-expand show-select  :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
         <template v-slot:top>
             <v-toolbar flat>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rapida" single-line hide-details></v-text-field>
@@ -164,6 +161,13 @@
                     </v-dialog>
             </v-toolbar>
         </template>
+        <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+                <v-chip-group >
+                    <v-chip color="success" small v-for="sucursal in item.BranchOffice" :key="sucursal._id">{{sucursal.Name }}</v-chip>
+                </v-chip-group>
+            </td>
+        </template>
     </v-data-table>
 </div>
 </template>
@@ -182,6 +186,7 @@ export default {
         attrs: '',
         dialog: false,
         dialogDelete: false,
+        toggle_none: null,
         serviciosFiltrados: [],
         selectedProducts: [],
         filtros: [{
@@ -228,10 +233,6 @@ export default {
                 value: 'LaborPrice',
             },
             {
-                text: 'Sucursal',
-                value: 'BranchOffice.Name',
-            },
-            {
                 text: 'Duración',
                 value: 'Time',
             },
@@ -253,6 +254,7 @@ export default {
         sucursales: [],
         products: [],
         vehicles: [],
+        expanded: [],
     }),
 
     computed: {
@@ -281,21 +283,8 @@ export default {
                     servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
                     if (servicios != null) {
                         servicios.forEach(servicio => {
-                         if (servicio.BranchOffice.length > 0) {
-                                servicio.BranchOffice.forEach(sucursal => {
-                                    let servicioAGuardar ={
-                                            "_id": servicio._id,
-                                            "Description": servicio.Description,
-                                            "LaborPrice": servicio.LaborPrice,
-                                            "Time": servicio.Time,
-                                            "Vehicle": servicio.Vehicle,
-                                            "BranchOffice": sucursal,
-                                        };
-                                    
-                                    this.servicios.push(servicioAGuardar);
-                                    this.serviciosFiltrados.push(servicioAGuardar);
-                                })
-                            }
+                                    this.servicios.push(servicio);
+                                    this.serviciosFiltrados.push(servicio);
                         })
                     }
                     console.log(JSON.stringify(this.servicios));
