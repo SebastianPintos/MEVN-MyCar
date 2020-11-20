@@ -1,7 +1,7 @@
 <template>
 <div>
     <v-data-table v-if="tabla" v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
-        <template v-slot:item.actions="{ item }">
+        <template v-slot:[`item.actions`]="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
                 <v-icon class="text-center" @click="agregarAlCarrito(item)">
