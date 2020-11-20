@@ -426,128 +426,137 @@ export default {
                 this.carritoCompleto.total = sumaTrabajo + sumaProductos;
                 this.carritoCompleto.tiempoTotal = this.timeConvert(sumaTiempo);
 
-            }
-        },
-
-        mostrarCarrito() {
-            this.calcularCarrito();
-            this.dialogCarrito = true;
-        },
-
-        timeConvert(n) {
-            var minutes = n % 60
-            var hours = (n - minutes) / 60
-            return ("" + hours + " horas, " + minutes + " minutos");
-        },
-
-        aplicarFiltros(marca, modelo, año) {
-            marca = marca == null ? "" : marca;
-            modelo = modelo == null ? "" : modelo;
-            año = año == null ? "" : año;
-            console.log("Marca " + JSON.stringify(marca) + " modelo: " + JSON.stringify(modelo) + " año " + JSON.stringify(año));
-
-            if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
-                return
-            }
-            
-            let filtrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice);
-            filtrados.forEach(servicio => {
-                if(servicio.Vehicle == null){
-                    this.serviciosFiltrados.push(servicio);
-                }
-                else{
-                    let añoServicio = servicio.Vehicle.Year == null ? "" : servicio.Vehicle.Year;
-                    let modeloServicio = servicio.Vehicle.Model == null ? "" : servicio.Vehicle.Model;
-                    let marcaServicio = servicio.Vehicle.Brand == null ? "" : servicio.Vehicle.Brand;
-                    if(añoServicio ==  año && modeloServicio == modelo && marcaServicio == marca){
-                        this.serviciosFiltrados.push(servicio);
-                    }
-                }
-            })
-        },
-
-        reiniciarFiltros() {
-            this.filtros = [{
-                BranchOffice: '',
-                Brand: '',
-                Model: '',
-                Year: '',
-            }]
-            this.serviciosFiltrados = this.servicios
-        },
-
-        descartarCarrito() {
-            this.carritoCompleto = this.defaultCarritoCompleto;
-            this.deleteCarritoConfirm = false;
-            this.dialogCarrito = false;
-            for (let i = 0; i < this.servicios.length; i++) {
-                this.servicios[i].carrito = false;
-                let item = JSON.parse(localStorage.getItem(String(i)));
-                if (item != null) {
-                    item.carrito = false;
-                    localStorage.setItem(String(i), JSON.stringify(item));
-                }
-            }
-        },
-
-        aceptarCarrito() {
-            this.elegirCliente = true;
-        },
-
-        cambiarVehiculo(client) {
-            this.clientes.forEach(cliente => {
-                if (cliente._id == client) {
-                    cliente.Vehicle.forEach(vehiculo => {
-                        this.vehicles.push(vehiculo);
-                    })
-                }
-            });
-        },
-
-        obtenerVehiculo() {
-            axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
-                .then(res => {
-                    this.vehicle = res.data.vehicle;
-                    this.filtros.Model = this.vehicle.Model;
-                    this.filtros.Brand = this.vehicle.Brand;
-                    this.filtros.Year = this.vehicle.Year;
-                    localStorage.setItem("cliente", JSON.stringify({
-                        "cliente": this.cliente,
-                        "vehiculo": this.vehicle,
+                localStorage.removeItem("carrito");
+                localStorage.setItem("carrito", JSON.stringify({
+                        "ids": this.carritoCompleto.ids,
+                        "serviciosCarrito": this.carritoCompleto.serviciosCarrito,
+                        "totalRepuestos": this.carritoCompleto.totalRepuestos,
+                        "totalManoDeObra": this.carritoCompleto.totalManoDeObra,
+                        "total": this.carritoCompleto.total,
+                        "tiempoTotal": this.carritoCompleto.tiempoTotal
                     }));
-                    let sucursal = this.sucursales.filter(sucursal=> sucursal.Name == this.filtros.BranchOffice);
-                    if(sucursal!=null){
-                        localStorage.removeItem("sucursal");
-                        localStorage.setItem("sucursal",JSON.stringify(sucursal[0]));
+
+                }
+            },
+
+            mostrarCarrito() {
+                    this.calcularCarrito();
+                    this.dialogCarrito = true;
+                },
+
+                timeConvert(n) {
+                    var minutes = n % 60
+                    var hours = (n - minutes) / 60
+                    return ("" + hours + " horas, " + minutes + " minutos");
+                },
+
+                aplicarFiltros(marca, modelo, año) {
+                    marca = marca == null ? "" : marca;
+                    modelo = modelo == null ? "" : modelo;
+                    año = año == null ? "" : año;
+                    console.log("Marca " + JSON.stringify(marca) + " modelo: " + JSON.stringify(modelo) + " año " + JSON.stringify(año));
+
+                    if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
+                        return
                     }
-                    this.serviciosFiltrados = [];
-                    this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.Year);
-                });
 
-        },
+                    let filtrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice);
+                    filtrados.forEach(servicio => {
+                        if (servicio.Vehicle == null) {
+                            this.serviciosFiltrados.push(servicio);
+                        } else {
+                            let añoServicio = servicio.Vehicle.Year == null ? "" : servicio.Vehicle.Year;
+                            let modeloServicio = servicio.Vehicle.Model == null ? "" : servicio.Vehicle.Model;
+                            let marcaServicio = servicio.Vehicle.Brand == null ? "" : servicio.Vehicle.Brand;
+                            if (añoServicio == año && modeloServicio == modelo && marcaServicio == marca) {
+                                this.serviciosFiltrados.push(servicio);
+                            }
+                        }
+                    })
+                },
 
-        guardarCliente() {
-            this.obtenerVehiculo();
-            //  this.aplicarFiltros();
-        },
+                reiniciarFiltros() {
+                    this.filtros = [{
+                        BranchOffice: '',
+                        Brand: '',
+                        Model: '',
+                        Year: '',
+                    }]
+                    this.serviciosFiltrados = this.servicios
+                },
 
-        validarDatos() {
-            if (this.$refs.form.validate()) {
-                this.obtenerVehiculo();
+                descartarCarrito() {
+                    this.carritoCompleto = this.defaultCarritoCompleto;
+                    this.deleteCarritoConfirm = false;
+                    this.dialogCarrito = false;
+                    for (let i = 0; i < this.servicios.length; i++) {
+                        this.servicios[i].carrito = false;
+                        let item = JSON.parse(localStorage.getItem(String(i)));
+                        if (item != null) {
+                            item.carrito = false;
+                            localStorage.setItem(String(i), JSON.stringify(item));
+                        }
+                    }
+                },
 
-                //this.aplicarFiltros();
-                this.elegirCliente = false;
-                this.tabla = true;
-            }
-        },
+                aceptarCarrito() {
+                    this.elegirCliente = true;
+                },
 
-        corroborarService() {
-            console.log("corroborando stock");
-            location.href = "/turno";
-        },
+                cambiarVehiculo(client) {
+                    this.clientes.forEach(cliente => {
+                        if (cliente._id == client) {
+                            cliente.Vehicle.forEach(vehiculo => {
+                                this.vehicles.push(vehiculo);
+                            })
+                        }
+                    });
+                },
 
-    }
-};
+                obtenerVehiculo() {
+                    axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
+                        .then(res => {
+                            this.vehicle = res.data.vehicle;
+                            this.filtros.Model = this.vehicle.Model;
+                            this.filtros.Brand = this.vehicle.Brand;
+                            this.filtros.Year = this.vehicle.Year;
+                            localStorage.setItem("cliente", JSON.stringify({
+                                "cliente": this.cliente,
+                                "vehiculo": this.vehicle,
+                            }));
+                            let sucursal = this.sucursales.filter(sucursal => sucursal.Name == this.filtros.BranchOffice);
+                            if (sucursal != null) {
+                                localStorage.removeItem("sucursal");
+                                localStorage.setItem("sucursal", JSON.stringify(sucursal[0]));
+                            }
+                            this.serviciosFiltrados = [];
+                            this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.Year);
+                        });
+
+                },
+
+                guardarCliente() {
+                    this.obtenerVehiculo();
+                    //  this.aplicarFiltros();
+                },
+
+                validarDatos() {
+                    if (this.$refs.form.validate()) {
+                        this.obtenerVehiculo();
+
+                        //this.aplicarFiltros();
+                        this.elegirCliente = false;
+                        this.tabla = true;
+                    }
+                },
+
+                corroborarService() {
+                    console.log("corroborando stock");
+                    location.href = "/turno";
+                },
+
+        }
+    };
 </script>
 
 <style>
