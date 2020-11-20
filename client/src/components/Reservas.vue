@@ -156,7 +156,7 @@ export default {
                     start: desde,
                     end: hasta,
                     color: this.colors[0],
-                    timed: false,
+                    timed: true,
                 })
             }
             this.events = events
