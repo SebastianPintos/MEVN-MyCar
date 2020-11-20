@@ -2,10 +2,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var ReservationSchema = new Schema({
-  Duration: {type: String},
+  Duration: {type: Number},
   Price: {type: Number},
-  Created_at: {type: Date},
-  Status: {type: String},
+  Status: {type: String, enum: ['ACTIVE', 'CLOSED', 'CANCEL']},
   Domain: {type: String},
   AppointmentTime: {type: Date},
   Client: {
@@ -15,7 +14,6 @@ var ReservationSchema = new Schema({
   },
   BranchOffice: {
     type: Schema.Types.ObjectId,
-    required: true,
     ref: 'BranchOffice'
   },
   Details: {type: String},
@@ -28,7 +26,7 @@ var ReservationSchema = new Schema({
     VehicleID: {type: Schema.Types.ObjectId, ref: 'Vehicle'},
     Domain: {type: String}
   }
-});
+}, {timestamps: true});
 
 var reservation = mongoose.model('Reservation', ReservationSchema);
 module.exports = reservation;
