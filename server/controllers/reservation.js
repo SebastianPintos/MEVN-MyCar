@@ -90,8 +90,9 @@ ctrl.remove = (req, res) => {
 
 ctrl.checkProduct = (req, res) => {
     var services = req.body.service;
+    console.log(services);
     var productNot = helper.checkAvailable(services);
-    res.send(productNot);
+    res.send({productNot});
 }
 
 module.exports = ctrl;
