@@ -74,10 +74,9 @@ export default {
     created() {
 
         let sucursal = JSON.parse(localStorage.getItem("sucursal"));
-        let id = sucursal.id;
-        console.log("SUCURSAL: " + JSON.stringify(sucursal) + " id " + id);
+       
         if (sucursal != null) {
-            this.getReservas(sucursal.id);
+            this.getReservas(sucursal._id);
         }
         let direccionActual = String(location.href);
         if (direccionActual.includes("/turno")) {
@@ -139,7 +138,6 @@ export default {
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
                     this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice == sucursal);
-                    console.log(JSON.stringify(this.reservas));
                     this.getEvents();
                 });
         },
