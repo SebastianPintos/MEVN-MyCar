@@ -12,19 +12,19 @@
                         <h2>Filtros</h2>
                         <v-row>
                             <v-col cols="12" md="4">
-                                <v-select label="Sucursal" v-model="sucursal" :items="sucursales" item-text="Name" item-value="Name"></v-select>
+                                <v-select label="Sucursal" v-model="filtroSucursal" :items="sucursales" item-text="Name" item-value="Name"></v-select>
                             </v-col>
                             <v-col cols="12" md="4">
-                                <v-select label="ID del cliente" v-model="cliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)"></v-select>
+                                <v-select label="ID del cliente" v-model="filtroCliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)"></v-select>
                             </v-col>
                             <v-col cols="12" md="4">
                                 <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="VehicleID"></v-select>
                             </v-col>
                             <v-col cols="12" sm="6" md="6">
-                                <v-btn class="success">
+                                <v-btn class="success" @click="aplicarFiltros">
                                     <v-icon>mdi-check</v-icon>
                                 </v-btn>
-                                <v-btn class="warning">
+                                <v-btn class="warning" @click="reiniciarFiltros">
                                     <v-icon>mdi-cancel</v-icon>
                                 </v-btn>
                             </v-col>
@@ -39,7 +39,7 @@
     <template>
         <v-toolbar flat>
             <v-flex class="text-right">
-                <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
+                <v-btn v-if="consulta==false" color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
                 <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
@@ -143,9 +143,6 @@ export default {
         let direccionActual = String(location.href);
         if (direccionActual.includes("/turno")) {
             this.consulta = false;
-            this.getSucursales();
-            this.getClientes();
-            this.getVehiculo();
 
             let sucursal = JSON.parse(localStorage.getItem("sucursal"));
             let carrito = JSON.parse(localStorage.getItem("carrito"));
@@ -165,7 +162,12 @@ export default {
 
         } else {
             this.consulta = true;
+            this.getAllReservas();
         }
+        this.getSucursales();
+        this.getClientes();
+        this.getVehiculo();
+
     },
     data: () => ({
         consulta: false,
@@ -174,6 +176,8 @@ export default {
         vehiculo: {},
         vehicles: [],
         sucursal: '',
+        filtroSucursal: '',
+        filtroCliente: '',
         sucursales: [],
         reservas: [],
         horarios: ['08:00', '08:30', '9:00', '9:30', '10:00', '10:30'],
@@ -287,6 +291,37 @@ export default {
                     })
                 }
             });
+        },
+        aplicarFiltros() {
+            if (!this.filtroSucursal && !this.vehiculo && !this.filtroCliente) {
+                return;
+            }
+            if (this.filtroSucursal != "") {
+                this.reservas = this.reservas.filter(r => r.BranchOffice.Name == this.filtroSucursal);
+            }
+            if (this.filtroCliente != "") {
+                this.reservas = this.reservas.filter(r => r.Client == this.filtroCliente);
+            }
+            if (this.vehiculo!="") {
+                this.reservas = this.reservas.filter(r => this.vehiculo._id == r.VehicleID);
+            }
+            if(this.reservas!=null){
+                this.getEvents();
+            }
+         },
+        reiniciarFiltros() {
+            this.reservas = [];
+            this.filtroCliente="";
+            this.filtroSucursal="";
+            this.vehiculo="";
+            this.events=[];
+            this.getAllReservas()
+        },
+        async getAllReservas() {
+            await axios.get('http://localhost:8081/reservation')
+                .then(res => {
+                    this.reservas = res.data.reservation;
+                });
         },
     },
     watch: {
