@@ -305,10 +305,16 @@ export default {
             if (this.vehiculo!="") {
                 this.reservas = this.reservas.filter(r => this.vehiculo._id == r.VehicleID);
             }
-            console.log("RESERVAS: " + JSON.stringify(this.reservas));
-        },
+            if(this.reservas!=null){
+                this.getEvents();
+            }
+         },
         reiniciarFiltros() {
             this.reservas = [];
+            this.filtroCliente="";
+            this.filtroSucursal="";
+            this.vehiculo="";
+            this.events=[];
             this.getAllReservas()
         },
         async getAllReservas() {
