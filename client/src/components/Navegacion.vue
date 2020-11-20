@@ -70,6 +70,24 @@
                 </v-list-item>
             </v-list-group>
 
+            <v-list-group :value="true" prepend-icon="mdi-cog-outline">
+                <template v-slot:activator>
+                    <v-list-item-title>Configuración</v-list-item-title>
+                </template>
+                <v-list-item>
+                    <v-list-item-icon>
+                        <v-icon>mdi-store</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Sucursales</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                    <v-list-item-icon>
+                        <v-icon>mdi-account-tie </v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Empleados</v-list-item-title>
+                </v-list-item>
+            </v-list-group>
+
             <v-list-item :to="'/servicios'">
                 <v-list-item-icon>
                     <v-icon>mdi-hammer-wrench</v-icon>

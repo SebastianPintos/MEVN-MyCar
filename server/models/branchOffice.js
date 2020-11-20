@@ -28,3 +28,6 @@ var BranchOfficeSchema = new Schema({
     Sunday: {Open: {type: Number},Close: {type: Number}}
   }
 });
+
+var branchOffice = mongoose.model("BranchOffice", BranchOfficeSchema);
+module.exports = branchOffice; 
