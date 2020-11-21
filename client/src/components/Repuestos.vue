@@ -29,10 +29,17 @@
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field prefix="$" v-model="filtros.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                    <v-text-field prefix="$" v-model="filtros.cDesde" label="Precio última Compra Desde"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field prefix="$" v-model="filtros.SalePrice" label="Precio de Venta"></v-text-field>
+                                    <v-text-field prefix="$" v-model="filtros.cHasta" label="Precio última Compra Hasta"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="4" md="3">
+                                    <v-text-field prefix="$" v-model="filtros.vDesde" label="Precio de Venta Desde"></v-text-field>
+                                </v-col>
+                                
+                                <v-col cols="12" sm="4" md="3">
+                                    <v-text-field prefix="$" v-model="filtros.vHasta" label="Precio de Venta Hasta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor"></v-select>
@@ -560,20 +567,24 @@ export default {
             let SubCategory = this.filtros.SubCategory != null & this.filtros.SubCategory != ""
             let Category = this.filtros.Category != null & this.filtros.Category != ""
             let SKU = this.filtros.SKU != null & this.filtros.SKU != ""
-            let LastPurchasePrice = this.filtros.LastPurchasePrice != null & this.filtros.LastPurchasePrice != ""
-            let SalePrice = this.filtros.SalePrice != null & this.filtros.SalePrice != ""
+            let cDesde = this.filtros.cDesde != null & this.cDesde != ""
+            let cHasta = this.filtros.cHasta != null & this.filtros.cHasta != ""
+            let vDesde = this.filtros.vDesde != null & this.vDesde != ""
+            let vHasta = this.filtros.vHasta != null & this.filtros.vHasta != ""
             let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
             let Status = this.filtros.Satus != null & this.filtros.Status != ""
 
-            if (!Brand && !Category && !SubCategory && !LastPurchasePrice && !SalePrice && !Dealer && !Status && !SKU) {
+            if (!Brand && !Category && !SubCategory && !cDesde && !cHasta && !vDesde & !vHasta && !Dealer && !Status && !SKU) {
                 return
             }
             let BrandMatches = true
             let SubCategoryMatches = true
             let CategoryMatches = true
             let SKUMatches = true
-            let LastPurchasePriceMatches = true
-            let SalePriceMatches = true
+            let cDesdeMatches = true
+            let cHastaMatches = true
+            let vDesdeMatches = true
+            let vHastaMatches = true
             let StatusMatches = true
             let DealerMatches = true
             let repAux = []
@@ -583,12 +594,16 @@ export default {
                 SubCategoryMatches = SubCategory ? this.repuestos[i].SubCategory === this.filtros.SubCategory : SubCategoryMatches
                 CategoryMatches = Category ? this.repuestos[i].Category === this.filtros.Category : CategoryMatches
                 SKUMatches = SKU ? this.repuestos[i].SKU === this.filtros.SKU : SKUMatches
-                LastPurchasePriceMatches = LastPurchasePrice ? String(this.repuestos[i].LastPurchasePrice) == String(this.filtros.LastPurchasePrice) : LastPurchasePriceMatches
-                SalePriceMatches = SalePrice ? String(this.repuestos[i].SalePrice) == String(this.filtros.SalePrice) : SalePriceMatches
+               
+                cDesdeMatches = cDesde ? parseFloat(this.repuestos[i].LastPurchasePrice) >= parseFloat(this.filtros.cDesde) : cDesdeMatches
+                vDesdeMatches = vDesde ? parseFloat(this.repuestos[i].SalePrice) >= parseFloat(this.filtros.vDesde) : vDesdeMatches
+               
+                cHastaMatches = cHasta ? parseFloat(this.repuestos[i].LastPurchasePrice) <= parseFloat(this.filtros.cHasta) : cHastaMatches
+                vHastaMatches = vHasta ? parseFloat(this.repuestos[i].SalePrice) <= parseFloat(this.filtros.vHasta) : vHastaMatches
                 StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
                 DealerMatches = Dealer ? this.repuestos[i].Dealer.Email == this.filtros.Dealer : DealerMatches
 
-                if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & LastPurchasePriceMatches & SalePriceMatches & StatusMatches & DealerMatches) {
+                if (BrandMatches & SubCategoryMatches & CategoryMatches & SKUMatches & cDesdeMatches & cHastaMatches & vDesdeMatches & vHastaMatches & StatusMatches & DealerMatches) {
                     repAux[cant] = this.repuestos[i]
                     cant++
                 }
