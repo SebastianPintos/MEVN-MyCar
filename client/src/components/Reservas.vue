@@ -45,7 +45,7 @@
                 <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon>mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on">
+                <v-btn @click="deleteConfirm=true" color="error" dark class="mb-2" v-bind="attrs" v-on="on">
                     <v-icon>mdi-delete</v-icon>
                 </v-btn>
                 <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=true">
@@ -55,6 +55,24 @@
         </v-toolbar>
     </template>
 
+    <v-dialog v-model="deleteConfirm" max-width="300px">
+        <v-card>
+            <v-card-title>Confirmación</v-card-title>
+            <v-card-text>
+                <h3>¿Estás seguro de que deseas eliminar esta reserva?</h3>
+            </v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn color="info" dark class="mb-2" @click="deleteConfirm=false">
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn color="info" dark class="mb-2" @click="eliminarReserva(selectedEvent.id)">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
     <v-dialog v-model="nuevoTurno" max-width="400px">
         <v-card>
             <v-card-title>
@@ -131,39 +149,28 @@
         </v-btn>
     </v-sheet>
     <v-sheet height="600">
-        <v-calendar ref="calendar" 
-        :weekdays="[1, 2, 3, 4, 5, 6, 0]" 
-        locale="es" 
-        :short-weekdays="false" 
-        v-model="value" 
-        :type="type" 
-        :events="events" 
-        :event-overlap-mode="mode" 
-        :event-overlap-threshold="30" 
-        :event-color="getEventColor"
-         @click:event="showEvent"
-        ></v-calendar>
+        <v-calendar ref="calendar" :weekdays="[1, 2, 3, 4, 5, 6, 0]" locale="es" :short-weekdays="false" v-model="value" :type="type" :events="events" :event-overlap-mode="mode" :event-overlap-threshold="30" :event-color="getEventColor" @click:event="showEvent"></v-calendar>
         <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
             <v-card color="grey lighten-4" min-width="350px" flat>
                 <v-toolbar :color="selectedEvent.color" dark>
                     <v-btn icon v-if="selectedEvent.estado=='Reservado' ">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
-                    <v-btn icon v-if="selectedEvent.estado=='Reservado' ">
+                    <v-btn icon @click="deleteConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
                     <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
                     <v-spacer></v-spacer>
-                   
+
                 </v-toolbar>
                 <v-card-text>
                     <span v-html="selectedEvent.details"></span>
                 </v-card-text>
                 <v-card-actions>
-                <v-flex class="text-right">
-                    <v-btn text color="secondary" @click="selectedOpen = false">
-                       <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
+                    <v-flex class="text-right">
+                        <v-btn text color="secondary" @click="selectedOpen = false">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
                     </v-flex>
                 </v-card-actions>
             </v-card>
@@ -207,6 +214,7 @@ export default {
     },
     data: () => ({
         consulta: false,
+        deleteConfirm: false,
         cliente: {},
         clientes: [],
         vehiculo: {},
@@ -316,6 +324,10 @@ export default {
                 });
         },
 
+        async eliminarReserva(id) {
+            await axios.delete('http://localhost:8081/reservation/' + id + '/delete');
+        },
+
         getEvents() {
             const events = []
             for (let i = 0; i < this.reservas.length; i++) {
@@ -324,14 +336,15 @@ export default {
                 let hasta = new Date(desde.getTime() + duracion * 60000);
                 let sMinutesDesde = desde.getMinutes() == 0 ? "00" : String(desde.getMinutes());
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
-                let descripcion=  "<h5>Dominio: </h5>"+this.reservas[i].Domain+", <br> <h5>Cliente: </h5>"+this.reservas[i].Client.DNI+" <br><h5> Servicios a Realizar: </h5><br>";
-                this.reservas[i].Service.forEach(s=>{
-                    descripcion+=s.Description+"<br>";
+                let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5><br>";
+                this.reservas[i].Service.forEach(s => {
+                    descripcion += s.Description + "<br>";
                 })
                 events.push({
                     name: desde.getHours() + ":" + sMinutesDesde + "-" + hasta.getHours() + ":" + sMinutesHasta + " Reservado",
                     start: desde,
                     end: hasta,
+                    id: this.reservas[i]._id,
                     color: this.colors[0],
                     timed: true,
                     details: descripcion,
@@ -340,7 +353,6 @@ export default {
 
             }
             this.events = events
-
         },
         getEventColor(event) {
             return event.color
@@ -361,6 +373,8 @@ export default {
             });
         },
         aplicarFiltros() {
+            this.getAllReservas();
+            this.events=[];
             if (!this.filtroSucursal && !this.vehiculo && !this.filtroCliente) {
                 return;
             }
@@ -388,7 +402,7 @@ export default {
         async getAllReservas() {
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation;
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE");
                 });
         },
     },
