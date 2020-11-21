@@ -42,12 +42,6 @@
                 <v-btn v-if="consulta==false" color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
-                <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-                    <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-                <v-btn @click="deleteConfirm=true" color="error" dark class="mb-2" v-bind="attrs" v-on="on">
-                    <v-icon>mdi-delete</v-icon>
-                </v-btn>
                 <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=true">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
@@ -66,13 +60,35 @@
                     <v-btn color="info" dark class="mb-2" @click="deleteConfirm=false">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn color="info" dark class="mb-2" @click="eliminarReserva(selectedEvent.id)">
+                    <v-btn color="info" dark class="mb-2" @click="eliminarReserva(selectedEvent);deleteConfirm=false">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    
+    <v-dialog v-model="checkConfirm" max-width="300px">
+        <v-card>
+            <v-card-title>Confirmación</v-card-title>
+            <v-card-text>
+                <h3>¿Estás seguro de que deseas verificar asistencia de esta reserva?</h3>
+            </v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn color="info" dark class="mb-2" @click="checkConfirm=false">
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn color="info" dark class="mb-2" @click="confirmarReserva(selectedEvent);checkConfirm=false">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+
     <v-dialog v-model="nuevoTurno" max-width="400px">
         <v-card>
             <v-card-title>
@@ -156,6 +172,9 @@
                     <v-btn icon v-if="selectedEvent.estado=='Reservado' ">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
+                    <v-btn icon @click="checkConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
                     <v-btn icon @click="deleteConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
@@ -215,6 +234,7 @@ export default {
     data: () => ({
         consulta: false,
         deleteConfirm: false,
+        checkConfirm: false,
         cliente: {},
         clientes: [],
         vehiculo: {},
@@ -324,8 +344,13 @@ export default {
                 });
         },
 
-        async eliminarReserva(id) {
-            await axios.delete('http://localhost:8081/reservation/' + id + '/delete');
+        async confirmarReserva(event) {
+            await axios.delete('http://localhost:8081/reservation/' + event.id + '/delete');
+        },
+
+         async eliminarReserva(event) {
+            await axios.delete('http://localhost:8081/reservation/' + event.id + '/cancel');
+            this.events.splice(this.events.indexOf(event), 1)
         },
 
         getEvents() {
@@ -375,6 +400,7 @@ export default {
         aplicarFiltros() {
             this.getAllReservas();
             this.events=[];
+            this.reservas = this.reservas.filter(r => r.Status=="ACTIVE");
             if (!this.filtroSucursal && !this.vehiculo && !this.filtroCliente) {
                 return;
             }

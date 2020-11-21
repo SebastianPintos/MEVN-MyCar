@@ -77,6 +77,7 @@ ctrl.update = (req, res) => {
     });
 }
 
+
 ctrl.remove = (req, res) => {
     var id = req.params.reservation_id;
     Reservation.findOne({_id: id}, (err, reservation) => {
@@ -85,6 +86,27 @@ ctrl.remove = (req, res) => {
             if(!reservation) {console.log('No se encontró el producto específico')}
             else {
                 reservation.Status = 'CLOSED';
+
+                reservation.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+}
+
+ctrl.cancel = (req, res) => {
+    var id = req.params.reservation_id;
+    Reservation.findOne({_id: id}, (err, reservation) => {
+        if(err) {console.log(err)}
+        else {
+            if(!reservation) {console.log('No se encontró el producto específico')}
+            else {
+                reservation.Status = 'CANCEL';
 
                 reservation.save((err) => {
                     if(err) {console.log(err)}
