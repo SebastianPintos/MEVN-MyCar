@@ -318,9 +318,10 @@ export default {
             }
         },
         async getReservas(sucursal) {
+            let today = new Date();
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice == sucursal);
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice == sucursal & new Date(reserva.AppointmentTime)>=today);
                     this.getEvents();
                 });
         },
@@ -359,15 +360,14 @@ export default {
                 let desde = new Date(this.reservas[i].AppointmentTime);
                 let duracion = this.reservas[i].Duration;
                 let hasta = new Date(desde.getTime() + duracion * 60000);
-                let sMinutesDesde = desde.getMinutes() == 0 ? "00" : String(desde.getMinutes());
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
                 let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5><br>";
                 this.reservas[i].Service.forEach(s => {
-                    descripcion += s.Description + "<br>";
+                    descripcion += "<p>"+s.Description + "</p><br>";
                 })
-                events.push({
-                    name: desde.getHours() + ":" + sMinutesDesde + "-" + hasta.getHours() + ":" + sMinutesHasta + " Reservado",
-                    start: desde,
+               events.push({
+                    name: "-" + hasta.getHours() + ":" + sMinutesHasta + " Reservado",
+                    start: desde.getTime(),
                     end: hasta,
                     id: this.reservas[i]._id,
                     color: this.colors[0],
@@ -426,9 +426,10 @@ export default {
             this.getAllReservas()
         },
         async getAllReservas() {
+            let today = new Date();
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE");
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime)>=today);
                 });
         },
     },
