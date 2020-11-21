@@ -10,7 +10,7 @@ ctrl.index = (req, res) => {
         res.send({
             reservation: reservation
         })
-    }).populate('Service').populate('Vehicle').populate('BranchOffice');
+    }).populate('Service').populate('Vehicle').populate('BranchOffice').populate('Client');
 };
 
 ctrl.create = (req, res) => {

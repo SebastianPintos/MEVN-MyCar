@@ -324,14 +324,17 @@ export default {
                 let hasta = new Date(desde.getTime() + duracion * 60000);
                 let sMinutesDesde = desde.getMinutes() == 0 ? "00" : String(desde.getMinutes());
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
-
+                let descripcion=  "<h5>Dominio: </h5>"+this.reservas[i].Domain+", <br> <h5>Cliente: </h5>"+this.reservas[i].Client.DNI+" <br><h5> Servicios a Realizar: </h5><br>";
+                this.reservas[i].Service.forEach(s=>{
+                    descripcion+=s.Description+"<br>";
+                })
                 events.push({
                     name: desde.getHours() + ":" + sMinutesDesde + "-" + hasta.getHours() + ":" + sMinutesHasta + " Reservado",
                     start: desde,
                     end: hasta,
                     color: this.colors[0],
                     timed: true,
-                    details: "Detalle de la Reserva",
+                    details: descripcion,
                     estado: "Reservado"
                 })
 
