@@ -44,7 +44,11 @@
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor" required></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.SuggestedPrice" prefix="$" label="Precio Sugerido"></v-text-field>
+                                    <v-text-field v-model="filtros.pDesde" prefix="$" label="Precio Sugerido Desde"></v-text-field>
+                                </v-col>
+
+                                <v-col cols="12" sm="4" md="3">
+                                    <v-text-field v-model="filtros.pHasta" prefix="$" label="Precio Sugerido Hasta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="12">
                                     <v-btn class="success" @click="aplicarFiltros">
@@ -308,7 +312,7 @@ export default {
 
         ],
         nuevoUsado: ['NUEVO', 'USADO'],
-        filtroNuevoUsado: ['TODOS','NUEVO', 'USADO'],
+        filtroNuevoUsado: ['TODOS', 'NUEVO', 'USADO'],
         vehículos: [],
         allvehiculos: [],
         vehículosFiltrados: [],
@@ -329,7 +333,8 @@ export default {
             origin: '',
             year: '',
             Dealer: '',
-            SuggestedPrice: 0,
+            pDesde: '',
+            pHasta: '',
             Kind: '',
         }],
 
@@ -539,10 +544,11 @@ export default {
             let transmission = this.filtros.transmission != null & this.filtros.transmission != ""
             let origin = this.filtros.origin != null & this.filtros.origin != ""
             let year = this.filtros.year != null & this.filtros.year != ""
-            let SuggestedPrice = this.filtros.SuggestedPrice != null & this.filtros.SuggestedPrice != ""
+            let pDesde = this.filtros.pDesde != null & this.filtros.pDesde != ""
+            let pHasta = this.filtros.pHasta != null & this.filtros.pHasta != ""
             let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
             let Kind = this.filtros.Kind != null & this.filtros.Kind != ""
-            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !SuggestedPrice & !Dealer & !Kind) {
+            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !pDesde & !pHasta & !Dealer & !Kind) {
                 return
             }
             let BrandMatches = true
@@ -553,7 +559,8 @@ export default {
             let transmissionMatches = true
             let originMatches = true
             let yearMatches = true
-            let SuggestedPriceMatches = true
+            let pDesdeMatches = true
+            let pHastaMatches = true
             let DealerMatches = true
             let KindMatches = true
             let repAux = []
@@ -568,11 +575,12 @@ export default {
                 transmissionMatches = transmission ? this.vehículos[i].transmission === this.filtros.transmission : transmissionMatches
                 originMatches = origin ? this.vehículos[i].origin === this.filtros.origin : originMatches
                 yearMatches = year ? this.vehículos[i].year == this.filtros.year : yearMatches
-                SuggestedPriceMatches = SuggestedPrice ? this.vehículos[i].SuggestedPrice == this.filtros.SuggestedPrice : SuggestedPriceMatches
+                pDesdeMatches = pDesde ? this.vehículos[i].SuggestedPrice >= this.filtros.pDesde : pDesdeMatches
+                pHastaMatches = pHasta ? this.vehículos[i].SuggestedPrice <= this.filtros.pHasta : pHastaMatches
                 DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
-                KindMatches = Kind ? this.vehículos[i].Dealer.Kind === this.filtros.Kind || this.filtros.Kind =="TODOS": KindMatches 
+                KindMatches = Kind ? this.vehículos[i].Dealer.Kind === this.filtros.Kind || this.filtros.Kind == "TODOS" : KindMatches
 
-                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & SuggestedPriceMatches & DealerMatches & KindMatches) {
+                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & pDesdeMatches & pHastaMatches & DealerMatches & KindMatches) {
                     repAux[cant] = this.vehículos[i]
                     cant++
                 }
