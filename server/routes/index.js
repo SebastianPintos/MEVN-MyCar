@@ -49,5 +49,7 @@ module.exports = app => {
     router.delete('/reservation/:reservation_id/delete', reservation.remove);
     router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
 
+    //router.get('/reservation/reservationConfirm', Email.Prueba);
+
     app.use(router);
 }
