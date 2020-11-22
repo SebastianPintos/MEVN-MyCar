@@ -48,11 +48,11 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="editedItem.city" v-if="editedItem.Country=='Argentina'" :items="localidades" label="Localidad" :rules="requerido"></v-select>
+                                                <v-select v-model="editedItem.City" v-if="editedItem.Country=='Argentina'" :items="localidades" label="Localidad" :rules="requerido"></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="editedItem.cityNL" v-if="editedItem.Country!='Argentina'" label="Localidad" :rules="requerido"></v-text-field>
+                                                <v-text-field v-model="editedItem.CityNL" v-if="editedItem.Country!='Argentina'" label="Localidad" :rules="requerido"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="5" md="6">
@@ -267,7 +267,7 @@
                                                 <v-select v-model="editedItem.employee" label="Empleados" multiple chips deletable-chips :items="empleados" item-text="DNI" item-value="_id" :rules="requerido"></v-select>
                                             </v-col>
 
-                                            <v-radio-group class="text-align: left" v-model="editedItem.taller" row :rules="requerido">
+                                            <v-radio-group mandatory class="text-align: left" v-model="editedItem.taller" row :rules="requerido">
                                                 <h3>Taller: </h3>
                                                 <v-radio class="mb-1" label="Sí" value="true"></v-radio>
                                                 <v-radio class="mb-1" label="No" value="false"></v-radio>
@@ -292,10 +292,10 @@
 
                     <v-dialog v-model="dialogDelete" max-width="500px">
                         <v-card>
-                            <v-col cols="12" sm="12" md="12">
-                                <p class="headline">Ingrese los Motivos: </p>
-                                <v-textarea class="headline" v-model="motivos" label="Motivos" required></v-textarea>
-                            </v-col>
+                            <v-card-title>Confirmación</v-card-title>
+                            <v-card-text>
+                                <h3>¿Estás seguro de que deseas eliminar esta sucursal?</h3>
+                            </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn class="info" text @click="closeDelete">
@@ -363,8 +363,8 @@ export default {
             Country: "",
             Street: "",
             Number: "",
-            city: "",
-            cityNL: "",
+            City: "",
+            CityNL: "",
             taller: false,
         },
 
@@ -390,8 +390,8 @@ export default {
             Country: "",
             Street: "",
             Number: "",
-            city: "",
-            cityNL: "",
+            City: "",
+            CityNL: "",
             taller: false,
         },
         headers: [{
@@ -574,8 +574,8 @@ export default {
                 });
 
         },
-        async getsucursales() {
-            await axios.get('http://localhost:8081/branchOffice')
+        getsucursales() {
+            axios.get('http://localhost:8081/branchOffice')
                 .then(res => {
                     this.sucursales = res.data.branchOffice.filter(s => s.Status === "ACTIVE")
                 });
@@ -642,10 +642,15 @@ export default {
                 this.separarTel(this.sucursales[this.editedIndex]);
                 if (this.editedItem.Country != "Argentina") {
                     this.editedItem.ProvinceNL = item.Address.Province;
-                    this.editedItem.cityNL = item.Address.City;
+                    this.editedItem.CityNL = item.Address.City;
                 } else {
                     this.editedItem.Province = item.Address.Province;
-                    this.editedItem.city = item.Address.City;
+                    this.editedItem.City = item.Address.City;
+                    try {
+                        this.localidades = this.getLocalidades(this.editedItem.Province);
+                    } catch (err) {
+                        console.log(err);
+                    }
                 }
                 this.editedItem.Number = item.Address.Number;
                 this.editedItem.employee = item.Employee;
@@ -683,6 +688,7 @@ export default {
 
                 this.formTitle = "Editar editedIteme";
                 this.dialog = true;
+
             }
         },
 
@@ -690,11 +696,9 @@ export default {
             this.dialogDelete = true;
         },
 
-        deleteItemConfirm() {
-            for (let i = 0; i < this.selected.length; i++) {
-                this.editar("INACTIVE", this.selected[i]);
-                this.sucursales.splice(this.sucursales.indexOf(this.selected[i]), 1);
-            }
+        async deleteItemConfirm() {
+            await axios.delete('http://localhost:8081/branchOffice/' + this.selected[0]._id + '/delete');
+            this.sucursales.splice(this.sucursales.indexOf(this.selected[0]), 1);
             this.closeDelete()
         },
 
@@ -704,6 +708,31 @@ export default {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
+            this.timeOLunes = null;
+            this.timeCLunes = null;
+            this.timeOMartes = null;
+            this.timeCMartes = null;
+            this.timeOMiercoles = null;
+            this.timeCMiercoles = null;
+            this.timeOJueves = null;
+            this.timeCJueves = null;
+            this.timeOViernes = null;
+            this.timeCViernes = null;
+            this.timeOSabado = null;
+            this.timeCSabado = null;
+            this.timeODomingo = null;
+            this.timeCDomingo = null;
+            this.abreLunes = false;
+            this.abreMartes = false;
+            this.abreMiercoles = false;
+            this.abreJueves = false;
+            this.abreViernes = false;
+            this.abreSabado = false;
+            this.abreDomingo = false;
+            this.num = "";
+            this.prefijo = "";
+            this.principioEmail = "";
+            this.finEmail = "";
         },
 
         close() {
@@ -721,15 +750,6 @@ export default {
         },
 
         getJSONSucursal(selected, status) {
-            let Province = "";
-            let city = "";
-            if (selected.Country == "Argentina") {
-                Province = this.editedItem.Province;
-                city = this.editedItem.city;
-            } else {
-                Province = this.editedItem.ProvinceNL;
-                city = this.editedItem.cityNL;
-            }
             return {
                 "branchOffice": {
                     "Name": selected.Name,
@@ -738,8 +758,8 @@ export default {
                     "Status": status,
                     "Address": {
                         "Country": selected.Country,
-                        "City": city,
-                        "Province": Province,
+                        "City": selected.City,
+                        "Province": selected.Province,
                         "Street": selected.Street,
                         "Number": selected.Number
                     },
@@ -801,6 +821,17 @@ export default {
 
         save() {
             if (this.validate() && this.editedItem.taller != null) {
+                let Province = "";
+                let City = "";
+                if (this.editedItem.Country == "Argentina") {
+                    Province = this.editedItem.Province;
+                    City = this.editedItem.City;
+                } else {
+                    Province = this.editedItem.ProvinceNL;
+                    City = this.editedItem.CityNL;
+                }
+                this.editedItem.Province = Province;
+                this.editedItem.City = City;
                 let mensajes = ["La hora de apertura no puede ser mayor a la hora de cierre!", "Las horas de apertura y cierre son obligatorias!"];
                 let mensaje = "";
                 if ((this.timeOLunes != null && this.timeCLunes != null && this.timeOLunes > this.timeCLunes) ||
@@ -826,7 +857,8 @@ export default {
                     this.snackbar = true;
                     return;
                 }
-
+                this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
+                this.editedItem.Phone = this.prefijo + "-" + this.num;
                 this.editedItem.openLunes = this.transformarAMinutos(this.timeOLunes);
                 this.editedItem.openMartes = this.transformarAMinutos(this.timeOMartes);
                 this.editedItem.openMiercoles = this.transformarAMinutos(this.timeOMiercoles);
@@ -842,34 +874,39 @@ export default {
                 this.editedItem.closeViernes = this.transformarAMinutos(this.timeCViernes);
                 this.editedItem.closeSabado = this.transformarAMinutos(this.timeCSabado);
                 this.editedItem.closeDomingo = this.transformarAMinutos(this.timeCDomingo);
-
-                //editedIteme Nuevo
+                let item = {
+                    Name: this.editedItem.Name,
+                    Phone: this.prefijo + "-" + this.num,
+                    Email: this.principioEmail + "@" + this.finEmail,
+                    WorkShop: this.editedItem.taller,
+                    Employee: this.editedItem.employee,
+                    Address: {
+                        Number: this.editedItem.Number,
+                        Street: this.editedItem.Street,
+                        City: this.editedItem.City,
+                        Province: this.editedItem.Province,
+                        Country: this.editedItem.Country,
+                    }
+                };
+                //Nuevo
                 if (this.selected[0] == null) {
-                    this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
-                    this.editedItem.Phone = this.prefijo + "-" + this.num;
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
                     this.post('http://localhost:8081/branchOffice/add', JSON.stringify(jsonSucursal));
-                    this.sucursales.push(this.editedItem);
+                    this.sucursales.push(item);
                     this.reiniciar();
                 }
-                //Editar editedIteme
+                //Editar
                 else {
-                    this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
-                    this.editedItem.Phone = this.num;
-                    Object.assign(this.sucursales[this.editedIndex], this.editedItem);
+                    //this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
+                    //this.editedItem.Phone = this.num;
+                    Object.assign(this.sucursales[this.editedIndex], item);
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
                     this.post('http://localhost:8081/branchOffice/' + this.selected[0]._id + "/update", JSON.stringify(jsonSucursal));
                     this.reiniciar();
                 }
+                this.reset();
             }
         },
-
-        editar(estado, selected) {
-            selected.Status = estado;
-            let jsonSucursal = this.getJSONSucursal(this.editedItem, "INACTIVE");
-            this.post('http://localhost:8081/editedItem/' + selected._id + '/update', JSON.stringify(jsonSucursal));
-        },
-
         reiniciar() {
             this.close();
             this.selected = [];
@@ -914,8 +951,7 @@ export default {
     margin-left: -10%;
 }
 
-p,
-.motivos {
+p {
     text-align: center;
     font-size: 4%;
 }
