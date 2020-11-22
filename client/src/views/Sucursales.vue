@@ -266,11 +266,11 @@
                                             <v-col cols="12" sm="6" md="12">
                                                 <v-select v-model="editedItem.employee" label="Empleados" multiple chips deletable-chips :items="empleados" item-text="DNI" item-value="_id" :rules="requerido"></v-select>
                                             </v-col>
-                                            
+
                                             <v-radio-group class="text-align: left" v-model="editedItem.taller" row :rules="requerido">
                                                 <h3>Taller: </h3>
-                                                <v-radio class="mb-1" label="Sí"  value="true" ></v-radio>
-                                                <v-radio class="mb-1" label="No"  value="false"></v-radio>
+                                                <v-radio class="mb-1" label="Sí" value="true"></v-radio>
+                                                <v-radio class="mb-1" label="No" value="false"></v-radio>
                                             </v-radio-group>
                                         </v-row>
 
@@ -342,7 +342,7 @@ export default {
         dialogDelete: false,
 
         editedItem: {
-            Name:'',
+            Name: '',
             openLunes: "",
             closeLunes: "",
             openMartes: "",
@@ -549,7 +549,7 @@ export default {
             this.getEmpleados();
         },
         getProvincias() {
-           axios.get('https://apis.datos.gob.ar/georef/api/provincias?campos=nombre')
+            axios.get('https://apis.datos.gob.ar/georef/api/provincias?campos=nombre')
                 .then(res => {
                     this.provincias = res.data.provincias;
                     this.provincias.forEach(prov =>
@@ -563,7 +563,7 @@ export default {
                 .then(res => {
                     this.localidades = res.data.localidades;
                     this.localidades.forEach(localidad =>
-                    this.localidades.push(localidad.nombre));
+                        this.localidades.push(localidad.nombre));
                     this.localidades.sort();
                 });
         },
@@ -599,7 +599,7 @@ export default {
         },
 
         changeState(value) {
-            this.obtenerPrefijo(value);
+            this.prefijo = this.obtenerPrefijo(value);
         },
 
         haySeleccionado() {
@@ -615,6 +615,17 @@ export default {
             return false;
         },
 
+        parsearAHora(time) {
+            if (time != null && time != -1) {
+                var min = time % 60;
+                var hs = (time - min) / 60;
+                min = String(min).length == 1 ? "0" + min : min;
+                hs = String(hs).length == 1 ? "0" + hs : hs;
+                return "" + hs + ":" + min;
+            }
+            return "";
+        },
+
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
                 if (this.selected.length > 1) {
@@ -623,6 +634,52 @@ export default {
                     return;
                 }
                 this.editedIndex = this.sucursales.indexOf(item);
+                this.editedItem.Name = item.Name;
+                this.editedItem.Street = item.Address.Street;
+                this.editedItem.Country = item.Address.Country;
+
+                this.separarEmail(this.sucursales[this.editedIndex]);
+                this.separarTel(this.sucursales[this.editedIndex]);
+                if (this.editedItem.Country != "Argentina") {
+                    this.editedItem.ProvinceNL = item.Address.Province;
+                    this.editedItem.cityNL = item.Address.City;
+                } else {
+                    this.editedItem.Province = item.Address.Province;
+                    this.editedItem.city = item.Address.City;
+                }
+                this.editedItem.Number = item.Address.Number;
+                this.editedItem.employee = item.Employee;
+                this.editedItem.taller = item.WorkShop;
+
+                this.timeOLunes = item.Hours.Monday.Open;
+                this.timeCLunes = item.Hours.Monday.Close;
+                this.timeOMartes = item.Hours.Tuesday.Open;
+                this.timeCMartes = item.Hours.Tuesday.Close;
+                this.timeOMiercoles = item.Hours.Wednesday.Open;
+                this.timeCMiercoles = item.Hours.Wednesday.Close;
+                this.timeOJueves = item.Hours.Thrusday.Open;
+                this.timeCJueves = item.Hours.Thrusday.Close;
+                this.timeOViernes = item.Hours.Friday.Open;
+                this.timeCViernes = item.Hours.Friday.Close;
+                this.timeOSabado = item.Hours.Saturday.Open;
+                this.timeCSabado = item.Hours.Saturday.Close;
+                this.timeODomingo = item.Hours.Sunday.Open;
+                this.timeCDomingo = item.Hours.Sunday.Close;
+
+                this.timeOLunes = this.parsearAHora(this.timeOLunes);
+                this.timeCLunes = this.parsearAHora(this.timeCLunes);
+                this.timeOMartes = this.parsearAHora(this.timeOMartes);
+                this.timeCMartes = this.parsearAHora(this.timeCMartes);
+                this.timeOMiercoles = this.parsearAHora(this.timeOMiercoles);
+                this.timeCMiercoles = this.parsearAHora(this.timeCMiercoles);
+                this.timeOJueves = this.parsearAHora(this.timeOJueves);
+                this.timeCJueves = this.parsearAHora(this.timeCJueves);
+                this.timeOViernes = this.parsearAHora(this.timeOViernes);
+                this.timeCViernes = this.parsearAHora(this.timeCViernes);
+                this.timeOSabado = this.parsearAHora(this.timeOSabado);
+                this.timeCSabado = this.parsearAHora(this.timeCSabado);
+                this.timeODomingo = this.parsearAHora(this.timeODomingo);
+                this.timeCDomingo = this.parsearAHora(this.timeCDomingo);
 
                 this.formTitle = "Editar editedIteme";
                 this.dialog = true;
@@ -664,13 +721,12 @@ export default {
         },
 
         getJSONSucursal(selected, status) {
-            let Province="";
-            let city="";
-            if(selected.Country=="Argentina"){
+            let Province = "";
+            let city = "";
+            if (selected.Country == "Argentina") {
                 Province = this.editedItem.Province;
                 city = this.editedItem.city;
-            }
-            else{
+            } else {
                 Province = this.editedItem.ProvinceNL;
                 city = this.editedItem.cityNL;
             }
@@ -735,7 +791,7 @@ export default {
         },
 
         transformarAMinutos(tiempo) {
-            if (tiempo != "-1") {
+            if (tiempo != null) {
                 tiempo = tiempo.split(":");
                 return parseInt(tiempo[0] * 60) + parseInt(tiempo[1]);
             } else {
@@ -744,79 +800,73 @@ export default {
         },
 
         save() {
-            if(this.validate() && this.editedItem.taller!=null){
-            let timeOLunes = this.timeOLunes == null ? "-1" : this.timeOLunes;
-            let timeCLunes = this.timeCLunes == null ? "-1" : this.timeCLunes;
-            let timeOMartes = this.timeOMartes == null ? "-1" : this.timeOMartes;
-            let timeCMartes = this.timeCMartes == null ? "-1" : this.timeCMartes;
-            let timeOMiercoles = this.timeOMiercoles == null ? "-1" : this.timeOMiercoles;
-            let timeCMiercoles = this.timeCMiercoles == null ? "-1" : this.timeCMiercoles;
-            let timeOJueves = this.timeOJueves == null ? "-1" : this.timeOJueves;
-            let timeCJueves = this.timeCJueves == null ? "-1" : this.timeCJueves;
-            let timeOViernes = this.timeOViernes == null ? "-1" : this.timeOViernes;
-            let timeCViernes = this.timeCViernes == null ? "-1" : this.timeCViernes;
-            let timeOSabado = this.timeOSabado == null ? "-1" : this.timeOSabado;
-            let timeCSabado = this.timeCSabado == null ? "-1" : this.timeCSabado;
-            let timeODomingo = this.timeODomingo == null ? "-1" : this.timeODomingo;
-            let timeCDomingo = this.timeCDomingo == null ? "-1" : this.timeCDomingo;
-            let mensajes = ["La hora de apertura no puede ser mayor a la hora de cierre!", "Las horas de apertura y cierre son obligatorias!"];
-            let mensaje = "";
-            if ((timeOLunes != "-1" && timeCLunes != "-1" && timeOLunes > timeCLunes) ||
-                (timeOMartes != "-1" && timeCMartes != "-1" && timeOMartes > timeCMartes) ||
-                (timeOMiercoles != "-1" && timeCMiercoles != "-1" && timeOMiercoles > timeCMiercoles) ||
-                (timeOJueves != "-1" && timeCJueves != "-1" && timeOJueves > timeCJueves) ||
-                (timeOViernes != "-1" && timeCViernes != "-1" && timeOViernes > timeCViernes) ||
-                (timeOSabado != "-1" && timeCSabado != "-1" && timeOSabado > timeCSabado) ||
-                (timeODomingo != "-1" && timeCDomingo != "-1" && timeODomingo > timeCDomingo)) {
-                mensaje = mensajes[0];
-            }
-            if (((timeOLunes == "-1" || timeCLunes == "-1") && this.abreLunes) ||
-                ((timeOMartes == "-1" || timeCMartes == "-1") && this.abreMartes) ||
-                ((timeOMiercoles == "-1" || timeCMiercoles == "-1") && this.abreMiercoles) ||
-                ((timeOJueves == "-1" || timeCJueves == "-1") && this.abreJueves) ||
-                ((timeOViernes == "-1" || timeCViernes == "-1") && this.abreViernes) ||
-                ((timeOSabado == "-1" || timeCSabado == "-1") && this.abreSabado) ||
-                ((timeODomingo == "-1" || timeCDomingo == "-1") && this.abreDomingo)) {
-                mensaje = mensajes[1];
-            }
-            if (mensaje != "") {
-                this.mensaje = mensaje;
-                this.snackbar = true;
-                return;
-            }
+            if (this.validate() && this.editedItem.taller != null) {
+                let mensajes = ["La hora de apertura no puede ser mayor a la hora de cierre!", "Las horas de apertura y cierre son obligatorias!"];
+                let mensaje = "";
+                if ((this.timeOLunes != null && this.timeCLunes != null && this.timeOLunes > this.timeCLunes) ||
+                    (this.timeOMartes != null && this.timeCMartes != null && this.timeOMartes > this.timeCMartes) ||
+                    (this.timeOMiercoles != null && this.timeCMiercoles != null && this.timeOMiercoles > this.timeCMiercoles) ||
+                    (this.timeOJueves != null && this.timeCJueves != null && this.timeOJueves > this.timeCJueves) ||
+                    (this.timeOViernes != null && this.timeCViernes != null && this.timeOViernes > this.timeCViernes) ||
+                    (this.timeOSabado != null && this.timeCSabado != null && this.timeOSabado > this.timeCSabado) ||
+                    (this.timeODomingo != null && this.timeCDomingo != null && this.timeODomingo > this.timeCDomingo)) {
+                    mensaje = mensajes[0];
+                }
+                if (((this.timeOLunes == null || this.timeCLunes == null) && this.abreLunes) ||
+                    ((this.timeOMartes == null || this.timeCMartes == null) && this.abreMartes) ||
+                    ((this.timeOMiercoles == null || this.timeCMiercoles == null) && this.abreMiercoles) ||
+                    ((this.timeOJueves == null || this.timeCJueves == null) && this.abreJueves) ||
+                    ((this.timeOViernes == null || this.timeCViernes == null) && this.abreViernes) ||
+                    ((this.timeOSabado == null || this.timeCSabado == null) && this.abreSabado) ||
+                    ((this.timeODomingo == null || this.timeCDomingo == null) && this.abreDomingo)) {
+                    mensaje = mensajes[1];
+                }
+                if (mensaje != "") {
+                    this.mensaje = mensaje;
+                    this.snackbar = true;
+                    return;
+                }
 
-            this.editedItem.openLunes = this.transformarAMinutos(timeOLunes);
-            this.editedItem.openMartes = this.transformarAMinutos(timeOMartes);
-            this.editedItem.openMiercoles = this.transformarAMinutos(timeOMiercoles);
-            this.editedItem.openJueves = this.transformarAMinutos(timeOJueves);
-            this.editedItem.openViernes = this.transformarAMinutos(timeOViernes);
-            this.editedItem.openSabado = this.transformarAMinutos(timeOSabado);
-            this.editedItem.openDomingo = this.transformarAMinutos(timeODomingo);
+                this.editedItem.openLunes = this.transformarAMinutos(this.timeOLunes);
+                this.editedItem.openMartes = this.transformarAMinutos(this.timeOMartes);
+                this.editedItem.openMiercoles = this.transformarAMinutos(this.timeOMiercoles);
+                this.editedItem.openJueves = this.transformarAMinutos(this.timeOJueves);
+                this.editedItem.openViernes = this.transformarAMinutos(this.timeOViernes);
+                this.editedItem.openSabado = this.transformarAMinutos(this.timeOSabado);
+                this.editedItem.openDomingo = this.transformarAMinutos(this.timeODomingo);
 
-            //editedIteme Nuevo
-            if (this.selected[0] == null) {
-                this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
-                this.editedItem.Phone = this.num;
-                let jsonSucursal = this.getJSONSucursal(this.editedItem,"ACTIVE");
-                this.post('http://localhost:8081/branchOffice/add', JSON.stringify(jsonSucursal));
-                this.sucursales.push(this.editedItem);
-                this.reiniciar();
-            }
-            //Editar editedIteme
-            else {
-                this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
-                this.editedItem.Phone = this.num;
-                Object.assign(this.sucursales[this.editedIndex], this.editedItem);
-                let jsonSucursal = this.getJSONSucursal(this.editedItem,"ACTIVE");
-                this.post('http://localhost:8081/branchOffice/' + this.editedItem._id + "/update", JSON.stringify(jsonSucursal));
-                this.reiniciar();
-            }
+                this.editedItem.closeLunes = this.transformarAMinutos(this.timeCLunes);
+                this.editedItem.closeMartes = this.transformarAMinutos(this.timeCMartes);
+                this.editedItem.closeMiercoles = this.transformarAMinutos(this.timeCMiercoles);
+                this.editedItem.closeJueves = this.transformarAMinutos(this.timeCJueves);
+                this.editedItem.closeViernes = this.transformarAMinutos(this.timeCViernes);
+                this.editedItem.closeSabado = this.transformarAMinutos(this.timeCSabado);
+                this.editedItem.closeDomingo = this.transformarAMinutos(this.timeCDomingo);
+
+                //editedIteme Nuevo
+                if (this.selected[0] == null) {
+                    this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
+                    this.editedItem.Phone = this.prefijo + "-" + this.num;
+                    let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
+                    this.post('http://localhost:8081/branchOffice/add', JSON.stringify(jsonSucursal));
+                    this.sucursales.push(this.editedItem);
+                    this.reiniciar();
+                }
+                //Editar editedIteme
+                else {
+                    this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
+                    this.editedItem.Phone = this.num;
+                    Object.assign(this.sucursales[this.editedIndex], this.editedItem);
+                    let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
+                    this.post('http://localhost:8081/branchOffice/' + this.selected[0]._id + "/update", JSON.stringify(jsonSucursal));
+                    this.reiniciar();
+                }
             }
         },
 
         editar(estado, selected) {
             selected.Status = estado;
-            let jsonSucursal = this.getJSONSucursal(this.editedItem,"INACTIVE");
+            let jsonSucursal = this.getJSONSucursal(this.editedItem, "INACTIVE");
             this.post('http://localhost:8081/editedItem/' + selected._id + '/update', JSON.stringify(jsonSucursal));
         },
 
