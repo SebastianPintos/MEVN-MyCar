@@ -1,22 +1,21 @@
-require('dotenv').config();
 const nodemailer = require('nodemailer');
-//const mailgun = require('nodemailer-mailgun-transport');
-const auth = require('./auth.json');
-//var Reservation = require('../models/reservation');
+const mailgunTransport = require('nodemailer-mailgun-transport');
+var Reservation = require('../models/reservation');
+var Client = require('../models/client');
 
 const ctrl = {};
-/*
+  
 //mailgun
 const auth = {
     auth: {
-        apiKey: auth.api_key || "c4a39abe02c973b1a361520c29439f0a-2af183ba-3221cf59",
-        domain: auth.domain || "sandboxf762f1139bbe47978788fe273ca4738e.mailgun.org"
+        api_key: 'c4a39abe02c973b1a361520c29439f0a-2af183ba-3221cf59',
+        domain: 'sandboxf762f1139bbe47978788fe273ca4738e.mailgun.org'
     }
 };
 
-const transporter = nodemailer.createTransport(mailgun(auth));
-*/
-//ethereal mail
+const transporter = nodemailer.createTransport(mailgunTransport(auth));
+
+/*//ethereal mail
 const transporter = nodemailer.createTransport({
     host: 'smtp.ethereal.email',
     port: 587,
@@ -26,11 +25,12 @@ const transporter = nodemailer.createTransport({
         //user: 'mekhi.cruickshank55@ethereal.email',
         //pass: 'ajkdf1zUw7nuYa7Pfc'
     }
-});
+});*/
 
 const sendMail = (toEmail, subject, text, cb) => {
+    console.log(auth.apiKey);
     const mailOptions = {
-        from: 'remitente',
+        from: 'MyCar@ungs.com',
         to: toEmail,
         subject: subject,
         text: text
@@ -43,14 +43,34 @@ const sendMail = (toEmail, subject, text, cb) => {
     })
 }
 
+/////////////////////////////////////////////////
+ctrl.Prueba = (req, res) => {
+    sendMail("cristiangaray101@gmail.com","test", "datos a enviar", function(err, data) {
+        if (err) {
+            console.log('ERROR: ', err);
+            return res.status(500).json({ message: err.message || 'Internal Error' });
+        }
+        console.log('Email sent!!!');
+        return res.json({ message: 'Email sent!!!!!' });
+    });
+}
+
 ctrl.ReservationConfirm = (req, res) => {
     const datosReserva = "Datos sobre la reserva: \n";
     var id = req.params.reservation_id;
+    var mailClient = '';
     Reservation.findOne({_id: id}, (err, reservation) => {
         if(err) {console.log(err)}
         else {
             if(!reservation) {console.log('No se encontró la reserva')}
             else {
+                Client.findOne(reservation.client, (err,client) => {
+                    if(err) {console.log(err)}
+                    else{
+                        datosReserva += client.Name + ' ' + client.LastName + "\n";
+                        mailClient = client.Email;
+                    }
+                });
                 datosReserva += reservation.Client + "\n";
                 datosReserva += reservation.service + "\n";
                 datosReserva += reservation.Vehicle + "\n";
@@ -62,7 +82,8 @@ ctrl.ReservationConfirm = (req, res) => {
             }
         }
     });
-    sendMail("cristiangaray101@gmail.com","Confirmacion Reserva", datosReserva, function(err, data) {
+
+    sendMail(mailClient,"Confirmacion Reserva", datosReserva, function(err, data) {
         if (err) {
             console.log('ERROR: ', err);
             return res.status(500).json({ message: err.message || 'Internal Error' });
