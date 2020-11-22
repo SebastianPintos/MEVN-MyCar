@@ -69,7 +69,12 @@ module.exports = app => {
     router.delete('/reservation/:reservation_id/cancel', reservation.cancel);
     router.post('/reservation/checkProduct', reservation.checkProduct);
     router.post('/reservation/reserveproduct', reservation.reserveProduct);
+    router.post('/reservation/checkHour', reservation.checkHour);
+    
+    
+    
     router.post('/reservation/prueba', reservation.pruebas);
+    
   
     app.use(router);
 }

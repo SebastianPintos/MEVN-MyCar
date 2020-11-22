@@ -2,6 +2,7 @@ const helperProduct = {};
 const Product = require('../models/product');
 const ProductStock = require('../models/productStock');
 const Service = require("../models/service");
+const Reservation = require('../models/reservation');
 
 //Recibe un lista de servicios que a su vez contiene una lista de productos. La funcion checkea si hay existencia en el stock sufuciente para cubrir todos los productos
 //Devuelve un lista con los productos que no tiene cantidad suficiente.
@@ -90,7 +91,7 @@ helperProduct.reserveProduct = async (service) => {
         console.log("array productos" + service[i].Product);
         for(y = 0; y <  arrayProduct.length; y++){
             console.log("producto indivudual " + arrayProduct[y]);
-            products.push(arrayProduct[y]);
+            products.push(arrayProduct[y].toString());
         }
     }
 
@@ -158,6 +159,54 @@ helperProduct.getServices = async (reservation) => {
     console.log(services);
 
     return services;
+}
+
+helperProduct.checkReservationTime = async (reservation) => {
+    var startingHour =  new Date(reservation.AppointmentTime);
+    var duration = reservation.Duration;
+    var finishingHour = new Date(startingHour.getTime() + duration * 60000);
+    var dateStartDay =  new Date(startingHour.getFullYear(), startingHour.getMonth(), startingHour.getDate());
+    var dateFinishDay = new Date(startingHour.getFullYear(), startingHour.getMonth(), startingHour.getDate());
+    dateStartDay.setHours(00,00,00);
+    dateFinishDay.setHours(20,00,00);
+    var occupied = 0;
+
+    console.log(startingHour);
+    console.log(duration);
+    console.log(finishingHour);
+    console.log(dateStartDay);
+    console.log(dateFinishDay);
+
+    
+    await Reservation.find({AppointmentTime: {'$gte': dateStartDay, '$lte': dateFinishDay}}, (err, reserDB)  => {
+        if(err){console.log(err)}
+        else{
+            for(i = 0; i < reserDB.length; i++){
+                var startingHourDB = new Date(reserDB[i].AppointmentTime);
+                var finishingHourDB = new Date(startingHourDB.getTime() + reserDB[i].Duration * 60000);
+                console.log('reserva ' + i);
+                console.log(reserDB[i]);
+                console.log('iniciodb ');
+                console.log(startingHourDB);
+                console.log('findb ');
+                console.log(finishingHourDB);
+                if(startingHour >= startingHourDB && startingHour < finishingHourDB){
+                    console.log('inicio entre');
+                    occupied = 1;
+                }else if(finishingHour > startingHourDB && finishingHour < finishingHourDB){
+                    console.log('fin entre');
+                    occupied = 1;
+                }else if(startingHour <= startingHourDB && finishingHour >= finishingHourDB){
+                    console.log('incluida');
+                    occupied = 1;
+                }
+            }
+        }
+    })
+    console.log('El lugar esta ' + occupied);
+
+    return occupied;
+
 }
 
 module.exports = helperProduct;

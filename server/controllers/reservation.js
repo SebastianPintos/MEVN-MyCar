@@ -138,8 +138,14 @@ ctrl.reserveProduct = async (req, res) => {
 
 ctrl.pruebas = async (req, res) => {
     var body = req.body.reservation;
-    helper.getServices(body);
+    await helper.checkReservationTime(body);
     res.send("asas");
+}
+
+ctrl.checkHour = async (req, res) => {
+    var body = req.body.reservation;
+    var occupied = await helper.checkReservationTime(body);
+    res.send({occupied});
 }
 
 
