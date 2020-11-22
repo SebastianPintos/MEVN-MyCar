@@ -68,6 +68,26 @@ const routes = [
     meta: { title: 'Reservas' }
   },
   {
+    path: "/sucursales",
+    name: "Sucursales",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "sucursales" */ "../views/Sucursales.vue"),
+    meta: { title: 'Sucursales' }
+  },
+  {
+    path: "/empleados",
+    name: "Empleados",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "empleados" */ "../views/Empleados.vue"),
+    meta: { title: 'Empleados' }
+  },
+  {
     path: "/turno",
     name: "Reservar Turno",
     // route level code-splitting

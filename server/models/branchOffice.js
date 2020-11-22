@@ -7,6 +7,7 @@ var BranchOfficeSchema = new Schema({
   Phone: {type: String},
   Email: {type: String},
   Address: {
+    Country: {type: String},
     Street: {type: String},
     Number: {type: Number},
     City: {type: String},

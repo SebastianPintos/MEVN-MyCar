@@ -12,6 +12,7 @@ var EmployeeSchema = new Schema({
     StartDate: {type: Date,required: true},
     DischargeDate: {type: Date,required: false},
     Address: {
+        Country: {type: String},
         Province: {type: String},
         Street: {type: String},
         Number: {type: Number},

@@ -74,13 +74,13 @@
                 <template v-slot:activator>
                     <v-list-item-title>Configuración</v-list-item-title>
                 </template>
-                <v-list-item>
+                <v-list-item :to="'/sucursales'">
                     <v-list-item-icon>
                         <v-icon>mdi-store</v-icon>
                     </v-list-item-icon>
                     <v-list-item-title>Sucursales</v-list-item-title>
                 </v-list-item>
-                <v-list-item>
+                <v-list-item :to="'/empleados'">
                     <v-list-item-icon>
                         <v-icon>mdi-account-tie </v-icon>
                     </v-list-item-icon>
