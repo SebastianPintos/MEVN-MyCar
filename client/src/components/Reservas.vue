@@ -92,31 +92,34 @@
             <v-card-title>
                 <h1>Día y Horario</h1>
             </v-card-title>
-            <v-card-text>
-                <v-row>
-                    <v-col cols="12" md="6">
-                        <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y min-width="290px">
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-text-field v-model="date" label="Día" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
-                            </template>
-                            <v-date-picker ref="picker" v-model="date" min="2020-01-01" @change="save"></v-date-picker>
-                        </v-menu>
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-select :label="texto" v-model="horario" :disabled="!mostrarHorario" :items="horarios"></v-select>
-                    </v-col>
-                </v-row>
-            </v-card-text>
-            <v-card-actions>
-                <v-flex class="text-right">
-                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=false;date=null;horarios=[]">
-                        <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
-                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="crearReserva">
-                        <v-icon>mdi-check</v-icon>
-                    </v-btn>
-                </v-flex>
-            </v-card-actions>
+
+            <v-form ref="form" v-model="valid" lazy-validation>
+                <v-card-text>
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y min-width="290px">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field v-model="date" label="Día" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                                </template>
+                                <v-date-picker ref="picker" v-model="date" min="2020-01-01" @change="save" :rules="requerido"></v-date-picker>
+                            </v-menu>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-select :label="texto" v-model="horario" :disabled="!mostrarHorario" :items="horarios" :rules="requerido"></v-select>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+                <v-card-actions>
+                    <v-flex class="text-right">
+                        <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=false;date=null;horarios=[]">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="crearReserva">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-card-actions>
+            </v-form>
         </v-card>
     </v-dialog>
 
@@ -243,6 +246,7 @@ export default {
     },
     data: () => ({
         mensaje: "",
+        valid: true,
         horaReserva: null,
         reservation: null,
         tituloMensaje: "",
@@ -261,6 +265,9 @@ export default {
         vehiculo: {},
         vehicles: [],
         sucursal: '',
+        requerido: [
+            value => !!value || 'Requerido.',
+        ],
         filtroSucursal: '',
         filtroCliente: '',
         sucursales: [],
@@ -524,8 +531,13 @@ export default {
                     this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime) >= today);
                 });
         },
+        validate() {
+            return this.$refs.form.validate();
+        },
         crearReserva() {
-
+            if (!this.validate()) {
+                return;
+            }
             let date = this.date + " " + this.horario;
             let ids = this.detalle.idsServ;
             let servId = [];
@@ -581,7 +593,7 @@ export default {
                     this.horaReserva = String(this.reservation.reservation.AppointmentTime);
                     this.getReservas(this.sucursal._id);
                 }
-                
+
                 this.date = null;
                 this.horario = null;
             });
