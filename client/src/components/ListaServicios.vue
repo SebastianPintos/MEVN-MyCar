@@ -283,35 +283,32 @@ export default {
             this.getSucursales();
             this.getClientes();
             this.getVehiculo();
-            // this.obtenerDeLocalStorage();
         },
 
         async getServicios() {
-            //localStorage.clear();
             let servicios = [];
             let servicioAGuardar = {};
-         //   let cont = 0;
             await axios.get('http://localhost:8081/service')
                 .then(res => {
                     servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
                     servicios.forEach(servicio => {
-                            servicio.BranchOffice.forEach(sucursal => {
-                                    servicioAGuardar = {
-                                        "_id": servicio._id,
-                                        "_idTabla": servicio._id + sucursal._id,
-                                        "Description": servicio.Description,
-                                        "LaborPrice": servicio.LaborPrice,
-                                        "Time": servicio.Time,
-                                        "Vehicle": servicio.Vehicle,
-                                        "BranchOffice": sucursal,
-                                        "Product": servicio.Product,
-                                        "carrito": false,
-                                    };
-                                    this.servicios.push(servicioAGuardar);
-                                    this.serviciosFiltrados.push(servicioAGuardar);
-                                });
-                            });
+                        servicio.BranchOffice.forEach(sucursal => {
+                            servicioAGuardar = {
+                                "_id": servicio._id,
+                                "_idTabla": servicio._id + sucursal._id,
+                                "Description": servicio.Description,
+                                "LaborPrice": servicio.LaborPrice,
+                                "Time": servicio.Time,
+                                "Vehicle": servicio.Vehicle,
+                                "BranchOffice": sucursal,
+                                "Product": servicio.Product,
+                                "carrito": false,
+                            };
+                            this.servicios.push(servicioAGuardar);
+                            this.serviciosFiltrados.push(servicioAGuardar);
                         });
+                    });
+                });
         },
 
         async getSucursales() {
@@ -376,7 +373,6 @@ export default {
                         sumaTiempo += servicio.Time;
                         sumaTrabajo += servicio.LaborPrice;
                         ids.push(this.servicios.indexOf(servicio));
-                        console.log("SERVICIOS: " + servicio._id);
                         idsServ.push(servicio._id);
                         if (servicio.Product != null & servicio.Product.length > 0) {
                             servicio.Product.forEach(product => {
@@ -399,7 +395,6 @@ export default {
                         servicioEnCarrito.Time = this.timeConvert(this.servicioEnCarrito.Time);
                         servicioEnCarrito.LaborPrice = this.servicioEnCarrito.LaborPrice;
                         servicioEnCarrito.Product = this.servicioEnCarrito.Product;
-                        // servicioEnCarrito.idsServ = idsServ;
                         servicioEnCarrito.ids = ids;
                         detalleCarrito.push(servicioEnCarrito);
                     }
@@ -410,7 +405,6 @@ export default {
                 this.carritoCompleto.totalRepuestos = sumaProductos;
                 this.carritoCompleto.totalManoDeObra = sumaTrabajo;
                 this.carritoCompleto.total = sumaTrabajo + sumaProductos;
-                //time convert suma tiempo
                 this.carritoCompleto.tiempoTotal = sumaTiempo;
                 this.carritoCompleto.tiempoTotalString = this.timeConvert(sumaTiempo);
                 this.carritoCompleto.idsServ = idsServ;
@@ -424,6 +418,7 @@ export default {
                     "total": this.carritoCompleto.total,
                     "tiempoTotal": this.carritoCompleto.tiempoTotal
                 }));
+               // console.log(this.carritoCompleto);
 
             }
         },
@@ -436,7 +431,7 @@ export default {
             if (time != null) {
                 var min = time % 60;
                 var hs = (time - min) / 60;
-                return "" + hs + "horas, " + min+" minutos";
+                return "" + hs + "horas, " + min + " minutos";
             }
             return "";
         },
