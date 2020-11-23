@@ -247,6 +247,7 @@ export default {
         this.getSucursales();
         this.getClientes();
         this.getVehiculo();
+        this.getRepuestos();
     },
     data: () => ({
         mensaje: "",
@@ -276,6 +277,7 @@ export default {
         filtroSucursal: '',
         filtroCliente: '',
         sucursales: [],
+        repuestos: [],
         reservas: [],
         horarios: [],
         attrs: '',
@@ -284,8 +286,8 @@ export default {
         nuevoTurno: false,
         date: null,
         menu: false,
-        type: 'month',
-        typeEs: 'Mes',
+        type: 'week',
+        typeEs: 'Semana',
         typesEs: ['Mes', 'Semana', 'Día'],
         types: ['month', 'week', 'day'],
         mode: 'stack',
@@ -355,8 +357,14 @@ export default {
             await axios.get(urlAPI + 'reservation')
                 .then(res => {
                     this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice._id == sucursal & new Date(reserva.AppointmentTime) >= today & reserva.Client != null);
-
                     this.getEvents();
+                });
+        },
+        
+        async getRepuestos() {
+            await axios.get('http://localhost:8081/product')
+                .then(res => {
+                    this.repuestos = res.data.product;
                 });
         },
         async getSucursales() {
@@ -395,14 +403,15 @@ export default {
                 let desde = new Date(this.reservas[i].AppointmentTime);
                 let duracion = this.reservas[i].Duration;
                 let hasta = new Date(desde.getTime() + duracion * 60000);
-                let sMinDesde = desde.getMinutes() == 0 ? "00" : "";
+                let sHsDesde = desde.getHours() == 0 ? "00" : String(desde.getHours());
+                let sMinDesde = desde.getMinutes() == 0 ? "00" : String(desde.getMinutes());
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
-                let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
+                let descripcion = "<h3>"+sHsDesde+":"+sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta+"</h3><h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
                 this.reservas[i].Service.forEach(s => {
                     descripcion += "<p>" + s.Description + "</p><br>";
                 })
                 events.push({
-                    name: sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta,
+                    name: "Reservado",
                     start: desde.getTime(),
                     end: hasta,
                     id: this.reservas[i]._id,
@@ -579,7 +588,7 @@ export default {
                     this.guardarReserva();
                 } else {
                     this.tituloMensaje = "No Disponible";
-                    this.mensaje = "Horario Seleccionado Disponible";
+                    this.mensaje = "Horario no disponible";
                     this.dialogMensaje = true;
                 }
             });
@@ -587,10 +596,26 @@ export default {
         guardarReserva() {
             axios.post(urlAPI + 'reservation/add', this.reservation).then(res => {
                 if (res.data.success == null) {
+                    let maxP = 0;
+                    let maxS = 0
+                    let max = 0;
+                    for(let i= 0; i< res.data.length; i++){
+                        let repuesto = this.repuestos.filter(r => r._id == res.data[i]);
+                        if(repuesto!=null){
+                            if(repuesto.ShippingDealer> maxP){
+                                maxP = repuesto.ShippingDealer;
+                            }
+                            if(repuesto.ShippingBranch>maxS){
+                                maxS = repuesto.ShippingBranch;
+                            }
+                        }
+                        max = maxP>maxS ? maxP : maxS; 
+                    }
                     this.tituloMensaje = "No Disponible";
-                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles";
+                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles. Estarán disponibles en: "+max+" días.";
                     this.dialogMensaje = true;
                     this.horaReserva = null;
+               
                 } else {
                     this.tituloMensaje = "Reserva Exitosa";
                     this.mensaje = "Reserva realizada con éxito. Podrá consultar/modificar su reserva en la sección Reservas.";

@@ -658,7 +658,7 @@ export default {
                         "Dealer": dealer,
                         "SuggestedPrice": suggestedPrice,
                         "Status": "ACTIVE",
-                        "Kind": this.editedItem.Kind,
+                        "Kind": vehicle.Kind,
                     }
                 })
             })
