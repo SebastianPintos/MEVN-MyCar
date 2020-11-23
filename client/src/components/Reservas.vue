@@ -42,7 +42,7 @@
                 <v-btn v-if="consulta==false" color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
-                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=true">
+                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="calcularHorarios">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
             </v-flex>
@@ -130,7 +130,7 @@
                 </v-card-title>
                 <v-card-text>
                     <h3>Sucursal: </h3>
-                    <p>{{sucursal}}</p>
+                    <p>{{nombreSucursal}}</p>
 
                     <h3>Vehículo: </h3>
                     <p>{{cliente.vehiculo.Brand}}-{{cliente.vehiculo.Model}}-{{cliente.vehiculo.year}}-{{domain}}</p>
@@ -208,7 +208,7 @@ export default {
             let sucursal = JSON.parse(localStorage.getItem("sucursal"));
             let carrito = JSON.parse(localStorage.getItem("carrito"));
             let cliente = JSON.parse(localStorage.getItem("cliente"));
-          
+
             if (carrito != null) {
                 this.detalle = carrito;
             };
@@ -217,8 +217,9 @@ export default {
                 this.domain = this.cliente.domain;
             };
             if (sucursal != null) {
+                this.sucursal = sucursal;
                 this.getReservas(sucursal._id);
-                this.sucursal = sucursal.Name;
+                this.nombreSucursal = sucursal.Name;
             };
 
         } else {
@@ -232,6 +233,7 @@ export default {
     data: () => ({
         consulta: false,
         deleteConfirm: false,
+        nombreSucursal: "",
         checkConfirm: false,
         cliente: null,
         clientes: [],
@@ -243,7 +245,7 @@ export default {
         filtroCliente: '',
         sucursales: [],
         reservas: [],
-        horarios: ['08:00', '08:30', '9:00', '9:30', '10:00', '10:30'],
+        horarios: [],
         attrs: '',
         on: '',
         info: false,
@@ -334,16 +336,6 @@ export default {
             axios.get('http://localhost:8081/client')
                 .then(res => {
                     this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE");
-                    /*f (this.consulta==false && this.cliente != null) {
-                        let id = this.cliente.cliente;
-                        if (this.clientes != null) {
-                            let objCliente = this.clientes.filter(c => c._id == id);
-                             console.log("VEHICULOS: "+objCliente.Vehicle+JSON.stringify(objCliente));
-                            console.log(this.cliente);*/
-                    //if(objCliente!=null){
-                    //   objCliente.Vehicle.filter(v=> v.VehicleID == this.cliente.vehiculo._id);
-                    //   this.domain = objCliente!=null ? objCliente.Domain: "";
-                    //}
                 });
 
         },
@@ -395,8 +387,74 @@ export default {
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
         },
+        
+        parsearAHora(time) {
+            if (time != null) {
+                var min = time % 60;
+                var hs = (time - min) / 60;
+                min = String(min).length == 1 ? "0" + min : min;
+                hs = String(hs).length == 1 ? "0" + hs : hs;
+                return "" + hs + ":" + min;
+            }
+            return "";
+        },
+
         save(date) {
-            this.$refs.menu.save(date)
+            this.$refs.menu.save(date);
+            let horarios = ["", ""];
+            let dia = new Date(date).getDay();
+            //let sucursalSeleccionada = this.sucursales.filter(sucursal => sucursal._id == this.sucursal._id);
+            //console.log("SELECCIONADA: "+sucursalSeleccionada);
+            if (this.sucursal != null) {
+                try {
+                    if (dia == 0) {
+                        horarios[0] = this.sucursal.Hours.Monday.Open;
+                        horarios[1] = this.sucursal.Hours.Monday.Close;
+                    }
+                    if (dia == 1) {
+                        horarios[0] = this.sucursal.Hours.Tuesday.Open;
+                        horarios[1] = this.sucursal.Hours.Tuesday.Close;
+                    }
+                    if (dia == 2) {
+                        horarios[0] = this.sucursal.Hours.Wednesday.Open;
+                        horarios[1] = this.sucursal.Hours.Wednesday.Close;
+                    }
+                    if (dia == 3) {
+                        horarios[0] = this.sucursal.Hours.Thrusday.Open;
+                        horarios[1] = this.sucursal.Hours.Thrusday.Close;
+                    }
+                    if (dia == 4) {
+                        horarios[0] = this.sucursal.Hours.Friday.Open;
+                        horarios[1] = this.sucursal.Hours.Friday.Close;
+                    }
+                    if (dia == 5) {
+                        horarios[0] = this.sucursal.Hours.Saturday.Open;
+                        horarios[1] = this.sucursal.Hours.Saturday.Close;
+                    }
+                    if (dia == 6) {
+                        horarios[0] = this.sucursal.Hours.Sunday.Open;
+                        horarios[1] = this.sucursal.Hours.Sunday.Close;
+                    }
+                    let horariosEnMin = this.calcularIntervalos(horarios);
+                    if(horariosEnMin!=null){
+                        horariosEnMin.forEach(horario => {
+                            this.horarios.push(this.parsearAHora(horario));
+                            console.log("hs "+this.parsearAHora(horario));
+                        });
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        calcularIntervalos(horarios) {
+            let intervalos = [];
+           let i = horarios[0];
+            while (i < horarios[1]) {
+                intervalos.push(i);
+                i += 30;
+            }
+            return intervalos;
         },
         cambiarVehiculo(client) {
             this.clientes.forEach(cliente => {
@@ -446,49 +504,27 @@ export default {
             console.log("Creando reserva");
         },
         calcularHorarios() {
-            this.nuevoTurno = false;
-            /*     let reservation = {
-                     "reservation": {
-                         "Duration": this.carrito.tiempoTotal,
-                         "Price": this.carrito.total,
-                         "Status": "ACTIVE",
-                         Domain: {
-                             type: String
-                         },
-                         AppointmentTime: {
-                             type: Date
-                         },
-                         Client: {
-                             type: Schema.Types.ObjectId,
-                             required: true,
-                             ref: 'Client'
-                         },
-                         BranchOffice: {
-                             type: Schema.Types.ObjectId,
-                             ref: 'BranchOffice'
-                         },
-                         Details: {
-                             type: String
-                         },
-                         Service: [{
-                             type: Schema.Types.ObjectId,
-                             required: true,
-                             ref: 'Service'
-                         }],
-                         Vehicle: {
-                             VehicleID: {
-                                 type: Schema.Types.ObjectId,
-                                 ref: 'Vehicle'
-                             },
-                             Domain: {
-                                 type: String
-                             }
-                         }
 
-                     }
-                 }
-                 router.post('/reservation/checkHour', reservation.checkHour);*/
+            console.log("SUCURSAL: " + this.sucursal);
+            this.nuevoTurno = true;
+            /*let reservation = {
+                "reservation": {
+                    "Duration": this.carrito.tiempoTotal,
+                    "Price": this.carrito.total,
+                    "Status": "ACTIVE",
+                    "Domain": this.domain,
+                    "AppointmentTime": "", 
+                    "Client": this.cliente.cliente,
+                    "BranchOffice": this.sucursal,
+                    "Details": "Detalle",
+                    "Service": this.carrito.serviciosCarrito,
+                     "Vehicle": {"VehicleID": this.cliente.vehiculo._id, "Domain": this.domain}
+                    }
+                }
+                console.log(reservation);*/
         },
+        //  router.post('/reservation/checkHour', reservation.checkHour);
+        //},
     },
     watch: {
         menu(val) {
