@@ -1,6 +1,6 @@
 <template>
 <div>
-    <v-data-table v-if="tabla" v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
+    <v-data-table v-if="tabla" v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_idTabla" class="elevation-1">
         <template v-slot:[`item.actions`]="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -186,6 +186,7 @@ export default {
             tiempoTotal: "",
             total: "",
             ids: [],
+            idsServ: [],
         },
         elegirCliente: true,
         serviciosCarrito: [],
@@ -299,12 +300,13 @@ export default {
                                     let item = JSON.parse(localStorage.getItem(String(i)));
                                     let carrito = false;
                                     if (item != null) {
-                                        if (item._id == servicios[i]._id + sucursal._id) {
+                                        if (item._idTabla == servicios[i]._id + sucursal._id) {
                                             carrito = item.carrito;
                                         }
                                     }
                                     servicioAGuardar = {
-                                        "_id": servicios[i]._id + sucursal._id,
+                                        "_id": servicios[i]._id,
+                                        "_idTabla": servicios[i]._id + sucursal._id,
                                         "Description": servicios[i].Description,
                                         "LaborPrice": servicios[i].LaborPrice,
                                         "Time": servicios[i].Time,
@@ -382,19 +384,22 @@ export default {
         calcularCarrito() {
             let detalleCarrito = [];
             let ids = [];
+            let idsServ = [];
             let sumaTrabajo = 0;
             let sumaProductos = 0;
             let sumaTiempo = 0;
             this.carritoCompleto = this.defaultCarritoCompleto;
             if (this.serviciosFiltrados.length > 0) {
                 this.serviciosFiltrados.forEach(servicio => {
-                    if (servicio.carrito) {
+                    if (servicio.carrito==true) {
                         this.servicioEnCarrito.Description = servicio.Description;
                         this.servicioEnCarrito.Time = servicio.Time;
                         this.servicioEnCarrito.LaborPrice = servicio.LaborPrice;
                         sumaTiempo += servicio.Time;
                         sumaTrabajo += servicio.LaborPrice;
                         ids.push(this.servicios.indexOf(servicio));
+                        console.log("SERVICIOS: "+servicio._id);
+                        idsServ.push(servicio._id);
                         if (servicio.Product != null & servicio.Product.length > 0) {
                             servicio.Product.forEach(product => {
                                 if (product.SalePrice != undefined) {
@@ -407,7 +412,6 @@ export default {
                             })
                         }
                         let servicioEnCarrito = {
-                            ids: [],
                             Description: "",
                             Time: "",
                             LaborPrice: "",
@@ -417,6 +421,8 @@ export default {
                         servicioEnCarrito.Time = this.servicioEnCarrito.Time;
                         servicioEnCarrito.LaborPrice = this.servicioEnCarrito.LaborPrice;
                         servicioEnCarrito.Product = this.servicioEnCarrito.Product;
+                       // servicioEnCarrito.idsServ = idsServ;
+                        servicioEnCarrito.ids = ids;
                         detalleCarrito.push(servicioEnCarrito);
                     }
                 });
@@ -426,33 +432,37 @@ export default {
                 this.carritoCompleto.totalRepuestos = sumaProductos;
                 this.carritoCompleto.totalManoDeObra = sumaTrabajo;
                 this.carritoCompleto.total = sumaTrabajo + sumaProductos;
-                this.carritoCompleto.tiempoTotal = this.timeConvert(sumaTiempo);
-
+                //time convert suma tiempo
+                this.carritoCompleto.tiempoTotal = sumaTiempo;
+                this.carritoCompleto.idsServ= idsServ;
                 localStorage.removeItem("carrito");
                 localStorage.setItem("carrito", JSON.stringify({
-                    "ids": this.carritoCompleto.ids,
-                    "serviciosCarrito": this.carritoCompleto.serviciosCarrito,
-                    "totalRepuestos": this.carritoCompleto.totalRepuestos,
-                    "totalManoDeObra": this.carritoCompleto.totalManoDeObra,
+                    "ids": ids,
+                    "idsServ": idsServ,
+                    "serviciosCarrito": detalleCarrito,
+                    "totalRepuestos": sumaProductos,
+                    "totalManoDeObra": sumaTrabajo,
                     "total": this.carritoCompleto.total,
                     "tiempoTotal": this.carritoCompleto.tiempoTotal
                 }));
 
             }
-            console.log("CARRITO: " + this.carritoCompleto);
         },
 
         mostrarCarrito() {
             this.calcularCarrito();
             this.dialogCarrito = true;
         },
-
-        timeConvert(n) {
-            var minutes = n % 60
-            var hours = (n - minutes) / 60
-            return ("" + hours + " horas, " + minutes + " minutos");
+        timeConvert(time) {
+            if (time != null) {
+                var min = time % 60;
+                var hs = (time - min) / 60;
+                min = String(min).length == 1 ? "0" + min : min;
+                hs = String(hs).length == 1 ? "0" + hs : hs;
+                return "" + hs + ":" + min;
+            }
+            return "";
         },
-
         aplicarFiltros(marca, modelo, año) {
             marca = marca == null ? "" : marca;
             modelo = modelo == null ? "" : modelo;

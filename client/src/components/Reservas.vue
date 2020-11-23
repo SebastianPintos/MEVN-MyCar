@@ -42,7 +42,7 @@
                 <v-btn v-if="consulta==false" color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
-                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="calcularHorarios">
+                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=true">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
             </v-flex>
@@ -99,17 +99,17 @@
                             <template v-slot:activator="{ on, attrs }">
                                 <v-text-field v-model="date" label="Día" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                             </template>
-                            <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)" min="2020-01-01" @change="save"></v-date-picker>
+                            <v-date-picker ref="picker" v-model="date" min="2020-01-01" @change="save"></v-date-picker>
                         </v-menu>
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-select label="Horario" :items="horarios"></v-select>
+                        <v-select :label="texto" v-model="horario" :disabled="!mostrarHorario" :items="horarios"></v-select>
                     </v-col>
                 </v-row>
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
-                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="calcularHorarios">
+                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=false;date=null;horarios=[]">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
                     <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="crearReserva">
@@ -145,7 +145,8 @@
                     <p>N/A</p>
 
                     <h3>Fecha y Hora de Reserva: </h3>
-                    <p>No definida</p>
+                    <p v-if="horaReserva!=null">{{horaReserva}}</p>
+                    <p v-else>Aún no Reservado</p>
 
                 </v-card-text>
             </v-flex>
@@ -167,16 +168,19 @@
         <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
             <v-card color="grey lighten-4" min-width="350px" flat>
                 <v-toolbar :color="selectedEvent.color" dark>
-                    <v-btn icon v-if="selectedEvent.estado=='Reservado' ">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn icon @click="checkConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
-                        <v-icon>mdi-check</v-icon>
-                    </v-btn>
-                    <v-btn icon @click="deleteConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                    <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+                    <v-toolbar-title v-html="selectedEvent.estado"></v-toolbar-title>
+
+                    <v-flex class="text-right" style="margin-left:50px">
+                        <v-btn icon v-if="selectedEvent.estado=='Reservado' ">
+                            <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
+                        <v-btn icon @click="checkConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                        <v-btn icon @click="deleteConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
+                            <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                    </v-flex>
                     <v-spacer></v-spacer>
 
                 </v-toolbar>
@@ -193,6 +197,13 @@
             </v-card>
         </v-menu>
     </v-sheet>
+    <v-dialog v-model="dialogMensaje" max-width="400px">
+        <v-card>
+            <v-card-title>{{tituloMensaje}}</v-card-title>
+            <v-card-text>{{mensaje}}</v-card-text>
+        </v-card>
+    </v-dialog>
+
 </div>
 </template>
 
@@ -231,6 +242,14 @@ export default {
         this.getVehiculo();
     },
     data: () => ({
+        mensaje: "",
+        horaReserva: null,
+        reservation: null,
+        tituloMensaje: "",
+        dialogMensaje: false,
+        mostrarHorario: false,
+        texto: "Horarios",
+        disponible: 0,
         consulta: false,
         deleteConfirm: false,
         nombreSucursal: "",
@@ -238,6 +257,7 @@ export default {
         cliente: null,
         clientes: [],
         domain: "",
+        horario: null,
         vehiculo: {},
         vehicles: [],
         sucursal: '',
@@ -322,7 +342,8 @@ export default {
             let today = new Date();
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice == sucursal & new Date(reserva.AppointmentTime) >= today);
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice._id == sucursal & new Date(reserva.AppointmentTime) >= today & reserva.Client != null);
+
                     this.getEvents();
                 });
         },
@@ -362,13 +383,14 @@ export default {
                 let desde = new Date(this.reservas[i].AppointmentTime);
                 let duracion = this.reservas[i].Duration;
                 let hasta = new Date(desde.getTime() + duracion * 60000);
+                let sMinDesde = desde.getMinutes() == 0 ? "00" : "";
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
-                let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5><br>";
+                let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
                 this.reservas[i].Service.forEach(s => {
                     descripcion += "<p>" + s.Description + "</p><br>";
                 })
                 events.push({
-                    name: "-" + hasta.getHours() + ":" + sMinutesHasta + " Reservado",
+                    name: sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta,
                     start: desde.getTime(),
                     end: hasta,
                     id: this.reservas[i]._id,
@@ -387,7 +409,7 @@ export default {
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
         },
-        
+
         parsearAHora(time) {
             if (time != null) {
                 var min = time % 60;
@@ -403,8 +425,6 @@ export default {
             this.$refs.menu.save(date);
             let horarios = ["", ""];
             let dia = new Date(date).getDay();
-            //let sucursalSeleccionada = this.sucursales.filter(sucursal => sucursal._id == this.sucursal._id);
-            //console.log("SELECCIONADA: "+sucursalSeleccionada);
             if (this.sucursal != null) {
                 try {
                     if (dia == 0) {
@@ -436,11 +456,15 @@ export default {
                         horarios[1] = this.sucursal.Hours.Sunday.Close;
                     }
                     let horariosEnMin = this.calcularIntervalos(horarios);
-                    if(horariosEnMin!=null){
+                    if (horariosEnMin != null) {
                         horariosEnMin.forEach(horario => {
                             this.horarios.push(this.parsearAHora(horario));
-                            console.log("hs "+this.parsearAHora(horario));
                         });
+                        this.texto = "Horarios";
+                        this.mostrarHorario = true;
+                    } else {
+                        this.texto = "Cerrado";
+                        this.mostrarHorario = false;
                     }
                 } catch (e) {
                     console.log(e);
@@ -449,7 +473,7 @@ export default {
         },
         calcularIntervalos(horarios) {
             let intervalos = [];
-           let i = horarios[0];
+            let i = horarios[0];
             while (i < horarios[1]) {
                 intervalos.push(i);
                 i += 30;
@@ -501,30 +525,68 @@ export default {
                 });
         },
         crearReserva() {
-            console.log("Creando reserva");
-        },
-        calcularHorarios() {
 
-            console.log("SUCURSAL: " + this.sucursal);
-            this.nuevoTurno = true;
-            /*let reservation = {
+            let date = this.date + " " + this.horario;
+            let ids = this.detalle.idsServ;
+            let servId = [];
+            if (ids != null) {
+                ids.forEach(id => {
+                    servId.push(id);
+                })
+            }
+            this.reservation = {
                 "reservation": {
-                    "Duration": this.carrito.tiempoTotal,
-                    "Price": this.carrito.total,
+                    "Duration": this.detalle.tiempoTotal,
+                    "Price": this.detalle.total,
                     "Status": "ACTIVE",
                     "Domain": this.domain,
-                    "AppointmentTime": "", 
+                    "AppointmentTime": date,
                     "Client": this.cliente.cliente,
                     "BranchOffice": this.sucursal,
                     "Details": "Detalle",
-                    "Service": this.carrito.serviciosCarrito,
-                     "Vehicle": {"VehicleID": this.cliente.vehiculo._id, "Domain": this.domain}
+                    "Service": servId,
+                    "Vehicle": {
+                        "VehicleID": this.cliente.vehiculo._id,
+                        "Domain": this.domain
                     }
                 }
-                console.log(reservation);*/
+            }
+
+            this.chequearHorario();
+            this.nuevoTurno = false;
         },
-        //  router.post('/reservation/checkHour', reservation.checkHour);
-        //},
+        chequearHorario() {
+            axios.post('http://localhost:8081/reservation/checkHour', this.reservation).then(res => {
+                this.disponible = res.data.occupied;
+                if (this.disponible == 0) {
+                    this.guardarReserva();
+                } else {
+                    this.tituloMensaje = "No Disponible";
+                    this.mensaje = "Horario Seleccionado Disponible";
+                    this.dialogMensaje = true;
+                }
+            });
+        },
+        guardarReserva() {
+            axios.post('http://localhost:8081/reservation/add', this.reservation).then(res => {
+                if (res.data.success == null) {
+                    this.tituloMensaje = "No Disponible";
+                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles";
+                    this.dialogMensaje = true;
+                    this.horaReserva = null;
+                } else {
+                    this.tituloMensaje = "Reserva Exitosa";
+                    this.mensaje = "Reserva realizada con éxito. Podrá consultar/modificar su reserva en la sección Reservas.";
+                    this.dialogMensaje = true;
+                    this.horaReserva = String(this.reservation.reservation.AppointmentTime);
+                    this.getReservas(this.sucursal._id);
+                }
+                
+                this.date = null;
+                this.horario = null;
+            });
+        }
+
     },
     watch: {
         menu(val) {
