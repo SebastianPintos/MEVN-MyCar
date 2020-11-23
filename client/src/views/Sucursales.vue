@@ -89,7 +89,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeOLunes" label="Apertura Lunes" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openLunes" v-model="timeOLunes" full-width @click:minute="$refs.menuOLunes.save(timeOLunes)"></v-time-picker>
+                                                        <v-time-picker :allowed-minutes="allowedStep" min="7:00" max="20:00" v-if="openLunes" v-model="timeOLunes" full-width @click:minute="$refs.menuOLunes.save(timeOLunes)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -97,7 +97,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCLunes" label="Cierre Lunes" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeLunes" v-model="timeCLunes" full-width @click:minute="$refs.menuCLunes.save(timeCLunes)"></v-time-picker>
+                                                        <v-time-picker :allowed-minutes="allowedStep" min="7:00" max="20:00" v-if="closeLunes" v-model="timeCLunes" full-width @click:minute="$refs.menuCLunes.save(timeCLunes)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -114,7 +114,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeOMartes" label="Apertura Martes" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openMartes" v-model="timeOMartes" full-width @click:minute="$refs.menuOMartes.save(timeOMartes)"></v-time-picker>
+                                                        <v-time-picker v-if="openMartes" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeOMartes" full-width @click:minute="$refs.menuOMartes.save(timeOMartes)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -122,7 +122,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCMartes" label="Cierre Martes" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeMartes" v-model="timeCMartes" full-width @click:minute="$refs.menuCMartes.save(timeCMartes)"></v-time-picker>
+                                                        <v-time-picker v-if="closeMartes" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeCMartes" full-width @click:minute="$refs.menuCMartes.save(timeCMartes)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -140,7 +140,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeOMiercoles" label="Apertura Miércoles" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openMiercoles" v-model="timeOMiercoles" full-width @click:minute="$refs.menuOMiercoles.save(timeOMiercoles)"></v-time-picker>
+                                                        <v-time-picker v-if="openMiercoles" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeOMiercoles" full-width @click:minute="$refs.menuOMiercoles.save(timeOMiercoles)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -148,7 +148,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCMiercoles" label="Cierre Miércoles" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeMiercoles" v-model="timeCMiercoles" full-width @click:minute="$refs.menuCMiercoles.save(timeCMiercoles)"></v-time-picker>
+                                                        <v-time-picker v-if="closeMiercoles" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeCMiercoles" full-width @click:minute="$refs.menuCMiercoles.save(timeCMiercoles)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -166,7 +166,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeOJueves" label="Apertura Jueves" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openJueves" v-model="timeOJueves" full-width @click:minute="$refs.menuOJueves.save(timeOJueves)"></v-time-picker>
+                                                        <v-time-picker v-if="openJueves" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeOJueves" full-width @click:minute="$refs.menuOJueves.save(timeOJueves)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -174,7 +174,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCJueves" label="Cierre Jueves" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeJueves" v-model="timeCJueves" full-width @click:minute="$refs.menuCJueves.save(timeCJueves)"></v-time-picker>
+                                                        <v-time-picker v-if="closeJueves" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeCJueves" full-width @click:minute="$refs.menuCJueves.save(timeCJueves)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -192,7 +192,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeOViernes" label="Apertura Viernes" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openViernes" v-model="timeOViernes" full-width @click:minute="$refs.menuOViernes.save(timeOViernes)"></v-time-picker>
+                                                        <v-time-picker v-if="openViernes" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeOViernes" full-width @click:minute="$refs.menuOViernes.save(timeOViernes)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -200,7 +200,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCViernes" label="Cierre Viernes" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeViernes" v-model="timeCViernes" full-width @click:minute="$refs.menuCViernes.save(timeCViernes)"></v-time-picker>
+                                                        <v-time-picker v-if="closeViernes" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeCViernes" full-width @click:minute="$refs.menuCViernes.save(timeCViernes)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -218,7 +218,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeOSabado" label="Apertura Sábado" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openSabado" v-model="timeOSabado" full-width @click:minute="$refs.menuOSabado.save(timeOSabado)"></v-time-picker>
+                                                        <v-time-picker v-if="openSabado" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeOSabado" full-width @click:minute="$refs.menuOSabado.save(timeOSabado)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -226,7 +226,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCSabado" label="Cierre Sábado" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeSabado" v-model="timeCSabado" full-width @click:minute="$refs.menuCSabado.save(timeCSabado)"></v-time-picker>
+                                                        <v-time-picker v-if="closeSabado" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeCSabado" full-width @click:minute="$refs.menuCSabado.save(timeCSabado)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -244,7 +244,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeODomingo" label="Apertura Domingo" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="openDomingo" v-model="timeODomingo" full-width @click:minute="$refs.menuODomingo.save(timeODomingo)"></v-time-picker>
+                                                        <v-time-picker v-if="openDomingo" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeODomingo" full-width @click:minute="$refs.menuODomingo.save(timeODomingo)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="5">
@@ -252,7 +252,7 @@
                                                         <template v-slot:activator="{ on, attrs }">
                                                             <v-text-field v-model="timeCDomingo" label="Cierre Domingo" prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" v-on="on"></v-text-field>
                                                         </template>
-                                                        <v-time-picker v-if="closeDomingo" v-model="timeCDomingo" full-width @click:minute="$refs.menuCDomingo.save(timeCDomingo)"></v-time-picker>
+                                                        <v-time-picker v-if="closeDomingo" :allowed-minutes="allowedStep" min="7:00" max="20:00" v-model="timeCDomingo" full-width @click:minute="$refs.menuCDomingo.save(timeCDomingo)"></v-time-picker>
                                                     </v-menu>
                                                 </v-col>
                                                 <v-col cols="12" sm="5" md="2">
@@ -935,6 +935,7 @@ export default {
                 return
             }
         },
+        allowedStep: m => m % 30 === 0,
 
     },
 };
