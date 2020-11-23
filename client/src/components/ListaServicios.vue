@@ -156,6 +156,7 @@
 
 <script>
 import axios from "axios";
+import urlAPI from "../config/config.js"
 
 export default {
 
@@ -291,7 +292,7 @@ export default {
             let servicios = [];
             let servicioAGuardar = {};
          //   let cont = 0;
-            await axios.get('http://localhost:8081/service')
+            await axios.get(urlAPI + 'service')
                 .then(res => {
                     servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
                     servicios.forEach(servicio => {
@@ -315,21 +316,21 @@ export default {
         },
 
         async getSucursales() {
-            await axios.get('http://localhost:8081/branchOffice')
+            await axios.get(urlAPI + 'branchOffice')
                 .then(res => {
                     this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
                 });
         },
 
         async getClientes() {
-            await axios.get('http://localhost:8081/client')
+            await axios.get(urlAPI + 'client')
                 .then(res => {
                     this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
                 });
         },
 
         async getVehiculo() {
-            await axios.get('http://localhost:8081/vehicle')
+            await axios.get(urlAPI + 'vehicle')
                 .then(res => {
                     this.allVehicles = res.data.vehicle;
                 });
@@ -504,7 +505,7 @@ export default {
         },
 
         obtenerVehiculo() {
-            axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
+            axios.get(urlAPI + 'vehicle/' + this.vehiculo)
                 .then(res => {
                     this.vehicle = res.data.vehicle;
                     this.filtros.Model = this.vehicle.Model;

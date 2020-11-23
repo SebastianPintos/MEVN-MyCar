@@ -174,6 +174,7 @@
 
 <script>
 import axios from "axios";
+import urlAPI from "../config/config.js"
 
 export default {
     data: () => ({
@@ -278,7 +279,7 @@ export default {
             let servicios = [];
             this.servicios=[];
             this.serviciosFiltrados=[];
-            await axios.get('http://localhost:8081/service')
+            await axios.get(urlAPI + 'service')
                 .then(res => {
                     servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
                     if (servicios != null) {
@@ -291,27 +292,27 @@ export default {
                 });
         },
         getSucursales() {
-            axios.get('http://localhost:8081/branchOffice')
+            axios.get(urlAPI + 'branchOffice')
             .then(res => {
                 this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
             });
             
         },
         getProducts() {
-            axios.get('http://localhost:8081/product')
+            axios.get(urlAPI + 'product')
             .then(res => {
                 this.products = res.data.product.filter(product => product.Status === "ACTIVE")
             });
         },
         getVehicles() {
-            axios.get('http://localhost:8081/vehicle')
+            axios.get(urlAPI + 'vehicle')
             .then(res => {
                 this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
             });
         },
 
         async createService() {
-            await axios.post('http://localhost:8081/service/add', {
+            await axios.post(urlAPI + 'service/add', {
                 "service":{
                     "Description": this.editedItem.Description,
                     "LaborPrice": this.editedItem.LaborPrice,
@@ -328,11 +329,11 @@ export default {
             this.getServices()
         },
         deleteService(item) {
-            axios.delete('http://localhost:8081/service/' + item._id + '/delete').then(() => this.getServices())
+            axios.delete(urlAPI + 'service/' + item._id + '/delete').then(() => this.getServices())
         },
 
         async updateService() {
-            await axios.post('http://localhost:8081/service/' + this.selected[0]._id + '/update', {
+            await axios.post(urlAPI + 'service/' + this.selected[0]._id + '/update', {
                 "service":{
                     "Status": "ACTIVE",
                     "Description": this.editedItem.Description,

@@ -130,6 +130,7 @@ class Dealer {
 }
 
 import axios from "axios";
+import urlAPI from "../config/config.js"
 export default {
       props: {
           tipo: String,
@@ -259,7 +260,7 @@ export default {
         },
 
         async getDealers() {
-            await axios.get('http://localhost:8081/dealer')
+            await axios.get(urlAPI + 'dealer')
                 .then(res => {
                     this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == this.tipo)
                 });
@@ -332,7 +333,7 @@ export default {
 
         deleteItemConfirm() {
             for (let i = 0; i < this.selected.length; i++) {
-                axios.delete('http://localhost:8081/dealer/' + this.selected[i]._id + '/delete')
+                axios.delete(urlAPI + 'dealer/' + this.selected[i]._id + '/delete')
                 this.dealers.splice(this.dealers.indexOf(this.selected[i]), 1);
             }
             this.closeDelete()
@@ -430,7 +431,7 @@ export default {
                             "Kind": this.tipo,
                         }
                     }
-                        this.post('http://localhost:8081/dealer/add',DealerAux);
+                        this.post(urlAPI + 'dealer/add',DealerAux);
                         this.dealers.push(DealerAux);
                         this.reiniciar();
                     }
@@ -438,7 +439,7 @@ export default {
             },
 
             async update(data) {
-                    await axios.post('http://localhost:8081/dealer/' + this.selected[0]._id + '/update', data, {
+                    await axios.post(urlAPI + 'dealer/' + this.selected[0]._id + '/update', data, {
                         headers: {
                             "Accept": "application/json",
                             "Content-Type": "application/json; charset=utf-8"
@@ -449,7 +450,7 @@ export default {
                 },
 
                 guardar(estado, selected, accion, id) {
-                    this.post('http://localhost:8081/dealer/' + id + accion, JSON.stringify(this.getJSONDealer(selected, estado)));
+                    this.post(urlAPI + 'dealer/' + id + accion, JSON.stringify(this.getJSONDealer(selected, estado)));
                 },
 
                 reiniciar() {

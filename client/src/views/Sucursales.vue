@@ -329,6 +329,7 @@
 
 <script>
 import axios from "axios";
+import urlAPI from "../config/config.js"
 
 export default {
     data: () => ({
@@ -575,14 +576,14 @@ export default {
 
         },
         getsucursales() {
-            axios.get('http://localhost:8081/branchOffice')
+            axios.get(urlAPI + 'branchOffice')
                 .then(res => {
                     this.sucursales = res.data.branchOffice.filter(s => s.Status === "ACTIVE")
                 });
         },
 
         async getEmpleados() {
-            await axios.get('http://localhost:8081/employee')
+            await axios.get(urlAPI + 'employee')
                 .then(res => {
                     this.empleados = res.data.employee.filter(s => s.Status === "ACTIVE")
                 });
@@ -697,7 +698,7 @@ export default {
         },
 
         async deleteItemConfirm() {
-            await axios.delete('http://localhost:8081/branchOffice/' + this.selected[0]._id + '/delete');
+            await axios.delete(urlAPI + 'branchOffice/' + this.selected[0]._id + '/delete');
             this.sucursales.splice(this.sucursales.indexOf(this.selected[0]), 1);
             this.closeDelete()
         },
@@ -891,7 +892,7 @@ export default {
                 //Nuevo
                 if (this.selected[0] == null) {
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
-                    this.post('http://localhost:8081/branchOffice/add', JSON.stringify(jsonSucursal));
+                    this.post(urlAPI + 'branchOffice/add', JSON.stringify(jsonSucursal));
                     this.sucursales.push(item);
                     this.reiniciar();
                 }
@@ -901,7 +902,7 @@ export default {
                     //this.editedItem.Phone = this.num;
                     Object.assign(this.sucursales[this.editedIndex], item);
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
-                    this.post('http://localhost:8081/branchOffice/' + this.selected[0]._id + "/update", JSON.stringify(jsonSucursal));
+                    this.post(urlAPI + 'branchOffice/' + this.selected[0]._id + "/update", JSON.stringify(jsonSucursal));
                     this.reiniciar();
                 }
                 this.reset();

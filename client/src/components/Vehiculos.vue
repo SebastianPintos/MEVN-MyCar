@@ -243,6 +243,7 @@
 
 <script>
 import axios from "axios"
+import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         paises: [],
@@ -405,7 +406,7 @@ export default {
 
         getVehicles() {
             this.vehículos = []
-            axios.get('http://localhost:8081/vehicle')
+            axios.get(urlAPI + 'vehicle')
                 .then(res => {
                     this.allvehiculos = res.data.vehicle;
                     this.allvehiculos.forEach(vehiculo => {
@@ -418,7 +419,7 @@ export default {
         },
 
         async getDealers() {
-            await axios.get('http://localhost:8081/dealer')
+            await axios.get(urlAPI + 'dealer')
                 .then(res => {
                     let dealersList = res.data.dealer;
                     if (dealersList != null) {
@@ -606,11 +607,11 @@ export default {
         },
 
         deleteVehicle(item) {
-            axios.delete('http://localhost:8081/vehicle/' + item._id + '/delete')
+            axios.delete(urlAPI + 'vehicle/' + item._id + '/delete')
         },
 
         async updateVehicle() {
-            await axios.post('http://localhost:8081/vehicle/' + this.selected[0]._id + '/update', {
+            await axios.post(urlAPI + 'vehicle/' + this.selected[0]._id + '/update', {
                 "vehicle": {
                     "Brand": this.editedItem.Brand,
                     "Model": this.editedItem.Model,
@@ -644,7 +645,7 @@ export default {
                     }
                 }
 
-                axios.post('http://localhost:8081/vehicle/' + vehicle._id + '/update', {
+                axios.post(urlAPI + 'vehicle/' + vehicle._id + '/update', {
                     "vehicle": {
                         "Brand": vehicle.Brand,
                         "Model": vehicle.Model,
@@ -665,7 +666,7 @@ export default {
         },
 
         async createVehicle() {
-            await axios.post('http://localhost:8081/vehicle/add', {
+            await axios.post(urlAPI + 'vehicle/add', {
                 "vehicle": {
                     "Brand": this.editedItem.Brand,
                     "Model": this.editedItem.Model,

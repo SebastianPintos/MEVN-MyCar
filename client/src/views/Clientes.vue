@@ -147,6 +147,7 @@ class client {
 }
 
 import axios from "axios";
+import urlAPI from "../config/config.js"
 //const instance = axios.create();
 
 export default {
@@ -331,7 +332,7 @@ export default {
 
         },
         getClients() {
-            axios.get('http://localhost:8081/client')
+            axios.get(urlAPI + 'client')
                 .then(res => {
                     this.clients = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
                 });
@@ -487,7 +488,7 @@ export default {
             if (id === -1) {
                 this.client = this.getClient(this.client);
                 if (this.validate()) {
-                    this.post('http://localhost:8081/client/add', JSON.stringify(this.getJSONClient(this.client)));
+                    this.post(urlAPI + 'client/add', JSON.stringify(this.getJSONClient(this.client)));
                     this.clients.push(this.client);
                     this.reiniciar();
                 }
@@ -506,7 +507,7 @@ export default {
 
         editar(estado, selected) {
             selected.Status = estado;
-            this.post('http://localhost:8081/client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)));
+            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)));
         },
 
         reiniciar() {

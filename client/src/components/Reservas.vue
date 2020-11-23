@@ -215,6 +215,7 @@
 
 <script>
 import axios from "axios"
+import urlAPI from "../config/config.js"
 export default {
     created() {
         let direccionActual = String(location.href);
@@ -351,7 +352,7 @@ export default {
         },
         async getReservas(sucursal) {
             let today = new Date();
-            await axios.get('http://localhost:8081/reservation')
+            await axios.get(urlAPI + 'reservation')
                 .then(res => {
                     this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice._id == sucursal & new Date(reserva.AppointmentTime) >= today & reserva.Client != null);
 
@@ -359,13 +360,13 @@ export default {
                 });
         },
         async getSucursales() {
-            await axios.get('http://localhost:8081/branchOffice')
+            await axios.get(urlAPI + 'branchOffice')
                 .then(res => {
                     this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
                 });
         },
         getClientes() {
-            axios.get('http://localhost:8081/client')
+            axios.get(urlAPI + 'client')
                 .then(res => {
                     this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE");
                 });
@@ -373,18 +374,18 @@ export default {
         },
 
         async getVehiculo() {
-            await axios.get('http://localhost:8081/vehicle')
+            await axios.get(urlAPI + 'vehicle')
                 .then(res => {
                     this.allVehicles = res.data.vehicle;
                 });
         },
 
         async confirmarReserva(event) {
-            await axios.delete('http://localhost:8081/reservation/' + event.id + '/delete');
+            await axios.delete(urlAPI + 'reservation/' + event.id + '/delete');
         },
 
         async eliminarReserva(event) {
-            await axios.delete('http://localhost:8081/reservation/' + event.id + '/cancel');
+            await axios.delete(urlAPI + 'reservation/' + event.id + '/cancel');
             this.events.splice(this.events.indexOf(event), 1)
         },
 
@@ -530,7 +531,7 @@ export default {
         },
         async getAllReservas() {
             let today = new Date();
-            await axios.get('http://localhost:8081/reservation')
+            await axios.get(urlAPI + 'reservation')
                 .then(res => {
                     this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime) >= today);
                 });
@@ -572,7 +573,7 @@ export default {
             this.nuevoTurno = false;
         },
         chequearHorario() {
-            axios.post('http://localhost:8081/reservation/checkHour', this.reservation).then(res => {
+            axios.post(urlAPI + 'reservation/checkHour', this.reservation).then(res => {
                 this.disponible = res.data.occupied;
                 if (this.disponible == 0) {
                     this.guardarReserva();
@@ -584,7 +585,7 @@ export default {
             });
         },
         guardarReserva() {
-            axios.post('http://localhost:8081/reservation/add', this.reservation).then(res => {
+            axios.post(urlAPI + 'reservation/add', this.reservation).then(res => {
                 if (res.data.success == null) {
                     this.tituloMensaje = "No Disponible";
                     this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles";
