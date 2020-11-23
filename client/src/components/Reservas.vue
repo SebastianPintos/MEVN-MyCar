@@ -285,8 +285,8 @@ export default {
         nuevoTurno: false,
         date: null,
         menu: false,
-        type: 'month',
-        typeEs: 'Mes',
+        type: 'week',
+        typeEs: 'Semana',
         typesEs: ['Mes', 'Semana', 'Día'],
         types: ['month', 'week', 'day'],
         mode: 'stack',
@@ -402,14 +402,15 @@ export default {
                 let desde = new Date(this.reservas[i].AppointmentTime);
                 let duracion = this.reservas[i].Duration;
                 let hasta = new Date(desde.getTime() + duracion * 60000);
-                let sMinDesde = desde.getMinutes() == 0 ? "00" : "";
+                let sHsDesde = desde.getHours() == 0 ? "00" : String(desde.getHours());
+                let sMinDesde = desde.getMinutes() == 0 ? "00" : String(desde.getMinutes());
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
-                let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
+                let descripcion = "<h3>"+sHsDesde+":"+sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta+"</h3><h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
                 this.reservas[i].Service.forEach(s => {
                     descripcion += "<p>" + s.Description + "</p><br>";
                 })
                 events.push({
-                    name: sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta,
+                    name: "Reservado",
                     start: desde.getTime(),
                     end: hasta,
                     id: this.reservas[i]._id,
