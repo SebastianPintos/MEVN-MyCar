@@ -10,6 +10,8 @@ var ProductSchema = new Schema({
     SKU: {type: String, required: true},
     LastPurchasePrice: {type: Number, required: true},
     SalePrice: {type: Number, required: true},
+    ShippingBranch: {type: Number, required: true},
+    ShippingDealer: {type: Number, required: true},
     Dealer: {
       type: Schema.Types.ObjectId,
       required: true,

@@ -22,6 +22,8 @@ ctrl.create = (req, res) => {
         Brand: body.Brand,
         SKU: body.SKU,
         LastPurchasePrice: body.LastPurchasePrice,
+        ShippingBranch: body.ShippingBranch,
+        ShippingDealer: body.ShippingDealer,
         SalePrice: body.SalePrice,
         Dealer: body.Dealer,
         Status: 'ACTIVE',
@@ -52,6 +54,8 @@ ctrl.update = (req, res) => {
                 product.SalePrice= body.SalePrice,
                 product.Dealer= body.Dealer,
                 product.Status= body.Status,
+                product.ShippingBranch = body.ShippingBranch,
+                product.ShippingDealer = body.ShippingDealer,
                 product.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

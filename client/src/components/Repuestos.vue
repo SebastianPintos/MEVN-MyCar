@@ -111,11 +111,19 @@
                                                 <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                             </v-col>
 
-                                            <v-col cols="12" sm="4" md="6">
+                                            <v-col cols="12" sm="4" md="12">
                                                 <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
                                             </v-col>
 
-                                            <v-col cols="12" sm="12" md="6">
+                                            <v-col cols="12" sm="4" md="12">
+                                                <v-text-field v-model="editedItem.ShippingDealer"  label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
+                                            </v-col>
+
+                                               <v-col cols="12" sm="4" md="12">
+                                                <v-text-field v-model="editedItem.ShippingBranch" label="Tiempo de envío Proveedor (días)" :rules="requerido"></v-text-field>
+                                            </v-col>
+
+                                            <v-col cols="12" sm="12" md="12">
                                                 <v-textarea v-model="editedItem.Description" label="Descripción"></v-textarea>
                                             </v-col>
                                         </v-row>
@@ -378,6 +386,8 @@ export default {
         on: '',
         editedItem: {
             Description: '',
+            ShippingDealer: '',
+            ShippingBranch: '',
             Category: '',
             SubCategory: '',
             Brand: '',
@@ -388,6 +398,8 @@ export default {
             Status: '',
         },
         defaultItem: {
+            ShippingDealer: '',
+            ShippingBranch: '',
             Description: '',
             Category: '',
             SubCategory: '',
@@ -683,6 +695,8 @@ export default {
                     "Category": this.editedItem.Category,
                     "SubCategory": this.editedItem.SubCategory,
                     "Brand": this.editedItem.Brand,
+                     "ShippingDealer": this.editedItem.ShippingDealer,
+                    "ShippingBranch": this.editedItem.ShippingBranch,
                     "SKU": this.editedItem.SKU,
                     "LastPurchasePrice": this.editedItem.LastPurchasePrice,
                     "SalePrice": this.editedItem.SalePrice,
@@ -725,6 +739,9 @@ export default {
                         "Dealer": proveedor,
                         "Status": product.Status,
                         "Kind": "PRODUCT",
+                         "ShippingDealer": product.ShippingDealer,
+                        "ShippingBranch": product.ShippingBranch,
+                   
                     }
                 })
             })
@@ -737,6 +754,8 @@ export default {
                 "product": {
                     "Description": this.editedItem.Description,
                     "Category": this.editedItem.Category,
+                    "ShippingDealer": this.editedItem.ShippingDealer,
+                    "ShippingBranch": this.editedItem.ShippingBranch,
                     "SubCategory": this.editedItem.SubCategory,
                     "Brand": this.editedItem.Brand,
                     "SKU": this.editedItem.SKU,
