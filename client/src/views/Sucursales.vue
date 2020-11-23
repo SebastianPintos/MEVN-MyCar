@@ -1,7 +1,15 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table single-select v-model="selected" show-select :headers="headers" :items="sucursales" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+        <v-data-table :expanded.sync="expanded"  show-expand single-select v-model="selected" show-select :headers="headers" :items="sucursales" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+            <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+                
+                <v-chip-group >
+                    <v-chip color="success" small v-for="empleado in item.Employee" :key="empleado._id">DNI: {{empleado.DNI}}</v-chip>
+                </v-chip-group>
+            </td>
+        </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -333,6 +341,7 @@ import urlAPI from "../config/config.js"
 
 export default {
     data: () => ({
+        expanded: [],
         editedIndex: -1,
         selected: [],
         search: '',

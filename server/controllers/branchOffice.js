@@ -33,7 +33,7 @@ ctrl.index = (req, res) => {
         res.send({
             branchOffice: branchOffice
         });
-    });
+    }).populate('Employee');
 };
 
 ctrl.create = (req, res) => {
