@@ -107,6 +107,9 @@
                         <v-col cols="12" md="6">
                             <v-select :label="texto" v-model="horario" :disabled="!mostrarHorario" :items="horarios" :rules="requerido"></v-select>
                         </v-col>
+                        <v-col cols="12" md="12">
+                            <v-textarea label="Detalles" v-model="detalleReserva" ></v-textarea>
+                        </v-col>
                     </v-row>
                 </v-card-text>
                 <v-card-actions>
@@ -246,6 +249,7 @@ export default {
     },
     data: () => ({
         mensaje: "",
+        detalleReserva: "",
         valid: true,
         horaReserva: null,
         reservation: null,
@@ -555,7 +559,7 @@ export default {
                     "AppointmentTime": date,
                     "Client": this.cliente.cliente,
                     "BranchOffice": this.sucursal,
-                    "Details": "Detalle",
+                    "Details": this.detalleReserva,
                     "Service": servId,
                     "Vehicle": {
                         "VehicleID": this.cliente.vehiculo._id,
@@ -593,7 +597,7 @@ export default {
                     this.horaReserva = String(this.reservation.reservation.AppointmentTime);
                     this.getReservas(this.sucursal._id);
                 }
-
+                this.detalleReserva = "",
                 this.date = null;
                 this.horario = null;
             });
