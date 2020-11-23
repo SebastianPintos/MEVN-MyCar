@@ -68,7 +68,6 @@
         </v-card>
     </v-dialog>
 
-    
     <v-dialog v-model="checkConfirm" max-width="300px">
         <v-card>
             <v-card-title>Confirmación</v-card-title>
@@ -88,7 +87,6 @@
         </v-card>
     </v-dialog>
 
-
     <v-dialog v-model="nuevoTurno" max-width="400px">
         <v-card>
             <v-card-title>
@@ -101,7 +99,7 @@
                             <template v-slot:activator="{ on, attrs }">
                                 <v-text-field v-model="date" label="Día" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                             </template>
-                            <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)" min="1950-01-01" @change="save"></v-date-picker>
+                            <v-date-picker ref="picker" v-model="date" :max="new Date().toISOString().substr(0, 10)" min="2020-01-01" @change="save"></v-date-picker>
                         </v-menu>
                     </v-col>
                     <v-col cols="12" md="6">
@@ -111,10 +109,10 @@
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
-                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=false">
+                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="calcularHorarios">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on">
+                    <v-btn color="info" dark class="mb-2" v-bind="attrs" v-on="on" @click="crearReserva">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
@@ -122,7 +120,7 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-if="consulta==false" v-model="info" max-width="500px">
+    <v-dialog v-if="consulta==false & cliente!=null" v-model="info" max-width="500px">
         <v-card>
             <v-flex class="text-center">
                 <v-card-title>
@@ -135,13 +133,13 @@
                     <p>{{sucursal}}</p>
 
                     <h3>Vehículo: </h3>
-                    <p>{{cliente.vehiculo.Brand}}-{{cliente.vehiculo.Model}}-{{cliente.vehiculo.year}}</p>
+                    <p>{{cliente.vehiculo.Brand}}-{{cliente.vehiculo.Model}}-{{cliente.vehiculo.year}}-{{domain}}</p>
 
                     <h3>Duración: </h3>
                     <p>{{detalle.tiempoTotal}}</p>
 
                     <h3>Precio: </h3>
-                    <p>{{detalle.tiempoTotal}}</p>
+                    <p>{{detalle.total}}</p>
 
                     <h3>Descuentos: </h3>
                     <p>N/A</p>
@@ -203,24 +201,25 @@ import axios from "axios"
 export default {
     created() {
         let direccionActual = String(location.href);
+
         if (direccionActual.includes("/turno")) {
             this.consulta = false;
 
             let sucursal = JSON.parse(localStorage.getItem("sucursal"));
             let carrito = JSON.parse(localStorage.getItem("carrito"));
             let cliente = JSON.parse(localStorage.getItem("cliente"));
-            //console.log("carrito: " + carrito);
-            //console.log("carrito: " + JSON.stringify(carrito));
+          
             if (carrito != null) {
                 this.detalle = carrito;
             };
             if (cliente != null) {
                 this.cliente = cliente;
+                this.domain = this.cliente.domain;
             };
             if (sucursal != null) {
                 this.getReservas(sucursal._id);
                 this.sucursal = sucursal.Name;
-            }
+            };
 
         } else {
             this.consulta = true;
@@ -229,14 +228,14 @@ export default {
         this.getSucursales();
         this.getClientes();
         this.getVehiculo();
-
     },
     data: () => ({
         consulta: false,
         deleteConfirm: false,
         checkConfirm: false,
-        cliente: {},
+        cliente: null,
         clientes: [],
+        domain: "",
         vehiculo: {},
         vehicles: [],
         sucursal: '',
@@ -321,7 +320,7 @@ export default {
             let today = new Date();
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice == sucursal & new Date(reserva.AppointmentTime)>=today);
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice == sucursal & new Date(reserva.AppointmentTime) >= today);
                     this.getEvents();
                 });
         },
@@ -331,11 +330,22 @@ export default {
                     this.sucursales = res.data.branchOffice.filter(aBranchOffice => aBranchOffice.Status === "ACTIVE")
                 });
         },
-        async getClientes() {
-            await axios.get('http://localhost:8081/client')
+        getClientes() {
+            axios.get('http://localhost:8081/client')
                 .then(res => {
-                    this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                    this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE");
+                    /*f (this.consulta==false && this.cliente != null) {
+                        let id = this.cliente.cliente;
+                        if (this.clientes != null) {
+                            let objCliente = this.clientes.filter(c => c._id == id);
+                             console.log("VEHICULOS: "+objCliente.Vehicle+JSON.stringify(objCliente));
+                            console.log(this.cliente);*/
+                    //if(objCliente!=null){
+                    //   objCliente.Vehicle.filter(v=> v.VehicleID == this.cliente.vehiculo._id);
+                    //   this.domain = objCliente!=null ? objCliente.Domain: "";
+                    //}
                 });
+
         },
 
         async getVehiculo() {
@@ -349,7 +359,7 @@ export default {
             await axios.delete('http://localhost:8081/reservation/' + event.id + '/delete');
         },
 
-         async eliminarReserva(event) {
+        async eliminarReserva(event) {
             await axios.delete('http://localhost:8081/reservation/' + event.id + '/cancel');
             this.events.splice(this.events.indexOf(event), 1)
         },
@@ -363,9 +373,9 @@ export default {
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
                 let descripcion = "<h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5><br>";
                 this.reservas[i].Service.forEach(s => {
-                    descripcion += "<p>"+s.Description + "</p><br>";
+                    descripcion += "<p>" + s.Description + "</p><br>";
                 })
-               events.push({
+                events.push({
                     name: "-" + hasta.getHours() + ":" + sMinutesHasta + " Reservado",
                     start: desde.getTime(),
                     end: hasta,
@@ -399,8 +409,8 @@ export default {
         },
         aplicarFiltros() {
             this.getAllReservas();
-            this.events=[];
-            this.reservas = this.reservas.filter(r => r.Status=="ACTIVE");
+            this.events = [];
+            this.reservas = this.reservas.filter(r => r.Status == "ACTIVE");
             if (!this.filtroSucursal && !this.vehiculo && !this.filtroCliente) {
                 return;
             }
@@ -429,8 +439,55 @@ export default {
             let today = new Date();
             await axios.get('http://localhost:8081/reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime)>=today);
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime) >= today);
                 });
+        },
+        crearReserva() {
+            console.log("Creando reserva");
+        },
+        calcularHorarios() {
+            this.nuevoTurno = false;
+            /*     let reservation = {
+                     "reservation": {
+                         "Duration": this.carrito.tiempoTotal,
+                         "Price": this.carrito.total,
+                         "Status": "ACTIVE",
+                         Domain: {
+                             type: String
+                         },
+                         AppointmentTime: {
+                             type: Date
+                         },
+                         Client: {
+                             type: Schema.Types.ObjectId,
+                             required: true,
+                             ref: 'Client'
+                         },
+                         BranchOffice: {
+                             type: Schema.Types.ObjectId,
+                             ref: 'BranchOffice'
+                         },
+                         Details: {
+                             type: String
+                         },
+                         Service: [{
+                             type: Schema.Types.ObjectId,
+                             required: true,
+                             ref: 'Service'
+                         }],
+                         Vehicle: {
+                             VehicleID: {
+                                 type: Schema.Types.ObjectId,
+                                 ref: 'Vehicle'
+                             },
+                             Domain: {
+                                 type: String
+                             }
+                         }
+
+                     }
+                 }
+                 router.post('/reservation/checkHour', reservation.checkHour);*/
         },
     },
     watch: {

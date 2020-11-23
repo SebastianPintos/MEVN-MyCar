@@ -160,6 +160,7 @@ import axios from "axios";
 export default {
 
     data: () => ({
+        Domain: "",
         cliente: {},
         tabla: false,
         aceptado: false,
@@ -284,6 +285,7 @@ export default {
         },
 
         async getServicios() {
+            //localStorage.clear();
             let servicios = [];
             let servicioAGuardar = {};
             let cont = 0;
@@ -428,101 +430,114 @@ export default {
 
                 localStorage.removeItem("carrito");
                 localStorage.setItem("carrito", JSON.stringify({
-                        "ids": this.carritoCompleto.ids,
-                        "serviciosCarrito": this.carritoCompleto.serviciosCarrito,
-                        "totalRepuestos": this.carritoCompleto.totalRepuestos,
-                        "totalManoDeObra": this.carritoCompleto.totalManoDeObra,
-                        "total": this.carritoCompleto.total,
-                        "tiempoTotal": this.carritoCompleto.tiempoTotal
-                    }));
+                    "ids": this.carritoCompleto.ids,
+                    "serviciosCarrito": this.carritoCompleto.serviciosCarrito,
+                    "totalRepuestos": this.carritoCompleto.totalRepuestos,
+                    "totalManoDeObra": this.carritoCompleto.totalManoDeObra,
+                    "total": this.carritoCompleto.total,
+                    "tiempoTotal": this.carritoCompleto.tiempoTotal
+                }));
 
+            }
+            console.log("CARRITO: " + this.carritoCompleto);
+        },
+
+        mostrarCarrito() {
+            this.calcularCarrito();
+            this.dialogCarrito = true;
+        },
+
+        timeConvert(n) {
+            var minutes = n % 60
+            var hours = (n - minutes) / 60
+            return ("" + hours + " horas, " + minutes + " minutos");
+        },
+
+        aplicarFiltros(marca, modelo, año) {
+            marca = marca == null ? "" : marca;
+            modelo = modelo == null ? "" : modelo;
+            año = año == null ? "" : año;
+            console.log("Marca " + JSON.stringify(marca) + " modelo: " + JSON.stringify(modelo) + " año " + JSON.stringify(año));
+
+            if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
+                return
+            }
+
+            let filtrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice);
+            filtrados.forEach(servicio => {
+                if (servicio.Vehicle == null) {
+                    this.serviciosFiltrados.push(servicio);
+                } else {
+                    let añoServicio = servicio.Vehicle.year == null ? "" : servicio.Vehicle.year;
+                    let modeloServicio = servicio.Vehicle.Model == null ? "" : servicio.Vehicle.Model;
+                    let marcaServicio = servicio.Vehicle.Brand == null ? "" : servicio.Vehicle.Brand;
+                    if (añoServicio == año && modeloServicio == modelo && marcaServicio == marca) {
+                        this.serviciosFiltrados.push(servicio);
+                    }
                 }
-            },
+            })
+        },
 
-            mostrarCarrito() {
-                    this.calcularCarrito();
-                    this.dialogCarrito = true;
-                },
+        reiniciarFiltros() {
+            this.filtros = [{
+                BranchOffice: '',
+                Brand: '',
+                Model: '',
+                year: '',
+            }]
+            this.serviciosFiltrados = this.servicios
+        },
 
-                timeConvert(n) {
-                    var minutes = n % 60
-                    var hours = (n - minutes) / 60
-                    return ("" + hours + " horas, " + minutes + " minutos");
-                },
+        descartarCarrito() {
+            this.carritoCompleto = this.defaultCarritoCompleto;
+            this.deleteCarritoConfirm = false;
+            this.dialogCarrito = false;
+            for (let i = 0; i < this.servicios.length; i++) {
+                this.servicios[i].carrito = false;
+                let item = JSON.parse(localStorage.getItem(String(i)));
+                if (item != null) {
+                    item.carrito = false;
+                    localStorage.setItem(String(i), JSON.stringify(item));
+                }
+            }
+        },
 
-                aplicarFiltros(marca, modelo, año) {
-                    marca = marca == null ? "" : marca;
-                    modelo = modelo == null ? "" : modelo;
-                    año = año == null ? "" : año;
-                    console.log("Marca " + JSON.stringify(marca) + " modelo: " + JSON.stringify(modelo) + " año " + JSON.stringify(año));
+        aceptarCarrito() {
+            this.elegirCliente = true;
+        },
 
-                    if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
-                        return
-                    }
-
-                    let filtrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice);
-                    filtrados.forEach(servicio => {
-                        if (servicio.Vehicle == null) {
-                            this.serviciosFiltrados.push(servicio);
-                        } else {
-                            let añoServicio = servicio.Vehicle.year == null ? "" : servicio.Vehicle.year;
-                            let modeloServicio = servicio.Vehicle.Model == null ? "" : servicio.Vehicle.Model;
-                            let marcaServicio = servicio.Vehicle.Brand == null ? "" : servicio.Vehicle.Brand;
-                            if (añoServicio == año && modeloServicio == modelo && marcaServicio == marca) {
-                                this.serviciosFiltrados.push(servicio);
-                            }
-                        }
+        cambiarVehiculo(client) {
+            this.clientes.forEach(cliente => {
+                if (cliente._id == client) {
+                    cliente.Vehicle.forEach(vehiculo => {
+                        this.vehicles.push(vehiculo);
                     })
-                },
+                }
+            });
+        },
 
-                reiniciarFiltros() {
-                    this.filtros = [{
-                        BranchOffice: '',
-                        Brand: '',
-                        Model: '',
-                        year: '',
-                    }]
-                    this.serviciosFiltrados = this.servicios
-                },
-
-                descartarCarrito() {
-                    this.carritoCompleto = this.defaultCarritoCompleto;
-                    this.deleteCarritoConfirm = false;
-                    this.dialogCarrito = false;
-                    for (let i = 0; i < this.servicios.length; i++) {
-                        this.servicios[i].carrito = false;
-                        let item = JSON.parse(localStorage.getItem(String(i)));
-                        if (item != null) {
-                            item.carrito = false;
-                            localStorage.setItem(String(i), JSON.stringify(item));
-                        }
-                    }
-                },
-
-                aceptarCarrito() {
-                    this.elegirCliente = true;
-                },
-
-                cambiarVehiculo(client) {
-                    this.clientes.forEach(cliente => {
-                        if (cliente._id == client) {
-                            cliente.Vehicle.forEach(vehiculo => {
-                                this.vehicles.push(vehiculo);
-                            })
-                        }
-                    });
-                },
-
-                obtenerVehiculo() {
-                    axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
-                        .then(res => {
-                            this.vehicle = res.data.vehicle;
-                            this.filtros.Model = this.vehicle.Model;
-                            this.filtros.Brand = this.vehicle.Brand;
-                            this.filtros.year = this.vehicle.year;
+        obtenerVehiculo() {
+            axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
+                .then(res => {
+                        this.vehicle = res.data.vehicle;
+                        this.filtros.Model = this.vehicle.Model;
+                        this.filtros.Brand = this.vehicle.Brand;
+                        this.filtros.year = this.vehicle.year;
+                        this.clientes.forEach(cliente => {
+                            if (cliente._id == this.cliente) {
+                                cliente.Vehicle.forEach(vehiculo => {
+                                    if (vehiculo.VehicleID == this.vehiculo) {
+                                        this.Domain = vehiculo.Domain;
+                                    };
+                                })
+                            }});
+                            //this.Domain = this.clients.filter();
+                            //console.log("DOMINIO: "+this.cliente.Domain);
+                            //console.log("CLIENTE: "+this.cliente);
                             localStorage.setItem("cliente", JSON.stringify({
                                 "cliente": this.cliente,
                                 "vehiculo": this.vehicle,
+                                "domain": this.Domain,
                             }));
                             let sucursal = this.sucursales.filter(sucursal => sucursal.Name == this.filtros.BranchOffice);
                             if (sucursal != null) {
@@ -533,30 +548,30 @@ export default {
                             this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.year);
                         });
 
-                },
+                    },
 
-                guardarCliente() {
-                    this.obtenerVehiculo();
-                    //  this.aplicarFiltros();
-                },
-
-                validarDatos() {
-                    if (this.$refs.form.validate()) {
+                    guardarCliente() {
                         this.obtenerVehiculo();
+                        //  this.aplicarFiltros();
+                    },
 
-                        //this.aplicarFiltros();
-                        this.elegirCliente = false;
-                        this.tabla = true;
-                    }
-                },
+                    validarDatos() {
+                        if (this.$refs.form.validate()) {
+                            this.obtenerVehiculo();
 
-                corroborarService() {
-                    console.log("corroborando stock");
-                    location.href = "/turno";
-                },
+                            //this.aplicarFiltros();
+                            this.elegirCliente = false;
+                            this.tabla = true;
+                        }
+                    },
 
-        }
-    };
+                    corroborarService() {
+                        console.log("corroborando stock");
+                        location.href = "/turno";
+                    },
+
+                }
+        };
 </script>
 
 <style>
