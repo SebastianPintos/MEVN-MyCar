@@ -48,7 +48,7 @@
                             <h3>Servicio:</h3>
                             <p>Descripción: {{servicio.Description}}</p>
                             <p>Precio Mano de Obra: ${{servicio.LaborPrice}}</p>
-                            <p>Tiempo estimado en Minutos: {{servicio.Time}}</p>
+                            <p>Tiempo estimado {{servicio.Time}}</p>
                             <ol>
                                 <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
                                 <li v-for="(repuesto, j) in servicio.Product" :key="j">
@@ -59,7 +59,7 @@
                         </li>
                     </ol>
                     <h3>Tiempo Estimado Total:</h3>
-                    <p>{{defaultCarritoCompleto.tiempoTotal}}</p>
+                    <p>{{defaultCarritoCompleto.tiempoTotalString}}</p>
                     <h3>Subtotal Mano de Obra:</h3>
                     <p>${{carritoCompleto.totalManoDeObra}}</p>
                     <h3>Subtotal Repuestos:</h3>
@@ -184,6 +184,7 @@ export default {
             totalManoDeObra: "",
             totalRepuestos: "",
             tiempoTotal: "",
+            tiempoTotalString: "",
             total: "",
             ids: [],
             idsServ: [],
@@ -282,48 +283,35 @@ export default {
             this.getSucursales();
             this.getClientes();
             this.getVehiculo();
-            this.obtenerDeLocalStorage();
+            // this.obtenerDeLocalStorage();
         },
 
         async getServicios() {
             //localStorage.clear();
             let servicios = [];
             let servicioAGuardar = {};
-            let cont = 0;
+         //   let cont = 0;
             await axios.get('http://localhost:8081/service')
                 .then(res => {
                     servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
-                    if (servicios != null) {
-                        for (let i = 0; i < servicios.length; i++) {
-                            if (servicios[i].BranchOffice.length > 0) {
-                                servicios[i].BranchOffice.forEach(sucursal => {
-                                    let item = JSON.parse(localStorage.getItem(String(i)));
-                                    let carrito = false;
-                                    if (item != null) {
-                                        if (item._idTabla == servicios[i]._id + sucursal._id) {
-                                            carrito = item.carrito;
-                                        }
-                                    }
+                    servicios.forEach(servicio => {
+                            servicio.BranchOffice.forEach(sucursal => {
                                     servicioAGuardar = {
-                                        "_id": servicios[i]._id,
-                                        "_idTabla": servicios[i]._id + sucursal._id,
-                                        "Description": servicios[i].Description,
-                                        "LaborPrice": servicios[i].LaborPrice,
-                                        "Time": servicios[i].Time,
-                                        "Vehicle": servicios[i].Vehicle,
+                                        "_id": servicio._id,
+                                        "_idTabla": servicio._id + sucursal._id,
+                                        "Description": servicio.Description,
+                                        "LaborPrice": servicio.LaborPrice,
+                                        "Time": servicio.Time,
+                                        "Vehicle": servicio.Vehicle,
                                         "BranchOffice": sucursal,
-                                        "Product": servicios[i].Product,
-                                        "carrito": carrito,
+                                        "Product": servicio.Product,
+                                        "carrito": false,
                                     };
-                                    localStorage.setItem(String(cont), JSON.stringify(servicioAGuardar));
-                                    cont++;
-                                })
-
-                            }
-                        }
-                    }
-                })
-            localStorage.setItem("length", cont);
+                                    this.servicios.push(servicioAGuardar);
+                                    this.serviciosFiltrados.push(servicioAGuardar);
+                                });
+                            });
+                        });
         },
 
         async getSucursales() {
@@ -363,22 +351,12 @@ export default {
             let seleccionado = this.servicios.indexOf(item);
             if (seleccionado != -1) {
                 this.servicios[seleccionado].carrito = true;
-                let item = JSON.parse(localStorage.getItem(String(seleccionado)));
-                if (item != null) {
-                    item.carrito = true;
-                    localStorage.setItem(String(seleccionado), JSON.stringify(item));
-                }
             }
         },
         eliminarDelCarrito(item) {
             let seleccionado = this.servicios.indexOf(item);
             if (seleccionado != -1) {
                 this.servicios[seleccionado].carrito = false;
-                let item = JSON.parse(localStorage.getItem(String(seleccionado)));
-                if (item != null) {
-                    item.carrito = false;
-                    localStorage.setItem(String(seleccionado), JSON.stringify(item));
-                }
             }
         },
         calcularCarrito() {
@@ -391,14 +369,14 @@ export default {
             this.carritoCompleto = this.defaultCarritoCompleto;
             if (this.serviciosFiltrados.length > 0) {
                 this.serviciosFiltrados.forEach(servicio => {
-                    if (servicio.carrito==true) {
+                    if (servicio.carrito == true) {
                         this.servicioEnCarrito.Description = servicio.Description;
                         this.servicioEnCarrito.Time = servicio.Time;
                         this.servicioEnCarrito.LaborPrice = servicio.LaborPrice;
                         sumaTiempo += servicio.Time;
                         sumaTrabajo += servicio.LaborPrice;
                         ids.push(this.servicios.indexOf(servicio));
-                        console.log("SERVICIOS: "+servicio._id);
+                        console.log("SERVICIOS: " + servicio._id);
                         idsServ.push(servicio._id);
                         if (servicio.Product != null & servicio.Product.length > 0) {
                             servicio.Product.forEach(product => {
@@ -418,10 +396,10 @@ export default {
                             Product: [],
                         };
                         servicioEnCarrito.Description = this.servicioEnCarrito.Description;
-                        servicioEnCarrito.Time = this.servicioEnCarrito.Time;
+                        servicioEnCarrito.Time = this.timeConvert(this.servicioEnCarrito.Time);
                         servicioEnCarrito.LaborPrice = this.servicioEnCarrito.LaborPrice;
                         servicioEnCarrito.Product = this.servicioEnCarrito.Product;
-                       // servicioEnCarrito.idsServ = idsServ;
+                        // servicioEnCarrito.idsServ = idsServ;
                         servicioEnCarrito.ids = ids;
                         detalleCarrito.push(servicioEnCarrito);
                     }
@@ -434,7 +412,8 @@ export default {
                 this.carritoCompleto.total = sumaTrabajo + sumaProductos;
                 //time convert suma tiempo
                 this.carritoCompleto.tiempoTotal = sumaTiempo;
-                this.carritoCompleto.idsServ= idsServ;
+                this.carritoCompleto.tiempoTotalString = this.timeConvert(sumaTiempo);
+                this.carritoCompleto.idsServ = idsServ;
                 localStorage.removeItem("carrito");
                 localStorage.setItem("carrito", JSON.stringify({
                     "ids": ids,
@@ -457,9 +436,7 @@ export default {
             if (time != null) {
                 var min = time % 60;
                 var hs = (time - min) / 60;
-                min = String(min).length == 1 ? "0" + min : min;
-                hs = String(hs).length == 1 ? "0" + hs : hs;
-                return "" + hs + ":" + min;
+                return "" + hs + "horas, " + min+" minutos";
             }
             return "";
         },
@@ -529,59 +506,60 @@ export default {
         obtenerVehiculo() {
             axios.get('http://localhost:8081/vehicle/' + this.vehiculo)
                 .then(res => {
-                        this.vehicle = res.data.vehicle;
-                        this.filtros.Model = this.vehicle.Model;
-                        this.filtros.Brand = this.vehicle.Brand;
-                        this.filtros.year = this.vehicle.year;
-                        this.clientes.forEach(cliente => {
-                            if (cliente._id == this.cliente) {
-                                cliente.Vehicle.forEach(vehiculo => {
-                                    if (vehiculo.VehicleID == this.vehiculo) {
-                                        this.Domain = vehiculo.Domain;
-                                    };
-                                })
-                            }});
-                            //this.Domain = this.clients.filter();
-                            //console.log("DOMINIO: "+this.cliente.Domain);
-                            //console.log("CLIENTE: "+this.cliente);
-                            localStorage.setItem("cliente", JSON.stringify({
-                                "cliente": this.cliente,
-                                "vehiculo": this.vehicle,
-                                "domain": this.Domain,
-                            }));
-                            let sucursal = this.sucursales.filter(sucursal => sucursal.Name == this.filtros.BranchOffice);
-                            if (sucursal != null) {
-                                localStorage.removeItem("sucursal");
-                                localStorage.setItem("sucursal", JSON.stringify(sucursal[0]));
-                            }
-                            this.serviciosFiltrados = [];
-                            this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.year);
-                        });
-
-                    },
-
-                    guardarCliente() {
-                        this.obtenerVehiculo();
-                        //  this.aplicarFiltros();
-                    },
-
-                    validarDatos() {
-                        if (this.$refs.form.validate()) {
-                            this.obtenerVehiculo();
-
-                            //this.aplicarFiltros();
-                            this.elegirCliente = false;
-                            this.tabla = true;
+                    this.vehicle = res.data.vehicle;
+                    this.filtros.Model = this.vehicle.Model;
+                    this.filtros.Brand = this.vehicle.Brand;
+                    this.filtros.year = this.vehicle.year;
+                    this.clientes.forEach(cliente => {
+                        if (cliente._id == this.cliente) {
+                            cliente.Vehicle.forEach(vehiculo => {
+                                if (vehiculo.VehicleID == this.vehiculo) {
+                                    this.Domain = vehiculo.Domain;
+                                };
+                            })
                         }
-                    },
+                    });
+                    //this.Domain = this.clients.filter();
+                    //console.log("DOMINIO: "+this.cliente.Domain);
+                    //console.log("CLIENTE: "+this.cliente);
+                    localStorage.setItem("cliente", JSON.stringify({
+                        "cliente": this.cliente,
+                        "vehiculo": this.vehicle,
+                        "domain": this.Domain,
+                    }));
+                    let sucursal = this.sucursales.filter(sucursal => sucursal.Name == this.filtros.BranchOffice);
+                    if (sucursal != null) {
+                        localStorage.removeItem("sucursal");
+                        localStorage.setItem("sucursal", JSON.stringify(sucursal[0]));
+                    }
+                    this.serviciosFiltrados = [];
+                    this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.year);
+                });
 
-                    corroborarService() {
-                        console.log("corroborando stock");
-                        location.href = "/turno";
-                    },
+        },
 
-                }
-        };
+        guardarCliente() {
+            this.obtenerVehiculo();
+            //  this.aplicarFiltros();
+        },
+
+        validarDatos() {
+            if (this.$refs.form.validate()) {
+                this.obtenerVehiculo();
+
+                //this.aplicarFiltros();
+                this.elegirCliente = false;
+                this.tabla = true;
+            }
+        },
+
+        corroborarService() {
+            console.log("corroborando stock");
+            location.href = "/turno";
+        },
+
+    }
+};
 </script>
 
 <style>

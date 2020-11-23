@@ -136,7 +136,7 @@
                     <p>{{cliente.vehiculo.Brand}}-{{cliente.vehiculo.Model}}-{{cliente.vehiculo.year}}-{{domain}}</p>
 
                     <h3>Duración: </h3>
-                    <p>{{detalle.tiempoTotal}}</p>
+                    <p>{{detalle.tiempoTotalString}}</p>
 
                     <h3>Precio: </h3>
                     <p>{{detalle.total}}</p>
