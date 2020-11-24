@@ -147,9 +147,6 @@
                     <h3>Precio: </h3>
                     <p>{{detalle.total}}</p>
 
-                    <h3>Descuentos: </h3>
-                    <p>N/A</p>
-
                     <h3>Fecha y Hora de Reserva: </h3>
                     <p v-if="horaReserva!=null">{{horaReserva}}</p>
                     <p v-else>Aún no Reservado</p>
