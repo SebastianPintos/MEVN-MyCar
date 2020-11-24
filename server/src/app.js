@@ -21,7 +21,9 @@ var db = mongodb_conn_module.connect();
 └───────────────────────── second (0 - 59, OPTIONAL)*/
 
 //Cada hora, de lunes a viernes 0 */1 * * 1-5
-schedule.scheduleJob('*/5 * * * * *', cronJob.twoDayRemainder);
+schedule.scheduleJob('*/5 * * * * *', cronJob.EmailRemainder1);
+//schedule.scheduleJob('*/5 * * * * *', cronJob.EmailRemainder2);
+
 
 //Starting Server
 //app.listen(process.env.PORT || 8081)

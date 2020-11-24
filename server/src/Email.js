@@ -55,8 +55,8 @@ ctrl.Prueba = (req, res) => {
     });
 }
 
-ctrl.ReservationConfirm = (req, res) => {
-    const datosReserva = "Datos sobre la reserva: \n";
+ctrl.sendEmail = (email, title, body) => {
+    /* const datosReserva = "Datos sobre la reserva: \n";
     var id = req.params.reservation_id;
     var mailClient = '';
     Reservation.findOne({_id: id}, (err, reservation) => {
@@ -81,15 +81,15 @@ ctrl.ReservationConfirm = (req, res) => {
                 datosReserva += reservation.Duration + "\n";
             }
         }
-    });
+    }); */
 
-    sendMail(mailClient,"Confirmacion Reserva", datosReserva, function(err, data) {
+    sendMail(email,title, body, function(err, data) {
         if (err) {
             console.log('ERROR: ', err);
-            return res.status(500).json({ message: err.message || 'Internal Error' });
+            //return res.status(500).json({ message: err.message || 'Internal Error' });
         }
         console.log('Email sent!!!');
-        return res.json({ message: 'Email sent!!!!!' });
+        //return res.json({ message: 'Email sent!!!!!' });
     });
 }
 

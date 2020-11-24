@@ -33,7 +33,9 @@ ctrl.create = async (req, res) => {
             BranchOffice: body.BranchOffice,
             Details: body.Details,
             Service: body.Service,
-            Vehicle: body.Vehicle
+            Vehicle: body.Vehicle,
+            Remainder1: false,
+            Remainder2: false,
         });
     
         reservation.save((err) => {
