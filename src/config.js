@@ -6,7 +6,7 @@ const routes = require('../routes/index');
 module.exports = app => {
    
     //settings
-    app.set('port', process.env.PORT || 8081);
+    app.set('port', process.env.PORT || 3000);
 
     //Middlewares
     app.use((req, res, next) => {
