@@ -101,7 +101,7 @@
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-text-field v-model="date" label="Día" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                                 </template>
-                                <v-date-picker ref="picker" v-model="date" min="2020-01-01" @change="save" :rules="requerido"></v-date-picker>
+                                <v-date-picker ref="picker" v-model="date" :weekdays="[1, 2, 3, 4, 5, 6, 0]" locale="es" min="2020-11-23" @change="save" :rules="requerido"></v-date-picker>
                             </v-menu>
                         </v-col>
                         <v-col cols="12" md="6">
@@ -311,6 +311,7 @@ export default {
                 value: [1, 3, 5]
             },
         ],
+        today : new Date(),
         value: '',
         colors: ['grey'],
         detalle: {},
@@ -353,10 +354,9 @@ export default {
             }
         },
         async getReservas(sucursal) {
-            let today = new Date();
             await axios.get(urlAPI + 'reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice._id == sucursal & new Date(reserva.AppointmentTime) >= today & reserva.Client != null);
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & reserva.BranchOffice._id == sucursal & new Date(reserva.AppointmentTime) >= this.today & reserva.Client != null);
                     this.getEvents();
                 });
         },
@@ -539,10 +539,9 @@ export default {
             this.getAllReservas()
         },
         async getAllReservas() {
-            let today = new Date();
             await axios.get(urlAPI + 'reservation')
                 .then(res => {
-                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime) >= today);
+                    this.reservas = res.data.reservation.filter(reserva => reserva.Status === "ACTIVE" & new Date(reserva.AppointmentTime) >= this.today);
                 });
         },
         validate() {

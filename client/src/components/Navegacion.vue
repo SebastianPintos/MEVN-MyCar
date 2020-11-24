@@ -80,12 +80,19 @@
                     </v-list-item-icon>
                     <v-list-item-title>Sucursales</v-list-item-title>
                 </v-list-item>
+                  <v-list-item :to="'/mails'">
+                    <v-list-item-icon>
+                        <v-icon>mdi-email-multiple</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Conf. Mails</v-list-item-title>
+                </v-list-item>
                 <v-list-item :to="'/empleados'">
                     <v-list-item-icon>
                         <v-icon>mdi-account-tie </v-icon>
                     </v-list-item-icon>
                     <v-list-item-title>Empleados</v-list-item-title>
                 </v-list-item>
+                
             </v-list-group>
 
             <v-list-item :to="'/servicios'">

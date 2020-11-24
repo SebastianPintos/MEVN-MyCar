@@ -107,6 +107,16 @@ const routes = [
       import(/* webpackChunkName: "servicios" */ "../views/Servicios.vue"),
     meta: { title: 'Servicios' }
   },
+  {
+    path: "/mails",
+    name: "Mails",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "servicios" */ "../views/Mails.vue"),
+    meta: { title: 'Configuración Mails' }
+  },
 
 ];
 
