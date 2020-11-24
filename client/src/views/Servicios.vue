@@ -73,7 +73,7 @@
                                                 <v-text-field v-model="editedItem.LaborPrice" prefix="$" label="Precio mano de obra" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Time" label="Tiempo en minutos" :rules="requerido"></v-text-field>
+                                                <v-text-field type="number" v-model="editedItem.Time" label="Tiempo en minutos" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="12">
                                                 <v-select v-model="editedItem.BranchOffice" label="Sucursal" multiple chips deletable-chips :items="sucursales" item-text="Name" item-value="_id" :rules="requerido"></v-select>
