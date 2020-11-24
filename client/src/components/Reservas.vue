@@ -536,7 +536,8 @@ export default {
                 this.getReservas(this.filtroSucursal);
                 this.sucursal = this.sucursales.filter(s => s._id == this.filtroSucursal);
                 if(this.sucursal!=null){
-                    this.nombreSucursal = this.sucursal[0].Name;
+                    this.sucursal = this.sucursal[0];
+                    this.nombreSucursal = this.sucursal.Name;
                 }
                 
             }
