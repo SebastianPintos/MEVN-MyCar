@@ -145,7 +145,7 @@ ctrl.pruebas = async (req, res) => {
 ctrl.checkHour = async (req, res) => {
     var body = req.body.reservation;
     var occupied = await helper.checkReservationTime(body);
-    res.send({occupied});
+    res.send({occupied}); 
 }
 
 
