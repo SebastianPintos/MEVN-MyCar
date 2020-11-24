@@ -39,7 +39,7 @@
     <v-dialog v-model="dialogCarrito" max-width="600px">
         <v-card>
             <v-card-title>
-                <h2>Dettalle del Carrito</h2>
+                <h2>Detalle del Carrito</h2>
             </v-card-title>
             <v-card-text>
                 <v-container>
