@@ -30,7 +30,7 @@
         </template>
 
         <template v-slot:no-data>
-            <v-btn color="primary" @click="elegirCliente = true">
+            <v-btn color="primary" @click="tabla=false; elegirCliente = true;">
                 Volver
             </v-btn>
         </template>
