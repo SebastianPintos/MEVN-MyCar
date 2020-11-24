@@ -42,7 +42,7 @@
                 <v-btn v-if="consulta==false" color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="info=true">
                     <v-icon>mdi-information-outline</v-icon>
                 </v-btn>
-                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=true">
+                <v-btn v-if="consulta==false" color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoTurno=true">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
             </v-flex>
