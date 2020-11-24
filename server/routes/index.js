@@ -69,14 +69,14 @@ module.exports = app => {
     router.post('/reservation/add', reservation.create);
     router.post('/reservation/:reservation_id/update', reservation.update);
     router.delete('/reservation/:reservation_id/delete', reservation.remove);
+
     router.delete('/reservation/:reservation_id/cancel', reservation.cancel);
     router.post('/reservation/checkProduct', reservation.checkProduct);
     router.post('/reservation/reserveproduct', reservation.reserveProduct);
     router.post('/reservation/checkHour', reservation.checkHour);
     
     router.post('/reservation/prueba', reservation.pruebas);
-
-    //router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
+    router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);
