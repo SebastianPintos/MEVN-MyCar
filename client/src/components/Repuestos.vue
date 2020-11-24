@@ -37,7 +37,7 @@
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field prefix="$" v-model="filtros.vDesde" label="Precio de Venta Desde"></v-text-field>
                                 </v-col>
-                                
+
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field prefix="$" v-model="filtros.vHasta" label="Precio de Venta Hasta"></v-text-field>
                                 </v-col>
@@ -116,10 +116,10 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="4" md="12">
-                                                <v-text-field v-model="editedItem.ShippingDealer"  label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
+                                                <v-text-field v-model="editedItem.ShippingDealer" label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
                                             </v-col>
 
-                                               <v-col cols="12" sm="4" md="12">
+                                            <v-col cols="12" sm="4" md="12">
                                                 <v-text-field v-model="editedItem.ShippingBranch" label="Tiempo de envío Proveedor (días)" :rules="requerido"></v-text-field>
                                             </v-col>
 
@@ -222,19 +222,33 @@
 
                     <v-dialog v-model="dialogStock" max-width="500px">
                         <v-card>
-                          <h1 class="text-center">Stock</h1>
+                            <h1 class="text-center">Stock</h1>
                             <v-card-text>
-                            <h3 class="text-center">Disponibles</h3>
-                            <p class="text-center">{{disponibles}}</p>
-                            <h3 class="text-center">Reservados</h3>
-                            <p class="text-center">{{reservados}}</p>
-                            <h3 class="text-center">Fuera de Servicio</h3>
-                            <p class="text-center">{{fueraDeServicio}}</p>
-                                                        </v-card-text>
+                            <v-row>
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Disponibles:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled :label="disponibles"></v-text-field>
+                             </v-col></v-row>
+                             <v-row>
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Reservados:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled :label="reservados"></v-text-field>
+                             </v-col></v-row>
+                             <v-row>                             
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Fuera de Servicio:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled :label="fueraDeServicio"></v-text-field>
+                             </v-col></v-row>
+                            </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                              
-                                <v-btn text  class="success" @click="reiniciarStock">
+                                <v-btn text class="success" @click="reiniciarStock">
                                     <v-icon>mdi-check</v-icon>
                                 </v-btn>
                                 <v-spacer></v-spacer>
@@ -280,10 +294,10 @@ export default {
     data: () => ({
         selected: [],
         toggle_none1: null,
-        disponibles: 0,
-        reservados: 0,
+        disponibles: "0",
+        reservados: "",
+        fueraDeServicio: "",
         repuestosStock: [],
-        fueraDeServicio: 0,
         toggle_none2: null,
         search: '',
         valid: true,
@@ -376,8 +390,8 @@ export default {
             SKU: '',
             cDesde: '',
             cHasta: '',
-            vDesde:'',
-            vHasta:'',
+            vDesde: '',
+            vHasta: '',
             Dealer: '',
             Status: '',
         }],
@@ -438,15 +452,15 @@ export default {
         async getProveedores() {
             await axios.get('http://localhost:8081/dealer')
                 .then(res => {
-                let dealersList = res.data.dealer;
-                if(dealersList!= null){
-                    dealersList.forEach(dealer => {
-                        if(dealer.Kind == "PRODUCT" && dealer.Status == "ACTIVE"){
-                            this.dealersList.push(dealer);
-                        }
-                    })
-                }
-            })
+                    let dealersList = res.data.dealer;
+                    if (dealersList != null) {
+                        dealersList.forEach(dealer => {
+                            if (dealer.Kind == "PRODUCT" && dealer.Status == "ACTIVE") {
+                                this.dealersList.push(dealer);
+                            }
+                        })
+                    }
+                })
         },
 
         async getRepuestos() {
@@ -461,8 +475,8 @@ export default {
                 })
         },
 
-        async getrepuestosStock() {
-            await axios.get('http://localhost:8081/productStock')
+         getrepuestosStock() {
+            axios.get('http://localhost:8081/productStock')
                 .then(res => {
                     let repuestosStock = res.data.productStock;
                     if (repuestosStock != null) {
@@ -507,30 +521,35 @@ export default {
             }
         },
         controlarStock() {
+            let auxDisp = 0;
+            let auxReservados = 0;
+            let auxFueraServ = 0;
             if (this.selected.length != 1) {
                 this.snackbar = true;
                 this.mensaje = "Sólo puede corroborar un elemento a la vez!";
                 return;
             }
             this.getrepuestosStock();
-            if(this.repuestosStock==null){
-                this.disponibles = 0;
-                this.reservados = 0;
-                this.fueraDeServicio = 0;
+            if (this.repuestosStock == null) {
+                this.disponibles = "0";
+                this.reservados = "0";
+                this.fueraDeServicio = "0";
                 return;
             }
             this.repuestosStock.forEach(repuesto => {
-                if(repuesto.Product._id === this.selected[0]._id){
-                    this.disponibles+=repuesto.Available;
-                    this.reservados+=repuesto.Reserved;
-                    this.fueraDeServicio+=repuesto.OutOfService;
-                   
+                if (repuesto.Product._id === this.selected[0]._id) {
+                    auxDisp += repuesto.Available;
+                    auxReservados += repuesto.Reserved;
+                    auxFueraServ += repuesto.OutOfService;
                 }
             });
-           this.dialogStock = true;
+            this.reservados = String(auxReservados);
+            this.disponibles = String(auxDisp);
+            this.fueraDeServicio = String(auxFueraServ);
+            this.dialogStock = true;
         },
 
-        reiniciarStock(){
+        reiniciarStock() {
             this.disponibles = 0;
             this.reservados = 0;
             this.fueraDeServicio = 0;
@@ -608,10 +627,10 @@ export default {
                 SubCategoryMatches = SubCategory ? this.repuestos[i].SubCategory === this.filtros.SubCategory : SubCategoryMatches
                 CategoryMatches = Category ? this.repuestos[i].Category === this.filtros.Category : CategoryMatches
                 SKUMatches = SKU ? this.repuestos[i].SKU === this.filtros.SKU : SKUMatches
-               
+
                 cDesdeMatches = cDesde ? parseFloat(this.repuestos[i].LastPurchasePrice) >= parseFloat(this.filtros.cDesde) : cDesdeMatches
                 vDesdeMatches = vDesde ? parseFloat(this.repuestos[i].SalePrice) >= parseFloat(this.filtros.vDesde) : vDesdeMatches
-               
+
                 cHastaMatches = cHasta ? parseFloat(this.repuestos[i].LastPurchasePrice) <= parseFloat(this.filtros.cHasta) : cHastaMatches
                 vHastaMatches = vHasta ? parseFloat(this.repuestos[i].SalePrice) <= parseFloat(this.filtros.vHasta) : vHastaMatches
                 StatusMatches = Status ? this.repuestos[i].Status === this.filtros.Status : StatusMatches
@@ -695,7 +714,7 @@ export default {
                     "Category": this.editedItem.Category,
                     "SubCategory": this.editedItem.SubCategory,
                     "Brand": this.editedItem.Brand,
-                     "ShippingDealer": this.editedItem.ShippingDealer,
+                    "ShippingDealer": this.editedItem.ShippingDealer,
                     "ShippingBranch": this.editedItem.ShippingBranch,
                     "SKU": this.editedItem.SKU,
                     "LastPurchasePrice": this.editedItem.LastPurchasePrice,
@@ -739,9 +758,9 @@ export default {
                         "Dealer": proveedor,
                         "Status": product.Status,
                         "Kind": "PRODUCT",
-                         "ShippingDealer": product.ShippingDealer,
+                        "ShippingDealer": product.ShippingDealer,
                         "ShippingBranch": product.ShippingBranch,
-                   
+
                     }
                 })
             })
