@@ -36,7 +36,7 @@
         </template>
     </v-data-table>
 
-    <v-dialog v-model="dialogCarrito" max-width="400px">
+    <v-dialog v-model="dialogCarrito" max-width="600px">
         <v-card>
             <v-card-title>
                 <h2>Dettalle del Carrito</h2>
@@ -45,27 +45,89 @@
                 <v-container>
                     <ol v-if="carritoCompleto!= null">
                         <li v-for="(servicio,index) in carritoCompleto.serviciosCarrito" :key="index">
-                            <h3>Servicio:</h3>
-                            <p>Descripción: {{servicio.Description}}</p>
-                            <p>Precio Mano de Obra: ${{servicio.LaborPrice}}</p>
-                            <p>Tiempo estimado {{servicio.Time}}</p>
-                            <ol>
-                                <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
-                                <li v-for="(repuesto, j) in servicio.Product" :key="j">
-                                    <p>Código del Producto: {{repuesto.Code}}</p>
-                                    <p>Precio del Producto: ${{repuesto.Price}}</p>
-                                </li>
-                            </ol>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled label="Servicios:"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="servicio.Description"></v-text-field>
+                                </v-col>
+                            </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Precio Mano de Obra:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled prefix="$" :value="servicio.LaborPrice"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled label="Duración Estimada:"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="servicio.Time"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+
+                                        <ol>
+                                            <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
+
+                                            <li v-for="(repuesto, j) in servicio.Product" :key="j">
+                                                <v-row>
+                                                    <v-col cols="12" md="6">
+                                                        <v-text-field disabled label="Código del Repuesto:"></v-text-field>
+                                                    </v-col>
+                                                    <v-col cols="12" md="6">
+                                                        <v-text-field disabled :value="repuesto.Code"></v-text-field>
+                                                    </v-col>
+                                                </v-row>
+                                               
+                                                    <v-row>
+                                                        <v-col cols="12" md="6">
+                                                            <v-text-field disabled label="Precio del Repuesto:"></v-text-field>
+                                                        </v-col>
+                                                        <v-col cols="12" md="6">
+                                                            <v-text-field disabled prefix="$" :value="repuesto.Price"></v-text-field>
+                                                        </v-col>
+                                                    </v-row>
+                                             
+                                            </li>
+                                        </ol>
                         </li>
                     </ol>
-                    <h3>Tiempo Estimado Total:</h3>
-                    <p>{{defaultCarritoCompleto.tiempoTotalString}}</p>
-                    <h3>Subtotal Mano de Obra:</h3>
-                    <p>${{carritoCompleto.totalManoDeObra}}</p>
-                    <h3>Subtotal Repuestos:</h3>
-                    <p>${{carritoCompleto.totalRepuestos}}</p>
-                    <h3>Total:</h3>
-                    <p>${{carritoCompleto.total}}</p>
+                     <v-row>
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Tiempo Estimado Total:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled :value="defaultCarritoCompleto.tiempoTotalString"></v-text-field>
+                             </v-col></v-row>
+                           
+                              <v-row>
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled :value="carritoCompleto.totalManoDeObra"></v-text-field>
+                             </v-col></v-row>
+                           
+                              <v-row>
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Subtotal Repuestos:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled prefix="$" :value="carritoCompleto.totalRepuestos"></v-text-field>
+                             </v-col></v-row>
+                           
+                              <v-row>
+                            <v-col cols="12" md="6">
+                               <v-text-field disabled label="Total:"></v-text-field>
+                               </v-col>
+                            <v-col cols="12" md="6">  
+                                <v-text-field disabled prefix="$" :value="carritoCompleto.total"></v-text-field>
+                             </v-col></v-row>
+                           
                 </v-container>
             </v-card-text>
             <v-card-actions>
@@ -289,7 +351,7 @@ export default {
         async getServicios() {
             let servicios = [];
             let servicioAGuardar = {};
-         //   let cont = 0;
+            //   let cont = 0;
             await axios.get(urlAPI + 'service')
                 .then(res => {
                     servicios = res.data.service.filter(aService => aService.Status === "ACTIVE");
@@ -420,7 +482,7 @@ export default {
                     "total": this.carritoCompleto.total,
                     "tiempoTotal": this.carritoCompleto.tiempoTotal
                 }));
-               // console.log(this.carritoCompleto);
+                // console.log(this.carritoCompleto);
 
             }
         },
