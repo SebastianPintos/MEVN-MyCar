@@ -101,7 +101,7 @@
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-text-field v-model="date" label="Día" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                                 </template>
-                                <v-date-picker ref="picker" v-model="date" :weekdays="[1, 2, 3, 4, 5, 6, 0]" locale="es" min="2020-11-23" @change="save" :rules="requerido"></v-date-picker>
+                                <v-date-picker ref="picker" v-model="date" locale="es" min="2020-11-23" @change="save" :rules="requerido"></v-date-picker>
                             </v-menu>
                         </v-col>
                         <v-col cols="12" md="6">
@@ -226,6 +226,7 @@ export default {
 
             if (carrito != null) {
                 this.detalle = carrito;
+                console.log("TIEMPO: "+JSON.stringify(this.detalle));
             };
             if (cliente != null) {
                 this.cliente = cliente;
@@ -445,33 +446,49 @@ export default {
             let dia = new Date(date).getDay();
             if (this.sucursal != null) {
                 try {
+                    if(this.sucursal.Hours!=null){
                     if (dia == 0) {
+                        if(this.sucursal.Hours.Monday!=null){
                         horarios[0] = this.sucursal.Hours.Monday.Open;
                         horarios[1] = this.sucursal.Hours.Monday.Close;
+                        }
                     }
                     if (dia == 1) {
+                        if(this.sucursal.Hours.Tuesday!=null){
                         horarios[0] = this.sucursal.Hours.Tuesday.Open;
                         horarios[1] = this.sucursal.Hours.Tuesday.Close;
+                    } 
                     }
-                    if (dia == 2) {
+                   if (dia == 2) {
+                        if(this.sucursal.Hours.Wednesday!=null){
                         horarios[0] = this.sucursal.Hours.Wednesday.Open;
                         horarios[1] = this.sucursal.Hours.Wednesday.Close;
+                        }
                     }
                     if (dia == 3) {
+                        if(this.sucursal.Hours.Thrusday!=null){
                         horarios[0] = this.sucursal.Hours.Thrusday.Open;
                         horarios[1] = this.sucursal.Hours.Thrusday.Close;
+                        }
                     }
                     if (dia == 4) {
+                        if(this.sucursal.Hours.Friday!=null){
                         horarios[0] = this.sucursal.Hours.Friday.Open;
                         horarios[1] = this.sucursal.Hours.Friday.Close;
+                        }
                     }
                     if (dia == 5) {
+                        if(this.sucursal.Hours.Saturday!=null){
                         horarios[0] = this.sucursal.Hours.Saturday.Open;
                         horarios[1] = this.sucursal.Hours.Saturday.Close;
+                        }
                     }
                     if (dia == 6) {
+                        if(this.sucursal.Hours.Sunday!=null){
                         horarios[0] = this.sucursal.Hours.Sunday.Open;
                         horarios[1] = this.sucursal.Hours.Sunday.Close;
+                    }
+                    }
                     }
                     let horariosEnMin = this.calcularIntervalos(horarios);
                     if (horariosEnMin != null) {

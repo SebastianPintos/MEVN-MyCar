@@ -480,7 +480,8 @@ export default {
                     "totalRepuestos": sumaProductos,
                     "totalManoDeObra": sumaTrabajo,
                     "total": this.carritoCompleto.total,
-                    "tiempoTotal": this.carritoCompleto.tiempoTotal
+                    "tiempoTotal": this.carritoCompleto.tiempoTotal,
+                    "tiempoTotalString": this.carritoCompleto.tiempoTotalString
                 }));
                 // console.log(this.carritoCompleto);
 
