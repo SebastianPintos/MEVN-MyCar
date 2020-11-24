@@ -25,7 +25,9 @@ var ReservationSchema = new Schema({
   Vehicle: {
     VehicleID: {type: Schema.Types.ObjectId, ref: 'Vehicle'},
     Domain: {type: String}
-  }
+  },
+  Remainder1: {type: Boolean},
+  Remainder2: {type: Boolean},
 }, {timestamps: true});
 
 var reservation = mongoose.model('Reservation', ReservationSchema);

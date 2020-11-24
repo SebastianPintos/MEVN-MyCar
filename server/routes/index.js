@@ -11,6 +11,9 @@ const service = require('../controllers/services');
 const reservation = require('../controllers/reservation');
 const employee = require('../controllers/employee');
 const branchOffice = require('../controllers/branchOffice');
+const remainder = require('../controllers/remainder');
+
+const Email = require('../src/Email')
 
 module.exports = app => {
     router.get('/', home.index);
@@ -71,10 +74,13 @@ module.exports = app => {
     router.post('/reservation/reserveproduct', reservation.reserveProduct);
     router.post('/reservation/checkHour', reservation.checkHour);
     
-    
-    
     router.post('/reservation/prueba', reservation.pruebas);
-    
-  
+
+    //router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
+
+    router.get('/remainder', remainder.index);
+    router.post('/remainder/add', remainder.create);
+    router.post('/remainder/:remainder_id/update', remainder.update);
+
     app.use(router);
 }

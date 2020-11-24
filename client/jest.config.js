@@ -1,3 +1,3 @@
 module.exports = {
-  preset: "@shelf/jest-mongodb"
+  preset: "@vue/cli-plugin-unit-jest"
 };
