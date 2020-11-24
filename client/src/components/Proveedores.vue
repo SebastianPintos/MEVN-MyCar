@@ -314,7 +314,6 @@ export default {
 
                 this.formTitle = "Editar Proveedor";
                 this.dialog = true;
-                console.log("Item province: " + item.Address.Province);
                 try {
                     this.DealerProvince = item.Address.Province;
                     this.DealerStreet = item.Address.Street;

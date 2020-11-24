@@ -483,7 +483,6 @@ export default {
                     "tiempoTotal": this.carritoCompleto.tiempoTotal,
                     "tiempoTotalString": this.carritoCompleto.tiempoTotalString
                 }));
-                // console.log(this.carritoCompleto);
 
             }
         },
@@ -504,8 +503,7 @@ export default {
             marca = marca == null ? "" : marca;
             modelo = modelo == null ? "" : modelo;
             año = año == null ? "" : año;
-            console.log("Marca " + JSON.stringify(marca) + " modelo: " + JSON.stringify(modelo) + " año " + JSON.stringify(año));
-
+       
             if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
                 return
             }
@@ -579,9 +577,6 @@ export default {
                             })
                         }
                     });
-                    //this.Domain = this.clients.filter();
-                    //console.log("DOMINIO: "+this.cliente.Domain);
-                    //console.log("CLIENTE: "+this.cliente);
                     localStorage.setItem("cliente", JSON.stringify({
                         "cliente": this.cliente,
                         "vehiculo": this.vehicle,
@@ -614,7 +609,6 @@ export default {
         },
 
         corroborarService() {
-            console.log("corroborando stock");
             location.href = "/turno";
         },
 
