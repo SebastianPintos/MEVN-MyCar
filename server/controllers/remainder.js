@@ -48,14 +48,14 @@ ctrl.update = (req, res) => {
     Remainder.findOne({_id: id}, (err, remainder) => {
         if(err) {console.log(req.body.vehicle)}
         else{
-            if(!product) {console.log(' no se encontro')}
+            if(!remainder) {console.log(' no se encontro')}
             else{
                 remainder.Title = body.Title;
                 remainder.Body = body.Body;
                 remainder.Interval = body.Interval;
                 remainder.Status = body.Status;
 
-                remaider.save((err) => {
+                remainder.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
                         success: true
