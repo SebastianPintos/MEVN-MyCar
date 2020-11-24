@@ -1,7 +1,7 @@
 <template>
 <div>
     <!--Filtros-->
-    <template v-if="consulta">
+    <template>
         <v-expansion-panels>
             <v-expansion-panel>
                 <v-expansion-panel-header class="indigo darken-4 white--text">
@@ -12,15 +12,15 @@
                         <h2>Filtros</h2>
                         <v-row>
                             <v-col cols="12" md="4">
-                                <v-select label="Sucursal" v-model="filtroSucursal" :items="sucursales" item-text="Name" item-value="Name"></v-select>
+                                <v-select label="Sucursal" v-model="filtroSucursal" :items="sucursales" item-text="Name" item-value="_id"></v-select>
                             </v-col>
-                            <v-col cols="12" md="4">
+                            <v-col v-if="consulta==false" cols="12" md="4">
                                 <v-select label="ID del cliente" v-model="filtroCliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)"></v-select>
                             </v-col>
-                            <v-col cols="12" md="4">
+                            <v-col v-if="consulta==false" cols="12" md="4">
                                 <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="VehicleID"></v-select>
                             </v-col>
-                            <v-col cols="12" sm="6" md="6">
+                            <v-col v-if="consulta==false" cols="12" sm="6" md="6">
                                 <v-btn class="success" @click="aplicarFiltros">
                                     <v-icon>mdi-check</v-icon>
                                 </v-btn>
@@ -508,6 +508,7 @@ export default {
             });
         },
         aplicarFiltros() {
+            this.reservas = [];
             this.getAllReservas();
             this.events = [];
             this.reservas = this.reservas.filter(r => r.Status == "ACTIVE");
@@ -515,7 +516,12 @@ export default {
                 return;
             }
             if (this.filtroSucursal != "") {
-                this.reservas = this.reservas.filter(r => r.BranchOffice.Name == this.filtroSucursal);
+                this.getReservas(this.filtroSucursal);
+                this.sucursal = this.sucursales.filter(s => s._id == this.filtroSucursal);
+                if(this.sucursal!=null){
+                    this.nombreSucursal = this.sucursal[0].Name;
+                }
+                
             }
             if (this.filtroCliente != "") {
                 this.reservas = this.reservas.filter(r => r.Client == this.filtroCliente);
@@ -528,7 +534,6 @@ export default {
             }
         },
         reiniciarFiltros() {
-            this.reservas = [];
             this.filtroCliente = "";
             this.filtroSucursal = "";
             this.vehiculo = "";
