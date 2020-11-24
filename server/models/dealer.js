@@ -9,8 +9,9 @@ var DealerSchema = new Schema({
         Number: {type: Number},
         City: {type: String}
     },
-    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 
+    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+    Kind: {type: String, enum: ['VEHICLE', 'PRODUCT'], required: true},
 });
 
 var dealer = mongoose.model('Dealer', DealerSchema);

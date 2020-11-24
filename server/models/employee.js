@@ -8,11 +8,17 @@ var EmployeeSchema = new Schema({
     LastName: {type: String,required: true},
     DNI: {type: String,required: true},
     Email: {type: String,required: true},
-    State: {type: String,required: true},
-    hierarchy: {type: String,required: true},
+    Hierarchy: {type: String,required: true},
     StartDate: {type: Date,required: true},
-    DischargeDate: {type: Date,required: true},
-    Address: {Street: {type: String},Number: {type: Number},City: {type: String}}
+    DischargeDate: {type: Date,required: false},
+    Address: {
+        Country: {type: String},
+        Province: {type: String},
+        Street: {type: String},
+        Number: {type: Number},
+        City: {type: String}
+    },
+    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });
 
 var employee = mongoose.model('Employee', EmployeeSchema);

@@ -1,16 +1,7 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table v-model="selected" show-select :headers="headers" :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
-              <template v-slot:item.TaxCategory="{ item }">
-                {{ format(item.TaxCategory) }}
-            </template>
-               <template v-slot:item.CompanyName="{ item }">
-                {{ format(item.CompanyName) }}
-            </template>
-                 <template v-slot:item.CUIT="{ item }">
-                {{ format(item.CUIT) }}
-            </template>
+        <v-data-table v-model="selected" show-select :headers="headers" :items="sucursales" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -27,7 +18,7 @@
 
                     <v-dialog v-model="dialog" max-width="500px">
                         <template v-slot:activator="{ on, attrs }">
-                            <v-btn @click="formTitle='Nuevo Cliente'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                            <v-btn @click="formTitle='Nueva Sucursal'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
                             </v-btn>
                         </template>
@@ -55,7 +46,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field type="number" :rules="reglaID" v-model="client.DNI" label="ID"></v-text-field>
+                                                <v-text-field :rules="reglaID" v-model="client.DNI" label="ID"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -75,7 +66,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="8" md="9">
-                                                <v-text-field type="number" :rules="reglaTelefono" v-model="num" label="Número"></v-text-field>
+                                                <v-text-field :rules="reglaTelefono" v-model="num" label="Número"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -93,11 +84,11 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
+                                    <v-btn class="info" text @click="close">
+                                        <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save(selected[0]!=null? selected[0]._id:-1)">
-                                        Guardar
+                                    <v-btn class="info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
+                                        <v-icon>mdi-check</v-icon>
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>
@@ -112,8 +103,10 @@
                             </v-col>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+                                <v-btn class="info" text @click="closeDelete">
+                                <v-icon>mdi-cancel</v-icon></v-btn>
+                                <v-btn class="info" text @click="deleteItemConfirm">
+                                <v-icon>mdi-check</v-icon></v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
@@ -126,12 +119,13 @@
             {{ mensaje }}
 
             <template v-slot:action="{ attrs }">
-                <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-                    Aceptar
+                <v-btn class="info" v-bind="attrs" @click="snackbar = false">
+                     <v-icon>mdi-check</v-icon>
                 </v-btn>
+
             </template>
         </v-snackbar>
-</div>
+    </div>
 </v-img>
 </template>
 
@@ -178,41 +172,41 @@ export default {
                 sortable: false,
             },
             {
-                text: 'Apellido',
-                value: 'LastName',
+                text: 'Taller',
+                value: 'WorkShop',
             },
             {
-                text: 'ID',
-                value: 'DNI'
-            },
-            {
-                text: 'ID Fiscal',
-                value: 'CUIT'
-            },
-            {
-                text: 'Categoría Fiscal',
-                value: 'TaxCategory'
-            },
-            {
-                text: 'Razón Social',
-                value: 'CompanyName'
-            },
-            {
-                text: 'Nacionalidad',
-                value: 'Nationality'
+                text: 'Teléfono',
+                value: 'Phone'
             },
             {
                 text: 'Email',
                 value: 'Email'
             },
             {
-                text: 'Teléfono',
-                value: 'Phone'
+                text: 'País',
+                value: 'Address.Country'
+            },
+            {
+                text: 'Provincia',
+                value: 'Address.Province'
+            },
+            {
+                text: 'Ciudad',
+                value: 'Address.City'
+            },
+            {
+                text: 'Calle',
+                value: 'Address.Street'
+            },
+            {
+                text: 'Numeración',
+                value: 'Address.Number'
             },
             
         ],
 
-        clients: [],
+        sucursales: [],
         paises: [],
         nombrePaises: [],
         codigosPaises: [],
@@ -326,7 +320,7 @@ export default {
 
     methods: {
         iniciar() {
-            this.getClients();
+            this.getsucursales();
             this.getPaises();
         },
 
@@ -337,10 +331,10 @@ export default {
                 });
 
         },
-        getClients() {
-            axios.get(urlAPI + 'client')
+        getsucursales() {
+            axios.get(urlAPI + 'branchOffice')
                 .then(res => {
-                    this.clients = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                    this.sucursales = res.data.branchOffice.filter(s => s.Status === "ACTIVE")
                 });
         },
         cambiarRequired(value) {
@@ -411,9 +405,9 @@ export default {
                      this.mensaje = "Sólo puede editar un elemento a la vez!"
                      return;
                 }
-                this.editedIndex = this.clients.indexOf(item);
+                this.editedIndex = this.sucursales.indexOf(item);
                 this.client = Object.assign({}, item);
-                this.separarDatos(item);
+        
                 this.formTitle = "Editar Cliente";
                 this.dialog = true;
             } 
@@ -426,7 +420,7 @@ export default {
         deleteItemConfirm() {
             for (let i = 0; i < this.selected.length; i++) {
                 this.editar("INACTIVE", this.selected[i]);
-                this.clients.splice(this.clients.indexOf(this.selected[i]), 1);
+                this.sucursales.splice(this.sucursales.indexOf(this.selected[i]), 1);
             }
             this.closeDelete()
         },
@@ -495,14 +489,16 @@ export default {
                 this.client = this.getClient(this.client);
                 if (this.validate()) {
                     this.post(urlAPI + 'client/add', JSON.stringify(this.getJSONClient(this.client)));
-                    this.clients.push(this.client);
+                    this.sucursales.push(this.client);
                     this.reiniciar();
                 }
             }
             //Editar Cliente
             else {
                 if(this.validate()){
-                    Object.assign(this.clients[this.editedIndex], this.client)
+                    this.client.Email = this.principioEmail + "@" + this.finEmail;
+                    this.client.Phone = this.num;
+                    Object.assign(this.sucursales[this.editedIndex], this.client)
                     this.editar("ACTIVE", this.client);
                     this.reiniciar();
                 }
@@ -543,14 +539,6 @@ export default {
             }
         },
 
-        separarDatos(value) {
-            this.separarTel(value)
-            this.separarEmail(value)
-        },
-
-        format(value){
-            return value == null ? "S/D" : String(value);
-        }
 
     },
 };
@@ -573,3 +561,4 @@ p,
     font-size: 4%;
 }
 </style>
+

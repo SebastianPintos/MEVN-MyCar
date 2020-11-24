@@ -1,5 +1,5 @@
 const ctrl = {};
-const vehicle = require('../models/vehicle');
+
 var Vehicle = require('../models/vehicle');
 var VehicleStock = require('../models/vehicleStock');
 
@@ -29,6 +29,7 @@ ctrl.create = (req, res) => {
         Detail: body.Detail,
         Status: 'ACTIVE',
         Dealer: body.Dealer,
+        Kind: body.Kind,
     });
 
     vehicle.save((err) => {
@@ -59,6 +60,7 @@ ctrl.update = (req, res) => {
                 vehicle.Detail= body.Detail;
                 vehicle.Status = body.Status;
                 vehicle.Dealer = body.Dealer;
+                vehicle.Kind = body.Kind;
 
                 vehicle.save((err) => {
                     if(err) {console.log(err)}
@@ -116,7 +118,7 @@ ctrl.createStock = (req, res) => {
         Detail: body.Detail,
         Vehicle: body.Vehicle,
         UsedDetail: body.UsedDetail,
-        Status: 'AVAILABLE'
+        Status: 'AVAILABLE',
     });
 
     vehicleStock.save((err) => {
@@ -157,6 +159,16 @@ ctrl.updateStock = (req, res) => {
         }
     })
 
+};
+
+ctrl.getOne = (req, res) => {
+    var id = req.params.vehicle_id;
+    Vehicle.findById(id, (err, vehicle) => {
+        if (err) {console.log(err)}
+        res.send({
+            vehicle: vehicle
+        })
+    });
 };
 
 ctrl.removeStock = (req, res) => {

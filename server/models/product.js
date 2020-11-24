@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var ProductSchema = new Schema({
+    Code: {type: String, required: true},
     Description: {type: String},
     Category: {type: String, required: true},
     SubCategory: {type: String},
@@ -9,6 +10,8 @@ var ProductSchema = new Schema({
     SKU: {type: String, required: true},
     LastPurchasePrice: {type: Number, required: true},
     SalePrice: {type: Number, required: true},
+    ShippingBranch: {type: Number, required: true},
+    ShippingDealer: {type: Number, required: true},
     Dealer: {
       type: Schema.Types.ObjectId,
       required: true,
