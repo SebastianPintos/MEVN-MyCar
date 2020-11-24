@@ -2,6 +2,15 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
         <v-data-table v-model="selected" show-select :headers="headers" :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+              <template v-slot:item.TaxCategory="{ item }">
+                {{ format(item.TaxCategory) }}
+            </template>
+               <template v-slot:item.CompanyName="{ item }">
+                {{ format(item.CompanyName) }}
+            </template>
+                 <template v-slot:item.CUIT="{ item }">
+                {{ format(item.CUIT) }}
+            </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -122,7 +131,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-    </v-container>
+</div>
 </v-img>
 </template>
 
@@ -538,6 +547,10 @@ export default {
             this.separarTel(value)
             this.separarEmail(value)
         },
+
+        format(value){
+            return value == null ? "S/D" : String(value);
+        }
 
     },
 };
