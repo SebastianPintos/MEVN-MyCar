@@ -1,15 +1,13 @@
 <template>
 <div>
-<h1>Emails</h1>
-</div>
-<!--v-card>
+<v-card>
 <v-card-title>
 Primer Recordatorio
 </v-card-title>
 <v-card-text>
-<h1>Título del Mail</h1>
-<h1>Descripción</h2>
-<h3>Frecuencia en días</h3>
+<v-text-field label="Título"></v-text-field>
+<v-textarea label="Descripción"></v-textarea>
+<v-text-field type="number" label="Frecuencia en días"></v-text-field>
 </v-card-text>
 </v-card>
 
@@ -18,13 +16,12 @@ Primer Recordatorio
 Segundo Recordatorio
 </v-card-title>
 <v-card-text>
-<h1>Título del Mail</h1>
-<h1>Descripción</h2>
-<h3>Frecuencia en días</h3>
+<v-text-field label="Título"></v-text-field>
+<v-textarea label="Descripción"></v-textarea>
+<v-text-field type="number" label="Frecuencia en horas"></v-text-field>
 </v-card-text>
-<h1>Título del Mail</h1>
-<h1>Descripción</h2>
-</v-card-->
+</v-card>
+</div>
 </template>
 
 <script></script>

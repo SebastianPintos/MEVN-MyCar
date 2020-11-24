@@ -76,7 +76,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="8" md="9">
-                                                <v-text-field :rules="reglaTelefono" v-model="num" label="Número"></v-text-field>
+                                                <v-text-field type="number" :rules="reglaTelefono" v-model="num" label="Número"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">

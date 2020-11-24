@@ -40,7 +40,7 @@
                                                 <v-text-field v-model="Dealer.Name" label="Nombre y Apellido" :rules="reglaNombre"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="12">
-                                                <v-text-field :rules="reglaTelefono" v-model="Dealer.Phone" label="Teléfono"></v-text-field>
+                                                <v-text-field type="number" :rules="reglaTelefono" v-model="Dealer.Phone" label="Teléfono"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
