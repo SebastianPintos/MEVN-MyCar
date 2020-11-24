@@ -12,8 +12,8 @@
                     </v-card-title>
 
                     <v-card-text>
-                        <v-text-field :disabled="desPrimero" label="Título" :value="primero.titulo" :rules="requerido"></v-text-field>
-                        <v-textarea :disabled="desPrimero" :value="primero.descripcion" :rules="requerido"></v-textarea>
+                        <v-text-field :disabled="desPrimero" label="Título" v-model="primero.titulo" :rules="requerido"></v-text-field>
+                        <v-textarea :disabled="desPrimero" v-model="primero.descripcion" :rules="requerido"></v-textarea>
                         <v-row>
                             <v-col cols="12" md="6">
                                 <v-select label="Frecuencia en Días" :disabled="desPrimero" :items="dias" v-model="primero.dias" :rules="numeroRequerido"></v-select>
@@ -43,8 +43,8 @@
                         </v-btn>
                     </v-card-title>
                     <v-card-text>
-                        <v-text-field :disabled="desSegundo" :value="segundo.titulo" label="Título" :rules="requerido"></v-text-field>
-                        <v-textarea :disabled="desSegundo" :value="segundo.descripcion" label="Descripción" :rules="requerido"></v-textarea>
+                        <v-text-field :disabled="desSegundo" v-model="segundo.titulo" label="Título" :rules="requerido"></v-text-field>
+                        <v-textarea :disabled="desSegundo" v-model="segundo.descripcion" label="Descripción" :rules="requerido"></v-textarea>
                         <v-row>
                             <v-col cols="12" md="6">
                                 <v-select label="Frecuencia en Días" :disabled="desSegundo" :items="dias" v-model="segundo.dias" :rules="numeroRequerido"></v-select>
@@ -117,8 +117,9 @@ export default {
                     //Create
                 } else {
                     //update
-                    this.updateRecordatorio(this.primero);
+                   this.updateRecordatorio(this.primero);
                 }
+                this.desPrimero = true;
             }
         },
         guardarSegundo() {
@@ -131,6 +132,7 @@ export default {
                     //update
                     this.updateRecordatorio(this.segundo);
                 }
+                this.desSegundo = true;
             }
         },
         async createRecordatorio(recordatorio) {
@@ -142,14 +144,17 @@ export default {
             })
         },
         async updateRecordatorio(recordatorio) {
-            await axios.post(urlAPI + 'remainder/' + recordatorio.id + "/update", JSON.stringify({"remainder": {
-                "Title": recordatorio.titulo,
-                "Body": recordatorio.descripcion,
-                "Interval": {
-                    "Hours": recordatorio.horas,
-                    "Days": recordatorio.dias,
+           await axios.post(urlAPI + 'remainder/' + recordatorio.id + "/update", {
+                "remainder": {
+                    "Title": recordatorio.titulo,
+                    "Body": recordatorio.descripcion,
+                    "Interval": {
+                        "Hours": recordatorio.horas,
+                        "Days": recordatorio.dias,
+                    },
+                    "Status": "ACTIVE"
                 }
-            }}));
+            });
         },
         async getConfig() {
             await axios.get(urlAPI + 'remainder').then(res => {
