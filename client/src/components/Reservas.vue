@@ -14,13 +14,17 @@
                             <v-col cols="12" md="4">
                                 <v-select label="Sucursal" v-model="filtroSucursal" :items="sucursales" item-text="Name" item-value="_id"></v-select>
                             </v-col>
-                            <v-col v-if="consulta==false" cols="12" md="4">
-                                <v-select label="ID del cliente" v-model="filtroCliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)"></v-select>
+                            <v-col v-if="consulta==true" cols="12" md="4">
+                               <v-select v-model="filtroCliente" label="ID del Cliente" :items="clientes" item-text="DNI" item-value="_id" :rules="requerido" @change="client=>cambiarVehiculo(client)">
+                                    <template slot="item" slot-scope="data">
+                                        {{ data.item.DNI }} - {{ data.item.Name }} {{ data.item.LastName }}  
+                                    </template>
+                                </v-select>
                             </v-col>
-                            <v-col v-if="consulta==false" cols="12" md="4">
+                            <v-col v-if="consulta==true" cols="12" md="4">
                                 <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="VehicleID"></v-select>
                             </v-col>
-                            <v-col v-if="consulta==false" cols="12" sm="6" md="6">
+                            <v-col cols="12" sm="6" md="6">
                                 <v-btn class="success" @click="aplicarFiltros">
                                     <v-icon>mdi-check</v-icon>
                                 </v-btn>
@@ -108,7 +112,7 @@
                             <v-select :label="texto" v-model="horario" :disabled="!mostrarHorario" :items="horarios" :rules="requerido"></v-select>
                         </v-col>
                         <v-col cols="12" md="12">
-                            <v-textarea label="Detalles" v-model="detalleReserva" ></v-textarea>
+                            <v-textarea label="Detalles" v-model="detalleReserva"></v-textarea>
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -226,7 +230,7 @@ export default {
 
             if (carrito != null) {
                 this.detalle = carrito;
-                console.log("TIEMPO: "+JSON.stringify(this.detalle));
+                console.log("TIEMPO: " + JSON.stringify(this.detalle));
             };
             if (cliente != null) {
                 this.cliente = cliente;
@@ -309,9 +313,9 @@ export default {
                 value: [1, 3, 5]
             },
         ],
-        today : new Date(),
+        today: new Date(),
         value: '',
-        colors: ['grey'],
+        colors: ['grey','yellow','green'],
         detalle: {},
         names: ['No-Disponible'],
         selectedEvent: {},
@@ -358,7 +362,7 @@ export default {
                     this.getEvents();
                 });
         },
-        
+
         async getRepuestos() {
             await axios.get('http://localhost:8081/product')
                 .then(res => {
@@ -388,6 +392,7 @@ export default {
 
         async confirmarReserva(event) {
             await axios.delete(urlAPI + 'reservation/' + event.id + '/delete');
+            this.events.splice(this.events.indexOf(event), 1)
         },
 
         async eliminarReserva(event) {
@@ -399,12 +404,13 @@ export default {
             const events = []
             for (let i = 0; i < this.reservas.length; i++) {
                 let desde = new Date(this.reservas[i].AppointmentTime);
+                desde = new Date(desde.getTime()+180 * 60000)
                 let duracion = this.reservas[i].Duration;
                 let hasta = new Date(desde.getTime() + duracion * 60000);
                 let sHsDesde = desde.getHours() == 0 ? "00" : String(desde.getHours());
                 let sMinDesde = desde.getMinutes() == 0 ? "00" : String(desde.getMinutes());
                 let sMinutesHasta = hasta.getMinutes() == 0 ? "00" : String(hasta.getMinutes());
-                let descripcion = "<h3>"+sHsDesde+":"+sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta+"</h3><h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
+                let descripcion = "<h3>" + sHsDesde + ":" + sMinDesde + "-" + hasta.getHours() + ":" + sMinutesHasta + "</h3><h5>Dominio: </h5>" + this.reservas[i].Domain + ", <br> <h5>Cliente: </h5>" + this.reservas[i].Client.DNI + " <br><h5> Servicios a Realizar: </h5>";
                 this.reservas[i].Service.forEach(s => {
                     descripcion += "<p>" + s.Description + "</p><br>";
                 })
@@ -446,49 +452,49 @@ export default {
             let dia = new Date(date).getDay();
             if (this.sucursal != null) {
                 try {
-                    if(this.sucursal.Hours!=null){
-                    if (dia == 0) {
-                        if(this.sucursal.Hours.Monday!=null){
-                        horarios[0] = this.sucursal.Hours.Monday.Open;
-                        horarios[1] = this.sucursal.Hours.Monday.Close;
+                    if (this.sucursal.Hours != null) {
+                        if (dia == 0) {
+                            if (this.sucursal.Hours.Monday != null) {
+                                horarios[0] = this.sucursal.Hours.Monday.Open;
+                                horarios[1] = this.sucursal.Hours.Monday.Close;
+                            }
                         }
-                    }
-                    if (dia == 1) {
-                        if(this.sucursal.Hours.Tuesday!=null){
-                        horarios[0] = this.sucursal.Hours.Tuesday.Open;
-                        horarios[1] = this.sucursal.Hours.Tuesday.Close;
-                    } 
-                    }
-                   if (dia == 2) {
-                        if(this.sucursal.Hours.Wednesday!=null){
-                        horarios[0] = this.sucursal.Hours.Wednesday.Open;
-                        horarios[1] = this.sucursal.Hours.Wednesday.Close;
+                        if (dia == 1) {
+                            if (this.sucursal.Hours.Tuesday != null) {
+                                horarios[0] = this.sucursal.Hours.Tuesday.Open;
+                                horarios[1] = this.sucursal.Hours.Tuesday.Close;
+                            }
                         }
-                    }
-                    if (dia == 3) {
-                        if(this.sucursal.Hours.Thrusday!=null){
-                        horarios[0] = this.sucursal.Hours.Thrusday.Open;
-                        horarios[1] = this.sucursal.Hours.Thrusday.Close;
+                        if (dia == 2) {
+                            if (this.sucursal.Hours.Wednesday != null) {
+                                horarios[0] = this.sucursal.Hours.Wednesday.Open;
+                                horarios[1] = this.sucursal.Hours.Wednesday.Close;
+                            }
                         }
-                    }
-                    if (dia == 4) {
-                        if(this.sucursal.Hours.Friday!=null){
-                        horarios[0] = this.sucursal.Hours.Friday.Open;
-                        horarios[1] = this.sucursal.Hours.Friday.Close;
+                        if (dia == 3) {
+                            if (this.sucursal.Hours.Thrusday != null) {
+                                horarios[0] = this.sucursal.Hours.Thrusday.Open;
+                                horarios[1] = this.sucursal.Hours.Thrusday.Close;
+                            }
                         }
-                    }
-                    if (dia == 5) {
-                        if(this.sucursal.Hours.Saturday!=null){
-                        horarios[0] = this.sucursal.Hours.Saturday.Open;
-                        horarios[1] = this.sucursal.Hours.Saturday.Close;
+                        if (dia == 4) {
+                            if (this.sucursal.Hours.Friday != null) {
+                                horarios[0] = this.sucursal.Hours.Friday.Open;
+                                horarios[1] = this.sucursal.Hours.Friday.Close;
+                            }
                         }
-                    }
-                    if (dia == 6) {
-                        if(this.sucursal.Hours.Sunday!=null){
-                        horarios[0] = this.sucursal.Hours.Sunday.Open;
-                        horarios[1] = this.sucursal.Hours.Sunday.Close;
-                    }
-                    }
+                        if (dia == 5) {
+                            if (this.sucursal.Hours.Saturday != null) {
+                                horarios[0] = this.sucursal.Hours.Saturday.Open;
+                                horarios[1] = this.sucursal.Hours.Saturday.Close;
+                            }
+                        }
+                        if (dia == 6) {
+                            if (this.sucursal.Hours.Sunday != null) {
+                                horarios[0] = this.sucursal.Hours.Sunday.Open;
+                                horarios[1] = this.sucursal.Hours.Sunday.Close;
+                            }
+                        }
                     }
                     let horariosEnMin = this.calcularIntervalos(horarios);
                     if (horariosEnMin != null) {
@@ -535,11 +541,11 @@ export default {
             if (this.filtroSucursal != "") {
                 this.getReservas(this.filtroSucursal);
                 this.sucursal = this.sucursales.filter(s => s._id == this.filtroSucursal);
-                if(this.sucursal!=null){
+                if (this.sucursal != null) {
                     this.sucursal = this.sucursal[0];
                     this.nombreSucursal = this.sucursal.Name;
                 }
-                
+
             }
             if (this.filtroCliente != "") {
                 this.reservas = this.reservas.filter(r => r.Client == this.filtroCliente);
@@ -618,23 +624,23 @@ export default {
                     let maxP = 0;
                     let maxS = 0
                     let max = 0;
-                    for(let i= 0; i< res.data.length; i++){
+                    for (let i = 0; i < res.data.length; i++) {
                         let repuesto = this.repuestos.filter(r => r._id == res.data[i]);
-                        if(repuesto!=null){
-                            if(repuesto.ShippingDealer> maxP){
+                        if (repuesto != null) {
+                            if (repuesto.ShippingDealer > maxP) {
                                 maxP = repuesto.ShippingDealer;
                             }
-                            if(repuesto.ShippingBranch>maxS){
+                            if (repuesto.ShippingBranch > maxS) {
                                 maxS = repuesto.ShippingBranch;
                             }
                         }
-                        max = maxP>maxS ? maxP : maxS; 
+                        max = maxP > maxS ? maxP : maxS;
                     }
                     this.tituloMensaje = "No Disponible";
-                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles. Estarán disponibles en: "+max+" días.";
+                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles. Estarán disponibles en: " + max + " días.";
                     this.dialogMensaje = true;
                     this.horaReserva = null;
-               
+
                 } else {
                     this.tituloMensaje = "Reserva Exitosa";
                     this.mensaje = "Reserva realizada con éxito. Podrá consultar/modificar su reserva en la sección Reservas.";
@@ -643,7 +649,7 @@ export default {
                     this.getReservas(this.sucursal._id);
                 }
                 this.detalleReserva = "",
-                this.date = null;
+                    this.date = null;
                 this.horario = null;
             });
         }
