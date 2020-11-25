@@ -364,7 +364,7 @@ export default {
         },
 
         async getRepuestos() {
-            await axios.get('http://localhost:8081/product')
+            await axios.get(urlAPI + 'product')
                 .then(res => {
                     this.repuestos = res.data.product;
                 });

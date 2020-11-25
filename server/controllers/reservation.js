@@ -1,10 +1,10 @@
 const ctrl = {};
 
+
 const Product = require('../models/product');
 var Reservation = require('../models/reservation');
 var Service = require('../models/service');
 const helper = require('../lib/helperProduct');
-
 ctrl.index = (req, res) => {
     Reservation.find((err, reservation) => {
         if (err) {console.log(err)}
@@ -69,6 +69,7 @@ ctrl.update = (req, res) => {
                 reservation.Vehicle= body.Vehicle;
                
                 reservation.save((err) => {
+
                     if(err) {console.log(err)}
                     res.send({
                         success: true
@@ -76,6 +77,7 @@ ctrl.update = (req, res) => {
                 });
             }
         }
+
     });
 }
 
@@ -85,6 +87,7 @@ ctrl.remove = (req, res) => {
     Reservation.findOne({_id: id}, (err, reservation) => {
         if(err) {console.log(err)}
         else {
+
             if(!reservation) {console.log('No se encontró el producto específico')}
             else {
                 reservation.Status = 'CLOSED';
@@ -98,6 +101,7 @@ ctrl.remove = (req, res) => {
                 });
             }
         }
+
     });
 }
 
@@ -149,6 +153,5 @@ ctrl.checkHour = async (req, res) => {
     var occupied = await helper.checkReservationTime(body);
     res.send({occupied}); 
 }
-
 
 module.exports = ctrl;

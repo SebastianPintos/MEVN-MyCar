@@ -290,6 +290,7 @@
 
 <script>
 import axios from "axios"
+import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         selected: [],
@@ -450,7 +451,7 @@ export default {
             this.repuestos = []
         },
         async getProveedores() {
-            await axios.get('http://localhost:8081/dealer')
+            await axios.get(urlAPI + 'dealer')
                 .then(res => {
                     let dealersList = res.data.dealer;
                     if (dealersList != null) {
@@ -464,7 +465,7 @@ export default {
         },
 
         async getRepuestos() {
-            await axios.get('http://localhost:8081/product')
+            await axios.get(urlAPI + 'product')
                 .then(res => {
                     this.allRepuestos = res.data.product;
                     this.allRepuestos.forEach(repuesto => {
@@ -476,7 +477,7 @@ export default {
         },
 
          getrepuestosStock() {
-            axios.get('http://localhost:8081/productStock')
+            axios.get(urlAPI + 'productStock')
                 .then(res => {
                     let repuestosStock = res.data.productStock;
                     if (repuestosStock != null) {
@@ -704,11 +705,11 @@ export default {
         },
 
         deleteproduct(item) {
-            axios.delete('http://localhost:8081/product/' + item._id + '/delete')
+            axios.delete(urlAPI + 'product/' + item._id + '/delete')
         },
 
         async updateproduct() {
-            await axios.post('http://localhost:8081/product/' + this.selected[0]._id + '/update', {
+            await axios.post(urlAPI + 'product/' + this.selected[0]._id + '/update', {
                 "product": {
                     "Description": this.editedItem.Description,
                     "Category": this.editedItem.Category,
@@ -746,7 +747,7 @@ export default {
                     precioCompra = product.LastPurchasePrice + ((product.LastPurchasePrice * precioCompra) / 100);
                 }
                 let proveedor = this.deshabilitarProveedor ? product.Dealer : this.editedItem.Dealer;
-                axios.post('http://localhost:8081/product/' + product._id + '/update', {
+                axios.post(urlAPI + 'product/' + product._id + '/update', {
                     "product": {
                         "Description": product.Description,
                         "Category": product.Category,
@@ -769,7 +770,7 @@ export default {
         },
 
         async createproduct() {
-            await axios.post('http://localhost:8081/product/add', {
+            await axios.post(urlAPI + 'product/add', {
                 "product": {
                     "Description": this.editedItem.Description,
                     "Category": this.editedItem.Category,
