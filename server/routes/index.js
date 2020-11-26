@@ -13,7 +13,7 @@ const employee = require('../controllers/employee');
 const branchOffice = require('../controllers/branchOffice');
 const remainder = require('../controllers/remainder');
 
-const Email = require('../src/Email')
+const Email = require('../lib/Email')
 
 module.exports = app => {
     router.get('/', home.index);
