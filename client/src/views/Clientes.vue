@@ -1,7 +1,7 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table v-model="selected" show-select :headers="headers" :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+        <v-data-table v-model="selected" show-select :headers="headers" :expanded.sync="expanded" show-expand :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
             <template v-slot:item.TaxCategory="{ item }">
                 {{ format(item.TaxCategory) }}
             </template>
@@ -11,6 +11,15 @@
             <template v-slot:item.CUIT="{ item }">
                 {{ format(item.CUIT) }}
             </template>
+            <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">
+
+                    <v-chip-group>
+                        <v-chip color="success" small v-for="v in item.Vehicle" :key="v._id">Vehículo: {{v.Domain}}</v-chip>
+                    </v-chip-group>
+                </td>
+            </template>
+
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -18,7 +27,7 @@
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
 
-                     <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="agregarVehiculo=true">
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="agregarVehiculo=true">
                         <v-icon>mdi-car-outline</v-icon>
                     </v-btn>
 
@@ -128,47 +137,53 @@
             </template>
         </v-data-table>
 
-        <v-dialog v-if="selected.length>0" v-model = "agregarVehiculo">
+        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo">
             <v-card>
-                  <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
-                <v-card-title>
-                    Asociar Vehículo
-                </v-card-title>
-                <v-card-text>
-                <v-row>
-                <v-col cols="12" md="6">
-                <v-text-field disabled label="ID del Cliente: "></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                <v-text-field disabled v-model="selected[0].DNI"></v-text-field>
-                </v-col></v-row>
-                <v-row>
-                <v-col cols="12" md="3">
-                <v-text-field disabled label="Nombre: "></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3">
-                <v-text-field disabled v-model="selected[0].Name"></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3">
-                <v-text-field disabled label="Apellido: "></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3">
-                <v-text-field disabled v-model="selected[0].LastName"></v-text-field>
-                </v-col></v-row>
-                    <v-select v-model="vehiculo" label="Vehiculo" :items="vehicles" item-text="Model" item-value="_id" :rules="requerido">
-                        <template slot="item" slot-scope="data">
-                            {{ data.item.Brand }} {{ data.item.Model }} - {{ data.item.year }}
-                        </template>
-                    </v-select>
-                    <v-text-field label="Dominio" v-model="dominio" :rules="reglaDominio"></v-text-field>
-                </v-card-text>
-                <v-card-actions>
-                <v-flex class="text-right">
-                <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''"><v-icon>mdi-cancel</v-icon></v-btn>
-                <v-btn class="info mb-2" @click="asociarVehiculo"><v-icon>mdi-check</v-icon></v-btn>
-                </v-flex>
-                </v-card-actions>
-                  </v-form>
+                <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
+                    <v-card-title>
+                        Asociar Vehículo
+                    </v-card-title>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled label="ID del Cliente: "></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled v-model="selected[0].DNI"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled label="Nombre: "></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled v-model="selected[0].Name"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled label="Apellido: "></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled v-model="selected[0].LastName"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-select v-model="vehiculo" label="Vehiculo" :items="vehicles" item-text="Model" item-value="_id" :rules="requerido">
+                            <template slot="item" slot-scope="data">
+                                {{ data.item.Brand }} {{ data.item.Model }} - {{ data.item.year }}
+                            </template>
+                        </v-select>
+                        <v-text-field label="Dominio" v-model="dominio" :rules="reglaDominio"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-flex class="text-right">
+                            <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''">
+                                <v-icon>mdi-cancel</v-icon>
+                            </v-btn>
+                            <v-btn class="info mb-2" @click="asociarVehiculo">
+                                <v-icon>mdi-check</v-icon>
+                            </v-btn>
+                        </v-flex>
+                    </v-card-actions>
+                </v-form>
             </v-card>
         </v-dialog>
 
@@ -212,6 +227,7 @@ export default {
         editedIndex: -1,
         defaultClient: new client(),
         selected: [],
+        expanded: [],
         categorias: ['Responsable Inscripto', 'Excento', 'Consumidor Final'],
         search: '',
         poblacion: '',
@@ -221,7 +237,7 @@ export default {
         dialog: false,
         agregarVehiculo: false,
         dialogDelete: false,
-               requerido: [
+        requerido: [
             value => !!value || 'Requerido.',
         ],
 
@@ -393,11 +409,11 @@ export default {
             this.getVehicles();
         },
 
-          getVehicles() {
+        getVehicles() {
             axios.get(urlAPI + 'vehicle')
-            .then(res => {
-                this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
-            });
+                .then(res => {
+                    this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
+                });
         },
 
         getPaises() {
@@ -533,10 +549,13 @@ export default {
 
         getJSONClient(selected) {
             let vehiculos = null;
-            if(this.selected[0].Vehicle!=null){
+            if (this.selected[0].Vehicle != null) {
                 vehiculos = this.selected[0].Vehicle;
-                if(this.vehiculo!=null){
-                    vehiculos.push({"VehicleID": this.vehiculo, "Domain": this.dominio});
+                if (this.vehiculo != null) {
+                    vehiculos.push({
+                        "VehicleID": this.vehiculo,
+                        "Domain": this.dominio
+                    });
                 }
             }
             return {
@@ -630,8 +649,8 @@ export default {
             return value == null ? "S/D" : String(value);
         },
 
-        asociarVehiculo(){
-            if(this.$refs.asociarVehiculo.validate()){
+        asociarVehiculo() {
+            if (this.$refs.asociarVehiculo.validate()) {
                 this.editar("ACTIVE", this.selected[0]);
             }
             this.vehiculo = null;
