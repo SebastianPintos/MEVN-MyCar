@@ -230,7 +230,6 @@ export default {
 
             if (carrito != null) {
                 this.detalle = carrito;
-                console.log("TIEMPO: " + JSON.stringify(this.detalle));
             };
             if (cliente != null) {
                 this.cliente = cliente;

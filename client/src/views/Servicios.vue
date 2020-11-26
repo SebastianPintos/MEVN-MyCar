@@ -288,7 +288,6 @@ export default {
                                     this.serviciosFiltrados.push(servicio);
                         })
                     }
-                    console.log(JSON.stringify(this.servicios));
                 });
         },
         getSucursales() {
@@ -474,12 +473,6 @@ export default {
             }
             this.close()
         },
-        agregarAlCarrito() {
-            console.log("carrito++");
-        },
-        eliminarDelCarrito() {
-            console.log("carrito--");
-        }
     }
 };
 </script>
