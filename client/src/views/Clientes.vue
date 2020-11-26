@@ -228,7 +228,7 @@ export default {
         defaultClient: new client(),
         selected: [],
         expanded: [],
-        categorias: ['Responsable Inscripto', 'Excento', 'Consumidor Final'],
+        categorias: ['Responsable Inscripto', 'Exento', 'Consumidor Final'],
         search: '',
         poblacion: '',
         valid: true,
