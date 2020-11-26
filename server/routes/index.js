@@ -76,7 +76,7 @@ module.exports = app => {
     router.post('/reservation/checkHour', reservation.checkHour);
     
     router.post('/reservation/prueba', reservation.pruebas);
-    router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
+    //router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);

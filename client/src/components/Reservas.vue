@@ -15,9 +15,9 @@
                                 <v-select label="Sucursal" v-model="filtroSucursal" :items="sucursales" item-text="Name" item-value="_id"></v-select>
                             </v-col>
                             <v-col v-if="consulta==true" cols="12" md="4">
-                               <v-select v-model="filtroCliente" label="ID del Cliente" :items="clientes" item-text="DNI" item-value="_id" :rules="requerido" @change="client=>cambiarVehiculo(client)">
+                                <v-select v-model="filtroCliente" label="ID del Cliente" :items="clientes" item-text="DNI" item-value="_id" :rules="requerido" @change="client=>cambiarVehiculo(client)">
                                     <template slot="item" slot-scope="data">
-                                        {{ data.item.DNI }} - {{ data.item.Name }} {{ data.item.LastName }}  
+                                        {{ data.item.DNI }} - {{ data.item.Name }} {{ data.item.LastName }}
                                     </template>
                                 </v-select>
                             </v-col>
@@ -178,7 +178,7 @@
                     <v-toolbar-title v-html="selectedEvent.estado"></v-toolbar-title>
 
                     <v-flex class="text-right" style="margin-left:50px">
-                        <v-btn icon v-if="selectedEvent.estado=='Reservado' ">
+                        <v-btn icon v-if="selectedEvent.estado=='Reservado' " @click="nuevoTurno = true">
                             <v-icon>mdi-pencil</v-icon>
                         </v-btn>
                         <v-btn icon @click="checkConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
@@ -252,6 +252,7 @@ export default {
         this.getRepuestos();
     },
     data: () => ({
+        editando: false,
         mensaje: "",
         detalleReserva: "",
         valid: true,
@@ -315,7 +316,7 @@ export default {
         ],
         today: new Date(),
         value: '',
-        colors: ['grey','yellow','green'],
+        colors: ['grey', 'yellow', 'green'],
         detalle: {},
         names: ['No-Disponible'],
         selectedEvent: {},
@@ -404,7 +405,7 @@ export default {
             const events = []
             for (let i = 0; i < this.reservas.length; i++) {
                 let desde = new Date(this.reservas[i].AppointmentTime);
-                desde = new Date(desde.getTime()+180 * 60000)
+                desde = new Date(desde.getTime() + 180 * 60000)
                 let duracion = this.reservas[i].Duration;
                 let hasta = new Date(desde.getTime() + duracion * 60000);
                 let sHsDesde = desde.getHours() == 0 ? "00" : String(desde.getHours());
@@ -610,13 +611,56 @@ export default {
             axios.post(urlAPI + 'reservation/checkHour', this.reservation).then(res => {
                 this.disponible = res.data.occupied;
                 if (this.disponible == 0) {
-                    this.guardarReserva();
+                    if (this.editando) {
+                        this.editarReserva();
+                    } else {
+                        this.guardarReserva();
+                    }
                 } else {
                     this.tituloMensaje = "No Disponible";
                     this.mensaje = "Horario no disponible";
                     this.dialogMensaje = true;
                 }
             });
+        },
+
+        editarReserva() {
+            let id = this.selectedEvent.id;
+          /*  axios.post(urlAPI + 'reservation/' + id + '/update', this.reservation).then(res => {
+                if (res.data.success == null) {
+                    let maxP = 0;
+                    let maxS = 0
+                    let max = 0;
+                    for (let i = 0; i < res.data.length; i++) {
+                        let repuesto = this.repuestos.filter(r => r._id == res.data[i]);
+                        if (repuesto != null) {
+                            if (repuesto.ShippingDealer > maxP) {
+                                maxP = repuesto.ShippingDealer;
+                            }
+                            if (repuesto.ShippingBranch > maxS) {
+                                maxS = repuesto.ShippingBranch;
+                            }
+                        }
+                        max = maxP > maxS ? maxP : maxS;
+                    }
+                    this.tituloMensaje = "No Disponible";
+                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles. Estarán disponibles en: " + max + " días.";
+                    this.dialogMensaje = true;
+                    this.horaReserva = null;
+
+                } else {
+                    this.tituloMensaje = "Reserva Actualizada con Éxito";
+                    this.mensaje = "Actualización realizada con éxito. Podrá consultar/modificar su reserva en la sección Reservas.";
+                    this.dialogMensaje = true;
+                    this.horaReserva = String(this.reservation.reservation.AppointmentTime);
+                    this.getReservas(this.sucursal._id);
+                }
+                this.detalleReserva = "",
+                this.date = null;
+                this.horario = null;
+            });*/
+            console.log("id: "+id);
+            
         },
         guardarReserva() {
             axios.post(urlAPI + 'reservation/add', this.reservation).then(res => {
