@@ -1,7 +1,7 @@
 const schedule = require('node-schedule');
 const Reservation = require('../models/reservation');
 const Remainder = require('../models/remainderMail');
-const email = require('../src/Email');
+const email = require('./Email');
 
 const helper = {};
 
