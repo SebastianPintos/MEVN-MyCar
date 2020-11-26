@@ -2,13 +2,13 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
         <v-data-table v-model="selected" show-select :headers="headers" :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
-              <template v-slot:item.TaxCategory="{ item }">
+            <template v-slot:item.TaxCategory="{ item }">
                 {{ format(item.TaxCategory) }}
             </template>
-               <template v-slot:item.CompanyName="{ item }">
+            <template v-slot:item.CompanyName="{ item }">
                 {{ format(item.CompanyName) }}
             </template>
-                 <template v-slot:item.CUIT="{ item }">
+            <template v-slot:item.CUIT="{ item }">
                 {{ format(item.CUIT) }}
             </template>
             <template v-slot:top>
@@ -17,6 +17,11 @@
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+
+                     <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="agregarVehiculo=true">
+                        <v-icon>mdi-car-outline</v-icon>
+                    </v-btn>
+
                     <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
@@ -122,6 +127,51 @@
                 </v-toolbar>
             </template>
         </v-data-table>
+
+        <v-dialog v-if="selected.length>0" v-model = "agregarVehiculo">
+            <v-card>
+                  <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
+                <v-card-title>
+                    Asociar Vehículo
+                </v-card-title>
+                <v-card-text>
+                <v-row>
+                <v-col cols="12" md="6">
+                <v-text-field disabled label="ID del Cliente: "></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                <v-text-field disabled v-model="selected[0].DNI"></v-text-field>
+                </v-col></v-row>
+                <v-row>
+                <v-col cols="12" md="3">
+                <v-text-field disabled label="Nombre: "></v-text-field>
+                </v-col>
+                <v-col cols="12" md="3">
+                <v-text-field disabled v-model="selected[0].Name"></v-text-field>
+                </v-col>
+                <v-col cols="12" md="3">
+                <v-text-field disabled label="Apellido: "></v-text-field>
+                </v-col>
+                <v-col cols="12" md="3">
+                <v-text-field disabled v-model="selected[0].LastName"></v-text-field>
+                </v-col></v-row>
+                    <v-select v-model="vehiculo" label="Vehiculo" :items="vehicles" item-text="Model" item-value="_id" :rules="requerido">
+                        <template slot="item" slot-scope="data">
+                            {{ data.item.Brand }} {{ data.item.Model }} - {{ data.item.year }}
+                        </template>
+                    </v-select>
+                    <v-text-field label="Dominio" v-model="dominio" :rules="reglaDominio"></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                <v-flex class="text-right">
+                <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''"><v-icon>mdi-cancel</v-icon></v-btn>
+                <v-btn class="info mb-2" @click="asociarVehiculo"><v-icon>mdi-check</v-icon></v-btn>
+                </v-flex>
+                </v-card-actions>
+                  </v-form>
+            </v-card>
+        </v-dialog>
+
         <v-snackbar v-model="snackbar">
             {{ mensaje }}
 
@@ -131,7 +181,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-</div>
+    </div>
 </v-img>
 </template>
 
@@ -169,8 +219,12 @@ export default {
         snackbar: false,
         mensaje: "",
         dialog: false,
+        agregarVehiculo: false,
         dialogDelete: false,
-        
+               requerido: [
+            value => !!value || 'Requerido.',
+        ],
+
         headers: [{
                 text: 'Nombre',
                 value: 'Name',
@@ -209,9 +263,11 @@ export default {
                 text: 'Teléfono',
                 value: 'Phone'
             },
-            
-        ],
 
+        ],
+        vehiculo: {},
+        dominio: "",
+        vehicles: [],
         clients: [],
         paises: [],
         nombrePaises: [],
@@ -229,9 +285,16 @@ export default {
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
+        reglaDominio: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^(([A-Z]{2}[0-9]{3}[A-Z]{2}){0,1}([A-Z]{3}[0-9]{3}){0,1}){1}$/
+                return pattern.test(value) || 'Nombre inválido'
+            },
+        ],
         reglaID: [value => !!value || 'Requerido.'],
 
-        reglaCUIT: [ value => (value || '').length <= 13|| 'Máximo 13 caracteres',
+        reglaCUIT: [value => (value || '').length <= 13 || 'Máximo 13 caracteres',
             value => {
                 const pattern = /^20|23|24|27|30|33|34([1-9]{1}\d{7}){1}-\d{1}$/
                 return pattern.test(value) || 'Formato de CUIT inválido'
@@ -270,7 +333,7 @@ export default {
 
             },
         ],
-        reglaCUITAux:[],
+        reglaCUITAux: [],
         reglaTelefono: [
             value => !!value || 'Requerido.',
             value => (value || '').length <= 12 || 'Máximo 12 caracteres',
@@ -323,11 +386,18 @@ export default {
         this.iniciar();
     },
 
-
     methods: {
         iniciar() {
             this.getClients();
             this.getPaises();
+            this.getVehicles();
+        },
+
+          getVehicles() {
+            axios.get(urlAPI + 'vehicle')
+            .then(res => {
+                this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
+            });
         },
 
         getPaises() {
@@ -353,7 +423,7 @@ export default {
             }
         },
         cambiarReglaCUIT(value) {
-            if (value != null & value!= '') {
+            if (value != null & value != '') {
                 this.reglaCUITAux = this.reglaCUIT;
             } else {
                 this.reglaCUITAux = [];
@@ -377,7 +447,7 @@ export default {
             this.poblacion = datos[1]
             let cantidad = JSON.stringify(this.poblacion).length;
 
-           // this.reglaID = [];
+            // this.reglaID = [];
             this.reglaID = [value => !!value || 'Requerido.',
                 value => (value || '').length <= cantidad || 'Máximo ' + cantidad + ' caracteres',
                 value => {
@@ -388,7 +458,7 @@ export default {
                     const pattern = /^[0-9]{1,}$/
                     return pattern.test(value) || 'Sólo se permiten números!'
                 },
-            ]   
+            ]
         },
 
         haySeleccionado() {
@@ -406,17 +476,17 @@ export default {
 
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
-                if(this.selected.length > 1){
-                     this.snackbar = true
-                     this.mensaje = "Sólo puede editar un elemento a la vez!"
-                     return;
+                if (this.selected.length > 1) {
+                    this.snackbar = true
+                    this.mensaje = "Sólo puede editar un elemento a la vez!"
+                    return;
                 }
                 this.editedIndex = this.clients.indexOf(item);
                 this.client = Object.assign({}, item);
                 this.separarDatos(item);
                 this.formTitle = "Editar Cliente";
                 this.dialog = true;
-            } 
+            }
         },
 
         deleteItem() {
@@ -433,7 +503,7 @@ export default {
 
         reset() {
             this.selected = [];
-            this.motivos='';
+            this.motivos = '';
             this.$nextTick(() => {
                 this.client = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
@@ -462,6 +532,13 @@ export default {
         },
 
         getJSONClient(selected) {
+            let vehiculos = null;
+            if(this.selected[0].Vehicle!=null){
+                vehiculos = this.selected[0].Vehicle;
+                if(this.vehiculo!=null){
+                    vehiculos.push({"VehicleID": this.vehiculo, "Domain": this.dominio});
+                }
+            }
             return {
                 "client": {
                     "Name": selected.Name,
@@ -474,6 +551,7 @@ export default {
                     "CompanyName": selected.CompanyName,
                     "Nationality": selected.Nationality,
                     "TaxCategory": selected.TaxCategory,
+                    "Vehicle": vehiculos,
                 }
             };
         },
@@ -489,7 +567,7 @@ export default {
                 });
         },
 
-         save(id) {
+        save(id) {
             //Cliente Nuevo
             if (id === -1) {
                 this.client = this.getClient(this.client);
@@ -501,7 +579,7 @@ export default {
             }
             //Editar Cliente
             else {
-                if(this.validate()){
+                if (this.validate()) {
                     Object.assign(this.clients[this.editedIndex], this.client)
                     this.editar("ACTIVE", this.client);
                     this.reiniciar();
@@ -548,9 +626,18 @@ export default {
             this.separarEmail(value)
         },
 
-        format(value){
+        format(value) {
             return value == null ? "S/D" : String(value);
-        }
+        },
+
+        asociarVehiculo(){
+            if(this.$refs.asociarVehiculo.validate()){
+                this.editar("ACTIVE", this.selected[0]);
+            }
+            this.vehiculo = null;
+            this.dominio = "";
+            this.agregarVehiculo = false;
+        },
 
     },
 };
