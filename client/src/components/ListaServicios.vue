@@ -53,81 +53,85 @@
                                     <v-text-field disabled :value="servicio.Description"></v-text-field>
                                 </v-col>
                             </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled label="Precio Mano de Obra:"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled prefix="$" :value="servicio.LaborPrice"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled label="Precio Mano de Obra:"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled prefix="$" :value="servicio.LaborPrice"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled label="Duración Estimada:"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="servicio.Time"></v-text-field>
+                                </v-col>
+                            </v-row>
+
+                            <ol>
+                                <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
+
+                                <li v-for="(repuesto, j) in servicio.Product" :key="j">
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled label="Duración Estimada:"></v-text-field>
+                                            <v-text-field disabled label="Código del Repuesto:"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled :value="servicio.Time"></v-text-field>
+                                            <v-text-field disabled :value="repuesto.Code"></v-text-field>
                                         </v-col>
                                     </v-row>
 
-                                        <ol>
-                                            <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled label="Precio del Repuesto:"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled prefix="$" :value="repuesto.Price"></v-text-field>
+                                        </v-col>
+                                    </v-row>
 
-                                            <li v-for="(repuesto, j) in servicio.Product" :key="j">
-                                                <v-row>
-                                                    <v-col cols="12" md="6">
-                                                        <v-text-field disabled label="Código del Repuesto:"></v-text-field>
-                                                    </v-col>
-                                                    <v-col cols="12" md="6">
-                                                        <v-text-field disabled :value="repuesto.Code"></v-text-field>
-                                                    </v-col>
-                                                </v-row>
-                                               
-                                                    <v-row>
-                                                        <v-col cols="12" md="6">
-                                                            <v-text-field disabled label="Precio del Repuesto:"></v-text-field>
-                                                        </v-col>
-                                                        <v-col cols="12" md="6">
-                                                            <v-text-field disabled prefix="$" :value="repuesto.Price"></v-text-field>
-                                                        </v-col>
-                                                    </v-row>
-                                             
-                                            </li>
-                                        </ol>
+                                </li>
+                            </ol>
                         </li>
                     </ol>
-                     <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Tiempo Estimado Total:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="defaultCarritoCompleto.tiempoTotalString"></v-text-field>
-                             </v-col></v-row>
-                           
-                              <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="carritoCompleto.totalManoDeObra"></v-text-field>
-                             </v-col></v-row>
-                           
-                              <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Subtotal Repuestos:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled prefix="$" :value="carritoCompleto.totalRepuestos"></v-text-field>
-                             </v-col></v-row>
-                           
-                              <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Total:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled prefix="$" :value="carritoCompleto.total"></v-text-field>
-                             </v-col></v-row>
-                           
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled label="Tiempo Estimado Total:"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled :value="defaultCarritoCompleto.tiempoTotalString"></v-text-field>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled :value="carritoCompleto.totalManoDeObra"></v-text-field>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled label="Subtotal Repuestos:"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled prefix="$" :value="carritoCompleto.totalRepuestos"></v-text-field>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled label="Total:"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-text-field disabled prefix="$" :value="carritoCompleto.total"></v-text-field>
+                        </v-col>
+                    </v-row>
+
                 </v-container>
             </v-card-text>
             <v-card-actions>
@@ -152,7 +156,11 @@
             </v-card-title>
             <v-card-text>
                 <v-select label="Sucursal" v-model="filtros.BranchOffice" :items="sucursales" item-text="Name" item-value="Name" :rules="requerido"></v-select>
-                <v-select label="ID del cliente" v-model="cliente" :items="clientes" item-text="DNI" item-value="_id" @change="client=>cambiarVehiculo(client)" :rules="requerido"></v-select>
+                <v-select v-model="filtros.Client" label="ID del Cliente" :items="clientes" item-text="DNI" item-value="_id" :rules="requerido" @change="client=>cambiarVehiculo(client)">
+                    <template slot="item" slot-scope="data">
+                        {{ data.item.DNI }} - {{ data.item.Name }} {{ data.item.LastName }}
+                    </template>
+                </v-select>
                 <v-select v-model="vehiculo" label="Dominio del Vehículo" :items="vehicles" item-text="Domain" item-value="VehicleID" :rules="requerido">
                 </v-select>
             </v-card-text>

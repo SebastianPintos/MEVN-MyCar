@@ -98,6 +98,7 @@
 
 <script>
 import axios from "axios"
+import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         snackbar: false,
@@ -164,7 +165,7 @@ export default {
     methods: {
 
         async getrepuestosStock() {
-            await axios.get('http://localhost:8081/productStock')
+            await axios.get(urlAPI + 'productStock')
                 .then(res => {
                     let repuestosStock = res.data.productStock;
                     if (repuestosStock != null) {
@@ -178,7 +179,7 @@ export default {
         },
 
         async getRepuestos() {
-            await axios.get('http://localhost:8081/product')
+            await axios.get(urlAPI + 'product')
                 .then(res => {
                     let repuestos = res.data.product;
                     if (repuestos != null) {
@@ -192,7 +193,7 @@ export default {
         },
 
         async createproduct(code, bn, total, product) {
-            await axios.post('http://localhost:8081/productStock/add', {
+            await axios.post(urlAPI + 'productStock/add', {
                 "productStock": {
                     "Code": code,
                     "BatchNum": bn,
@@ -271,7 +272,7 @@ export default {
         },
 
         async updateProduct(productEdited) {
-            await axios.post('http://localhost:8081/productStock/' + this.selected[0]._id + '/update', productEdited);
+            await axios.post(urlAPI + 'productStock/' + this.selected[0]._id + '/update', productEdited);
             this.repuestosStock = [];
             this.getrepuestosStock();
         },
