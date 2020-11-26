@@ -34,7 +34,21 @@ helper.EmailRemainder1 = async () => {
 
                 var diffDay = Math.abs(reserDB[i].AppointmentTime - dateStartDay) / (60 * 60 * 1000);
                 console.log(diffDay);
+                console.log(hoursBefore);
+                console.log(reserDB[i].AppointmentTime);
+                console.log(dateStartDay);
                 if(diffDay < hoursBefore){
+                    console.log('por mandar el mail');
+                    console.log(reserDB[i].Client.Email);
+                    console.log(title);
+                    console.log(body);
+
+                    body += '\n Datos de la reserva: \n';
+                    body += 'Fecha y hora: ' + reserDB[i].AppointmentTime + '\n';
+                    body += 'Duracion Aproximada: ' + reserDB[i].Duration + '\n';
+                    body += 'Precio: ' + reserDB[i].Price + '\n';
+                    body += 'Duracion Aproximada: ' + reserDB[i].Duration + '\n';
+
                     email.sendEmail(reserDB[i].Client.Email, title, body);
                     reserDB[i].Remainder1 = true;
                     reserDB[i].save((err) => {
@@ -69,7 +83,7 @@ helper.EmailRemainder2 = async () => {
         else{
             for(i = 0; i < reserDB.length; i++){
                 //calcula la diferencia entre la fecha de hoy y la de la reserva, en horas.
-                var diffDay = Math.abs(reserDB[i].AppointmentTime - dateStartDay) / 60 * 60 * 1000;
+                var diffDay = Math.abs(reserDB[i].AppointmentTime - dateStartDay) / (60 * 60 * 1000);
                 console.log(diffDay);
                 if(diffDay < hoursBefore){
                     email.sendEmail(reserDB[i].Client.Email, title, body);
