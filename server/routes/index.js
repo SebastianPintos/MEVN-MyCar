@@ -12,6 +12,8 @@ const reservation = require('../controllers/reservation');
 const employee = require('../controllers/employee');
 const branchOffice = require('../controllers/branchOffice');
 const remainder = require('../controllers/remainder');
+const model = require('../controllers/model');
+const brand = require('../controllers/brand');
 
 const Email = require('../lib/Email')
 
@@ -44,7 +46,17 @@ module.exports = app => {
     router.post('/employee/add', employee.create);
     router.post('/employee/:employee_id/update', employee.update);
     router.delete('/employee/:employee_id/delete', employee.remove);
-    
+ 
+    router.get('/model', model.index);
+    router.post('/model/add', model.create);
+    router.post('/model/:model_id/update', model.update);
+    router.delete('/model/:model_id/delete', model.remove);
+ 
+    router.get('/brand', brand.index);
+    router.post('/brand/add', brand.create);
+    router.post('/brand/:brand_id/update', brand.update);
+    router.delete('/brand/:brand_id/delete', brand.remove);
+
     router.get('/branchOffice', branchOffice.index);
     router.post('/branchOffice/add', branchOffice.create);
     router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
