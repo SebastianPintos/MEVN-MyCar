@@ -13,26 +13,26 @@
                             <h2>Filtros</h2>
                             <v-row>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-text-field v-model="filtros.Brand" label="Marca"></v-text-field>
+                                    <v-select v-model="filtros.Brand" v-on:change="filterModels()" :items="brandsList" item-text="Name" item-value="Name" label="Marca"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-text-field v-model="filtros.Model" label="Modelo"></v-text-field>
+                                    <v-select v-model="filtros.Model" :items="filteredModels" item-text="Name" item-value="Name" label="Modelo"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-text-field v-model="filtros.Category" label="Categoria"></v-text-field>
+                                    <v-select v-model="filtros.Category" :items="categoriesList" label="Categoria"></v-select>
                                 </v-col>
 
                                 <v-col cols="12" sm="6" md="4">
                                     <v-select v-model="filtros.Kind" :items="filtroNuevoUsado" label="Nuevo/Usado"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.Fuel" label="Combustible"></v-text-field>
+                                    <v-select v-model="filtros.Fuel" :items="fuelsList" label="Combustible"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-text-field v-model="filtros.Type" label="Tipo"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.transmission" label="Transmision"></v-text-field>
+                                    <v-select v-model="filtros.transmission" :items="transmissionsList" label="Transmision"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.origin" :items="paises" item-text="name" label="Origen"></v-select>
@@ -98,15 +98,15 @@
                                     <v-container>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
+                                                <v-select v-model="editedItem.Brand" v-on:change="filterModels()" :items="brandsList" item-text="Name" item-value="Name" label="Marca" :rules="requerido"></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Model" label="Modelo" :rules="requerido"></v-text-field>
+                                                <v-select v-model="editedItem.Model" :items="filteredModels" item-text="Name" item-value="Name" label="Modelo" :rules="requerido"></v-select>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
+                                                <v-select v-model="editedItem.Category" :items="categoriesList" label="Categoria" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-select v-model="editedItem.Kind" label="Nuevo/Usado" :items="nuevoUsado" :rules="requerido"></v-select>
@@ -115,10 +115,10 @@
                                                 <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Fuel" label="Combustible" :rules="requerido"></v-text-field>
+                                                <v-select v-model="editedItem.Fuel" :items="fuelsList" label="Combustible" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.transmission" label="Transmision" :rules="requerido"></v-text-field>
+                                                <v-select v-model="editedItem.transmission" :items="transmissionsList" label="Transmision" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-select v-model="editedItem.origin" :items="paises" item-text="name" label="Origen" :rules="requerido"></v-select>
@@ -308,6 +308,12 @@ export default {
         ],
         nuevoUsado: ['NUEVO', 'USADO'],
         filtroNuevoUsado: ['TODOS', 'NUEVO', 'USADO'],
+        fuelsList: ['Nafta','Diesel','Hibrido'],
+        categoriesList: ['Sedan 3prts','Sedan 5prts','SUV','HatchBack 3ptrs','HatchBack 5ptrs'],
+        transmissionsList: ['Automatica','Manual'],
+        brandsList: [],
+        modelsList: [],
+        filteredModels: [],
         vehículos: [],
         allvehiculos: [],
         vehículosFiltrados: [],
@@ -410,6 +416,14 @@ export default {
                     })
                 })
             this.vehículosFiltrados = this.vehículos;
+            axios.get(urlAPI + 'brand')
+                .then(res => {
+                    this.brandsList = res.data.brand.filter(brand => brand.Kind == 'VEHICLE');
+                })
+            axios.get(urlAPI + 'model')
+                .then(res => {
+                    this.modelsList = res.data.model;
+                })
         },
 
         async getDealers() {
@@ -424,6 +438,19 @@ export default {
                         })
                     }
                 })
+        },
+
+        filterModels(){
+            if(this.editedItem.Brand != ''){
+                this.filteredModels = []
+                let actualBrand;
+                actualBrand = this.brandsList.find(brand => brand.Name == this.editedItem.Brand)
+                this.modelsList.forEach(model => {
+                    if(model.Brand == actualBrand._id){
+                        this.filteredModels.push(model)
+                    }
+                })
+            }
         },
 
         initialize() {
