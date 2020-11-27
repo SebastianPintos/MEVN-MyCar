@@ -178,7 +178,7 @@
                     <v-toolbar-title v-html="selectedEvent.estado"></v-toolbar-title>
 
                     <v-flex class="text-right" style="margin-left:50px">
-                        <v-btn icon v-if="selectedEvent.estado=='Reservado' " @click="nuevoTurno = true">
+                        <v-btn icon v-if="selectedEvent.estado=='Reservado' " @click="nuevoTurno = true; editando = true">
                             <v-icon>mdi-pencil</v-icon>
                         </v-btn>
                         <v-btn icon @click="checkConfirm = true" v-if="selectedEvent.estado=='Reservado' ">
@@ -253,6 +253,7 @@ export default {
     data: () => ({
         editando: false,
         mensaje: "",
+        editedReserva: null,
         detalleReserva: "",
         valid: true,
         horaReserva: null,
@@ -623,44 +624,73 @@ export default {
             });
         },
 
-        editarReserva() {
-            let id = this.selectedEvent.id;
-          /*  axios.post(urlAPI + 'reservation/' + id + '/update', this.reservation).then(res => {
-                if (res.data.success == null) {
-                    let maxP = 0;
-                    let maxS = 0
-                    let max = 0;
-                    for (let i = 0; i < res.data.length; i++) {
-                        let repuesto = this.repuestos.filter(r => r._id == res.data[i]);
-                        if (repuesto != null) {
-                            if (repuesto.ShippingDealer > maxP) {
-                                maxP = repuesto.ShippingDealer;
-                            }
-                            if (repuesto.ShippingBranch > maxS) {
-                                maxS = repuesto.ShippingBranch;
-                            }
-                        }
-                        max = maxP > maxS ? maxP : maxS;
-                    }
-                    this.tituloMensaje = "No Disponible";
-                    this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles. Estarán disponibles en: " + max + " días.";
-                    this.dialogMensaje = true;
-                    this.horaReserva = null;
-
-                } else {
-                    this.tituloMensaje = "Reserva Actualizada con Éxito";
-                    this.mensaje = "Actualización realizada con éxito. Podrá consultar/modificar su reserva en la sección Reservas.";
-                    this.dialogMensaje = true;
-                    this.horaReserva = String(this.reservation.reservation.AppointmentTime);
-                    this.getReservas(this.sucursal._id);
+        getReserva(id) {
+            this.reservas.forEach(r => {
+                if (r._id === id) {
+                    this.editedReserva = r;
                 }
-                this.detalleReserva = "",
-                this.date = null;
-                this.horario = null;
-            });*/
-            console.log("id: "+id);
-            
+            })
         },
+
+        editarReserva() {
+            //Guarda 3hs de más, ver si en heroku hay que cambiarlo 
+            this.getReserva(this.selectedEvent.id);
+
+            if (this.editedReserva != null) {
+                let date = this.date + " " + this.horario;
+                this.reservation = {
+                    "reservation": {
+                        "Duration": this.editedReserva.Duration,
+                        "Price": this.editedReserva.Price,
+                        "Status": "ACTIVE",
+                        "Domain": this.editedReserva.Vehicle.Domain,
+                        "AppointmentTime": date,
+                        "Client": this.editedReserva.Client,
+                        "BranchOffice": this.sucursal,
+                        "Details": this.detalleReserva,
+                        "Service": this.editedReserva.Service,
+                        "Vehicle": {
+                            "VehicleID": this.editedReserva.Vehicle.VehicleID,
+                            "Domain": this.editedReserva.Vehicle.Domain
+                        }
+                    }
+                }
+                axios.post(urlAPI + 'reservation/' + this.selectedEvent.id + '/update', this.reservation).then(res => {
+                    if (res.data.success == null) {
+                        let maxP = 0;
+                        let maxS = 0
+                        let max = 0;
+                        for (let i = 0; i < res.data.length; i++) {
+                            let repuesto = this.repuestos.filter(r => r._id == res.data[i]);
+                            if (repuesto != null) {
+                                if (repuesto.ShippingDealer > maxP) {
+                                    maxP = repuesto.ShippingDealer;
+                                }
+                                if (repuesto.ShippingBranch > maxS) {
+                                    maxS = repuesto.ShippingBranch;
+                                }
+                            }
+                            max = maxP > maxS ? maxP : maxS;
+                        }
+                        this.tituloMensaje = "No Disponible";
+                        this.mensaje = "Algunos repuestos necesarios no se encuentran disponibles. Estarán disponibles en: " + max + " días.";
+                        this.dialogMensaje = true;
+                        this.horaReserva = null;
+
+                    } else {
+                        this.tituloMensaje = "Reserva Actualizada con Éxito";
+                        this.mensaje = "Actualización realizada con éxito. Podrá consultar/modificar su reserva en la sección Reservas.";
+                        this.dialogMensaje = true;
+                        this.horaReserva = String(this.reservation.reservation.AppointmentTime);
+                        this.getReservas(this.sucursal._id);
+                    }
+                    this.detalleReserva = "",
+                        this.date = null;
+                    this.horario = null;
+                });
+            }
+        },
+
         guardarReserva() {
             axios.post(urlAPI + 'reservation/add', this.reservation).then(res => {
                 if (res.data.success == null) {
