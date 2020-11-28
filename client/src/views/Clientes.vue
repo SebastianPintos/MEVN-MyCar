@@ -15,7 +15,7 @@
                 <td :colspan="headers.length">
 
                     <v-chip-group>
-                        <v-chip color="success" small v-for="v in item.Vehicle" :key="v._id">Vehículo: {{v.Domain}}</v-chip>
+                        <v-chip color="success" small v-for="v in item.Vehicle"  :key="v._id">Vehículo: {{v.Domain}}</v-chip>
                     </v-chip-group>
                 </td>
             </template>
@@ -548,16 +548,6 @@ export default {
         },
 
         getJSONClient(selected) {
-            let vehiculos = null;
-            if (this.selected[0].Vehicle != null) {
-                vehiculos = this.selected[0].Vehicle;
-                if (this.vehiculo != null) {
-                    vehiculos.push({
-                        "VehicleID": this.vehiculo,
-                        "Domain": this.dominio
-                    });
-                }
-            }
             return {
                 "client": {
                     "Name": selected.Name,
@@ -570,7 +560,6 @@ export default {
                     "CompanyName": selected.CompanyName,
                     "Nationality": selected.Nationality,
                     "TaxCategory": selected.TaxCategory,
-                    "Vehicle": vehiculos,
                 }
             };
         },
@@ -649,15 +638,23 @@ export default {
             return value == null ? "S/D" : String(value);
         },
 
-        asociarVehiculo() {
-            if (this.$refs.asociarVehiculo.validate()) {
-                this.editar("ACTIVE", this.selected[0]);
+        getJSONVehicle(){
+            return {
+                "vehicle":{
+                    "VehicleID":this.vehiculo,
+                    "Domain": this.dominio
+                }
             }
-            this.vehiculo = null;
-            this.dominio = "";
-            this.agregarVehiculo = false;
         },
 
+        asociarVehiculo() {
+            if (this.$refs.asociarVehiculo.validate()) {     
+                axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle",this.getJSONVehicle())
+            .then(res=>{
+                if(res!=null){
+                    this.vehiculo = null; this.dominio = ""; this.agregarVehiculo = false;this.selected=[];this.mensaje="Vehículo asociado con éxito"; this.snackbar=true}})
+         }
+        },
     },
 };
 </script>
