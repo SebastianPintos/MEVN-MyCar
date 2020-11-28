@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var ProductStockSchema = new Schema({
-  Code: {type: String,required: true},
   BatchNum: {type: String},
   Reserved: {type: Number},
   Available: {type: Number},
@@ -11,6 +10,7 @@ var ProductStockSchema = new Schema({
   Expiration: {type: Date},
   OrderDate: {type: Date},
   ArrivalDate: {type: Date},
+  Price: {type: Number, required: true},
   Product: {type: Schema.Types.ObjectId,required: true,ref: 'Product'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });

@@ -14,7 +14,6 @@ ctrl.create = (req, res) => {
     var body = req.body.productStock;
     console.log(req.body.productStock); 
     var productStock = new ProductStock({
-        Code: body.Code,
         BatchNum: body.BatchNum,
         Status: 'ACTIVE',
         Reserved: 0,
@@ -24,6 +23,7 @@ ctrl.create = (req, res) => {
         Expiration: body.Expiration,
         OrderDate: body.OrderDate,
         Product: body.Product,
+        Price: body.Product.Price
     });
     
     productStock.save((err) => {
@@ -42,7 +42,6 @@ ctrl.update = (req, res) => {
         else {
             if(!productStock) {console.log('No se encontró el producto específico')}
             else {
-                productStock.Code = body.Code;
                 productStock.BatchNum = body.BatchNum;
                 productStock.Status = 'ACTIVE';
                 productStock.Reserved= body.Reserved,
@@ -53,7 +52,8 @@ ctrl.update = (req, res) => {
                 productStock.Product = body.Product;
                 productStock.OrderDate= body.OrderDate,
                 productStock.ArrivalDate = body.ArrivalDate,
-               
+                productStock.Price = body.Price
+
                 productStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

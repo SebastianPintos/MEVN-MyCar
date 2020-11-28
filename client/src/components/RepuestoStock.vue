@@ -35,7 +35,13 @@
                             <v-card-title>Agregar Nuevo Stock:</v-card-title>
                             <br>
                             <v-card-text>
-                                <v-file-input accept=".txt" label="Haga click aquí para elegir un archivo .txt" outlined v-model="chosenFile">
+                                <v-select :items="proveedores" v-model="proveedor" item-text="Email" item-value="_id">
+                                    <template slot="item" slot-scope="data">
+                                        {{ data.item.Name }} - {{ data.item.Email }}
+                                    </template>
+                                </v-select>
+
+                                <v-file-input accept=".csv" label="Haga click aquí para elegir un archivo .csv" outlined v-model="chosenFile">
                                 </v-file-input>
                             </v-card-text>
                             <v-card-actions>
@@ -44,7 +50,7 @@
                                 <v-btn class="info" right @click="dialogStock=false">
                                     <v-icon>mdi-cancel</v-icon>
                                 </v-btn>
-                                <v-btn class="info" right @click="importTxt">
+                                <v-btn class="info" right @click="readFile">
                                     <v-icon>mdi-check</v-icon>
                                 </v-btn>
                             </v-card-actions>
@@ -107,6 +113,8 @@ export default {
         valid: true,
         dialogConfirm: false,
         selected: [],
+        proveedores: [],
+        proveedor: null,
         repuestosStock: [],
         repuestos: [],
         search: '',
@@ -151,7 +159,7 @@ export default {
         editedIndex: -1,
         attrs: '',
         on: '',
-        
+
         files: [],
         data: null,
         chosenFile: null,
@@ -160,6 +168,7 @@ export default {
     created() {
         this.getRepuestos();
         this.getrepuestosStock();
+        this.getProveedores();
     },
 
     methods: {
@@ -172,6 +181,20 @@ export default {
                         repuestosStock.forEach(repuesto => {
                             if (repuesto.Status === "ACTIVE") {
                                 this.repuestosStock.push(repuesto);
+                            }
+                        })
+                    }
+                })
+        },
+
+        async getProveedores() {
+            await axios.get(urlAPI + 'dealer')
+                .then(res => {
+                    let proveedores = res.data.dealer;
+                    if (proveedores != null) {
+                        proveedores.forEach(p => {
+                            if (p.Status === "ACTIVE" & p.Kind == "PRODUCT") {
+                                this.proveedores.push(p);
                             }
                         })
                     }
@@ -261,7 +284,7 @@ export default {
                     this.defectuosos = 0;
                     this.noRecibidos = 0;
                     this.dialogConfirm = false;
-                    this.selected=[];
+                    this.selected = [];
                     this.$refs.form.resetValidation();
                     Object.assign(this.repuestosStock[this.editedIndex], productEdited);
                     this.editedIndex = -1;
@@ -277,7 +300,7 @@ export default {
             this.getrepuestosStock();
         },
 
-        importTxt() {
+        /*importTxt() {
             var reader = new FileReader();
             reader.readAsText(this.chosenFile);
             reader.onload = () => {
@@ -300,8 +323,10 @@ export default {
                     this.mensaje = "No existen repuestos para referenciar!";
                     return;
                 }
-
-                for (let i = 0; i < dataParsed.repuestos.length; i++) {
+                for(let elemento in this.data){
+                    console.log(elemento);
+                }
+                /*for (let i = 0; i < dataParsed.repuestos.length; i++) {
                     let code = dataParsed.repuestos[i].Code;
                     let batchNum = dataParsed.repuestos[i].BatchNum;
                     let total = dataParsed.repuestos[i].TotalOrdered;
@@ -319,14 +344,92 @@ export default {
                         return;
                     }
                     this.createproduct(code, batchNum, total, product);
-                }
+                }*/
 
-                this.repuestosStock = [];
+        /*      this.repuestosStock = [];
                 this.getrepuestosStock();
                 this.dialogStock = false;
             }
             this.chosenFile = null;
             this.data = null;
+        }*/
+        parseCSV(text) {
+            // Obtenemos las lineas del texto
+            let lines = text.replace(/\r/g, '').split('\n');
+            return lines.map(line => {
+                // Por cada linea obtenemos los valores
+                let values = line.split(';');
+                return values;
+            });
+        },
+
+        reverseMatrix(matrix) {
+            let output = [];
+            // Por cada fila
+            matrix.forEach((values, row) => {
+                // Vemos los valores y su posicion
+                values.forEach((value, col) => {
+                    // Si la posición aún no fue creada
+                    if (output[col] === undefined) output[col] = [];
+                    output[col][row] = value;
+                });
+            });
+            return output;
+        },
+
+        readFile() {
+            //LOTE SKU TOTAL PRECIO UNITARIO
+            if (this.repuestos == null) {
+                this.snackbar = true;
+                this.mensaje = "No existen repuestos para referenciar!";
+                return;
+            }
+            let file = this.chosenFile;
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                // Cuando el archivo se terminó de cargar
+                let lines = this.parseCSV(e.target.result);
+                let output = this.reverseMatrix(lines);
+                if (output.length != 4) {
+                    this.mensaje = "Columnas inválidas, deben contener: N°de Lote, SKU, Total y Precio";
+                    this.snackbar = true;
+                }
+                for (let i = 1; i < output[2].length; i++) {
+                  const pattern = /^\d{1,}$/
+                    if (!pattern.test(output[2][i])) {
+                        this.mensaje = "Total inválido, debe ser un valor numérico";
+                        this.snackbar = true;
+                        return;
+                    }
+                    try {
+                        if (parseInt(output[2][i]) < 0) {
+                            this.mensaje = "Total inválido, debe ser un número mayor a 0";
+                            this.snackbar = true;
+                            return;
+                        }
+                    } catch(e) {
+                        this.mensaje = "Total inválido, debe ser un número mayor a 0";
+                        this.snackbar = true;
+                        return;
+                    }
+                }
+                for (let i = 1; i < output[3].length; i++) {
+                    try {
+                        if (parseFloat(output[3][i]) < 0) {
+                            this.mensaje = "Total inválido, debe ser un número mayor a 0";
+                            this.snackbar = true;
+                            return;
+                        }
+                    } catch(e) {
+                        this.mensaje = "Total inválido, debe ser un número mayor a 0";
+                        this.snackbar = true;
+                        return;
+                    }
+                }
+            };
+
+            // Leemos el contenido del archivo seleccionado
+            reader.readAsBinaryString(file);
         }
     },
 
