@@ -102,6 +102,15 @@
                 <v-list-item-title>Servicios</v-list-item-title>
             </v-list-item>
 
+            <v-list-item :to="'/ventas'">
+                <v-list-item-icon>
+                    <v-icon>mdi-briefcase-variant-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Ventas</v-list-item-title>
+            </v-list-item>
+
+            
+
         </v-list>
     </v-navigation-drawer>
 </div>
