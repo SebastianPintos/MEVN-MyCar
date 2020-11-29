@@ -39,7 +39,7 @@
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px">
+                    <v-dialog v-model="dialog" max-width="500px" persistent>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn @click="formTitle='Nuevo Cliente'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
@@ -61,7 +61,7 @@
                                                 <v-select v-model="client.Nationality" :items="paises" item-text="name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field :rules="reglaNombre" v-model="client.Name" label="Nombre"></v-text-field>
+                                                <v-text-field :rules="reglaNombre" hide-details="auto" v-model="client.Name" label="Nombre"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -118,7 +118,7 @@
                         </v-card>
                     </v-dialog>
 
-                    <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
                         <v-card>
                             <v-col cols="12" sm="12" md="12">
                                 <p class="headline">Ingrese los Motivos: </p>
@@ -137,7 +137,7 @@
             </template>
         </v-data-table>
 
-        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo">
+        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo" persistent>
             <v-card>
                 <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
                     <v-card-title>

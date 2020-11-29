@@ -23,7 +23,9 @@ ctrl.create = (req, res) => {
         Expiration: body.Expiration,
         OrderDate: body.OrderDate,
         Product: body.Product,
-        Price: body.Product.Price
+        Price: body.Price,
+        BranchOffice: body.BranchOffice
+        //MODIFICADO PRICE
     });
     
     productStock.save((err) => {
@@ -52,7 +54,8 @@ ctrl.update = (req, res) => {
                 productStock.Product = body.Product;
                 productStock.OrderDate= body.OrderDate,
                 productStock.ArrivalDate = body.ArrivalDate,
-                productStock.Price = body.Price
+                productStock.Price = body.Price,
+                productStock.BranchOffice = body.BranchOffice
 
                 productStock.save((err) => {
                     if(err) {console.log(err)}

@@ -2,7 +2,8 @@
 <div>
 <v-tabs background-color="#2764c4" tile dark grow>
       <v-tab  @click="vistaVehiculos = true; vistaRepuestos = false;">Vehículos</v-tab>
-      <v-tab  @click=" vistaVehiculos = false; vistaRepuestos = true;">Repuestos</v-tab>      
+      <v-tab  @click=" vistaVehiculos = false; vistaRepuestos = true;">Repuestos</v-tab>   
+      <v-btn color="grey" style="height: 100%"><v-icon>mdi-cart-outline</v-icon></v-btn>   
 </v-tabs>
 
 <VentaVehiculos v-show="vistaVehiculos" />

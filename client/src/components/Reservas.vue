@@ -53,7 +53,7 @@
         </v-toolbar>
     </template>
 
-    <v-dialog v-model="deleteConfirm" max-width="300px">
+    <v-dialog v-model="deleteConfirm" max-width="300px" persistent>
         <v-card>
             <v-card-title>Confirmación</v-card-title>
             <v-card-text>
@@ -72,7 +72,7 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="checkConfirm" max-width="300px">
+    <v-dialog v-model="checkConfirm" max-width="300px" persistent>
         <v-card>
             <v-card-title>Confirmación</v-card-title>
             <v-card-text>
@@ -91,7 +91,7 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="nuevoTurno" max-width="400px">
+    <v-dialog v-model="nuevoTurno" max-width="400px" persistent>
         <v-card>
             <v-card-title>
                 <h1>Día y Horario</h1>

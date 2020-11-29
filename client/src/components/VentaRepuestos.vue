@@ -1,30 +1,61 @@
-<!--template v-slot:[`item.actions`]="{ item }">
-
-            <v-btn v-if="item.carrito == false" fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(item)">
-                    mdi-cart-plus</v-icon>
-            </v-btn>
-            <v-btn v-if="item.carrito" fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
-                    mdi-cart-remove</v-icon>
-            </v-btn>
-
-        </template-->
 <template>
-  <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
+<div>
+    <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="repuestos" :search="search" item-key="_idTabla" class="elevation-1">
+        <template v-slot:item.BatchNum="{ item }">
+            {{ format(item.BatchNum) }}
+        </template>
+        <template v-slot:item.Expiration="{ item }">
+            {{ format(item.Expiration) }}
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
                 <v-icon class="text-center" @click="agregarAlCarrito(item)">
                     mdi-cart-plus</v-icon>
             </v-btn>
-            <v-btn v-if="item.carrito" fab small color="error">
+            <v-btn v-else fab small color="error">
                 <v-icon class="text-center" @click="eliminarDelCarrito(item)">
                     mdi-cart-remove</v-icon>
             </v-btn>
-
         </template>
-</v-data-table>
+    </v-data-table>
+    <v-dialog v-model="dialogCantidad" persistent max-width="600">
+        <v-card class="mx-auto" max-width="600">
+            <v-flex class="text-center">
+                <v-card-title>Cantidad</v-card-title>
+            </v-flex>
+
+            <v-card-text>
+                <v-col class="text-center">
+                    <span class="display-3 font-weight-light" v-text="cantidad"></span></v-col>
+                <v-slider v-model="cantidad" class="slide" color="orange" track-color="grey" always-dirty min="1" :max="max">
+                    <template v-slot:prepend>
+                        <v-icon color="blue" @click="decrement">
+                            mdi-minus
+                        </v-icon>
+                    </template>
+
+                    <template v-slot:append>
+                        <v-icon color="blue" @click="increment">
+                            mdi-plus
+                        </v-icon>
+                    </template>
+                </v-slider>
+            </v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn class="info mb-2" @click="cancelarCantidad">
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn class="info mb-2">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-card>
+
+    </v-dialog>
+</div>
 </template>
 
 <script>
@@ -35,31 +66,167 @@ export default {
     data: () => ({
         selected: [],
         singleSelect: true,
-        vehiculos: [],
+        repuestos: [],
+        repuestosFiltrados: [],
         search: '',
         on: '',
+        ultimoEnCarrito: null,
         attrs: '',
-          headers: [{
+        max: 0,
+        cantidad: 0,
+        dialogCantidad: false,
+        headers: [{
                 text: 'Marca',
-                value: 'Brand',
+                value: 'Product.Brand',
                 align: 'start',
                 sortable: false,
             },
             {
+                text: 'Categoría',
+                value: 'Product.Category',
+            },
+
+            {
+                text: 'Sub-categoría',
+                value: 'Product.SubCategory',
+            },
+            {
+                text: 'N° Lote',
+                value: 'BatchNum',
+            },
+
+            {
+                text: 'Vto',
+                value: 'Expiration',
+            },
+
+            {
                 text: 'Precio',
                 value: 'Price',
             },
-          ],
+
+            {
+                text: 'Disponibles',
+                value: 'Available',
+            },
+            {
+                text: 'Acciones',
+                value: 'actions',
+                sortable: false
+            },
+        ],
     }),
-    created(){
-        this.getVehiculos();
+    created() {
+        this.iniciar();
+        //this.getRepuestos();
     },
-    methods:{
-        getVehiculos(){
-            axios.get(urlAPI+'vehiclestock').then(res=>{
-                this.vehiculos = res.data.vehicle.filter(v=>{v.Status=="ACTIVE"});
+    methods: {
+        cancelarCantidad(){
+            this.eliminarDelCarrito(this.ultimoEnCarrito);
+            this.dialogCantidad=false;
+        },
+        /*getRepuestos() {
+            axios.get(urlAPI + 'vehiclestock').then(res => {
+                console.log(res);
+                console.log(JSON.stringify(res));
+                this.repuestos = res.data.vehicle.filter(v => v.Status == "ACTIVE");
             })
-        }
-    }
+        },*/
+        decrement() {
+            this.cantidad--
+        },
+        increment() {
+            this.cantidad++
+        },
+        iniciar() {
+            this.getRepuestos();
+            //this.obtenerDeLocalStorage();
+        },
+
+        async getRepuestos() {
+            let repuestos = [];
+            let repuestoAGuardar = {};
+            let cont = 0;
+            await axios.get(urlAPI + "productStock")
+                .then(res => {
+                    repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
+                    if (repuestos != null) {
+                        for (let i = 0; i < repuestos.length; i++) {
+                            let item = JSON.parse(localStorage.getItem(String("r" + i)));
+                            let disponibles = repuestos[i].Available != null ? repuestos[i].Available : 0;
+                            if (disponibles > 0) {
+                                let carrito = false;
+                                if (item != null) {
+                                    carrito = item.carrito;
+                                }
+                                repuestoAGuardar = {
+                                    "_id": repuestos[i]._id,
+                                    "BatchNum": repuestos[i].BatchNum,
+                                    "Available": repuestos[i].Available,
+                                    "Expiration": repuestos[i].Expiration,
+                                    "Product": repuestos[i].Product,
+                                    "BranchOffice": repuestos[i].BranchOffice,
+                                    "Status": repuestos[i].Status,
+                                    "Price": repuestos[i].Product.Price,
+                                    "carrito": carrito
+                                };
+                                this.repuestos.push(repuestoAGuardar);
+                                this.repuestosFiltrados.push(repuestoAGuardar);
+                                localStorage.setItem(String("r" + cont), JSON.stringify(repuestoAGuardar));
+                                cont++;
+                            }
+                        }
+                    }
+                    localStorage.setItem("lengthr", cont);
+                });
+        },
+        agregarAlCarrito(item) {
+            this.ultimoEnCarrito = item;
+            this.max = item.Available;
+            this.dialogCantidad = true;
+            let seleccionado = this.repuestos.indexOf(item);
+            if (seleccionado != -1) {
+                this.repuestos[seleccionado].carrito = true;
+                let item = JSON.parse(localStorage.getItem(String("r" + seleccionado)));
+                if (item != null) {
+                    item.carrito = true;
+                    localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
+                }
+            }
+        },
+        eliminarDelCarrito(item) {
+            let seleccionado = this.repuestos.indexOf(item);
+            if (seleccionado != -1) {
+                this.repuestos[seleccionado].carrito = false;
+                let item = JSON.parse(localStorage.getItem("r" + String(seleccionado)));
+                if (item != null) {
+                    item.carrito = false;
+                    localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
+                }
+            }
+        },
+
+        /*obtenerDeLocalStorage() {
+            let length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
+            length++;
+            for (let i = 0; i < length; i++) {
+                let vehiculo = JSON.parse(localStorage.getItem(String("r"+i)));
+                if (vehiculo != null) {
+                    this.repuestos.push(vehiculo);
+                }
+            }
+            this.repuestosFiltrados = this.repuestos;
+        },*/
+        format(value) {
+            return value == null ? "S/D" : String(value);
+        },
+    },
+
 }
 </script>
+
+<style>
+.slide {
+    touch-action: none;
+}
+</style>

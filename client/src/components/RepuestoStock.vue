@@ -27,7 +27,7 @@
             </template>
         </v-data-table>
 
-        <v-dialog v-model="dialogStock">
+        <v-dialog v-model="dialogStock" persistent>
             <v-container fill-height>
                 <v-row justify="center">
                     <v-col cols="auto">
@@ -60,7 +60,7 @@
             </v-container>
         </v-dialog>
 
-        <v-dialog v-if="dialogConfirm" v-model="dialogConfirm" max-width="500px">
+        <v-dialog v-if="dialogConfirm" v-model="dialogConfirm" max-width="500px" persistent>
             <v-card>
                 <v-form ref="form" v-model="valid" lazy-validation>
                     <v-card-title class="headline"> <span class="headline">Total ordenados: {{selected[0].TotalOrdered}}</span> </v-card-title>

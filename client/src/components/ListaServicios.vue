@@ -36,7 +36,7 @@
         </template>
     </v-data-table>
 
-    <v-dialog v-model="dialogCarrito" max-width="600px">
+    <v-dialog v-model="dialogCarrito" max-width="600px" persistent>
         <v-card>
             <v-card-title>
                 <h2>Detalle del Carrito</h2>
@@ -174,23 +174,8 @@
             </v-card-actions>
         </v-form>
     </v-card>
-    <v-dialog v-model="dialogCalendario" max-width="130px">
-        <v-card>
-            <v-card-text></v-card-text>
-            <v-card-actions>
-                <v-flex class="text-right">
-                    <v-btn class="error mb-2" @click="dialogCalendario=false">
-                        <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
-                    <v-btn :to="'/calendario'" class="info warning mb-2">
-                        <v-icon>mdi-calendar</v-icon>
-                    </v-btn>
-                </v-flex>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="deleteCarritoConfirm" max-width="300px">
+    
+    <v-dialog v-model="deleteCarritoConfirm" persistent max-width="300px">
         <v-card>
             <v-card-title>
                 <h3>Confirmación</h3>
@@ -235,7 +220,6 @@ export default {
         cliente: {},
         tabla: false,
         aceptado: false,
-        dialogCalendario: false,
         valid: true,
         deleteCarritoConfirm: false,
         filtros: [{

@@ -12,6 +12,7 @@ var ProductStockSchema = new Schema({
   ArrivalDate: {type: Date},
   Price: {type: Number, required: true},
   Product: {type: Schema.Types.ObjectId,required: true,ref: 'Product'},
+  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });
 

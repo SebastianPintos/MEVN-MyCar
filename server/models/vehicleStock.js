@@ -17,6 +17,7 @@ var VehicleStockSchema = new Schema({
         Detail: {type: String},
         PriceModifier: {type: Number}
     }],
+    BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
     Status: {type: String, enum: ['AVAILABLE', 'RESERVED', 'SOLD', 'NOT AVAILABLE'], required: true},
     ChangeStatus: [{
       Motive: {type: String},

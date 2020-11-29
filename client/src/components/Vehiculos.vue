@@ -81,7 +81,7 @@
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px">
+                    <v-dialog v-model="dialog" max-width="500px" persistent>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
@@ -204,7 +204,7 @@
                         </v-card>
 
                     </v-dialog>
-                    <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
                         <v-card>
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                             <v-card-actions>
