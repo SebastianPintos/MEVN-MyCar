@@ -24,7 +24,7 @@
             <v-flex class="text-center">
                 <v-card-title>Cantidad</v-card-title>
             </v-flex>
-
+            <v-form ref="form" v-model="valid" lazy-validation>
             <v-card-text>
                 <v-col class="text-center">
                     <span class="display-3 font-weight-light" v-text="cantidad"></span></v-col>
@@ -41,17 +41,20 @@
                         </v-icon>
                     </template>
                 </v-slider>
+                <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
+              
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
                     <v-btn class="info mb-2" @click="cancelarCantidad">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2">
+                    <v-btn class="info mb-2" @click="confirmarElemento">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
             </v-card-actions>
+            </v-form>
         </v-card>
 
     </v-dialog>
@@ -65,11 +68,13 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         selected: [],
+        descuento: 0,
         singleSelect: true,
         repuestos: [],
         repuestosFiltrados: [],
         search: '',
         on: '',
+        valid: true,
         ultimoEnCarrito: null,
         attrs: '',
         max: 0,
@@ -115,6 +120,13 @@ export default {
                 sortable: false
             },
         ],
+            requerido: [
+                value=>{
+                 const pattern = /^[0-9]{1,}$/
+                return pattern.test(value) || 'Requerido.'
+                },
+                value=> parseFloat(value)<100 || 'El máximo es 100%!'
+        ],
     }),
     created() {
         this.iniciar();
@@ -156,9 +168,14 @@ export default {
                             let disponibles = repuestos[i].Available != null ? repuestos[i].Available : 0;
                             if (disponibles > 0) {
                                 let carrito = false;
-                                if (item != null) {
+                                let descuento = 0;
+                                if (item != null && item.carrito!=null) {
                                     carrito = item.carrito;
                                 }
+                                if (item!=null && item.descuento!=null) {
+                                    descuento = item.descuento;
+                                }
+                                
                                 repuestoAGuardar = {
                                     "_id": repuestos[i]._id,
                                     "BatchNum": repuestos[i].BatchNum,
@@ -168,7 +185,8 @@ export default {
                                     "BranchOffice": repuestos[i].BranchOffice,
                                     "Status": repuestos[i].Status,
                                     "Price": repuestos[i].Product.Price,
-                                    "carrito": carrito
+                                    "carrito": carrito,
+                                    "descuento": descuento
                                 };
                                 this.repuestos.push(repuestoAGuardar);
                                 this.repuestosFiltrados.push(repuestoAGuardar);
@@ -190,6 +208,7 @@ export default {
                 let item = JSON.parse(localStorage.getItem(String("r" + seleccionado)));
                 if (item != null) {
                     item.carrito = true;
+                    item.descuento = this.descuento;
                     localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
                 }
             }
@@ -201,8 +220,17 @@ export default {
                 let item = JSON.parse(localStorage.getItem("r" + String(seleccionado)));
                 if (item != null) {
                     item.carrito = false;
+                    this.descuento = 0;
+                    item.descuento = this.descuento;
                     localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
                 }
+            }
+        },
+        confirmarElemento(){
+            if(this.$refs.form.validate()){
+                this.descuento = 0;
+                this.dialogCantidad = false;
+                this.cantidad = 0;
             }
         },
 

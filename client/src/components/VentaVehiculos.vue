@@ -11,20 +11,42 @@
 
         </template-->
 <template>
-<v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
-    <template v-slot:[`item.actions`]="{ item }">
+<div>
+    <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
+        <template v-slot:[`item.actions`]="{ item }">
 
-        <v-btn v-if="item.carrito == false" fab small color="success">
-            <v-icon class="text-center" @click="agregarAlCarrito(item)">
-                mdi-cart-plus</v-icon>
-        </v-btn>
-        <v-btn v-else fab small color="error">
-            <v-icon class="text-center" @click="eliminarDelCarrito(item)">
-                mdi-cart-remove</v-icon>
-        </v-btn>
+            <v-btn v-if="item.carrito == false" fab small color="success">
+                <v-icon class="text-center" @click="agregarAlCarrito(item);aplicarDescuento=true">
+                    mdi-cart-plus</v-icon>
+            </v-btn>
+            <v-btn v-else fab small color="error">
+                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
+                    mdi-cart-remove</v-icon>
+            </v-btn>
 
-    </template>
-</v-data-table>
+        </template>
+    </v-data-table>
+    <v-dialog v-model="aplicarDescuento" max-width="300px">
+        <v-card>
+            <v-card-title>Descuento</v-card-title>
+            <v-form ref="form" v-model="valid" lazy-validation>
+                <v-card-text>
+                    <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-flex class="text-right">
+                        <v-btn class="info mb-2" @click="cancelarCarrito">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn class="info mb-2" @click="confirmarElemento">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-card-actions>
+            </v-form>
+        </v-card>
+    </v-dialog>
+</div>
 </template>
 
 <script>
@@ -35,11 +57,22 @@ export default {
     data: () => ({
         selected: [],
         singleSelect: true,
+        aplicarDescuento: false,
         vehiculos: [],
         vehiculosFiltrados: [],
         search: '',
         on: '',
+        ultimoEnCarrito: null,
+        descuento: 0,
         attrs: '',
+        valid: true,
+        requerido: [
+            value => {
+                const pattern = /^[0-9]{1,}$/
+                return pattern.test(value) || 'Requerido.'
+            },
+            value => parseFloat(value) < 100 || 'El máximo es 100%!'
+        ],
         /*
           "ChasisNum": "10021",
     "EngineNum": "1421",
@@ -128,7 +161,7 @@ export default {
                             };
                             this.vehiculos.push(vehiculoAGuardar);
                             this.vehiculosFiltrados.push(vehiculoAGuardar);
-                            localStorage.setItem(String("v"+cont), JSON.stringify(vehiculoAGuardar));
+                            localStorage.setItem(String("v" + cont), JSON.stringify(vehiculoAGuardar));
                             cont++;
                         }
                     }
@@ -136,6 +169,7 @@ export default {
             localStorage.setItem("lengthv", cont);
         },
         agregarAlCarrito(item) {
+            this.ultimoEnCarrito = item;
             let seleccionado = this.vehiculos.indexOf(item);
             if (seleccionado != -1) {
                 this.vehiculos[seleccionado].carrito = true;
@@ -147,6 +181,7 @@ export default {
             }
         },
         eliminarDelCarrito(item) {
+            this.ultimoEnCarrito = false;
             let seleccionado = this.vehiculos.indexOf(item);
             if (seleccionado != -1) {
                 this.vehiculos[seleccionado].carrito = false;
@@ -156,6 +191,16 @@ export default {
                     localStorage.setItem(String("v" + seleccionado), JSON.stringify(item));
                 }
             }
+        },
+        confirmarElemento() {
+            if (this.$refs.form.validate()) {
+                this.descuento = 0;
+                this.aplicarDescuento = false;
+            }
+        },
+        cancelarCarrito() {
+            this.eliminarDelCarrito(this.ultimoEnCarrito);
+            this.aplicarDescuento = false
         },
 
         /*obtenerDeLocalStorage() {
