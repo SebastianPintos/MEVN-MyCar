@@ -45,17 +45,15 @@
                 <v-container>
                     <ol v-if="carritoCompleto!= null">
                         <li v-for="(servicio,index) in carritoCompleto.serviciosCarrito" :key="index">
+                            <h3>Servicio: </h3>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled label="Servicios:"></v-text-field>
-                                </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field disabled :value="servicio.Description"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled label="Precio Mano de Obra:"></v-text-field>
+                                    <strong><v-text-field disabled label="Precio Mano de Obra:"></v-text-field></strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field disabled prefix="$" :value="servicio.LaborPrice"></v-text-field>
@@ -63,7 +61,7 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled label="Duración Estimada:"></v-text-field>
+                                   <strong><v-text-field disabled label="Duración Estimada:"></v-text-field></strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field disabled :value="servicio.Time"></v-text-field>
@@ -74,18 +72,42 @@
                                 <h3 v-if="servicio.Product!=null & servicio.Product.length>0">Repuestos Asociados</h3>
 
                                 <li v-for="(repuesto, j) in servicio.Product" :key="j">
-                                    <v-row>
+                                <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled label="Código del Repuesto:"></v-text-field>
+                                            <strong><v-text-field disabled label="Marca:"></v-text-field></strong>
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled :value="repuesto.Code"></v-text-field>
+                                            <v-text-field disabled :value="repuesto.Brand"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <strong><v-text-field disabled label="Categoría:"></v-text-field></strong>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="repuesto.Category"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6" v-if="repuesto.Category!=null">
+                                            <strong><v-text-field disabled label="Sub-Categoría:"></v-text-field></strong>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="repuesto.SubCategory"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <strong><v-text-field disabled label="SKU:"></v-text-field></strong>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="repuesto.SKU"></v-text-field>
                                         </v-col>
                                     </v-row>
 
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled label="Precio del Repuesto:"></v-text-field>
+                                            <strong><v-text-field disabled label="Precio:"></v-text-field></strong>
                                         </v-col>
                                         <v-col cols="12" md="6">
                                             <v-text-field disabled prefix="$" :value="repuesto.Price"></v-text-field>
@@ -98,7 +120,7 @@
                     </ol>
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Tiempo Estimado Total:"></v-text-field>
+                            <strong><v-text-field disabled label="Tiempo Estimado Total:"></v-text-field></strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled :value="defaultCarritoCompleto.tiempoTotalString"></v-text-field>
@@ -107,7 +129,7 @@
 
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field>
+                            <strong><v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field></strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled :value="carritoCompleto.totalManoDeObra"></v-text-field>
@@ -116,7 +138,7 @@
 
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Subtotal Repuestos:"></v-text-field>
+                            <strong><v-text-field disabled label="Subtotal Repuestos:"></v-text-field></strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled prefix="$" :value="carritoCompleto.totalRepuestos"></v-text-field>
@@ -125,7 +147,7 @@
 
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Total:"></v-text-field>
+                            <strong><v-text-field disabled label="Total:"></v-text-field></strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled prefix="$" :value="carritoCompleto.total"></v-text-field>
@@ -435,7 +457,10 @@ export default {
                                 if (product.SalePrice != undefined) {
                                     sumaProductos += product.SalePrice;
                                     this.servicioEnCarrito.Product.push({
-                                        'Code': product.Code,
+                                        'Brand': product.Brand,
+                                        'Category': product.Category,
+                                        'SubCategory': product.SubCategory,
+                                        'SKU': product.SKU,
                                         'Price': product.SalePrice
                                     });
                                 }
