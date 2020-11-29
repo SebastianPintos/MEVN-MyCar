@@ -64,6 +64,7 @@ export default {
         on: '',
         ultimoEnCarrito: null,
         descuento: 0,
+        descontado: 0,
         attrs: '',
         valid: true,
         requerido: [
@@ -142,8 +143,16 @@ export default {
                         for (let i = 0; i < vehiculos.length; i++) {
                             let item = JSON.parse(localStorage.getItem(String("v" + i)));
                             let carrito = false;
+                            let descuento = 0;
+                            let descontado = 0;
                             if (item != null) {
                                 carrito = item.carrito;
+                            }
+                            if (item!=null && item.descuento!=null) {
+                                    descuento = item.descuento;
+                            }
+                            if (item!=null && item.descontado!=null) {
+                                    descontado = item.descontado;
                             }
                             vehiculoAGuardar = {
                                 "_id": vehiculos[i]._id,
@@ -158,6 +167,8 @@ export default {
                                 "Status": vehiculos[i].Status,
                                 "BranchOffice": vehiculos[i].BranchOffice,
                                 "carrito": carrito,
+                                "descuento": descuento,
+                                "descontado": descontado
                             };
                             this.vehiculos.push(vehiculoAGuardar);
                             this.vehiculosFiltrados.push(vehiculoAGuardar);
@@ -188,13 +199,27 @@ export default {
                 let item = JSON.parse(localStorage.getItem("v" + String(seleccionado)));
                 if (item != null) {
                     item.carrito = false;
+                    this.descuento = 0;
+                    item.descuento = 0;
                     localStorage.setItem(String("v" + seleccionado), JSON.stringify(item));
                 }
             }
         },
         confirmarElemento() {
             if (this.$refs.form.validate()) {
+                let index = this.vehiculos.indexOf(this.ultimoEnCarrito);
+                if(index!=-1){
+                    
+                let item = JSON.parse(localStorage.getItem("v" + String(index)));
+                if (item != null) {
+                    item.descuento = this.descuento;
+                    let valorDescuento = (item.PurchasedPrice*this.descuento)/100;
+                    item.descontado =item.PurchasedPrice-valorDescuento;
+                    localStorage.setItem(String("v" + String(index)), JSON.stringify(item));
+                }
+                }   
                 this.descuento = 0;
+                this.descontado = 0;
                 this.aplicarDescuento = false;
             }
         },

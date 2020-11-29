@@ -25,35 +25,35 @@
                 <v-card-title>Cantidad</v-card-title>
             </v-flex>
             <v-form ref="form" v-model="valid" lazy-validation>
-            <v-card-text>
-                <v-col class="text-center">
-                    <span class="display-3 font-weight-light" v-text="cantidad"></span></v-col>
-                <v-slider v-model="cantidad" class="slide" color="orange" track-color="grey" always-dirty min="1" :max="max">
-                    <template v-slot:prepend>
-                        <v-icon color="blue" @click="decrement">
-                            mdi-minus
-                        </v-icon>
-                    </template>
+                <v-card-text>
+                    <v-col class="text-center">
+                        <span class="display-3 font-weight-light" v-text="cantidad"></span></v-col>
+                    <v-slider v-model="cantidad" class="slide" color="orange" track-color="grey" always-dirty min="1" :max="max">
+                        <template v-slot:prepend>
+                            <v-icon color="blue" @click="decrement">
+                                mdi-minus
+                            </v-icon>
+                        </template>
 
-                    <template v-slot:append>
-                        <v-icon color="blue" @click="increment">
-                            mdi-plus
-                        </v-icon>
-                    </template>
-                </v-slider>
-                <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
-              
-            </v-card-text>
-            <v-card-actions>
-                <v-flex class="text-right">
-                    <v-btn class="info mb-2" @click="cancelarCantidad">
-                        <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
-                    <v-btn class="info mb-2" @click="confirmarElemento">
-                        <v-icon>mdi-check</v-icon>
-                    </v-btn>
-                </v-flex>
-            </v-card-actions>
+                        <template v-slot:append>
+                            <v-icon color="blue" @click="increment">
+                                mdi-plus
+                            </v-icon>
+                        </template>
+                    </v-slider>
+                    <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
+
+                </v-card-text>
+                <v-card-actions>
+                    <v-flex class="text-right">
+                        <v-btn class="info mb-2" @click="cancelarCantidad">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn class="info mb-2" @click="confirmarElemento">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-card-actions>
             </v-form>
         </v-card>
 
@@ -69,6 +69,7 @@ export default {
     data: () => ({
         selected: [],
         descuento: 0,
+        descontado: 0,
         singleSelect: true,
         repuestos: [],
         repuestosFiltrados: [],
@@ -107,7 +108,7 @@ export default {
 
             {
                 text: 'Precio',
-                value: 'Price',
+                value: 'Product.SalePrice',
             },
 
             {
@@ -120,12 +121,12 @@ export default {
                 sortable: false
             },
         ],
-            requerido: [
-                value=>{
-                 const pattern = /^[0-9]{1,}$/
+        requerido: [
+            value => {
+                const pattern = /^[0-9]{1,}$/
                 return pattern.test(value) || 'Requerido.'
-                },
-                value=> parseFloat(value)<100 || 'El máximo es 100%!'
+            },
+            value => parseFloat(value) < 100 || 'El máximo es 100%!'
         ],
     }),
     created() {
@@ -133,9 +134,9 @@ export default {
         //this.getRepuestos();
     },
     methods: {
-        cancelarCantidad(){
+        cancelarCantidad() {
             this.eliminarDelCarrito(this.ultimoEnCarrito);
-            this.dialogCantidad=false;
+            this.dialogCantidad = false;
         },
         /*getRepuestos() {
             axios.get(urlAPI + 'vehiclestock').then(res => {
@@ -169,13 +170,23 @@ export default {
                             if (disponibles > 0) {
                                 let carrito = false;
                                 let descuento = 0;
-                                if (item != null && item.carrito!=null) {
+                                let descontado = 0;
+                                let cantidad = 0;
+                    
+                                if (item != null && item.carrito != null) {
                                     carrito = item.carrito;
                                 }
-                                if (item!=null && item.descuento!=null) {
+                                 
+                                if (item != null && item.descontado != null) {
+                                    descontado = item.descontado;
+                                }
+                                if (item != null && item.descuento != null) {
                                     descuento = item.descuento;
                                 }
-                                
+                                if (item != null && item.cantidad != null) {
+                                    cantidad = item.cantidad;
+                                }
+
                                 repuestoAGuardar = {
                                     "_id": repuestos[i]._id,
                                     "BatchNum": repuestos[i].BatchNum,
@@ -184,9 +195,11 @@ export default {
                                     "Product": repuestos[i].Product,
                                     "BranchOffice": repuestos[i].BranchOffice,
                                     "Status": repuestos[i].Status,
-                                    "Price": repuestos[i].Product.Price,
+                                    "Price": repuestos[i].Product.SalePrice,
                                     "carrito": carrito,
-                                    "descuento": descuento
+                                    "descuento": descuento,
+                                    "cantidad": cantidad,
+                                    "descontado":descontado
                                 };
                                 this.repuestos.push(repuestoAGuardar);
                                 this.repuestosFiltrados.push(repuestoAGuardar);
@@ -208,7 +221,6 @@ export default {
                 let item = JSON.parse(localStorage.getItem(String("r" + seleccionado)));
                 if (item != null) {
                     item.carrito = true;
-                    item.descuento = this.descuento;
                     localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
                 }
             }
@@ -226,9 +238,22 @@ export default {
                 }
             }
         },
-        confirmarElemento(){
-            if(this.$refs.form.validate()){
+        confirmarElemento() {
+            if (this.$refs.form.validate()) {
+                let index = this.repuestos.indexOf(this.ultimoEnCarrito);
+                if (index != -1) {
+                    let item = JSON.parse(localStorage.getItem("r" + String(index)));
+                    if (item != null) {
+                        item.descuento = this.descuento;
+                        item.cantidad = this.cantidad;
+                        let valorDescuento = (item.Price*this.descuento)/100;
+                        item.descontado =item.Price-valorDescuento;
+                        localStorage.setItem(String("r" + String(index)), JSON.stringify(item));
+                    }
+                    
+                }
                 this.descuento = 0;
+                this.descontado = 0;
                 this.dialogCantidad = false;
                 this.cantidad = 0;
             }
