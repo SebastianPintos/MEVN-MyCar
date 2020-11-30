@@ -7,6 +7,7 @@ var PurchaseOrderSchema = new Schema({
   Price: {type: Number, required: true},
   Product: [{
     ProductID : {type: Schema.Types.ObjectId, required: true, ref: 'Product'},
+    BatchNum: {type: String},
     Expiration: {type: Date},
     TotalOrdered: {type: Number},
     Price: {type: Number, required: true}

@@ -73,6 +73,7 @@ module.exports = app => {
     router.post('/purchaseOrder/add', purchaseOrder.create);
     router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
     router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
+    router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);

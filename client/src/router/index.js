@@ -147,6 +147,7 @@ const routes = [
       import(/* webpackChunkName: "ventasRealizadas" */ "../views/VentasRealizadas.vue"),
     meta: { title: 'Ventas Realizadas' }
   },
+  
 
 ];
 

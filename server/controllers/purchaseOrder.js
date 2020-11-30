@@ -94,4 +94,25 @@ ctrl.remove = (req, res) => {
     });
 };
 
+ctrl.setArrival = (req, res) => {
+    var id = req.params.purchaseOrder_id;
+    PurchaseOrder.findOne({_id: id}, (err, purchaseOrder) => {
+        if(err) {console.log(err)}
+        else {
+            if(!purchaseOrder) {console.log('No se encontró el producto específico')}
+            else {
+                purchaseOrder.ArrivalDate = new Date();
+
+                purchaseOrder.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+};
+
 module.exports = ctrl;
