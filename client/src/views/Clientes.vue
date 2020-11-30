@@ -107,11 +107,11 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
+                                    <v-btn class="mb-2 info" text @click="close">
+                                        <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save(selected[0]!=null? selected[0]._id:-1)">
-                                        Guardar
+                                    <v-btn class="mb-2 info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
+                                        <v-icon>mdi-check</v-icon>
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>

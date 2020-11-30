@@ -41,7 +41,7 @@
                                     </template>
                                 </v-select>
 
-                                <v-file-input accept=".csv" label="Haga click aquí para elegir un archivo .csv" outlined v-model="chosenFile">
+                                <v-file-input accept=".csv" label="Haga click aquí para elegir un archivo .csv" disabled v-model="chosenFile">
                                 </v-file-input>
                             </v-card-text>
                             <v-card-actions>
@@ -71,8 +71,8 @@
                                 <ul>
                                     <li v-for="(repuesto, r) in order.Product" :key="r">
 
-                                        <v-text-field disabled   outlined :value="'SKU: '+repuesto.ProductID.SKU"></v-text-field>
-                                        <v-text-field disabled   outlined :value="' Marca: '+repuesto.ProductID.Brand"></v-text-field>
+                                        <v-text-field disabled :value="'SKU: '+repuesto.ProductID.SKU"></v-text-field>
+                                        <v-text-field disabled :value="' Marca: '+repuesto.ProductID.Brand"></v-text-field>
                                         <v-text-field disabled :value="'Categoría: '+repuesto.ProductID.Category"></v-text-field>
                                         <v-text-field v-if="repuesto.ProductID.SubCategory!=null" disabled :value="'Sub-Categoría: '+repuesto.ProductID.SubCategory"></v-text-field>
 
@@ -94,15 +94,16 @@
                         </ol>
 
                     </v-card-text>
+                    
                     <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn class="info" text @click="dialogConfirm=false">
+                        <v-flex class="text-right">
+                        <v-btn class="info mb-2" text @click="dialogConfirm=false">
                             <v-icon>mdi-cancel</v-icon>
                         </v-btn>
-                        <v-btn class="info" text @click="guardarLlegada">
+                        <v-btn class="info mb-2" text @click="guardarLlegada">
                             <v-icon>mdi-check</v-icon>
                         </v-btn>
-                        <v-spacer></v-spacer>
+                        </v-flex>
                     </v-card-actions>
                 </v-form>
             </v-card>
