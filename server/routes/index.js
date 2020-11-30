@@ -12,6 +12,7 @@ const reservation = require('../controllers/reservation');
 const employee = require('../controllers/employee');
 const branchOffice = require('../controllers/branchOffice');
 const remainder = require('../controllers/remainder');
+const ProductSale = require('../controllers/');
 
 const Email = require('../lib/Email')
 
@@ -82,5 +83,6 @@ module.exports = app => {
     router.post('/remainder/add', remainder.create);
     router.post('/remainder/:remainder_id/update', remainder.update);
 
+    router.get('/sell/product', productStock.index);
     app.use(router);
 }
