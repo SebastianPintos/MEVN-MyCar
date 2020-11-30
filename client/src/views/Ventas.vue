@@ -1,8 +1,9 @@
 <template>
 <div>
     <v-tabs background-color="#2764c4" tile dark grow>
-        <v-tab @click="vistaVehiculos = true; vistaRepuestos = false;">Vehículos</v-tab>
-        <v-tab @click=" vistaVehiculos = false; vistaRepuestos = true;">Repuestos</v-tab>
+        <v-tab @click="vistaVehiculos = true; vistaRepuestos = false; ventasRealizadas=false">Vehículos</v-tab>
+        <v-tab @click=" vistaVehiculos = false; vistaRepuestos = true;ventasRealizadas=false">Repuestos</v-tab>
+        <v-tab @click=" vistaVehiculos = false; vistaRepuestos = false;ventasRealizadas=true">Ventas Realizadas</v-tab>
         <v-btn color="grey" style="height: 100%" @click="mostrarCarrito">
             <v-icon>mdi-cart-outline</v-icon>
         </v-btn>
@@ -10,6 +11,8 @@
 
     <VentaVehiculos v-show="vistaVehiculos" />
     <VentaRepuestos v-show="vistaRepuestos" />
+    <VentasRealizadas v-show="ventasRealizadas" />
+
 
     <v-dialog v-model="dialogDetalle">
         <v-card>
@@ -224,6 +227,7 @@
 <script>
 import VentaRepuestos from '@/components/VentaRepuestos.vue';
 import VentaVehiculos from '@/components/VentaVehiculos.vue';
+import VentasRealizadas from '@/views/VentasRealizadas.vue';
 
 export default {
     data: () => ({
@@ -231,6 +235,7 @@ export default {
         vistaVehiculos: true,
         vistaRepuestos: false,
         dialogDetalle: false,
+        ventasRealizadas: false,
         carritoCompleto: {
             repuestosCarrito: [],
             vehiculosCarrito: [],
@@ -244,6 +249,7 @@ export default {
     components: {
         VentaVehiculos,
         VentaRepuestos,
+        VentasRealizadas
     },
     methods: {
         getVehiculos() {

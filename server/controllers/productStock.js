@@ -7,7 +7,7 @@ ctrl.index = (req, res) => {
         res.send({
             productStock: productStock
         })
-    }).populate('Product');
+    }).populate('Product').populate('BranchOffice');
 };
 
 ctrl.create = (req, res) => {
@@ -19,13 +19,11 @@ ctrl.create = (req, res) => {
         Reserved: 0,
         Available: 0,
         OutOfService: 0,
-        TotalOrdered: body.TotalOrdered,
         Expiration: body.Expiration,
-        OrderDate: body.OrderDate,
         Product: body.Product,
         Price: body.Price,
-        BranchOffice: body.BranchOffice
-        //MODIFICADO PRICE
+        BranchOffice: body.BranchOffice,
+        Dealer: body.Dealer
     });
     
     productStock.save((err) => {
@@ -49,14 +47,11 @@ ctrl.update = (req, res) => {
                 productStock.Reserved= body.Reserved,
                 productStock.Available= body.Available,        
                 productStock.OutOfService= body.OutOfService,
-                productStock.TotalOrdered= body.TotalOrdered,
                 productStock.Expiration= body.Expiration,
                 productStock.Product = body.Product;
-                productStock.OrderDate= body.OrderDate,
-                productStock.ArrivalDate = body.ArrivalDate,
                 productStock.Price = body.Price,
-                productStock.BranchOffice = body.BranchOffice
-
+                productStock.BranchOffice = body.BranchOffice,
+                productStock.Dealer = body.Dealer
                 productStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

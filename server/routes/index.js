@@ -4,6 +4,7 @@ const router = express.Router();
 const client = require('../controllers/client');
 const product = require('../controllers/product');
 const productStock = require('../controllers/productStock');
+const purchaseOrder = require('../controllers/purchaseOrder');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
@@ -66,6 +67,12 @@ module.exports = app => {
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
     router.delete('/productStock/:productStock_id/delete', productStock.remove);
+
+    
+    router.get('/purchaseOrder', purchaseOrder.index);
+    router.post('/purchaseOrder/add', purchaseOrder.create);
+    router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
+    router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);
