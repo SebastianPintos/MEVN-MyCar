@@ -8,7 +8,7 @@
 </v-tabs>
 
 <Repuestos v-show="vistaMaestros" />
-<RepuestoStock v-show="vistaOrdenes" />
+<OrdenCompraR v-show="vistaOrdenes" />
 <ProductStock v-show="vistaStock" />
 <Proveedores tipo="PRODUCT" v-show="vistaProveedores" />
 </div>
@@ -16,7 +16,7 @@
 
 <script>
 import Repuestos from '@/components/Repuestos.vue';
-import RepuestoStock from '@/components/RepuestoStock.vue';
+import OrdenCompraR from '@/components/OrdenCompraR.vue';
 import Proveedores from '@/components/Proveedores.vue';
 import ProductStock from '@/components/ProductStock.vue';
 
@@ -29,7 +29,7 @@ export default {
    }),
    components: {
         Repuestos,
-        RepuestoStock,
+        OrdenCompraR,
         Proveedores,
         ProductStock
     }
