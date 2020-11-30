@@ -73,6 +73,11 @@
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+
+                    <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="calcularStock">
+                        Stock
+                    </v-btn>
+
                     <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
@@ -231,6 +236,35 @@
                 </v-btn>
             </template>
         </v-snackbar>
+
+        <v-dialog v-model="dialogStock" persistent max-width="400px">
+            <v-card>
+                <v-flex class="text-center">
+                    <v-card-text>
+                        <h2>Nuevos</h2>
+                        <h3 v-if="stockNuevos.disponibles==0">-Sin Stock-</h3>
+                            <v-text-field disabled :label="'Disponibles: '+stockNuevos.disponibles"></v-text-field>
+                            <v-text-field disabled :label="'No Disponibles: '+stockNuevos.noDisponibles"></v-text-field>
+                            <v-text-field disabled :label="'Reservados: '+stockNuevos.reservados"></v-text-field>
+                            <v-text-field disabled :label="'Vendidos: '+stockNuevos.vendidos"></v-text-field>
+                         <h2>Usados</h2>
+                        <h3 v-if="stockUsados.disponibles==0">-Sin Stock-</h3>
+                            <v-text-field disabled :label="'Disponibles: '+stockUsados.disponibles"></v-text-field>
+                            <v-text-field disabled :label="'No Disponibles: '+stockUsados.noDisponibles"></v-text-field>
+                            <v-text-field disabled :label="'Reservados: '+stockUsados.reservados"></v-text-field>
+                            <v-text-field disabled :label="'Vendidos: '+stockUsados.vendidos"></v-text-field>
+                    </v-card-text>
+                </v-flex>
+                <v-card-actions>
+                    <v-flex class="text-right">
+                        <v-btn class="info" @click="stockUsados=defaultStock;stockNuevos=defaultStock;dialogStock=false;selected=[]">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
     </div>
 </v-img>
 </template>
@@ -241,6 +275,26 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         paises: [],
+        dialogStock: false,
+        stockNuevos: {
+            disponibles: 0,
+            reservados: 0,
+            vendidos: 0,
+            noDisponibles: 0
+        },
+        stockUsados: {
+            disponibles: 0,
+            reservados: 0,
+            vendidos: 0,
+            noDisponibles: 0
+        },
+        defaultStock: {
+            disponibles: 0,
+            reservados: 0,
+            vendidos: 0,
+            noDisponibles: 0
+        },
+        vehicleStock: [],
         textoBoton: ['mdi-pencil', 'mdi-eyedropper-minus'],
         classBoton: ['success', 'error'],
         classBotonPorcentaje: 'success',
@@ -308,9 +362,9 @@ export default {
         ],
         nuevoUsado: ['NUEVO', 'USADO'],
         filtroNuevoUsado: ['TODOS', 'NUEVO', 'USADO'],
-        fuelsList: ['Nafta','Diesel','Hibrido'],
-        categoriesList: ['Sedan 3prts','Sedan 5prts','SUV','HatchBack 3ptrs','HatchBack 5ptrs'],
-        transmissionsList: ['Automatica','Manual'],
+        fuelsList: ['Nafta', 'Diesel', 'Hibrido'],
+        categoriesList: ['Sedan 3prts', 'Sedan 5prts', 'SUV', 'HatchBack 3ptrs', 'HatchBack 5ptrs'],
+        transmissionsList: ['Automatica', 'Manual'],
         brandsList: [],
         modelsList: [],
         filteredModels: [],
@@ -392,6 +446,7 @@ export default {
         this.getVehicles();
         this.getDealers();
         this.getPaises();
+        this.getVehicleStock();
     },
 
     methods: {
@@ -440,13 +495,27 @@ export default {
                 })
         },
 
-        filterModels(){
-            if(this.editedItem.Brand != ''){
+        async getVehicleStock() {
+            await axios.get(urlAPI + 'vehiclestock')
+                .then(res => {
+                    let vehicleList = res.data.vehicle;
+                    if (vehicleList != null) {
+                        vehicleList.forEach(v => {
+                            if (v.Status == "AVAILABLE") {
+                                this.vehicleStock.push(v);
+                            }
+                        })
+                    }
+                })
+        },
+
+        filterModels() {
+            if (this.editedItem.Brand != '') {
                 this.filteredModels = []
                 let actualBrand;
                 actualBrand = this.brandsList.find(brand => brand.Name == this.editedItem.Brand)
                 this.modelsList.forEach(model => {
-                    if(model.Brand == actualBrand._id){
+                    if (model.Brand == actualBrand._id) {
                         this.filteredModels.push(model)
                     }
                 })
@@ -727,7 +796,50 @@ export default {
 
             }
             this.close()
-        }
+        },
+
+        calcularStock() {
+            if (!this.mensajeNoSelecciono) {
+                if (this.selected.length > 1) {
+                    this.mensaje = "Sólo puede corroborar stock de un elemento a la vez!";
+                    this.snackbar = true;
+                    return;
+                }
+            }
+            if (this.vehicleStock.length == 0) {
+                this.mensaje = "No hay vehículos en stock para corroborar!";
+                this.snackbar = true;
+                return;
+            }
+            let vehiculosEnStock = this.vehicleStock.filter(v => v.Vehicle._id == this.selected[0]._id);
+    
+            let nuevos = vehiculosEnStock.filter(v => v.Kind == "NUEVO");
+            let usados = vehiculosEnStock.filter(v => v.Kind == "USADO");
+
+            nuevos.forEach(n => {
+                if (n.Status == "AVAILABLE")
+                    this.stockNuevos.disponibles++;
+                if (n.Status == "RESERVED")
+                    this.stockNuevos.reservados++;
+                if (n.Status == "SOLD")
+                    this.stockNuevos.vendidos++;
+                if (n.Status == "NOT AVAILABLE")
+                    this.stockNuevos.noDisponibles++;
+            });
+            usados.forEach(u => {
+                if (u.Status == "AVAILABLE")
+                    this.stockUsados.disponibles++;
+                if (u.Status == "RESERVED")
+                    this.stockUsados.reservados++;
+                if (u.Status == "SOLD")
+                    this.stockUsados.vendidos++;
+                if (u.Status == "NOT AVAILABLE")
+                    this.stockUsados.noDisponibles++;
+            });
+            this.dialogStock = true;
+            console.log("NUEVOS: " + JSON.stringify(this.stockNuevos));
+            console.log("USADOS: " + JSON.stringify(this.stockUsados));
+        },
     },
 }
 </script>

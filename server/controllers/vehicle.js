@@ -119,6 +119,7 @@ ctrl.createStock = (req, res) => {
         Vehicle: body.Vehicle,
         UsedDetail: body.UsedDetail,
         Status: 'AVAILABLE',
+        Kind: body.Kind,
         BranchOffice: body.BranchOffice
     });
 
@@ -149,7 +150,8 @@ ctrl.updateStock = (req, res) => {
                 vehicleStock.UsedDetail = body.UsedDetail;
                 vehicleStock.Status = body.Status;
                 vehicleStock.ChangeStatus.push(body.ChangeStatus)
-                vehicleStock.BranchOffice = body.BranchOffice
+                vehicleStock.BranchOffice = body.BranchOffice,
+                vehicleStock.Kind = body.Kind,
                 vehicleStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
