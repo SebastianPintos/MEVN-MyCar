@@ -26,7 +26,7 @@
 
         </template>
     </v-data-table>
-    <v-dialog v-model="aplicarDescuento" max-width="300px">
+    <v-dialog v-model="aplicarDescuento" max-width="300px" persistent>
         <v-card>
             <v-card-title>Descuento</v-card-title>
             <v-form ref="form" v-model="valid" lazy-validation>
