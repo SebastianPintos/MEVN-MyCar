@@ -16,6 +16,9 @@ const remainder = require('../controllers/remainder');
 const model = require('../controllers/model');
 const brand = require('../controllers/brand');
 
+const category = require('../controllers/category');
+const subcategory = require('../controllers/subcategory');
+
 const Email = require('../lib/Email')
 
 module.exports = app => {
@@ -57,6 +60,17 @@ module.exports = app => {
     router.post('/brand/add', brand.create);
     router.post('/brand/:brand_id/update', brand.update);
     router.delete('/brand/:brand_id/delete', brand.remove);
+
+    
+    router.get('/category', category.index);
+    router.post('/category/add', category.create);
+    router.post('/category/:category_id/update', category.update);
+    router.delete('/category/:category_id/delete', category.remove);
+    
+    router.get('/subcategory', subcategory.index);
+    router.post('/subcategory/add', subcategory.create);
+    router.post('/subcategory/:subcategory_id/update', subcategory.update);
+    router.delete('/subcategory/:subcategory_id/delete', subcategory.remove);
 
     router.get('/branchOffice', branchOffice.index);
     router.post('/branchOffice/add', branchOffice.create);
