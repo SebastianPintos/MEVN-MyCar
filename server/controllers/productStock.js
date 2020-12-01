@@ -86,4 +86,19 @@ ctrl.remove = (req, res) => {
     });
 };
 
+ctrl.ModifyStock = (req,res) => {
+    var products = req.body;
+    for(x=0; x < products.length; x++){
+        ProductStock.findOne( {id: products[x].id}, (err,productDb) => {
+            if(err) {console.log(err)} 
+            else{ 
+                productDb.Available -= 1;
+            }
+            productDb.save((err) => {
+                if(err) {console.log(err)}
+            });
+        });  
+    }
+}
+
 module.exports = ctrl;
