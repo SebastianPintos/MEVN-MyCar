@@ -117,7 +117,7 @@ ctrl.getInfo = async (req, res) => {
                         res.status(200).json(employee);
                     }
                 }
-            })
+            }).select('-Password');
         }
     })
 }
