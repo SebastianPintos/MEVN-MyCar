@@ -15,7 +15,6 @@ ctrl.create = (req, res) => {
     var body = req.body.product;
     console.log(req.body.product); 
     var product = new Product({
-        Code: body.SKU+body.Dealer.Email,
         Description: body.Description,
         Category: body.Category,
         SubCategory: body.SubCategory,
@@ -44,7 +43,6 @@ ctrl.update = (req, res) => {
         else {
             if(!product) {console.log(' no se encontro')}
             else {
-                product.Code= body.SKU+body.Dealer.Email,
                 product.Description= body.Description,
                 product.Category=body.Category,
                 product.SubCategory= body.SubCategory,

@@ -2,7 +2,6 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var ProductSchema = new Schema({
-    Code: {type: String, required: true},
     Description: {type: String},
     Category: {type: String, required: true},
     SubCategory: {type: String},

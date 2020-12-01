@@ -117,6 +117,37 @@ const routes = [
       import(/* webpackChunkName: "servicios" */ "../views/Mails.vue"),
     meta: { title: 'Configuración Mails' }
   },
+  {
+    path: "/ventas",
+    name: "Ventas",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "ventas" */ "../views/Ventas.vue"),
+    meta: { title: 'Ventas' }
+  },
+  {
+    path: "/pagos",
+    name: "Pagos",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "pagos" */ "../views/Pagos.vue"),
+    meta: { title: 'Pagos' }
+  },
+  {
+    path: "/ventasRealizadas",
+    name: "VentasRealizadas",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "ventasRealizadas" */ "../views/VentasRealizadas.vue"),
+    meta: { title: 'Ventas Realizadas' }
+  },
+  
 
 ];
 
