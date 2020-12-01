@@ -2,7 +2,7 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
 
-        <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="purchaseOrders" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+        <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="ordenes" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
             <template v-slot:item.OrderDate="{ item }">
                 {{ formatDate(item.OrderDate) }}
             </template>
@@ -64,23 +64,19 @@
 
                         <ol>
                             <ul>
-                                <li v-for="(repuesto, r) in selected[0].Product" :key="r">
+                                <li v-for="(vehiculo, r) in selected[0].Vehicle" :key="r">
 
-                                    <v-text-field disabled :value="'SKU: '+repuesto.ProductID.SKU"></v-text-field>
-                                    <v-text-field disabled :value="' Marca: '+repuesto.ProductID.Brand"></v-text-field>
-                                    <v-text-field disabled :value="'Categoría: '+repuesto.ProductID.Category"></v-text-field>
-                                    <v-text-field v-if="repuesto.ProductID.SubCategory!=null" disabled :value="'Sub-Categoría: '+repuesto.ProductID.SubCategory"></v-text-field>
-
-                                    <v-text-field v-if="repuesto.ProductID.BatchNum!=null" disabled :value="'N°Lote: '+repuesto.ProductID.BatchNum"></v-text-field>
-                                    <v-text-field disabled :value="'Cantidad: '+repuesto.TotalOrdered"></v-text-field>
+                                    <v-text-field disabled :value="'Marca: '+vehiculo.VehicleID.Brand"></v-text-field>
+                                    <v-text-field disabled :value="' Modelo: '+vehiculo.VehicleID.Model"></v-text-field>
+                                    <v-text-field disabled :value="'Año: '+vehiculo.VehicleID.year"></v-text-field>
+                                    <v-text-field v-if="vehiculo.VehicleID.Kind!=null" disabled :value="'Nuevo/Usado: '+vehiculo.VehicleID.SubCategory"></v-text-field>
 
                                     <v-row>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field type="number" v-model="fueraServicio[r]" label="Recibidos defectuosos" @keypress="comprobarMax($event,r,fueraServicio,noLlegaron)"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field type="number" v-model="noLlegaron[r]" label="No Recibidos" @keypress="comprobarMax($event,r,noLlegaron,fueraServicio)"></v-text-field>
-                                        </v-col>
+                                    <v-radio-group mandatory class="text-align: left" v-model="recibidos[r]" row :rules="requerido">
+                                                <h3>Recibido: </h3>
+                                                <v-radio class="mb-1" label="Sí" value="true"></v-radio>
+                                                <v-radio class="mb-1" label="No" value="false"></v-radio>
+                                    </v-radio-group>
                                     </v-row>
 
                                 </li>
@@ -135,14 +131,11 @@ export default {
         selected: [],
         proveedores: [],
         proveedor: null,
-        purchaseOrders: [],
-        fueraServicio: [],
-        noLlegaron: [],
+        vehiclesStock: [],
         max: [],
-        repuestos: [],
+        ordenes: [],
         search: '',
-        defectuosos: 0,
-        noRecibidos: 0,
+        recibidos: [],
         reglaNumero: [
             value => {
                 const pattern = /^[0-9]{1,}$/
@@ -183,21 +176,21 @@ export default {
     }),
 
     created() {
-        this.getRepuestos();
-        this.getOrders();
+        this.getOrdenes();
+        this.getVehicleStock();
         this.getProveedores();
     },
 
     methods: {
 
-        async getOrders() {
-            await axios.get(urlAPI + 'purchaseOrder')
+        async getVehicleStock() {
+            await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
-                    let purchaseOrders = res.data.purchaseOrder;
-                    if (purchaseOrders != null) {
-                        purchaseOrders.forEach(orden => {
+                    let vehiclesStock = res.data.vehicleStock;
+                    if (vehiclesStock != null) {
+                        vehiclesStock.forEach(orden => {
                             if (orden.Status === "ACTIVE") {
-                                this.purchaseOrders.push(orden);
+                                this.vehiclesStock.push(orden);
                             }
                         })
                     }
@@ -210,7 +203,7 @@ export default {
                     let proveedores = res.data.dealer;
                     if (proveedores != null) {
                         proveedores.forEach(p => {
-                            if (p.Status === "ACTIVE" & p.Kind == "PRODUCT") {
+                            if (p.Status === "ACTIVE" & p.Kind == "VEHICLE") {
                                 this.proveedores.push(p);
                             }
                         })
@@ -218,30 +211,18 @@ export default {
                 })
         },
 
-        async getRepuestos() {
-            await axios.get(urlAPI + 'product')
+        async getOrdenes() {
+            await axios.get(urlAPI + 'purchaseOrderV')
                 .then(res => {
-                    let repuestos = res.data.product;
-                    if (repuestos != null) {
-                        repuestos.forEach(orden => {
+                    let ordenes = res.data.purchaseOrderV;
+                    if (ordenes != null) {
+                        ordenes.forEach(orden => {
                             if (orden.Status === "ACTIVE") {
-                                this.repuestos.push(orden);
+                                this.ordenes.push(orden);
                             }
                         })
                     }
                 })
-        },
-
-        async createproduct(code, bn, total, product) {
-            await axios.post(urlAPI + 'productStock/add', {
-                "productStock": {
-                    "Code": code,
-                    "BatchNum": bn,
-                    "TotalOrdered": total,
-                    "OrderDate": new Date(),
-                    "Product": product,
-                }
-            })
         },
 
         formatPrice(value) {
@@ -273,58 +254,93 @@ export default {
                 return;
 
             }
-            /*for (let i = 0; i < this.purchaseOrders.length; i++) {
-                for (let j = 0; j < this.purchaseOrders[i].Product.length; j++) {
-                    this.max.push(this.purchaseOrders[i].Product[j].TotalOrdered);
-                    this.fueraServicio.push(0);
-                    this.noLlegaron.push(0);
-                }
-            }*/
-            for (let j = 0; j < this.selected[0].Product.length; j++) {
-                this.max.push(this.selected[0].Product[j].TotalOrdered);
-                this.fueraServicio.push(0);
-                this.noLlegaron.push(0);
+            
+            for (let j = 0; j < this.selected[0].Vehicle.length; j++) {
+                this.recibidos.push(true);
             }
+            /*
+            ESTADOS DE UN VEHÍCULO: ACTIVE, INACTIVE
+            ESTADOS DE UN VEHÍCULO STOCK: ['AVAILABLE', 'RESERVED', 'SOLD', 'NOT AVAILABLE']
+              OrderDate: {type: Date},
+  ArrivalDate: {type: Date},
+  Price: {type: Number, required: true},
+  Vehicle: [{
+    ChasisNum: {type: String, required: true},
+    EngineNum: {type: String, required: true},
+    Domain: {type: String},
+    Color: {type: String, required: true}, 
+    Detail: {type: String},
+    Kind: {type: String, enum: ['NUEVO', 'USADO'], required: true},
+    VehicleID : {type: Schema.Types.ObjectId, required: true, ref: 'Vehicle'},
+    Price: {type: Number, required: true},
+    TotalOrdered: {type: Number, required: true},
+  }],
+  Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
+  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+  ------
+  */
+
             this.dialogConfirm = true
         },
 
         guardarLlegada() {
-            for (let i = 0; i < this.selected[0].Product.length; i++) {
-                let noDisponibles = Number(this.fueraServicio[i]) + Number(this.noLlegaron[i]);
-                let disponibles = Number(this.selected[0].Product[i].TotalOrdered) - noDisponibles;
-              let repuestoStock = {
-                    "productStock": {
-                        "BatchNum": this.selected[0].Product[i].BatchNum,
-                        "Status": "ACTIVE",
-                        "Available": disponibles,
-                        "OutOfService": noDisponibles,
-                        "Reserved": 0,
-                        "Expiration": this.selected[0].Product[i].Expiration,
+/*ChasisNum: {type: String, required: true},
+    EngineNum: {type: String, required: true},
+    Domain: {type: String},
+    Color: {type: String, required: true}, 
+    PurchasedPrice: {type: Number, required: true},
+    Detail: {type: String},
+    Vehicle: {
+        type: Schema.Types.ObjectId, 
+        required: true, 
+        ref: 'Vehicle'
+    },
+    UsedDetail: [{
+        Detail: {type: String},
+        PriceModifier: {type: Number}
+    }],
+    BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+    Status: {type: String, enum: ['AVAILABLE', 'RESERVED', 'SOLD', 'NOT AVAILABLE'], required: true},
+    Kind: {type: String, enum: ['NUEVO', 'USADO'], required: true},
+    ChangeStatus: [{
+      Motive: {type: String},
+      EmployerID: {type: Schema.Types.ObjectId, required: true}
+    },{timestamps: true}]
+*/
+            for (let i = 0; i < this.selected[0].Vehicle.length; i++) {
+            let status = this.recibidos[i] =="true"? "AVAILABLE": "NOT AVAILABLE";
+            console.log("STATUS: "+status)
+            let vehiculoStock = {
+                    "vehicleStock": {
+                        "ChasisNum":this.selected[0].Vehicle[i].ChasisNum,
+                        "EngineNum":this.selected[0].Vehicle[i].EngineNum,
+                        "Status": status,
+                        "Color": this.selected[0].Vehicle[i].Color,
+                        "PurchasedPrice": this.selected[0].Vehicle[i].Price,
+                        "Vehicle": this.selected[0].Vehicle[i],
                         "Dealer": this.selected[0].Dealer,
                         "BranchOffice": this.selected[0].BranchOffice,
-                        "Product": this.selected[0].Product[i].ProductID._id,
-                        "Price": this.selected[0].Product[i].Price
-
+                        "Kind":"NUEVO",
                     }
                 };
-                axios.post(urlAPI + 'productStock/add', repuestoStock);
+                axios.post(urlAPI + 'vehicleStock/add', vehiculoStock);
             }
-            axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
+            axios.post(urlAPI + 'purchaseOrderV/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {
-                    this.purchaseOrders = [];
-                    this.getOrders();
+                    this.ordenes = [];
+                    this.getOrdenes();
                 }
             });
             this.selected=[];
+            this.recibidos=[];
             this.dialogConfirm = false;
-            this.fueraServicio=[];
-            this.noLlegaron=[];
         },
 
-        async updateProduct(productEdited) {
+        async updateVehicle(productEdited) {
             await axios.post(urlAPI + 'productStock/' + this.selected[0]._id + '/update', productEdited);
-            this.purchaseOrders = [];
-            this.getOrders();
+            this.vehiclesStock = [];
+            this.getVehicleStock();
         },
 
         comprobarMax(event, r, array, otroArray) {
@@ -367,15 +383,15 @@ export default {
         readFile() {
             //LOTE SKU TOTAL PRECIO UNITARIO
             /*FORMATO ARCHIVO: 
-              0-SKU: Product.ProductID.SKU
+              0-SKU: Vehicle.VehicleID.SKU
               1-LOTE: nLote
-              2-VENCIMIENTO: Product.Expiration,
+              2-VENCIMIENTO: Vehicle.Expiration,
               3-TOTAL: TotalOrdered,
               4-PRECIO: Price,*/
             if (this.$refs.formStock.validate()) {
-                if (this.repuestos == null) {
+                if (this.ordenes == null) {
                     this.dialogMensaje = true;
-                    this.mensaje = "No existen repuestos para referenciar!";
+                    this.mensaje = "No existen ordenes para referenciar!";
                     return;
                 }
                 let file = this.chosenFile;
@@ -399,8 +415,8 @@ export default {
             /*OrderDate: {type: Date},
             ArrivalDate: {type: Date},
             Price: {type: Number, required: true},
-            Product: [{
-            ProductID : {type: Schema.Types.ObjectId, required: true, ref: 'Product'},
+            Vehicle: [{
+            VehicleID : {type: Schema.Types.ObjectId, required: true, ref: 'Vehicle'},
             Expiration: {type: Date},
             TotalOrdered: {type: Number},
             Price: {type: Number, required: true}
@@ -409,34 +425,34 @@ export default {
             BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
             Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},*/
             let orden = this.getJSONOrder(output);
-            axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
+            axios.post(urlAPI + 'vehicleStock/add', orden).then(res => {
                 if (res != null) {
-                    this.purchaseOrders = [];
-                    this.getOrders();
+                    this.vehiclesStock = [];
+                    this.getVehicleStock();
                 }
             });
             this.dialogStock = false;
 
         },
         getJSONOrder(output) {
-            /* 0-SKU: Product.ProductID.SKU
+            /* 0-SKU: Vehicle.VehicleID.SKU
               1-LOTE: nLote
-              2-VENCIMIENTO: Product.Expiration,
+              2-VENCIMIENTO: Vehicle.Expiration,
               3-TOTAL: TotalOrdered,
               4-PRECIO: Price,*/
             let precio = 0;
             let product = [];
 
             for (let i = 1; i < output[1].length; i++) {
-                let productID = this.repuestos.filter(r => r.SKU == output[0][i]);
+                let productID = this.ordenes.filter(r => r.SKU == output[0][i]);
                 if (productID != null & productID.length > 0) {
                     let expiration = new Date(output[2][i]) != null ? new Date(output[2][i]) : null;
                     let total = Number(output[3][i]);
                     let precioUnitario = Number(output[4][i]);
                     precio += precioUnitario * total;
                     product.push({
-                        "ProductID": productID[0],
-                        "BatchNum": output[1][i],
+                        "VehicleID": productID[0],
+                        "ChasisNum": output[1][i],
                         "Expiration": expiration,
                         "TotalOrdered": total,
                         "Price": precioUnitario,
@@ -444,10 +460,10 @@ export default {
                 }
             };
             return {
-                "purchaseOrder": {
+                "vehicleStock": {
                     "OrderDate": new Date(),
                     "Price": precio,
-                    "Product": product,
+                    "Vehicle": product,
                     "Dealer": this.proveedor,
                     "BranchOffice": "5fb3d83987565231fcd5a756",
                 }

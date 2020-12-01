@@ -232,18 +232,6 @@ export default {
                 })
         },
 
-        async createproduct(code, bn, total, product) {
-            await axios.post(urlAPI + 'productStock/add', {
-                "productStock": {
-                    "Code": code,
-                    "BatchNum": bn,
-                    "TotalOrdered": total,
-                    "OrderDate": new Date(),
-                    "Product": product,
-                }
-            })
-        },
-
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
