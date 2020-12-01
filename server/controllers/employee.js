@@ -1,5 +1,6 @@
 const ctrl = {};
 var Employee = require("../models/employee");
+var encrypt = require('../lib/helperEncrypt');
 
 ctrl.index = (req, res) => {
     Employee.find((err, employee) => {
@@ -15,7 +16,7 @@ ctrl.create = (req, res) => {
     console.log(req.body.employee); 
     var employee = new Employee({
         User: body.User,
-        Password: body.Password,
+        Password: encrypt.encryptPassword(body.Password),
         Name: body.Name,
         LastName: body.LastName,
         DNI: body.DNI,
@@ -44,7 +45,6 @@ ctrl.update = (req, res) => {
             if(!employee) {console.log('No se encontró el empleado')}
             else {
                 employee.User = body.User;
-                employee.Password = body.Password;
                 employee.Name = body.Name;
                 employee.LastName = body.LastName;
                 employee.DNI = body.DNI;

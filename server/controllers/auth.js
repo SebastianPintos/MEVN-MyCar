@@ -88,7 +88,33 @@ ctrl.changePassword = async (req, res) => {
                                 res.status(200).json({title: 'Contraseña cambiada correctamente'});
                             }
                         });
+                    }
+                }
+            })
+        }
+    })
+}
 
+ctrl.getInfo = async (req, res) => {
+    var token = req.headers.token;
+
+    jwt.verify(token, 'thetruekeyisfrindship', (err, decoded) => {
+        if(err){
+            console.log(err)
+            res.status(400).json({title: 'error al validar token'})
+        }
+        else{   
+            Employee.findOne({_id: decoded.id}, async (err, employee) => {
+                if(err){
+                    console.log(err)
+                    res.status(400).json({title: 'error al acceder a la base'})
+                }
+                else{
+                    if(!employee) {
+                        res.status(401).json({title: 'No se encontro el usuario'})
+                    }
+                    else{
+                        res.status(200).json(employee);
                     }
                 }
             })
