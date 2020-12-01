@@ -4,6 +4,7 @@ const router = express.Router();
 const client = require('../controllers/client');
 const product = require('../controllers/product');
 const productStock = require('../controllers/productStock');
+const purchaseOrder = require('../controllers/purchaseOrder');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
@@ -13,6 +14,11 @@ const employee = require('../controllers/employee');
 const branchOffice = require('../controllers/branchOffice');
 const remainder = require('../controllers/remainder');
 const auth = require('../controllers/auth');
+const model = require('../controllers/model');
+const brand = require('../controllers/brand');
+
+const category = require('../controllers/category');
+const subcategory = require('../controllers/subcategory');
 
 const Email = require('../lib/Email')
 
@@ -45,7 +51,28 @@ module.exports = app => {
     router.post('/employee/add', employee.create);
     router.post('/employee/:employee_id/update', employee.update);
     router.delete('/employee/:employee_id/delete', employee.remove);
+ 
+    router.get('/model', model.index);
+    router.post('/model/add', model.create);
+    router.post('/model/:model_id/update', model.update);
+    router.delete('/model/:model_id/delete', model.remove);
+ 
+    router.get('/brand', brand.index);
+    router.post('/brand/add', brand.create);
+    router.post('/brand/:brand_id/update', brand.update);
+    router.delete('/brand/:brand_id/delete', brand.remove);
+
     
+    router.get('/category', category.index);
+    router.post('/category/add', category.create);
+    router.post('/category/:category_id/update', category.update);
+    router.delete('/category/:category_id/delete', category.remove);
+    
+    router.get('/subcategory', subcategory.index);
+    router.post('/subcategory/add', subcategory.create);
+    router.post('/subcategory/:subcategory_id/update', subcategory.update);
+    router.delete('/subcategory/:subcategory_id/delete', subcategory.remove);
+
     router.get('/branchOffice', branchOffice.index);
     router.post('/branchOffice/add', branchOffice.create);
     router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
@@ -55,6 +82,13 @@ module.exports = app => {
     router.post('/productStock/add', productStock.create);
     router.post('/productStock/:productStock_id/update', productStock.update);
     router.delete('/productStock/:productStock_id/delete', productStock.remove);
+
+    
+    router.get('/purchaseOrder', purchaseOrder.index);
+    router.post('/purchaseOrder/add', purchaseOrder.create);
+    router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
+    router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
+    router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);

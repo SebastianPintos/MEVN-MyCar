@@ -36,7 +36,7 @@
         </template>
     </v-data-table>
 
-    <v-dialog v-model="dialogCarrito" max-width="600px">
+    <v-dialog v-model="dialogCarrito" max-width="600px" persistent>
         <v-card>
             <v-card-title>
                 <h2>Detalle del Carrito</h2>
@@ -45,17 +45,17 @@
                 <v-container>
                     <ol v-if="carritoCompleto!= null">
                         <li v-for="(servicio,index) in carritoCompleto.serviciosCarrito" :key="index">
+                            <h3>Servicio: </h3>
                             <v-row>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled label="Servicios:"></v-text-field>
-                                </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field disabled :value="servicio.Description"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled label="Precio Mano de Obra:"></v-text-field>
+                                    <strong>
+                                        <v-text-field disabled label="Precio Mano de Obra:"></v-text-field>
+                                    </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field disabled prefix="$" :value="servicio.LaborPrice"></v-text-field>
@@ -63,7 +63,9 @@
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled label="Duración Estimada:"></v-text-field>
+                                    <strong>
+                                        <v-text-field disabled label="Duración Estimada:"></v-text-field>
+                                    </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field disabled :value="servicio.Time"></v-text-field>
@@ -76,16 +78,50 @@
                                 <li v-for="(repuesto, j) in servicio.Product" :key="j">
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled label="Código del Repuesto:"></v-text-field>
+                                            <strong>
+                                                <v-text-field disabled label="Marca:"></v-text-field>
+                                            </strong>
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled :value="repuesto.Code"></v-text-field>
+                                            <v-text-field disabled :value="repuesto.Brand"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <strong>
+                                                <v-text-field disabled label="Categoría:"></v-text-field>
+                                            </strong>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="repuesto.Category"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6" v-if="repuesto.Category!=null">
+                                            <strong>
+                                                <v-text-field disabled label="Sub-Categoría:"></v-text-field>
+                                            </strong>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="repuesto.SubCategory"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <strong>
+                                                <v-text-field disabled label="SKU:"></v-text-field>
+                                            </strong>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field disabled :value="repuesto.SKU"></v-text-field>
                                         </v-col>
                                     </v-row>
 
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field disabled label="Precio del Repuesto:"></v-text-field>
+                                            <strong>
+                                                <v-text-field disabled label="Precio:"></v-text-field>
+                                            </strong>
                                         </v-col>
                                         <v-col cols="12" md="6">
                                             <v-text-field disabled prefix="$" :value="repuesto.Price"></v-text-field>
@@ -98,7 +134,9 @@
                     </ol>
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Tiempo Estimado Total:"></v-text-field>
+                            <strong>
+                                <v-text-field disabled label="Tiempo Estimado Total:"></v-text-field>
+                            </strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled :value="defaultCarritoCompleto.tiempoTotalString"></v-text-field>
@@ -107,7 +145,9 @@
 
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field>
+                            <strong>
+                                <v-text-field disabled label="Subtotal Mano de Obra:"></v-text-field>
+                            </strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled :value="carritoCompleto.totalManoDeObra"></v-text-field>
@@ -116,7 +156,9 @@
 
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Subtotal Repuestos:"></v-text-field>
+                            <strong>
+                                <v-text-field disabled label="Subtotal Repuestos:"></v-text-field>
+                            </strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled prefix="$" :value="carritoCompleto.totalRepuestos"></v-text-field>
@@ -125,7 +167,9 @@
 
                     <v-row>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled label="Total:"></v-text-field>
+                            <strong>
+                                <v-text-field disabled label="Total:"></v-text-field>
+                            </strong>
                         </v-col>
                         <v-col cols="12" md="6">
                             <v-text-field disabled prefix="$" :value="carritoCompleto.total"></v-text-field>
@@ -174,23 +218,8 @@
             </v-card-actions>
         </v-form>
     </v-card>
-    <v-dialog v-model="dialogCalendario" max-width="130px">
-        <v-card>
-            <v-card-text></v-card-text>
-            <v-card-actions>
-                <v-flex class="text-right">
-                    <v-btn class="error mb-2" @click="dialogCalendario=false">
-                        <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
-                    <v-btn :to="'/calendario'" class="info warning mb-2">
-                        <v-icon>mdi-calendar</v-icon>
-                    </v-btn>
-                </v-flex>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
 
-    <v-dialog v-model="deleteCarritoConfirm" max-width="300px">
+    <v-dialog v-model="deleteCarritoConfirm" persistent max-width="300px">
         <v-card>
             <v-card-title>
                 <h3>Confirmación</h3>
@@ -235,7 +264,6 @@ export default {
         cliente: {},
         tabla: false,
         aceptado: false,
-        dialogCalendario: false,
         valid: true,
         deleteCarritoConfirm: false,
         filtros: [{
@@ -451,7 +479,10 @@ export default {
                                 if (product.SalePrice != undefined) {
                                     sumaProductos += product.SalePrice;
                                     this.servicioEnCarrito.Product.push({
-                                        'Code': product.Code,
+                                        'Brand': product.Brand,
+                                        'Category': product.Category,
+                                        'SubCategory': product.SubCategory,
+                                        'SKU': product.SKU,
                                         'Price': product.SalePrice
                                     });
                                 }
@@ -511,7 +542,7 @@ export default {
             marca = marca == null ? "" : marca;
             modelo = modelo == null ? "" : modelo;
             año = año == null ? "" : año;
-       
+
             if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
                 return
             }
@@ -560,43 +591,52 @@ export default {
         },
 
         cambiarVehiculo(client) {
+            this.cliente = client;
+            let vehiculos = [];
             this.clientes.forEach(cliente => {
                 if (cliente._id == client) {
+                    console.log("IGUALES");
                     cliente.Vehicle.forEach(vehiculo => {
-                        this.vehicles.push(vehiculo);
+                        vehiculos.push(vehiculo);
                     })
                 }
+                this.vehicles = vehiculos
             });
         },
 
         obtenerVehiculo() {
-            axios.get(urlAPI + 'vehicle/' + this.vehiculo)
+            axios.get(urlAPI + 'vehicle/' + this.vehiculo._id)
                 .then(res => {
-                    this.vehicle = res.data.vehicle;
-                    this.filtros.Model = this.vehicle.Model;
-                    this.filtros.Brand = this.vehicle.Brand;
-                    this.filtros.year = this.vehicle.year;
-                    this.clientes.forEach(cliente => {
-                        if (cliente._id == this.cliente) {
-                            cliente.Vehicle.forEach(vehiculo => {
-                                if (vehiculo.VehicleID == this.vehiculo) {
-                                    this.Domain = vehiculo.Domain;
-                                };
-                            })
+                    if (res.data != null) {
+                        this.vehicle = res.data.vehicle;
+                        this.filtros.Model = this.vehicle.Model;
+                        this.filtros.Brand = this.vehicle.Brand;
+                        this.filtros.year = this.vehicle.year;
+
+                        this.clientes.forEach(cliente => {
+                            if (cliente._id == this.cliente) {
+                                cliente.Vehicle.forEach(vehiculo => {
+                                    if (vehiculo.VehicleID == this.vehiculo) {
+                                        this.Domain = vehiculo.Domain;
+                                    };
+                                })
+                            }
+                        });
+                        console.log("CLIENTE: "+JSON.stringify(this.cliente));
+                        console.log(this.cliente);
+                        localStorage.setItem("cliente", JSON.stringify({
+                            "cliente": this.cliente,
+                            "vehiculo": this.vehicle,
+                            "domain": this.Domain,
+                        }));
+                        let sucursal = this.sucursales.filter(sucursal => sucursal.Name == this.filtros.BranchOffice);
+                        if (sucursal != null) {
+                            localStorage.removeItem("sucursal");
+                            localStorage.setItem("sucursal", JSON.stringify(sucursal[0]));
                         }
-                    });
-                    localStorage.setItem("cliente", JSON.stringify({
-                        "cliente": this.cliente,
-                        "vehiculo": this.vehicle,
-                        "domain": this.Domain,
-                    }));
-                    let sucursal = this.sucursales.filter(sucursal => sucursal.Name == this.filtros.BranchOffice);
-                    if (sucursal != null) {
-                        localStorage.removeItem("sucursal");
-                        localStorage.setItem("sucursal", JSON.stringify(sucursal[0]));
+                        this.serviciosFiltrados = [];
+                        this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.year);
                     }
-                    this.serviciosFiltrados = [];
-                    this.aplicarFiltros(res.data.vehicle.Brand, res.data.vehicle.Model, res.data.vehicle.year);
                 });
 
         },

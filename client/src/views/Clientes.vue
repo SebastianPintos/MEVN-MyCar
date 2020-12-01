@@ -15,7 +15,7 @@
                 <td :colspan="headers.length">
 
                     <v-chip-group>
-                        <v-chip color="success" small v-for="v in item.Vehicle" :key="v._id">Vehículo: {{v.Domain}}</v-chip>
+                        <v-chip color="success" small v-for="v in item.Vehicle"  :key="v._id">Vehículo: {{v.Domain}}</v-chip>
                     </v-chip-group>
                 </td>
             </template>
@@ -39,7 +39,7 @@
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px">
+                    <v-dialog v-model="dialog" max-width="500px" persistent>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn @click="formTitle='Nuevo Cliente'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
@@ -61,7 +61,7 @@
                                                 <v-select v-model="client.Nationality" :items="paises" item-text="name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field :rules="reglaNombre" v-model="client.Name" label="Nombre"></v-text-field>
+                                                <v-text-field :rules="reglaNombre" hide-details="auto" v-model="client.Name" label="Nombre"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -107,18 +107,18 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
+                                    <v-btn class="mb-2 info" text @click="close">
+                                        <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save(selected[0]!=null? selected[0]._id:-1)">
-                                        Guardar
+                                    <v-btn class="mb-2 info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
+                                        <v-icon>mdi-check</v-icon>
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>
                         </v-card>
                     </v-dialog>
 
-                    <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
                         <v-card>
                             <v-col cols="12" sm="12" md="12">
                                 <p class="headline">Ingrese los Motivos: </p>
@@ -137,7 +137,7 @@
             </template>
         </v-data-table>
 
-        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo">
+        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo" persistent>
             <v-card>
                 <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
                     <v-card-title>
@@ -548,16 +548,6 @@ export default {
         },
 
         getJSONClient(selected) {
-            let vehiculos = null;
-            if (this.selected[0].Vehicle != null) {
-                vehiculos = this.selected[0].Vehicle;
-                if (this.vehiculo != null) {
-                    vehiculos.push({
-                        "VehicleID": this.vehiculo,
-                        "Domain": this.dominio
-                    });
-                }
-            }
             return {
                 "client": {
                     "Name": selected.Name,
@@ -570,7 +560,6 @@ export default {
                     "CompanyName": selected.CompanyName,
                     "Nationality": selected.Nationality,
                     "TaxCategory": selected.TaxCategory,
-                    "Vehicle": vehiculos,
                 }
             };
         },
@@ -649,15 +638,23 @@ export default {
             return value == null ? "S/D" : String(value);
         },
 
-        asociarVehiculo() {
-            if (this.$refs.asociarVehiculo.validate()) {
-                this.editar("ACTIVE", this.selected[0]);
+        getJSONVehicle(){
+            return {
+                "vehicle":{
+                    "VehicleID":this.vehiculo,
+                    "Domain": this.dominio
+                }
             }
-            this.vehiculo = null;
-            this.dominio = "";
-            this.agregarVehiculo = false;
         },
 
+        asociarVehiculo() {
+            if (this.$refs.asociarVehiculo.validate()) {     
+                axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle",this.getJSONVehicle())
+            .then(res=>{
+                if(res!=null){
+                    this.vehiculo = null; this.dominio = ""; this.agregarVehiculo = false;this.selected=[];this.mensaje="Vehículo asociado con éxito"; this.snackbar=true}})
+         }
+        },
     },
 };
 </script>

@@ -8,7 +8,7 @@ ctrl.index = (req, res) => {
         res.send({
             client: client
         })
-    }).populate('Vehicle');
+    }).populate('Vehicle.VehicleID');
 };
 
 ctrl.create = (req, res) => {

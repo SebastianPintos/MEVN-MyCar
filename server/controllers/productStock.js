@@ -7,23 +7,22 @@ ctrl.index = (req, res) => {
         res.send({
             productStock: productStock
         })
-    }).populate('Product');
+    }).populate('Product').populate('BranchOffice');
 };
 
 ctrl.create = (req, res) => {
     var body = req.body.productStock;
     console.log(req.body.productStock); 
     var productStock = new ProductStock({
-        Code: body.Code,
         BatchNum: body.BatchNum,
         Status: 'ACTIVE',
         Reserved: 0,
         Available: 0,
         OutOfService: 0,
-        TotalOrdered: body.TotalOrdered,
         Expiration: body.Expiration,
-        OrderDate: body.OrderDate,
         Product: body.Product,
+        Price: body.Price,
+        BranchOffice: body.BranchOffice
     });
     
     productStock.save((err) => {
@@ -42,18 +41,15 @@ ctrl.update = (req, res) => {
         else {
             if(!productStock) {console.log('No se encontró el producto específico')}
             else {
-                productStock.Code = body.Code;
                 productStock.BatchNum = body.BatchNum;
                 productStock.Status = 'ACTIVE';
                 productStock.Reserved= body.Reserved,
                 productStock.Available= body.Available,        
                 productStock.OutOfService= body.OutOfService,
-                productStock.TotalOrdered= body.TotalOrdered,
                 productStock.Expiration= body.Expiration,
                 productStock.Product = body.Product;
-                productStock.OrderDate= body.OrderDate,
-                productStock.ArrivalDate = body.ArrivalDate,
-               
+                productStock.Price = body.Price,
+                productStock.BranchOffice = body.BranchOffice,
                 productStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
