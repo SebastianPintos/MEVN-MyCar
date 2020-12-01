@@ -575,6 +575,9 @@ export default {
             return this.$refs.form.validate();
         },
         crearReserva() {
+            console.log(this.cliente.cliente);
+            
+            console.log(JSON.stringify(this.cliente));
             if (!this.validate()) {
                 return;
             }
