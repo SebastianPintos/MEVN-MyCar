@@ -119,6 +119,8 @@ module.exports = app => {
     router.post('/signup', auth.signup);
     router.post('/login', auth.login);
     router.post('/changepassword', auth.changePassword);
+    router.get('/getinfo', auth.getInfo);
+    
 
     app.use(router);
 }
