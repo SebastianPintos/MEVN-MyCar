@@ -14,6 +14,7 @@ const reservation = require('../controllers/reservation');
 const employee = require('../controllers/employee');
 const branchOffice = require('../controllers/branchOffice');
 const remainder = require('../controllers/remainder');
+const auth = require('../controllers/auth');
 const model = require('../controllers/model');
 const brand = require('../controllers/brand');
 
@@ -118,11 +119,16 @@ module.exports = app => {
     router.post('/reservation/checkHour', reservation.checkHour);
     
     router.post('/reservation/prueba', reservation.pruebas);
-    //router.get('/reservation/:reservation_id/reservationConfirm', Email.ReservationConfirm);
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);
     router.post('/remainder/:remainder_id/update', remainder.update);
+
+    router.post('/signup', auth.signup);
+    router.post('/login', auth.login);
+    router.post('/changepassword', auth.changePassword);
+    router.get('/getinfo', auth.getInfo);
+    
 
     app.use(router);
 }
