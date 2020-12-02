@@ -2,7 +2,6 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import axios from "axios";
 import urlAPI from "../config/config.js"
-import store from "../store/index.js";
 
 Vue.use(VueRouter);
 
@@ -212,15 +211,13 @@ router.afterEach((to) => {
         document.title = to.meta.title || DEFAULT_TITLE;
     });
 });
-var logged = false;
-var userType = '';
 router.beforeEach((to, from, next) => {
       axios.get(urlAPI + 'getinfo',{
         "headers":{
           "token": localStorage.getItem('token')
         }
       })
-      .then(data => {
+      .then(() => {
         localStorage.setItem('logged',true)
       })
       .catch(() => localStorage.setItem('logged',false))
