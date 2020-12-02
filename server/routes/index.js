@@ -102,7 +102,8 @@ module.exports = app => {
     router.post('/product/add', product.create);
     router.post('/product/:product_id/update', product.update);
     router.delete('/product/:product_id/delete', product.remove);
-
+    router.post('/product/:product_id/actualizarPrecio', product.actualizarPrecioCompra);
+    
     router.get('/service', service.index);
     router.post('/service/add', service.create);
     router.post('/service/:service_id/update', service.update);

@@ -299,11 +299,12 @@ export default {
                         "Dealer": this.selected[0].Dealer,
                         "BranchOffice": this.selected[0].BranchOffice,
                         "Product": this.selected[0].Product[i].ProductID._id,
-                        "Price": this.selected[0].Product[i].Price
+                        "Price": this.selected[0].Product[i].ProductID.SalePrice
 
                     }
                 };
                 axios.post(urlAPI + 'productStock/add', repuestoStock);
+                axios.post(urlAPI+'product/'+this.selected[0].Product[i].ProductID._id+'/actualizarPrecio',{"precio":this.selected[0].Product[i].Price})
             }
             axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {

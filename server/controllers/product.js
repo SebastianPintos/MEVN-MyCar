@@ -85,4 +85,26 @@ ctrl.remove = (req, res) =>{
     })
 };
 
+ctrl.actualizarPrecioCompra = (req, res) =>{
+    var id = req.params.product_id;
+    var nuevoPrecio = req.body.precio;
+    Product.findOne({_id: id}, (err, product) => {
+        if(err) {console.log(err)}
+        else {
+            if(!product) {console.log(' no se encontro')}
+            else {
+                product.LastPurchasePrice = nuevoPrecio;
+
+                product.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+};
+
+
 module.exports = ctrl;
