@@ -7,6 +7,37 @@
 
         <v-toolbar-title>{{$route.name}}</v-toolbar-title>
 
+        <v-spacer></v-spacer>
+
+
+        <div v-if="isLogged()" class="text-center">
+            <v-menu offset-y>
+            <template v-slot:activator="{ attrs, on }">
+                <v-btn
+                color="primary"
+                class="white--text ma-5"
+                v-bind="attrs"
+                v-on="on"
+                >
+                {{userName}}
+                <v-icon>
+                    mdi-chevron-down
+                </v-icon>
+                </v-btn>
+                
+            </template>
+            <v-list>
+                <v-list-item link  to="/configuracion">
+                <v-list-item-title>Configuración</v-list-item-title>
+                </v-list-item>
+                
+                <v-list-item link  @click="logout()">
+                <v-list-item-title>Salir</v-list-item-title>
+                </v-list-item>
+            </v-list>
+            </v-menu>
+        </div>
+
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app temporary>
 
@@ -112,6 +143,7 @@ export default {
         drawer: false,
         group: null,
         currentPage: '',
+        userName: ''
     }),
     methods:{
         validateUsers(...authorizedUsers){
@@ -119,6 +151,17 @@ export default {
                 return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
             }
             return false;
+        },
+        isLogged(){
+            if(localStorage.getItem('userName') != null){
+                this.userName = localStorage.getItem('userName')
+                return true
+            }
+            return false;
+        },
+        logout(){
+            localStorage.clear();
+            this.$router.push('/login')
         }
     }
 };

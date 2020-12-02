@@ -90,7 +90,10 @@ export default {
             "token": localStorage.getItem('token')
           }
         })
-        .then(data => localStorage.setItem("userType",data.data.Hierarchy))
+        .then(data => {
+          localStorage.setItem("userType",data.data.Hierarchy)
+          localStorage.setItem("userName",data.data.Name + " " + data.data.LastName)
+          })
     }
   }
 };
