@@ -16,9 +16,9 @@ ctrl.create = (req, res) => {
     var productStock = new ProductStock({
         BatchNum: body.BatchNum,
         Status: 'ACTIVE',
-        Reserved: 0,
-        Available: 0,
-        OutOfService: 0,
+        Reserved: body.Reserved,
+        Available: body.Available,
+        OutOfService: body.OutOfService,
         Expiration: body.Expiration,
         Product: body.Product,
         Price: body.Price,
