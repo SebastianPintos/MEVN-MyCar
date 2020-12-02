@@ -82,6 +82,6 @@ module.exports = app => {
     router.post('/remainder/add', remainder.create);
     router.post('/remainder/:remainder_id/update', remainder.update);
  
-    router.get('/sell/product', productStock.modifyStock);
+    router.post('/sell/products', productStock.ModifyStock);
     app.use(router);
 }

@@ -86,16 +86,20 @@ ctrl.remove = (req, res) => {
     });
 };
 
-ctrl.ModifyStock = (req,res) => {
+ctrl.ModifyStock = async (req,res) => {
     var products = req.body;
     for(x=0; x < products.length; x++){
-        ProductStock.findOne( {id: products[x].id}, (err,productDb) => {
+        await ProductStock.findOne( {id: products[x].id, Status: 'ACTIVE'}, (err,productDb) => {
+            console.log(productDb);
             if(err) {console.log(err)} 
             else{ 
                 productDb.Available -= 1;
             }
             productDb.save((err) => {
                 if(err) {console.log(err)}
+                else{
+                    res.senxd("listo")              
+                }
             });
         });  
     }
