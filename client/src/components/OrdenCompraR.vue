@@ -107,17 +107,29 @@
             <v-card>
                 <v-card-text>
                     <br>
-                    <h2>{{mensaje}}</h2>
+                    <span v-html="titulo"></span>
+                    <span v-html="mensaje"></span>
                 </v-card-text>
                 <v-card-actions>
                     <v-flex class="text-right">
-                        <v-btn class="info" @click="dialogMensaje=false; mensaje='' ">
+                        <v-btn class="info" @click="dialogMensaje=false; mensaje='';titulo='' ">
                             <v-icon>mdi-check</v-icon>
                         </v-btn>
                     </v-flex>
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-snackbar v-model="snackbar">
+            {{ mensaje }}
+
+            <template v-slot:action="{ attrs }">
+                <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+                    Aceptar
+                </v-btn>
+            </template>
+        </v-snackbar>
+
     </div>
 </v-img>
 </template>
@@ -129,11 +141,13 @@ export default {
     data: () => ({
         dialogMensaje: false,
         mensaje: '',
+        titulo: '',
         dialogStock: false,
         valid: true,
         dialogConfirm: false,
         selected: [],
         proveedores: [],
+        snackbar: false,
         proveedor: null,
         purchaseOrders: [],
         fueraServicio: [],
@@ -193,6 +207,7 @@ export default {
         async getOrders() {
             await axios.get(urlAPI + 'purchaseOrder')
                 .then(res => {
+                    this.purchaseOrders = [];
                     let purchaseOrders = res.data.purchaseOrder;
                     if (purchaseOrders != null) {
                         purchaseOrders.forEach(orden => {
@@ -251,23 +266,16 @@ export default {
 
         validarCorroboracionStock() {
             if (this.selected.length == 0) {
-                this.dialogMensaje = true;
                 this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
                 return;
             }
             if (this.selected[0].ArrivalDate != null) {
-                this.dialogMensaje = true;
                 this.mensaje = "Esta orden ya ha sido verificada!";
+                this.snackbar = true;
                 return;
 
             }
-            /*for (let i = 0; i < this.purchaseOrders.length; i++) {
-                for (let j = 0; j < this.purchaseOrders[i].Product.length; j++) {
-                    this.max.push(this.purchaseOrders[i].Product[j].TotalOrdered);
-                    this.fueraServicio.push(0);
-                    this.noLlegaron.push(0);
-                }
-            }*/
             for (let j = 0; j < this.selected[0].Product.length; j++) {
                 this.max.push(this.selected[0].Product[j].TotalOrdered);
                 this.fueraServicio.push(0);
@@ -280,7 +288,7 @@ export default {
             for (let i = 0; i < this.selected[0].Product.length; i++) {
                 let noDisponibles = Number(this.fueraServicio[i]) + Number(this.noLlegaron[i]);
                 let disponibles = Number(this.selected[0].Product[i].TotalOrdered) - noDisponibles;
-              let repuestoStock = {
+                let repuestoStock = {
                     "productStock": {
                         "BatchNum": this.selected[0].Product[i].BatchNum,
                         "Status": "ACTIVE",
@@ -299,20 +307,16 @@ export default {
             }
             axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {
-                    this.purchaseOrders = [];
                     this.getOrders();
+                    this.titulo = "<h1 class='text-center'>Carga realizada con éxito</h1>";
+                    this.mensaje = "<h3>Podrá ver los elementos cargados en la sección: Stock.</h3>";
+                    this.dialogMensaje = true;
                 }
             });
-            this.selected=[];
+            this.selected = [];
             this.dialogConfirm = false;
-            this.fueraServicio=[];
-            this.noLlegaron=[];
-        },
-
-        async updateProduct(productEdited) {
-            await axios.post(urlAPI + 'productStock/' + this.selected[0]._id + '/update', productEdited);
-            this.purchaseOrders = [];
-            this.getOrders();
+            this.fueraServicio = [];
+            this.noLlegaron = [];
         },
 
         comprobarMax(event, r, array, otroArray) {
@@ -362,8 +366,8 @@ export default {
               4-PRECIO: Price,*/
             if (this.$refs.formStock.validate()) {
                 if (this.repuestos == null) {
-                    this.dialogMensaje = true;
                     this.mensaje = "No existen repuestos para referenciar!";
+                    this.snackbar = true;
                     return;
                 }
                 let file = this.chosenFile;
@@ -384,27 +388,15 @@ export default {
         },
 
         guardarOrden(output) {
-            /*OrderDate: {type: Date},
-            ArrivalDate: {type: Date},
-            Price: {type: Number, required: true},
-            Product: [{
-            ProductID : {type: Schema.Types.ObjectId, required: true, ref: 'Product'},
-            Expiration: {type: Date},
-            TotalOrdered: {type: Number},
-            Price: {type: Number, required: true}
-            }],
-            Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
-            BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
-            Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},*/
             let orden = this.getJSONOrder(output);
-            axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
-                if (res != null) {
-                    this.purchaseOrders = [];
-                    this.getOrders();
-                }
-            });
-            this.dialogStock = false;
-
+            if (orden != null) {
+                axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
+                    if (res != null) {
+                        this.getOrders();
+                    }
+                });
+                this.dialogStock = false;
+            }
         },
         getJSONOrder(output) {
             /* 0-SKU: Product.ProductID.SKU
@@ -429,6 +421,14 @@ export default {
                         "TotalOrdered": total,
                         "Price": precioUnitario,
                     })
+                } else {
+                    this.mensaje += "<h2> Repuesto no encontrado </h2>";
+                    this.mensaje += "<h4> -SKU: " + output[0][i] + " </h4>";
+                }
+                if (this.mensaje != "") {
+                    this.titulo = "<h1 class='text-center'>Repuesto/s inexistente/s</h1><br>";
+                    this.dialogMensaje = true;
+                    return null;
                 }
             };
             return {
@@ -445,14 +445,16 @@ export default {
         corroborarValidez(output) {
 
             if (output.length != 5) {
-                this.mensaje = "Columnas inválidas, debe contener:  SKU, N°de Lote, Vencimiento, Total y Precio";
+                this.mensaje = "<h4>Columnas inválidas, debe contener exactamente 5 columnas.</h4>";
+                this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
                 this.dialogMensaje = true;
                 return false;
             }
             //FILA 0: SKU
             for (let i = 1; i < output[0].length; i++) {
                 if (output[0][i] == null) {
-                    this.mensaje = "El código SKU es obligatorio";
+                    this.mensaje = "<h4>El código SKU es obligatorio</h4>";
+                    this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
                     this.dialogMensaje = true;
                     return false;
                 }
@@ -461,7 +463,8 @@ export default {
             for (let i = 1; i < output[3].length; i++) {
                 const pattern = /^\d{1,}$/
                 if (!pattern.test(output[3][i])) {
-                    this.mensaje = "Total inválido, debe ser un valor numérico";
+                    this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
+                    this.mensaje = "<h4>Total inválido, debe ser un valor numérico</h4>";
                     this.dialogMensaje = true;
                     return false;
                 }
@@ -470,12 +473,14 @@ export default {
             for (let i = 1; i < output[4].length; i++) {
                 try {
                     if (parseFloat(output[4][i]) < 0) {
-                        this.mensaje = "Total inválido, debe ser un número mayor a 0";
+                        this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
+                        this.mensaje = "<h4>Total inválido, debe ser un número mayor a 0</h4>";
                         this.dialogMensaje = true;
                         return false;
                     }
                 } catch (e) {
-                    this.mensaje = "Total inválido, debe ser un número mayor a 0";
+                    this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
+                    this.mensaje = "<h4>Total inválido, debe ser un número mayor a 0</h4>";
                     this.dialogMensaje = true;
                     return false;
                 }

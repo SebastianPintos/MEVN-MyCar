@@ -9,7 +9,6 @@ var PurchaseOrderVSchema = new Schema({
     ChasisNum: {type: String, required: true},
     EngineNum: {type: String, required: true},
     Color: {type: String, required: true}, 
-    Detail: {type: String},
     VehicleID : {type: Schema.Types.ObjectId, required: true, ref: 'Vehicle'},
     Price: {type: Number, required: true},
   }],
