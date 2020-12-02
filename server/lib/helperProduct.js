@@ -171,13 +171,6 @@ helperProduct.checkReservationTime = async (reservation) => {
     dateFinishDay.setHours(20, 00, 00);
     var occupied = 0;
 
-    console.log(startingHour);
-    console.log(duration);
-    console.log(finishingHour);
-    console.log(dateStartDay);
-    console.log(dateFinishDay);
-
-
     await Reservation.find({ AppointmentTime: { '$gte': dateStartDay, '$lte': dateFinishDay } }, (err, reserDB) => {
         if (err) { console.log(err) }
         else {
