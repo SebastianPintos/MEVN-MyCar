@@ -5,6 +5,7 @@ const client = require('../controllers/client');
 const product = require('../controllers/product');
 const productStock = require('../controllers/productStock');
 const purchaseOrder = require('../controllers/purchaseOrder');
+const purchaseOrderV = require('../controllers/purchaseOrderV');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
@@ -89,6 +90,13 @@ module.exports = app => {
     router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
     router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
     router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
+
+    
+    router.get('/purchaseOrderV', purchaseOrderV.index);
+    router.post('/purchaseOrderV/add', purchaseOrderV.create);
+    router.post('/purchaseOrderV/:purchaseOrderV_id/update', purchaseOrderV.update);
+    router.delete('/purchaseOrderV/:purchaseOrderV_id/delete', purchaseOrderV.remove);
+    router.post('/purchaseOrderV/:purchaseOrderV_id/setArrival', purchaseOrderV.setArrival);
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);
