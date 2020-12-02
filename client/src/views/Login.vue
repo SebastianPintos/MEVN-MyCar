@@ -78,16 +78,20 @@ export default {
       })
       .then(data => {
           localStorage.setItem("token", data.data.token)
+          localStorage.setItem("logged", true)
+          this.getUser()
+          this.$router.push('/')
       })
       .catch(data => this.error = data.response.data.title)
-
+    },
+    getUser(){
       axios.get(urlAPI + 'getinfo',{
           "headers":{
             "token": localStorage.getItem('token')
           }
         })
         .then(data => localStorage.setItem("userType",data.data.Hierarchy))
-    },
+    }
   }
 };
 </script>
