@@ -7,10 +7,6 @@
 
         <v-toolbar-title>{{$route.name}}</v-toolbar-title>
 
-        <v-spacer></v-spacer>
-
-        <v-btn class="success">Ingresar</v-btn>
-
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app temporary>
 

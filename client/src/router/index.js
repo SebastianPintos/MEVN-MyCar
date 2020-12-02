@@ -1,5 +1,8 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import axios from "axios";
+import urlAPI from "../config/config.js"
+import store from "../store/index.js";
 
 Vue.use(VueRouter);
 
@@ -7,7 +10,11 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import(/* webpackChunkName: "home" */ "../views/Home.vue")
+    component: () => import(/* webpackChunkName: "home" */ "../views/Home.vue"),
+    meta: {
+      title: 'Home',
+      requiresAuth: true
+    }
   },
   {
     path: "/vehiculos",
@@ -17,14 +24,20 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "vehiculos" */ "../views/Vehiculos.vue"),
-    meta: { title: 'Vehiculos' }
+    meta: { 
+      title: 'Vehiculos',
+      requiresAuth: true
+     }
   },
   {
     path: "/login",
     name: "Login",
     component: () =>
       import(/* webpackChunkName: "login" */ "../views/Login.vue"),
-    meta: { title: 'Login' }
+    meta: {
+      title: 'Login',
+      requiresAuth: false
+    }
   },
   {
     path: "/registro",
@@ -34,7 +47,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "registro" */ "../views/Registro.vue"),
-    meta: { title: 'Registro' }
+      meta: {
+        title: 'Registro',
+        requiresAuth: true
+      }
   }
   ,
   {
@@ -45,7 +61,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "repuestosVista" */ "../views/Repuestos.vue"),
-    meta: { title: 'Repuestos' }
+      meta: {
+        title: 'Repuestos',
+        requiresAuth: true
+      }
   },
   {
     path: "/clientes",
@@ -55,7 +74,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "clientes" */ "../views/Clientes.vue"),
-    meta: { title: 'Clientes' }
+      meta: {
+        title: 'Clientes',
+        requiresAuth: true
+      }
   },
   {
     path: "/reservas",
@@ -65,7 +87,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "reservas" */ "../views/Reservas.vue"),
-    meta: { title: 'Reservas' }
+      meta: {
+        title: 'Reservas',
+        requiresAuth: true
+      }
   },
   {
     path: "/sucursales",
@@ -75,7 +100,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "sucursales" */ "../views/Sucursales.vue"),
-    meta: { title: 'Sucursales' }
+      meta: {
+        title: 'Sucursales',
+        requiresAuth: true
+      }
   },
   {
     path: "/empleados",
@@ -85,7 +113,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "empleados" */ "../views/Empleados.vue"),
-    meta: { title: 'Empleados' }
+      meta: {
+        title: 'Empleados',
+        requiresAuth: true
+      }
   },
   {
     path: "/turno",
@@ -95,7 +126,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "turno" */ "../components/Reservas.vue"),
-    meta: { title: 'Reservar Turno' }
+      meta: {
+        title: 'Reservar Turno',
+        requiresAuth: true
+      }
   },
   {
     path: "/servicios",
@@ -105,7 +139,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "servicios" */ "../views/Servicios.vue"),
-    meta: { title: 'Servicios' }
+      meta: {
+        title: 'Servicios',
+        requiresAuth: true
+      }
   },
   {
     path: "/mails",
@@ -115,7 +152,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "servicios" */ "../views/Mails.vue"),
-    meta: { title: 'Configuración Mails' }
+      meta: {
+        title: 'Configuración Mails',
+        requiresAuth: true
+      }
   },
   {
     path: "/ventas",
@@ -125,7 +165,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "ventas" */ "../views/Ventas.vue"),
-    meta: { title: 'Ventas' }
+      meta: {
+        title: 'Ventas',
+        requiresAuth: true
+      }
   },
   {
     path: "/pagos",
@@ -135,7 +178,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "pagos" */ "../views/Pagos.vue"),
-    meta: { title: 'Pagos' }
+      meta: {
+        title: 'Pagos',
+        requiresAuth: true
+      }
   },
   {
     path: "/ventasRealizadas",
@@ -145,7 +191,10 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "ventasRealizadas" */ "../views/VentasRealizadas.vue"),
-    meta: { title: 'Ventas Realizadas' }
+      meta: {
+        title: 'Ventas Realizadas',
+        requiresAuth: true
+      }
   },
   
 
@@ -163,5 +212,31 @@ router.afterEach((to) => {
         document.title = to.meta.title || DEFAULT_TITLE;
     });
 });
+var logged = false;
+var userType = '';
+router.beforeEach((to, from, next) => {
+      axios.get(urlAPI + 'getinfo',{
+        "headers":{
+          "token": localStorage.getItem('token')
+        }
+      })
+      .then(data => {
+        localStorage.setItem('logged',true)
+        localStorage.setItem('userType',data.data.Hierarchy)
+      })
+      .catch(() => localStorage.setItem('logged',false))
 
+      if (to.matched.some(record => record.meta.requiresAuth)) {
+        // this route requires auth, check if logged in
+        // if not, redirect to login page.
+        if (!localStorage.getItem('logged')) {
+          next({ name: 'Login' })
+        } else {
+          next() // go to wherever I'm going
+        }
+      } else {
+        next() // does not require auth, make sure to always call next()!
+      }
+    })
+      
 export default router;
