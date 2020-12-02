@@ -50,6 +50,7 @@
 
 <script>
 import axios from "axios";
+import urlAPI from '../config/config';
 export default {
   data() {
     return {
@@ -71,14 +72,21 @@ export default {
   },
   methods: {
     validateLogin(){
-      axios.post('http://localhost:8081/login',{
+      axios.post( urlAPI + 'login',{
           "user": this.user,
           "password": this.password
       })
       .then(data => {
-        localStorage.setItem("token", data.data.token)
+          localStorage.setItem("token", data.data.token)
       })
       .catch(data => this.error = data.response.data.title)
+
+      axios.get(urlAPI + 'getinfo',{
+          "headers":{
+            "token": localStorage.getItem('token')
+          }
+        })
+        .then(data => localStorage.setItem("userType",data.data.Hierarchy))
     },
   }
 };

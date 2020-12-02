@@ -222,7 +222,6 @@ router.beforeEach((to, from, next) => {
       })
       .then(data => {
         localStorage.setItem('logged',true)
-        localStorage.setItem('userType',data.data.Hierarchy)
       })
       .catch(() => localStorage.setItem('logged',false))
 
