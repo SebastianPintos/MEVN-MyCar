@@ -37,6 +37,7 @@
             </v-list>
             </v-menu>
         </div>
+        <v-btn v-if="!isLogged()" color="success" to="/login">INGRESAR</v-btn>
 
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app temporary>
@@ -163,6 +164,9 @@ export default {
             localStorage.clear();
             this.$router.push('/login')
         }
+    },
+    computed:{
+        
     }
 };
 </script>
