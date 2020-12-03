@@ -177,6 +177,10 @@ export default {
                 value: 'Available',
             },
             {
+                text: 'Reservados',
+                value: 'Reserved',
+            },
+            {
                 text: 'Fuera de Servicio',
                 value: 'OutOfService'
             },

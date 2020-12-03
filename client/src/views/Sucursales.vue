@@ -1,15 +1,15 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table :expanded.sync="expanded"  show-expand single-select v-model="selected" show-select :headers="headers" :items="sucursales" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+        <v-data-table :expanded.sync="expanded" show-expand single-select v-model="selected" show-select :headers="headers" :items="sucursales" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
             <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length">
-                
-                <v-chip-group >
-                    <v-chip color="success" small v-for="empleado in item.Employee" :key="empleado._id">DNI: {{empleado.DNI}}</v-chip>
-                </v-chip-group>
-            </td>
-        </template>
+                <td :colspan="headers.length">
+
+                    <v-chip-group>
+                        <v-chip color="success" small v-for="empleado in item.Employee" :key="empleado._id">DNI: {{empleado.DNI}}</v-chip>
+                    </v-chip-group>
+                </td>
+            </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -708,6 +708,15 @@ export default {
 
         async deleteItemConfirm() {
             await axios.delete(urlAPI + 'branchOffice/' + this.selected[0]._id + '/delete');
+            let empleados = [];
+            this.selected[0].Employee.forEach(e => {
+                empleados.push(e._id);
+            })
+            let item = {
+                Employee: empleados,
+                Name: ""
+            };
+            this.asignarSucursal(item);
             this.sucursales.splice(this.sucursales.indexOf(this.selected[0]), 1);
             this.closeDelete()
         },
@@ -900,8 +909,9 @@ export default {
                 };
                 //Nuevo
                 if (this.selected[0] == null) {
+                    this.asignarSucursal(item);
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
-                    this.post(urlAPI + 'branchOffice/add', JSON.stringify(jsonSucursal));
+                    axios.post(urlAPI + 'branchOffice/add', jsonSucursal);
                     this.sucursales.push(item);
                     this.reiniciar();
                 }
@@ -910,13 +920,22 @@ export default {
                     //this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
                     //this.editedItem.Phone = this.num;
                     Object.assign(this.sucursales[this.editedIndex], item);
+                    this.asignarSucursal(item);
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
-                    this.post(urlAPI + 'branchOffice/' + this.selected[0]._id + "/update", JSON.stringify(jsonSucursal));
+                    axios.post(urlAPI + 'branchOffice/' + this.selected[0]._id + "/update", jsonSucursal);
                     this.reiniciar();
                 }
                 this.reset();
             }
         },
+        asignarSucursal(item) {
+            item.Employee.forEach(e => {
+                axios.post(urlAPI + 'employee/' + e + '/asignarSucursal', {
+                    "sucursal": item.Name
+                });
+            })
+        },
+
         reiniciar() {
             this.close();
             this.selected = [];

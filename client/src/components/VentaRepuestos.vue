@@ -131,20 +131,12 @@ export default {
     }),
     created() {
         this.iniciar();
-        //this.getRepuestos();
     },
     methods: {
         cancelarCantidad() {
             this.eliminarDelCarrito(this.ultimoEnCarrito);
             this.dialogCantidad = false;
         },
-        /*getRepuestos() {
-            axios.get(urlAPI + 'vehiclestock').then(res => {
-                console.log(res);
-                console.log(JSON.stringify(res));
-                this.repuestos = res.data.vehicle.filter(v => v.Status == "ACTIVE");
-            })
-        },*/
         decrement() {
             this.cantidad--
         },
@@ -153,7 +145,6 @@ export default {
         },
         iniciar() {
             this.getRepuestos();
-            //this.obtenerDeLocalStorage();
         },
 
         async getRepuestos() {
@@ -172,11 +163,11 @@ export default {
                                 let descuento = 0;
                                 let descontado = 0;
                                 let cantidad = 0;
-                    
+
                                 if (item != null && item.carrito != null) {
                                     carrito = item.carrito;
                                 }
-                                 
+
                                 if (item != null && item.descontado != null) {
                                     descontado = item.descontado;
                                 }
@@ -199,7 +190,7 @@ export default {
                                     "carrito": carrito,
                                     "descuento": descuento,
                                     "cantidad": cantidad,
-                                    "descontado":descontado
+                                    "descontado": descontado
                                 };
                                 this.repuestos.push(repuestoAGuardar);
                                 this.repuestosFiltrados.push(repuestoAGuardar);
@@ -246,11 +237,11 @@ export default {
                     if (item != null) {
                         item.descuento = this.descuento;
                         item.cantidad = this.cantidad;
-                        let valorDescuento = (item.Price*this.descuento)/100;
-                        item.descontado =item.Price-valorDescuento;
+                        let valorDescuento = (item.Price * this.descuento) / 100;
+                        item.descontado = item.Price - valorDescuento;
                         localStorage.setItem(String("r" + String(index)), JSON.stringify(item));
                     }
-                    
+
                 }
                 this.descuento = 0;
                 this.descontado = 0;
@@ -259,17 +250,6 @@ export default {
             }
         },
 
-        /*obtenerDeLocalStorage() {
-            let length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
-            length++;
-            for (let i = 0; i < length; i++) {
-                let vehiculo = JSON.parse(localStorage.getItem(String("r"+i)));
-                if (vehiculo != null) {
-                    this.repuestos.push(vehiculo);
-                }
-            }
-            this.repuestosFiltrados = this.repuestos;
-        },*/
         format(value) {
             return value == null ? "S/D" : String(value);
         },

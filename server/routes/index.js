@@ -5,6 +5,7 @@ const client = require('../controllers/client');
 const product = require('../controllers/product');
 const productStock = require('../controllers/productStock');
 const purchaseOrder = require('../controllers/purchaseOrder');
+const purchaseOrderV = require('../controllers/purchaseOrderV');
 const vehicle = require('../controllers/vehicle');
 const home = require('../controllers/home');
 const dealer = require('../controllers/dealer');
@@ -22,6 +23,7 @@ const paymentType = require('../controllers/PaymentType');
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
+const controlStock = require('../controllers/controlStock');
 const Email = require('../lib/Email')
 
 module.exports = app => {
@@ -52,6 +54,7 @@ module.exports = app => {
     router.get('/employee', employee.index);
     router.post('/employee/add', employee.create);
     router.post('/employee/:employee_id/update', employee.update);
+    router.post('/employee/:employee_id/asignarSucursal', employee.asignarSucursal);
     router.delete('/employee/:employee_id/delete', employee.remove);
  
     router.get('/model', model.index);
@@ -92,11 +95,19 @@ module.exports = app => {
     router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
     router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
 
+    
+    router.get('/purchaseOrderV', purchaseOrderV.index);
+    router.post('/purchaseOrderV/add', purchaseOrderV.create);
+    router.post('/purchaseOrderV/:purchaseOrderV_id/update', purchaseOrderV.update);
+    router.delete('/purchaseOrderV/:purchaseOrderV_id/delete', purchaseOrderV.remove);
+    router.post('/purchaseOrderV/:purchaseOrderV_id/setArrival', purchaseOrderV.setArrival);
+
     router.get('/product', product.index);
     router.post('/product/add', product.create);
     router.post('/product/:product_id/update', product.update);
     router.delete('/product/:product_id/delete', product.remove);
-
+    router.post('/product/:product_id/actualizarPrecio', product.actualizarPrecioCompra);
+    
     router.get('/service', service.index);
     router.post('/service/add', service.create);
     router.post('/service/:service_id/update', service.update);
@@ -131,6 +142,16 @@ module.exports = app => {
     router.post('/paymentType/add', paymentType.create);
     router.post('/paymentType/:paymentType_id/update', paymentType.update);
     router.delete('/paymentType/:paymentType_id/delete', paymentType.remove);
+    
+    router.get('/productControl', controlStock.indexCP);
+    router.post('/productControl/:productControl_id/update', controlStock.updateCP);
+    router.post('/productControl/:productControl_id/delete', controlStock.removeCP);
+    router.post('/productControl/add', controlStock.createCP);
+    
+    router.get('/vehicleControl', controlStock.indexCV);
+    router.post('/vehicleControl/:vehicleControl_id/update', controlStock.updateCV);
+    router.post('/vehicleControl/:vehicleControl_id/delete', controlStock.removeCV);
+    router.post('/vehicleControl/add', controlStock.createCV);
     
 
     app.use(router);

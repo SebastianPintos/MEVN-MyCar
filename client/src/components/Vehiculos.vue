@@ -67,6 +67,9 @@
 
         <!-- Tabla -->
         <v-data-table v-model="selected" show-select :headers="headers" :items="vehículosFiltrados" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+            <template v-slot:item.SuggestedPrice="{ item }">
+                {{ formatPrice(item.SuggestedPrice) }}
+            </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rápida" single-line hide-details></v-text-field>
@@ -679,7 +682,9 @@ export default {
             this.vehículosFiltrados = repAux
 
         },
-
+         formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
+        },
         reiniciarFiltros() {
             this.filtros = [{
                 Brand: '',

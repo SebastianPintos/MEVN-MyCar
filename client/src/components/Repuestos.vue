@@ -62,6 +62,12 @@
 
         <!-- Tabla -->
         <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+            <template v-slot:item.SalePrice="{ item }">
+                {{ formatPrice(item.SalePrice) }}
+            </template>
+            <template v-slot:item.LastPurchasePrice="{ item }">
+                {{ formatPrice(item.LastPurchaseSalePrice) }}
+            </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
@@ -224,27 +230,30 @@
                         <v-card>
                             <h1 class="text-center">Stock</h1>
                             <v-card-text>
-                            <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Disponibles:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="disponibles"></v-text-field>
-                             </v-col></v-row>
-                             <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Reservados:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="reservados"></v-text-field>
-                             </v-col></v-row>
-                             <v-row>                             
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Fuera de Servicio:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="fueraDeServicio"></v-text-field>
-                             </v-col></v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Disponibles:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="disponibles"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Reservados:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="reservados"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Fuera de Servicio:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="fueraDeServicio"></v-text-field>
+                                    </v-col>
+                                </v-row>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -476,7 +485,7 @@ export default {
                 })
         },
 
-         getrepuestosStock() {
+        getrepuestosStock() {
             axios.get(urlAPI + 'productStock')
                 .then(res => {
                     let repuestosStock = res.data.productStock;
@@ -588,6 +597,9 @@ export default {
             this.reglaEditarProveedor = [];
             this.reglaEditarVenta = [];
             this.reset();
+        },
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
         closeDelete() {
             this.dialogDelete = false

@@ -26,6 +26,7 @@ ctrl.create = (req, res) => {
         StartDate: body.StartDate,
         DischargeDate: body.DischargeDate,
         Address: body.Address,
+        BranchOffice: ""
     });
 
     employee.save((err) => {
@@ -53,7 +54,8 @@ ctrl.update = (req, res) => {
                 employee.Hierarchy = body.Hierarchy;
                 employee.StartDate = body.StartDate;
                 employee.DischargeDate = body.DischargeDate;
-                employee.Address = body.Address; 
+                employee.Address = body.Address;
+                employee.BranchOffice = body.BranchOffice; 
 
                 employee.save((err) => {
                     if(err) {console.log(err)}
@@ -87,4 +89,24 @@ ctrl.remove = (req, res) => {
     });
 };
 
+ctrl.asignarSucursal = (req, res) => {
+    var id = req.params.employee_id;
+    var sucursal = req.body.sucursal;
+    Employee.findOne({_id: id}, (err, employee) => {
+        if(err) {console.log(err)}
+        else {
+            if(!employee) {console.log('No se encontró el empleado')}
+            else {
+                employee.BranchOffice = sucursal; 
+                employee.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+
+                    })
+                });
+            }
+        }
+    });
+};
 module.exports = ctrl;

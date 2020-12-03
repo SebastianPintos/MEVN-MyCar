@@ -305,7 +305,7 @@ export default {
             value => !!value || 'Requerido.',
             value => {
                 const pattern = /^(([A-Z]{2}[0-9]{3}[A-Z]{2}){0,1}([A-Z]{3}[0-9]{3}){0,1}){1}$/
-                return pattern.test(value) || 'Nombre inválido'
+                return pattern.test(value) || 'Dominio inválido'
             },
         ],
         reglaID: [value => !!value || 'Requerido.'],
