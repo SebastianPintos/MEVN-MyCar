@@ -3,13 +3,13 @@
     <div>
         <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="vehicleStock" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
             <template v-slot:item.Domain="{ item }">
-                {{ formatDomain(item.Domain,'N/A')}}
+                {{ formatString(item.Domain,'N/A')}}
             </template>
             <template v-slot:item.PurchasedPrice="{ item }">
                 {{ formatPrice(item.PurchasedPrice) }}
             </template>
             <template v-slot:item.Detail="{ item }">
-                {{ formatDomain(item.Detail,'-') }}
+                {{ formatString(item.Detail,'-') }}
             </template>
             <template v-slot:item.Status="{ item }">
                 {{ formatStatus(item.Status)}}
@@ -279,7 +279,7 @@ export default {
         save() {
             this.$refs.menu.save(this.editedItem.Expiration)
         },
-        formatDomain(value, string) {
+        formatString(value, string) {
             if (value == null) {
                 return string;
             }
