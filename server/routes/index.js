@@ -16,6 +16,7 @@ const remainder = require('../controllers/remainder');
 const auth = require('../controllers/auth');
 const model = require('../controllers/model');
 const brand = require('../controllers/brand');
+const sell = require('../controllers/sell');
 
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
@@ -120,6 +121,8 @@ module.exports = app => {
     router.post('/login', auth.login);
     router.post('/changepassword', auth.changePassword);
     router.get('/getinfo', auth.getInfo);
+
+    router.post('/sell/add', sell.sellVehicle);
     
 
     app.use(router);
