@@ -28,7 +28,7 @@
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
-                    <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Repuesto'">
+                    <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Vehículo'">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
 
@@ -46,36 +46,30 @@
             </template>
         </v-snackbar>
 
-        <v-dialog v-model="dialogNuevo" max-width="600px">
+        <v-dialog v-model="dialogNuevo" max-width="900px">
             <v-card>
                 <v-card-title>{{titulo}}</v-card-title>
                 <v-form ref="form" v-model="valid" lazy-validation>
                     <v-card-text>
-                        <v-text-field type="number" v-model="editedItem.BatchNum" label="N° de Lote"></v-text-field>
-                        <v-text-field type="number" v-model="editedItem.Price" prefix="$" label="Precio" :rules="requerido"></v-text-field>
-                        <v-row>
-                            <v-col cols="12" md="4">
-                                <v-text-field type="number" v-model="editedItem.Available" label="Disponibles" :rules="reglaNumero"></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="4">
-                                <v-text-field type="number" v-model="editedItem.Reserved" label="Reservados" :rules="reglaNumero"></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="4">
-                                <v-text-field type="number" v-model="editedItem.OutOfService" label="Fuera de Servicio" :rules="reglaNumero"></v-text-field>
-                            </v-col>
-                        </v-row>
-                        <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition" offset-y min-width="290px">
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-text-field v-model="editedItem.Expiration" label="Fecha de Vencimiento" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
-                            </template>
-                            <v-date-picker ref="picker" v-model="editedItem.Expiration" locale="es" min="2020-11-23" @change="save"></v-date-picker>
-                        </v-menu>
-                        <v-select :items="repuestos" item-text="SKU" v-model="editedItem.Product" item-value="_id" label="Repuesto" :rules="requerido">
+                        <v-select :items="kind" label="Nuevo/Usado" :rules="requerido" v-model="editedItem.Kind"></v-select>
+                        <v-select :items="estados" label="Estado" :rules="requerido" v-model="editedItem.Status"></v-select>
+                        <v-text-field label="Dominio" v-model="editedItem.Domain" :rules="reglaDominio"></v-text-field>
+                        <v-select :items="sucursales" item-text="Name" item-value="_id" label="Sucursal" :rules="requerido" v-model="editedItem.BranchOffice"></v-select>
+                        <v-select :items="vehiculos" item-text="Brand" item-value="_id" label="Vehículo" :rules="requerido" v-model="editedItem.Vehicle">
                             <template slot="item" slot-scope="data">
-                                SKU: {{ data.item.SKU }},CATEGORÍA :{{ data.item.Category }},MARCA :{{ data.item.Brand }}
+                                Marca: {{ data.item.Brand }},Modelo :{{ data.item.Model }},Año :{{ data.item.year }},
+                                Estado: {{data.item.Kind}}, Tipo: {{data.item.Type}} Transmisión: {{data.item.transmission}}, Combustible: {{data.item.Fuel}}
                             </template>
                         </v-select>
-                        <v-select :items="sucursales" item-text="Name" v-model="editedItem.BranchOffice" item-value="_id" label="Sucursal" :rules="requerido"></v-select>
+                        <v-text-field label="Precio" prefix="$" v-model="editedItem.PurchasedPrice" :rules="reglaPrecio"></v-text-field>
+
+                        <v-textarea label="Detalle" v-model="editedItem.Detail"></v-textarea>
+
+                        <v-text-field type="number" label="N° de Chasis" v-model="editedItem.ChasisNum" :rules="reglaNumero"></v-text-field>
+                        <v-text-field type="number" label="N° de Motor" v-model="editedItem.EngineNum" :rules="reglaNumero"></v-text-field>
+                        <v-select :items="colores" label="Color" :rules="requerido" v-model="editedItem.Color"></v-select>
+                        <v-textarea v-if="editedItem.Kind=='USADO'" label="Detalle Usado" v-model="editedItem.UsedDetail.Detail"></v-textarea>
+                        <v-text-field v-if="editedItem.Kind=='USADO'" suffix="%" type="number" label="Porcentaje a Modificar" v-model="editedItem.UsedDetail.PriceModifier" :rules="reglaPrecioNoRequerido"></v-text-field>
                     </v-card-text>
                     <v-card-actions>
                         <v-flex class="text-right">
@@ -117,7 +111,7 @@ export default {
     data: () => ({
         dialogMensaje: false,
         mensaje: '',
-        colores: ["Amarillo", "Azul", "Blanco", "Celeste", "Gris", "Rojo", "Negro"],
+        colores: ["Amarillo", "Azul", "Blanco", "Celeste", "Gris", "Rojo", "Negro", "Verde"],
         nuevo: false,
         valid: true,
         dialogNuevo: false,
@@ -126,9 +120,12 @@ export default {
         titulo: '',
         menu: false,
         selected: [],
+        kind: ["NUEVO", "USADO"],
+        estados: ["Disponible", "No Disponible", "Vendido", "Reservado"],
         date: null,
         dialogDelete: false,
         vehicleStock: [],
+        vehiculos: [],
         search: '',
         requerido: [
             value => !!value || 'Requerido.',
@@ -137,27 +134,59 @@ export default {
         editedItem: {
             ChasisNum: "",
             EngineNum: "",
-            Vehicle: "",
+            Domain: "",
             Color: "",
-            Dominio: null,
-            Price: 0,
-            Product: null,
-            BranchOffice: null
+            PurchasedPrice: 0,
+            Detail: "",
+            Vehicle: "",
+            UsedDetail: {
+                Detail: "",
+                PriceModifier: 0
+            },
+            BranchOffice: "",
+            Status: "",
+            Kind: "",
         },
         defaultItem: {
-            BatchNum: 0,
-            Reserved: 0,
-            Available: 0,
-            OutOfService: 0,
-            Expiration: null,
-            Price: 0,
-            Product: "",
-            BranchOffice: ""
+            ChasisNum: "",
+            EngineNum: "",
+            Domain: "",
+            Color: "",
+            PurchasedPrice: 0,
+            Detail: "",
+            Vehicle: "",
+            UsedDetail: {
+                Detail: "",
+                PriceModifier: 0
+            },
+            BranchOffice: "",
+            Status: "",
+            Kind: "",
         },
         reglaNumero: [
             value => {
                 const pattern = /^[0-9]{1,}$/
                 return pattern.test(value) || 'Sólo se permiten números!'
+            },
+        ],
+        reglaPrecio: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^[-]{0,1}[0-9]{1,}(.[0-9]{1,}){0,1}$/
+                return pattern.test(value) || 'Sólo se permiten números!'
+            },
+        ],
+        reglaPrecioNoRequerido: [
+            value => {
+                const pattern = /^[-]{0,1}[0-9]{1,}(.[0-9]{1,}){0,1}$/
+                return pattern.test(value) || value.length == 0  || 'Sólo se permiten números!'
+            },
+        ],
+
+        reglaDominio: [
+            value => {
+                const pattern = /^(([A-Z]{2}[0-9]{3}[A-Z]{2}){0,1}([A-Z]{3}[0-9]{3}){0,1}){1}$/
+                return pattern.test(value) || value.length == 0 || 'Dominio inválido'
             },
         ],
         headers: [{
@@ -242,7 +271,7 @@ export default {
 
     created() {
         this.getVehicleStock();
-        this.getRepuestos();
+        this.getVehiculos();
         this.getSucursales();
     },
 
@@ -256,17 +285,17 @@ export default {
             }
             return String(value);
         },
-       formatStatus(value) {
+        formatStatus(value) {
             if (value == "AVAILABLE") {
                 return "Disponible";
             }
-            if(value == "NOT AVAILABLE"){
+            if (value == "NOT AVAILABLE") {
                 return "No Disponible";
             }
-            if(value=="SOLD"){
+            if (value == "SOLD") {
                 return "Vendido";
             }
-            if(value=="RESERVED"){
+            if (value == "RESERVED") {
                 return "Reservado";
             }
             return String(value);
@@ -300,14 +329,14 @@ export default {
                     }
                 })
         },
-        async getRepuestos() {
-            await axios.get(urlAPI + 'product')
+        async getVehiculos() {
+            await axios.get(urlAPI + 'vehicle')
                 .then(res => {
-                    let products = res.data.product;
-                    if (products != null) {
-                        products.forEach(r => {
+                    let vehicles = res.data.vehicle;
+                    if (vehicles != null) {
+                        vehicles.forEach(r => {
                             if (r.Status === "ACTIVE") {
-                                this.repuestos.push(r);
+                                this.vehiculos.push(r);
                             }
                         })
                     }
@@ -316,53 +345,62 @@ export default {
 
         guardar() {
             if (this.validate()) {
-                let auxRepuesto = {
-                    "productStock": {
-                        "Reserved": Number(this.editedItem.Reserved),
-                        "Available": Number(this.editedItem.Available),
-                        "OutOfService": Number(this.editedItem.OutOfService),
-                        "Expiration": this.editedItem.Expiration,
+                this.obtenerEstadoIng();
+                let auxVehiculo = {
+                    "vehicleStock": {
+                        "ChasisNum": this.editedItem.ChasisNum,
+                        "EngineNum": this.editedItem.EngineNum,
+                        "Domain": this.editedItem.Domain,
+                        "Color": this.editedItem.Color,
+                        "PurchasedPrice": this.editedItem.PurchasedPrice,
+                        "Detail": this.editedItem.Detail,
+                        "Vehicle": this.editedItem.Vehicle,
+                        "UsedDetail": {
+                            "Detail": this.editedItem.UsedDetail.Detail,
+                            "PriceModifier": this.editedItem.UsedDetail.PriceModifier
+                        },
                         "BranchOffice": this.editedItem.BranchOffice,
-                        "Product": this.editedItem.Product,
-                        "Price": parseFloat(this.editedItem.Price),
-                        "BatchNum": String(this.editedItem.BatchNum)
+                        "Status": this.editedItem.Status,
+                        "Kind": this.editedItem.Kind,
                     }
                 };
+
                 if (this.nuevo == true) {
-                    axios.post(urlAPI + "productStock/add", auxRepuesto).then(res => {
+                    axios.post(urlAPI + "vehicleStock/add", auxVehiculo).then(res => {
                         if (res != null) {
-                            this.editedItem = this.defaultItem;
-                            this.vehicleStock = [];
-                            this.getVehicleStock();
+                            this.reset();
                         }
                     })
-                    this.nuevo = false;
-                    this.dialogNuevo = false;
 
                 } else {
-                    axios.post(urlAPI + "productStock/" + this.selected[0]._id + "/update", auxRepuesto).then(res => {
+                    axios.post(urlAPI + "vehicleStock/" + this.selected[0]._id + "/update", auxVehiculo).then(res => {
                         if (res != null) {
-                            this.vehicleStock = [];
-                            this.editedItem = this.defaultItem;
-                            this.getVehicleStock();
+                            this.reset();
                         }
                     })
-                    this.nuevo = false;
                 }
-                this.dialogNuevo = false;
             }
         },
 
+        reset() {
+            this.editedItem = this.defaultItem;
+            this.vehicleStock = [];
+            this.selected = [];
+            this.getVehicleStock();
+            this.nuevo = false;
+            this.dialogNuevo = false;
+        },
+
         eliminar() {
-            axios.delete(urlAPI + "productStock/" + this.selected[0]._id + "/delete").then(res => {
+            axios.delete(urlAPI + "vehicleStock/" + this.selected[0]._id + "/delete").then(res => {
                 if (res != null) {
                     this.vehicleStock.splice(this.vehicleStock.indexOf(this.selected[0]), 1)
                     this.selected = [];
                     this.dialogDelete = false;
                 }
             })
-
         },
+
         corroborarSeleccionado() {
             if (this.selected.length != 1) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
@@ -371,24 +409,65 @@ export default {
             }
             this.dialogDelete = true;
         },
+
+        obtenerEstadoEsp() {
+            if (this.editedItem.Status == "AVAILABLE") {
+                this.editedItem.Status = "Disponible";
+            } else if (this.editedItem.Status == "NOT AVAILABLE") {
+                this.editedItem.Status = "No Disponible";
+            } else if (this.editedItem.Status == "SOLD") {
+                this.editedItem.Status = "Vendido";
+            } else {
+                this.editedItem.Status = "Reservado";
+            }
+        },
+
+        obtenerEstadoIng() {
+            if (this.editedItem.Status == "Disponible") {
+                this.editedItem.Status = "AVAILABLE";
+            } else if (this.editedItem.Status == "No Disponible") {
+                this.editedItem.Status = "NOT AVAILABLE";
+            } else if (this.editedItem.Status == "Vendido") {
+                this.editedItem.Status = "SOLD";
+            } else {
+                this.editedItem.Status = "RESERVED";
+            }
+        },
+
         editar() {
             if (this.selected.length != 1) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
                 this.snackbar = true;
                 return;
             }
-            this.editedItem.BatchNum = this.selected[0].BatchNum;
+            this.editedItem.ChasisNum = this.selected[0].ChasisNum;
+            this.editedItem.EngineNum = this.selected[0].EngineNum;
             this.editedItem.Reserved = this.selected[0].Reserved;
-            this.editedItem.Available = this.selected[0].Available;
-            this.editedItem.OutOfService = this.selected[0].OutOfService;
-            this.editedItem.Price = this.selected[0].Price;
+            this.editedItem.Domain = this.selected[0].Domain;
+            this.editedItem.Color = this.selected[0].Color;
+            this.editedItem.PurchasedPrice = this.selected[0].PurchasedPrice;
+            this.editedItem.UsedDetail.Detail = this.selected[0].UsedDetail.Detail;
+            this.editedItem.UsedDetail.PriceModifier = this.selected[0].UsedDetail.PriceModifier;
             this.editedItem.BranchOffice = this.selected[0].BranchOffice;
-            this.editedItem.Product = this.selected[0].Product._id;
-            this.titulo = "Editar Repuesto";
+            this.editedItem.Status = this.selected[0].Status;
+            this.obtenerEstadoEsp();
+            this.editedItem.Detail = this.selected[0].Detail;
+            this.editedItem.Kind = this.selected[0].Kind;
+            this.editedItem.Vehicle = this.selected[0].Vehicle;
+            this.titulo = "Editar Vehículo";
             this.dialogNuevo = true;
         },
 
         validate() {
+            if (this.editedItem.Kind == "USADO") {
+                try {
+                    let modificar = parseFloat(this.editedItem.UsedDetail.PriceModifier);
+                } catch (e) {
+                    if (e != null) {
+                        return false;
+                    }
+                }
+            }
             return this.$refs.form.validate();
         },
     },

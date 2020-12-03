@@ -27,7 +27,7 @@ ctrl.create = (req, res) => {
         year: body.year,
         SuggestedPrice: body.SuggestedPrice,
         Detail: body.Detail,
-        Status: 'ACTIVE',
+        Status: body.Status,
         Dealer: body.Dealer,
         Kind: body.Kind,
     });
@@ -118,7 +118,7 @@ ctrl.createStock = (req, res) => {
         Detail: body.Detail,
         Vehicle: body.Vehicle,
         UsedDetail: body.UsedDetail,
-        Status: 'AVAILABLE',
+        Status: body.Status,
         Kind: body.Kind,
         BranchOffice: body.BranchOffice
     });
