@@ -123,7 +123,9 @@ module.exports = app => {
     router.post('/changepassword', auth.changePassword);
     router.get('/getinfo', auth.getInfo);
 
-    router.post('/sell/add', sell.sellVehicle);
+    router.post('/sellVehicle/add', sell.sellVehicle);
+    router.get('/sellVehicle', sell.listVehicle);
+
 
     router.get('/paymentType', paymentType.index);
     router.post('/paymentType/add', paymentType.create);

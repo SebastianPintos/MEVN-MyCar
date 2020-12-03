@@ -11,6 +11,7 @@ helperProduct.checkAvailable = async (service) => {
     console.log(service);
     //Recorro todos los servicios y agrego los ID de los productos al array products.
     var products = [];
+    console.log(service.length);
     for (i = 0; i < service.length; i++) {
         var arrayProduct = service[i].Product;
         console.log("array productos" + service[i].Product);

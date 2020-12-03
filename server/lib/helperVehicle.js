@@ -7,37 +7,36 @@ const VehicleOrder = require('../models/vehicleOrder');
 
 helperVehicle.SellVehicle = async (sell) => {
 
-    var VehicleSell = sell.VehicleSell;
+    var VehicleSold = sell.VehicleSold;
 
-    for(i = 0; i < VehicleSell.lenght; i++){
-        if(VehicleSell[i].VehicleStock){
-            VehicleStock.findOne({_id: VehicleSell[i].VehicleStock}, async (err, vehicleDB) => {
+    for(i = 0; i < VehicleSold.length; i++){
+        if(VehicleSold[i].VehicleStock){
+            VehicleStock.findOne({_id: VehicleSold[i].VehicleStock}, async (err, vehicleDB) => {
                 if(err) {return console.log(err)}
                 else{
                     vehicleDB.Status = 'RESERVED';
+                    console.log(vehicleDB);
                     
                     await vehicleDB.save((err) => {
                         if(err) {console.log(err)}
-                        res.send({
-                            success: true
-                        });
                     });
                 }
             })
         }
         else{
-            if(VehicleSell[i].Vehicle){
+            if(VehicleSold[i].Vehicle){
                 var vehicleOrder = new VehicleOrder({
-                    Vehicle: VehicleSell[i].Vehicle,
+                    Vehicle: VehicleSold[i].Vehicle,
                     Sell: sell._id,
                     Status: 'ORDER'
                 });
+                console.log(vehicleOrder);
 
-                await vehicleOrder.save((err) => {
+                await vehicleOrder.save((err, data) => {
                     if(err) {console.log(err)}
-                    res.send({
-                        success: true
-                    });
+                    else{
+                        console.log(data);
+                    }
                 });
                 
             }

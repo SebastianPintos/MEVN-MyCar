@@ -17,7 +17,7 @@ ctrl.sellVehicle = async (req, res) => {
     console.log(body);
     
     var sell = new Sell({
-        PriceFeeTax: body.PriceFeeTax,
+        PriceFreeTax: body.PriceFreeTax,
         Tax: body.Tax,
         Discount: body.Discount,
         RewarderDiscount: body.RewarderDiscount,
@@ -28,7 +28,7 @@ ctrl.sellVehicle = async (req, res) => {
         Employee: body.Employee,
         Service: body.Service,
         ProductStock: body.ProductStock,
-        Vehicle: body.Vehicle,
+        VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType
     })
 
@@ -36,7 +36,7 @@ ctrl.sellVehicle = async (req, res) => {
 
     sell.save(async (err, sellDB) => {
         if(err) {console.log(err)}
-        else{
+        else{ 
             console.log(sellDB);
             await helperVehicle.SellVehicle(sellDB);
             res.status(200).json({title: 'Venta generada correctamente'});

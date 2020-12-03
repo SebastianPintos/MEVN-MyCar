@@ -11,12 +11,12 @@ var PaymentType = new Schema({
     Number: {type: String,required: true}
   },
   WireTransfer: {
-    Bank: {type: String, required: true},
-    TransactionNum: {type: String, required: true},
-    CBU: {type: String, required: true},
+    Bank: {type: String},
+    TransactionNum: {type: String},
+    CBU: {type: String},
     Holder: {type: String}
   },
-  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true}
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE']}
 });
 
 var paymentType = mongoose.model("PaymentType", PaymentType);

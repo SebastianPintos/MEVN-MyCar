@@ -13,7 +13,7 @@ ctrl.index = (req, res) => {
 
 ctrl.create = (req, res) => {
     var body = req.body.paymentType;
-    console.log(req.body.client); 
+    console.log(req.body.paymentType); 
     var paymentType = new PaymentType({
         Type: body.Type,
         CurrencyType: body.CurrencyType,
