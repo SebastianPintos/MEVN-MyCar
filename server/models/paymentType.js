@@ -15,7 +15,8 @@ var PaymentType = new Schema({
     TransactionNum: {type: String, required: true},
     CBU: {type: String, required: true},
     Holder: {type: String}
-  }
+  },
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true}
 });
 
 var paymentType = mongoose.model("PaymentType", PaymentType);

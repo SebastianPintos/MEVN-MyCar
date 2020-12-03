@@ -17,6 +17,7 @@ const auth = require('../controllers/auth');
 const model = require('../controllers/model');
 const brand = require('../controllers/brand');
 const sell = require('../controllers/sell');
+const paymentType = require('../controllers/PaymentType');
 
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
@@ -123,6 +124,11 @@ module.exports = app => {
     router.get('/getinfo', auth.getInfo);
 
     router.post('/sell/add', sell.sellVehicle);
+
+    router.get('/paymentType', paymentType.index);
+    router.post('/paymentType/add', paymentType.create);
+    router.post('/paymentType/:paymentType_id/update', paymentType.update);
+    router.delete('/paymentType/:paymentType_id/delete', paymentType.remove);
     
 
     app.use(router);

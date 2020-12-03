@@ -43,3 +43,5 @@ ctrl.sellVehicle = async (req, res) => {
         }
     });
 }
+
+module.exports = ctrl;
