@@ -2,6 +2,7 @@ const ctrl = {};
 
 var ProductControl = require('../models/productControl');
 var VehicleControl = require('../models/vehicleControl');
+const helper = require('../lib/helperStock');
 
 ctrl.indexCP = (req, res) => {
     ProductControl.find((err, productControl) => {
@@ -20,6 +21,7 @@ ctrl.createCP = (req, res) => {
         Status: "ACTIVE",
     });
 
+    helper.checkMinCreation(body);
     productControl.save((err) => {
         if(err) {console.log(err)}
         res.send({
@@ -39,6 +41,8 @@ ctrl.updateCP = (req, res) => {
                 productControl.Product= body.Product;
                 productControl.Min= body.Min;
                
+                
+                helper.checkMinCreation(body);
                 productControl.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -86,6 +90,9 @@ ctrl.createCV = (req, res) => {
         Status: body.Status,
     });
 
+    
+    helper.checkMinCreationVehicle(body);
+
     vehicleControl.save((err) => {
         if(err) {console.log(err)}
         res.send({
@@ -106,7 +113,9 @@ ctrl.updateCV = (req, res) => {
                 vehicleControl.Min = body.Min;
                 vehicleControl.Vehicle = body.Vehicle;
                 vehicleControl.Status = body.Status;
-               
+                
+                
+                helper.checkMinCreationVehicle(body);
                 vehicleControl.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

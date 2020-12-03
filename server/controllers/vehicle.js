@@ -32,6 +32,8 @@ ctrl.create = (req, res) => {
         Kind: body.Kind,
     });
 
+    
+
     vehicle.save((err) => {
         if(err) {console.log(err)}
         res.send({
@@ -123,6 +125,7 @@ ctrl.createStock = (req, res) => {
         BranchOffice: body.BranchOffice
     });
 
+  
     vehicleStock.save((err) => {
         if(err) {console.log(err)}
         res.send({
@@ -152,6 +155,8 @@ ctrl.updateStock = (req, res) => {
                 vehicleStock.ChangeStatus.push(body.ChangeStatus)
                 vehicleStock.BranchOffice = body.BranchOffice,
                 vehicleStock.Kind = body.Kind,
+                
+              
                 vehicleStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -160,6 +165,7 @@ ctrl.updateStock = (req, res) => {
                 });
             }
         }
+
     })
 
 };
