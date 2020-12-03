@@ -12,6 +12,25 @@ ctrl.listVehicle = (req, res) => {
     }).populate('VehicleSell').populate('PaymentType');
 };
 
+/* {
+    "sell": {
+        "PriceFreeTax": "2000000",
+        "Tax": "21",
+        "Discount": "0",
+        "CompanyName": "Morgue Juanito SRL",
+        "CUIT": "20360772528",
+        "TaxCategory": "RESPONSABLE INSCRIPTO",
+        "Cliente": "5faad8b67e6c362bb0ba3136",
+        "Employee": "5fc5404274173634a099be7f",
+        "Service": [],
+        "ProductStock": [],
+        "VehicleSold":[{
+            "VehicleStock": "5fc9566be84a6b031cd9a692"
+        }],
+        "PaymentType": "5fc94d3138063149f8a977a3"
+    }
+} */
+
 ctrl.sellVehicle = async (req, res) => {
     var body = req.body.sell;
     console.log(body);

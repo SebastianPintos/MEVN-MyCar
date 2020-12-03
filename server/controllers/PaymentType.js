@@ -11,6 +11,26 @@ ctrl.index = (req, res) => {
     });
 };
 
+/* {
+    "paymentType": {
+        "Type": "Credicard",
+        "CurrencyType": "UY",
+        "ExchangeRate": "5",
+        "Credicard": {
+            "Company": "VISA",
+            "Bank": "NACION",
+            "Name": "Juan Fernandez",
+            "Number": "4564 4566 4512 4532"
+        },
+        "WireTransfer": {
+            "Bank": "Banco Ciudad",
+            "TransactionNum": "1231666",
+            "CBU": "54666219815",
+            "Holder": "Juan Carlos Pelotudo"
+        }
+    }
+} */
+
 ctrl.create = (req, res) => {
     var body = req.body.paymentType;
     console.log(req.body.paymentType); 
