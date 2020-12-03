@@ -12,29 +12,16 @@ var sellSchema = new Schema({
   CUIT: {type: String},
   TaxCategory: {type: String},
   Client: {type: Schema.Types.ObjectId, ref: 'Client'},
-  Employee: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'Employee'
-    },
-  Service: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Service'
+  Employee: {type: Schema.Types.ObjectId, required: true, ref: 'Employee'},
+  Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
+  ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],
+  VehicleSold: [{
+      Vehicle: {type: Schema.Types.ObjectId, ref: 'Vehicle'},
+      VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'}
     }],
-  ProductStock: [{
-      type: Schema.Types.ObjectId,
-      ref: 'ProductStock'
-    }],
-  Vehicle: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Vehicle'
-    }],
-  PaymentType: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'PaymentType'
-  }
-});
+  PaymentType: [{type: Schema.Types.ObjectId, required: true, ref: 'PaymentType'}],
+  WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
+},{timestamps: true});
 
 var sell = mongoose.model("Sell", sellSchema);
 module.exports = sell; 

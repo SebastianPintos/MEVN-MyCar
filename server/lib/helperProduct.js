@@ -11,6 +11,7 @@ helperProduct.checkAvailable = async (service) => {
     console.log(service);
     //Recorro todos los servicios y agrego los ID de los productos al array products.
     var products = [];
+    console.log(service.length);
     for (i = 0; i < service.length; i++) {
         var arrayProduct = service[i].Product;
         console.log("array productos" + service[i].Product);
@@ -170,13 +171,6 @@ helperProduct.checkReservationTime = async (reservation) => {
     dateStartDay.setHours(00, 00, 00);
     dateFinishDay.setHours(20, 00, 00);
     var occupied = 0;
-
-    console.log(startingHour);
-    console.log(duration);
-    console.log(finishingHour);
-    console.log(dateStartDay);
-    console.log(dateFinishDay);
-
 
     await Reservation.find({ AppointmentTime: { '$gte': dateStartDay, '$lte': dateFinishDay } }, (err, reserDB) => {
         if (err) { console.log(err) }
