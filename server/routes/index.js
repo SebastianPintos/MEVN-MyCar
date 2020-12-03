@@ -51,6 +51,7 @@ module.exports = app => {
     router.get('/employee', employee.index);
     router.post('/employee/add', employee.create);
     router.post('/employee/:employee_id/update', employee.update);
+    router.post('/employee/:employee_id/asignarSucursal', employee.asignarSucursal);
     router.delete('/employee/:employee_id/delete', employee.remove);
  
     router.get('/model', model.index);
