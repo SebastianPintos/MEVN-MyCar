@@ -21,6 +21,7 @@ const brand = require('../controllers/brand');
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
+const controlStock = require('../controllers/controlStock');
 const Email = require('../lib/Email')
 
 module.exports = app => {
@@ -130,6 +131,16 @@ module.exports = app => {
     router.post('/login', auth.login);
     router.post('/changepassword', auth.changePassword);
     router.get('/getinfo', auth.getInfo);
+    
+    router.get('/productControl', controlStock.indexCP);
+    router.post('/productControl/:productControl_id/update', controlStock.updateCP);
+    router.post('/productControl/:productControl_id/delete', controlStock.removeCP);
+    router.post('/productControl/add', controlStock.createCP);
+    
+    router.get('/vehicleControl', controlStock.indexCV);
+    router.post('/vehicleControl/:vehicleControl_id/update', controlStock.updateCV);
+    router.post('/vehicleControl/:vehicleControl_id/delete', controlStock.removeCV);
+    router.post('/vehicleControl/add', controlStock.createCV);
     
 
     app.use(router);
