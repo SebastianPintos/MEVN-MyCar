@@ -1,8 +1,9 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var PaymentType = new Schema({
-  Type: {type: String},
-  CurrencyType: {type: String},
+  Price: {type: Number},
+  Type: {type: String, enum: ['CASH', 'CREDICARD', 'WIRETRANSFER']},
+  CurrencyType: {type: String, enum: ['USD', "EU", "PESO"]},
   ExchangeRate: {type: Number},
   Credicard: {
     Company: {type: String, required: true},

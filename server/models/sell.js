@@ -19,7 +19,7 @@ var sellSchema = new Schema({
       Vehicle: {type: Schema.Types.ObjectId, ref: 'Vehicle'},
       VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'}
     }],
-  PaymentType: {type: Schema.Types.ObjectId, required: true, ref: 'PaymentType'},
+  PaymentType: [{type: Schema.Types.ObjectId, required: true, ref: 'PaymentType'}],
   WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
 },{timestamps: true});
 

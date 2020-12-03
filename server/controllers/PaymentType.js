@@ -13,6 +13,7 @@ ctrl.index = (req, res) => {
 
 /* {
     "paymentType": {
+        "Price": "20023",
         "Type": "Credicard",
         "CurrencyType": "UY",
         "ExchangeRate": "5",
@@ -35,6 +36,7 @@ ctrl.create = (req, res) => {
     var body = req.body.paymentType;
     console.log(req.body.paymentType); 
     var paymentType = new PaymentType({
+        Price: body.Price,
         Type: body.Type,
         CurrencyType: body.CurrencyType,
         ExchangeRate: body.ExchangeRate,
@@ -58,6 +60,7 @@ ctrl.update = (req, res) => {
         else {
             if(!paymentType) {console.log(' no se encontro')}
             else {
+                paymentType.Price = body.Price;                
                 paymentType.Type = body.Type;
                 paymentType.CurrencyType = body.CurrencyType;
                 paymentType.ExchangeRate = body.ExchangeRate;

@@ -27,7 +27,7 @@ ctrl.listVehicle = (req, res) => {
         "VehicleSold":[{
             "VehicleStock": "5fc9566be84a6b031cd9a692"
         }],
-        "PaymentType": "5fc94d3138063149f8a977a3"
+        "PaymentType": ["5fc94d3138063149f8a977a3"]
     }
 } */
 
