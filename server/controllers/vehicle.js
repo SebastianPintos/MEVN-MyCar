@@ -27,7 +27,7 @@ ctrl.create = (req, res) => {
         year: body.year,
         SuggestedPrice: body.SuggestedPrice,
         Detail: body.Detail,
-        Status: body.Status,
+        Status: "ACTIVE",
         Dealer: body.Dealer,
         Kind: body.Kind,
     });
