@@ -16,7 +16,9 @@
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+
+                    <div v-if="validateUsers('Gerente','Administrador')">
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
 
@@ -316,6 +318,7 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
+                    </div>
 
                 </v-toolbar>
             </template>
@@ -557,6 +560,12 @@ export default {
             this.getPaises();
             this.getProvincias();
             this.getEmpleados();
+        },
+        validateUsers(...authorizedUsers){
+            if(localStorage.getItem('userType') != null){
+                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+            }
+            return false;
         },
         getProvincias() {
             axios.get('https://apis.datos.gob.ar/georef/api/provincias?campos=nombre')
