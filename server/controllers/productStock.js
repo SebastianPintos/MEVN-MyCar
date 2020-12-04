@@ -98,7 +98,7 @@ ctrl.ModifyStock = async (req,res) => {
             productDb.save((err) => {
                 if(err) {console.log(err)}
                 else{
-                    res.senxd("listo")              
+                    res.send("listo")              
                 }
             });
         });  
