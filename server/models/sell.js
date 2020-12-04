@@ -12,14 +12,30 @@ var sellSchema = new Schema({
   CUIT: {type: String},
   TaxCategory: {type: String},
   Client: {type: Schema.Types.ObjectId, ref: 'Client'},
-  Employee: {type: Schema.Types.ObjectId, required: true, ref: 'Employee'},
+  Employee: {type: Schema.Types.ObjectId,  ref: 'Employee'},
   Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
   ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],
   VehicleSold: [{
       Vehicle: {type: Schema.Types.ObjectId, ref: 'Vehicle'},
       VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'}
     }],
-  PaymentType: [{type: Schema.Types.ObjectId, required: true, ref: 'PaymentType'}],
+  PaymentType: [ 
+    {Price: {type: Number},
+    Type: {type: String, enum: ['CASH', 'CREDICARD', 'WIRETRANSFER']},
+    CurrencyType: {type: String}, //EUR ARS USD REAL
+    ExchangeRate: {type: Number},
+    Credicard: {
+      Company: {type: String},
+      Bank: {type: String},
+      Name: {type: String},
+      Number: {type: String}
+    },
+    WireTransfer: {
+      Bank: {type: String},
+      TransactionNum: {type: String},
+      CBU: {type: String},
+      Holder: {type: String}
+    }}],
   WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
 },{timestamps: true});
 
