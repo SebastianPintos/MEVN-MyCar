@@ -15,7 +15,6 @@ ctrl.create = (req, res) => {
     var body = req.body.product;
     console.log(req.body.product); 
     var product = new Product({
-        Code: body.SKU+body.Dealer.Email,
         Description: body.Description,
         Category: body.Category,
         SubCategory: body.SubCategory,
@@ -44,7 +43,6 @@ ctrl.update = (req, res) => {
         else {
             if(!product) {console.log(' no se encontro')}
             else {
-                product.Code= body.SKU+body.Dealer.Email,
                 product.Description= body.Description,
                 product.Category=body.Category,
                 product.SubCategory= body.SubCategory,
@@ -86,5 +84,27 @@ ctrl.remove = (req, res) =>{
         }
     })
 };
+
+ctrl.actualizarPrecioCompra = (req, res) =>{
+    var id = req.params.product_id;
+    var nuevoPrecio = req.body.precio;
+    Product.findOne({_id: id}, (err, product) => {
+        if(err) {console.log(err)}
+        else {
+            if(!product) {console.log(' no se encontro')}
+            else {
+                product.LastPurchasePrice = nuevoPrecio;
+
+                product.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+};
+
 
 module.exports = ctrl;
