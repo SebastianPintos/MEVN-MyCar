@@ -19,6 +19,8 @@ const model = require('../controllers/model');
 const brand = require('../controllers/brand');
 const sell = require('../controllers/sell');
 const paymentType = require('../controllers/PaymentType');
+const factura = require('../controllers/factura');
+const monedas = require('../controllers/monedas');
 
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
@@ -67,6 +69,17 @@ module.exports = app => {
     router.post('/brand/:brand_id/update', brand.update);
     router.delete('/brand/:brand_id/delete', brand.remove);
 
+    
+    router.get('/factura', factura.index);
+    router.post('/factura/add', factura.create);
+    router.post('/factura/:factura_id/update', factura.update);
+    router.delete('/factura/:factura_id/delete', factura.remove);
+    
+    
+    router.get('/monedas', monedas.index);
+    router.post('/monedas/add', monedas.create);
+    router.post('/monedas/:monedas_id/update', monedas.update);
+    router.delete('/monedas/:monedas_id/delete', monedas.remove);
     
     router.get('/category', category.index);
     router.post('/category/add', category.create);

@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 var PaymentType = new Schema({
   Price: {type: Number},
   Type: {type: String, enum: ['CASH', 'CREDICARD', 'WIRETRANSFER']},
-  CurrencyType: {type: String, enum: ['USD', "EU", "PESO"]},
+  CurrencyType: {type: String, enum: ['USD', "EUR", "ARS","REA"]},
   ExchangeRate: {type: Number},
   Credicard: {
     Company: {type: String, required: true},
