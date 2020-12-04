@@ -27,87 +27,87 @@
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Marca:"></v-text-field>
+                                        <v-text-field readonly value="Marca:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="vehiculo.Vehicle.Brand"></v-text-field>
+                                    <v-text-field readonly :value="vehiculo.Vehicle.Brand"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Modelo:"></v-text-field>
+                                        <v-text-field readonly value="Modelo:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="vehiculo.Vehicle.Model"></v-text-field>
-                                </v-col>
-                            </v-row>
-
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <strong>
-                                        <v-text-field disabled label="Año:"></v-text-field>
-                                    </strong>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="vehiculo.Vehicle.year"></v-text-field>
+                                    <v-text-field readonly :value="vehiculo.Vehicle.Model"></v-text-field>
                                 </v-col>
                             </v-row>
 
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field v-if="vehiculo.Domain!=null" disabled label="Dominio:"></v-text-field>
+                                        <v-text-field readonly value="Año:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="vehiculo.Domain"></v-text-field>
+                                    <v-text-field readonly :value="vehiculo.Vehicle.year"></v-text-field>
                                 </v-col>
                             </v-row>
 
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Color:"></v-text-field>
+                                        <v-text-field v-if="vehiculo.Domain!=null" readonly value="Dominio:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="vehiculo.Color"></v-text-field>
+                                    <v-text-field readonly :value="vehiculo.Domain"></v-text-field>
                                 </v-col>
                             </v-row>
 
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Precio:"></v-text-field>
+                                        <v-text-field readonly value="Color:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="vehiculo.PurchasedPrice" prefix="$"></v-text-field>
+                                    <v-text-field readonly :value="vehiculo.Color"></v-text-field>
+                                </v-col>
+                            </v-row>
+
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field readonly value="Precio:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field readonly :value="vehiculo.PurchasedPrice" prefix="$"></v-text-field>
                                 </v-col>
                             </v-row>
                             <div v-if="vehiculo.descuento>0">
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <strong>
-                                            <v-text-field disabled label="Descuento:"></v-text-field>
+                                            <v-text-field readonly value="Descuento:"></v-text-field>
                                         </strong>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="vehiculo.descuento" suffix="%"></v-text-field>
+                                        <v-text-field readonly :value="vehiculo.descuento" suffix="%"></v-text-field>
                                     </v-col>
                                 </v-row>
 
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <strong>
-                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
+                                            <v-text-field readonly value="Precio con Descuento:"></v-text-field>
                                         </strong>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="vehiculo.descontado" prefix="$"></v-text-field>
+                                        <v-text-field readonly :value="vehiculo.descontado" prefix="$"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </div>
@@ -119,76 +119,76 @@
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Marca:"></v-text-field>
+                                        <v-text-field readonly value="Marca:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="repuesto.Product.Brand"></v-text-field>
+                                    <v-text-field readonly :value="repuesto.Product.Brand"></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Categoría:"></v-text-field>
+                                        <v-text-field readonly value="Categoría:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="repuesto.Product.Category"></v-text-field>
+                                    <v-text-field readonly :value="repuesto.Product.Category"></v-text-field>
                                 </v-col>
                             </v-row>
 
                             <v-row v-if="repuesto.Product.SubCategory!=null">
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Sub-Categoría:"></v-text-field>
+                                        <v-text-field readonly value="Sub-Categoría:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="repuesto.Product.SubCategory"></v-text-field>
+                                    <v-text-field readonly :value="repuesto.Product.SubCategory"></v-text-field>
                                 </v-col>
                             </v-row>
 
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Precio:"></v-text-field>
+                                        <v-text-field readonly value="Precio:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="repuesto.Price" prefix="$"></v-text-field>
+                                    <v-text-field readonly :value="repuesto.Price" prefix="$"></v-text-field>
                                 </v-col>
                             </v-row>
                             <div v-if="repuesto.descuento>0">
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <strong>
-                                            <v-text-field disabled label="Descuento:"></v-text-field>
+                                            <v-text-field readonly value="Descuento:"></v-text-field>
                                         </strong>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="repuesto.descuento" suffix="%"></v-text-field>
+                                        <v-text-field readonly :value="repuesto.descuento" suffix="%"></v-text-field>
                                     </v-col>
                                 </v-row>
 
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <strong>
-                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
+                                            <v-text-field readonly value="Precio con Descuento:"></v-text-field>
                                         </strong>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="repuesto.descontado" prefix="$"></v-text-field>
+                                        <v-text-field readonly :value="repuesto.descontado" prefix="$"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </div>
                             <v-row>
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field disabled label="Cantidad:"></v-text-field>
+                                        <v-text-field readonly value="Cantidad:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="repuesto.cantidad"></v-text-field>
+                                    <v-text-field readonly :value="repuesto.cantidad"></v-text-field>
                                 </v-col>
                             </v-row>
 
@@ -197,11 +197,11 @@
                     <v-row>
                         <v-col cols="12" md="6">
                             <strong>
-                                <v-text-field disabled label="Total:"></v-text-field>
+                                <v-text-field readonly value="Total:"></v-text-field>
                             </strong>
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-text-field disabled prefix="$" :value="total"></v-text-field>
+                            <v-text-field readonly prefix="$" :value="total"></v-text-field>
                         </v-col>
                     </v-row>
 
