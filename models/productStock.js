@@ -9,7 +9,7 @@ var ProductStockSchema = new Schema({
   Expiration: {type: Date},
   Price: {type: Number, required: true},
   Product: {type: Schema.Types.ObjectId,required: true,ref: 'Product'},
-  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+  BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });
 
