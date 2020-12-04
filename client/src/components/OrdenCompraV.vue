@@ -306,7 +306,6 @@ export default {
                         "PurchasedPrice": this.selected[0].Vehicle[i].VehicleID.SuggestedPrice,
                         "Vehicle": this.selected[0].Vehicle[i].VehicleID._id,
                         "Dealer": this.selected[0].Dealer._id,
-                        "BranchOffice": this.selected[0].BranchOffice._id,
                         "Kind": "NUEVO",
                     }
                 };
