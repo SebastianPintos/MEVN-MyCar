@@ -62,18 +62,25 @@
 
         <!-- Tabla -->
         <v-data-table v-model="selected" show-select :headers="headers" :items="repuestos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+            <template v-slot:item.SalePrice="{ item }">
+                {{ formatPrice(item.SalePrice) }}
+            </template>
+            <template v-slot:item.LastPurchasePrice="{ item }">
+                {{ formatPrice(item.LastPurchaseSalePrice) }}
+            </template>
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                    <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
                     <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
-                    <v-dialog v-model="dialog" max-width="500px">
+                    <v-dialog v-model="dialog" max-width="500px" persistent>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
@@ -215,36 +222,40 @@
                         </v-card>
 
                     </v-dialog>
+                    </div>
 
                     <v-btn dark class="mb-2" color="warning" @click="controlarStock">
                         Stock
                     </v-btn>
 
-                    <v-dialog v-model="dialogStock" max-width="500px">
+                    <v-dialog v-model="dialogStock" max-width="500px" persistent>
                         <v-card>
                             <h1 class="text-center">Stock</h1>
                             <v-card-text>
-                            <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Disponibles:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="disponibles"></v-text-field>
-                             </v-col></v-row>
-                             <v-row>
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Reservados:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="reservados"></v-text-field>
-                             </v-col></v-row>
-                             <v-row>                             
-                            <v-col cols="12" md="6">
-                               <v-text-field disabled label="Fuera de Servicio:"></v-text-field>
-                               </v-col>
-                            <v-col cols="12" md="6">  
-                                <v-text-field disabled :value="fueraDeServicio"></v-text-field>
-                             </v-col></v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Disponibles:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="disponibles"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Reservados:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="reservados"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled label="Fuera de Servicio:"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="fueraDeServicio"></v-text-field>
+                                    </v-col>
+                                </v-row>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -256,7 +267,7 @@
                         </v-card>
                     </v-dialog>
 
-                    <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
                         <v-card>
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                             <v-card-actions>
@@ -476,7 +487,7 @@ export default {
                 })
         },
 
-         getrepuestosStock() {
+        getrepuestosStock() {
             axios.get(urlAPI + 'productStock')
                 .then(res => {
                     let repuestosStock = res.data.productStock;
@@ -499,6 +510,12 @@ export default {
                 this.snackbar = true
                 this.mensaje = "No ha seleccionado ningun elemento!"
                 return true;
+            }
+            return false;
+        },
+        validateUsers(...authorizedUsers){
+            if(localStorage.getItem('userType') != null){
+                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
             }
             return false;
         },
@@ -588,6 +605,9 @@ export default {
             this.reglaEditarProveedor = [];
             this.reglaEditarVenta = [];
             this.reset();
+        },
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
         closeDelete() {
             this.dialogDelete = false

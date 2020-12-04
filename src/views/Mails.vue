@@ -180,12 +180,9 @@ export default {
         },
         editarPrimero() {
             this.desPrimero = !this.desPrimero;
-            console.log("");
         },
         editarSegundo() {
             this.desSegundo = !this.desSegundo;
-            console.log("");
-
         },
         inicializarHoras() {
             for (let i = 0; i < 25; i++) {

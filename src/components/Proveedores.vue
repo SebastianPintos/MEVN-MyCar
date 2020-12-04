@@ -10,7 +10,9 @@
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+
+                    <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
+                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
 
@@ -18,7 +20,7 @@
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px">
+                    <v-dialog v-model="dialog" max-width="500px" persistent>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn @click="formTitle='Nuevo Proveedor'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
@@ -83,7 +85,7 @@
                         </v-card>
                     </v-dialog>
 
-                    <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
                         <v-card>
                             <v-col cols="12" sm="12" md="12">
                                 <p class="headline">Ingrese los Motivos: </p>
@@ -101,6 +103,7 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
+                    </div>
 
                 </v-toolbar>
             </template>
@@ -258,6 +261,12 @@ export default {
             this.getDealers();
             this.getProvincias();
         },
+        validateUsers(...authorizedUsers){
+            if(localStorage.getItem('userType') != null){
+                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+            }
+            return false;
+        },
 
         async getDealers() {
             await axios.get(urlAPI + 'dealer')
@@ -314,7 +323,6 @@ export default {
 
                 this.formTitle = "Editar Proveedor";
                 this.dialog = true;
-                console.log("Item province: " + item.Address.Province);
                 try {
                     this.DealerProvince = item.Address.Province;
                     this.DealerStreet = item.Address.Street;

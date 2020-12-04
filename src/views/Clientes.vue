@@ -1,22 +1,36 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table v-model="selected" show-select :headers="headers" :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
-              <template v-slot:item.TaxCategory="{ item }">
+        <v-data-table v-model="selected" show-select :headers="headers" :expanded.sync="expanded" show-expand :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+            <template v-slot:item.TaxCategory="{ item }">
                 {{ format(item.TaxCategory) }}
             </template>
-               <template v-slot:item.CompanyName="{ item }">
+            <template v-slot:item.CompanyName="{ item }">
                 {{ format(item.CompanyName) }}
             </template>
-                 <template v-slot:item.CUIT="{ item }">
+            <template v-slot:item.CUIT="{ item }">
                 {{ format(item.CUIT) }}
             </template>
+            <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">
+
+                    <v-chip-group>
+                        <v-chip color="success" small v-for="v in item.Vehicle"  :key="v._id">Vehículo: {{v.Domain}}</v-chip>
+                    </v-chip-group>
+                </td>
+            </template>
+
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="agregarVehiculo=true">
+                        <v-icon>mdi-car-outline</v-icon>
+                    </v-btn>
+
                     <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
@@ -25,7 +39,7 @@
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px">
+                    <v-dialog v-model="dialog" max-width="500px" persistent>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn @click="formTitle='Nuevo Cliente'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                                 <v-icon>mdi-plus</v-icon>
@@ -47,7 +61,7 @@
                                                 <v-select v-model="client.Nationality" :items="paises" item-text="name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-text-field :rules="reglaNombre" v-model="client.Name" label="Nombre"></v-text-field>
+                                                <v-text-field :rules="reglaNombre" hide-details="auto" v-model="client.Name" label="Nombre"></v-text-field>
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
@@ -93,18 +107,18 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
+                                    <v-btn class="mb-2 info" text @click="close">
+                                        <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save(selected[0]!=null? selected[0]._id:-1)">
-                                        Guardar
+                                    <v-btn class="mb-2 info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
+                                        <v-icon>mdi-check</v-icon>
                                     </v-btn>
                                 </v-card-actions>
                             </v-form>
                         </v-card>
                     </v-dialog>
 
-                    <v-dialog v-model="dialogDelete" max-width="500px">
+                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
                         <v-card>
                             <v-col cols="12" sm="12" md="12">
                                 <p class="headline">Ingrese los Motivos: </p>
@@ -122,6 +136,57 @@
                 </v-toolbar>
             </template>
         </v-data-table>
+
+        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo" persistent>
+            <v-card>
+                <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
+                    <v-card-title>
+                        Asociar Vehículo
+                    </v-card-title>
+                    <v-card-text>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled label="ID del Cliente: "></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled v-model="selected[0].DNI"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled label="Nombre: "></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled v-model="selected[0].Name"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled label="Apellido: "></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="3">
+                                <v-text-field disabled v-model="selected[0].LastName"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-select v-model="vehiculo" label="Vehiculo" :items="vehicles" item-text="Model" item-value="_id" :rules="requerido">
+                            <template slot="item" slot-scope="data">
+                                {{ data.item.Brand }} {{ data.item.Model }} - {{ data.item.year }}
+                            </template>
+                        </v-select>
+                        <v-text-field label="Dominio" v-model="dominio" :rules="reglaDominio"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-flex class="text-right">
+                            <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''">
+                                <v-icon>mdi-cancel</v-icon>
+                            </v-btn>
+                            <v-btn class="info mb-2" @click="asociarVehiculo">
+                                <v-icon>mdi-check</v-icon>
+                            </v-btn>
+                        </v-flex>
+                    </v-card-actions>
+                </v-form>
+            </v-card>
+        </v-dialog>
+
         <v-snackbar v-model="snackbar">
             {{ mensaje }}
 
@@ -131,7 +196,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-</div>
+    </div>
 </v-img>
 </template>
 
@@ -162,15 +227,20 @@ export default {
         editedIndex: -1,
         defaultClient: new client(),
         selected: [],
-        categorias: ['Responsable Inscripto', 'Excento', 'Consumidor Final'],
+        expanded: [],
+        categorias: ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
         search: '',
         poblacion: '',
         valid: true,
         snackbar: false,
         mensaje: "",
         dialog: false,
+        agregarVehiculo: false,
         dialogDelete: false,
-        
+        requerido: [
+            value => !!value || 'Requerido.',
+        ],
+
         headers: [{
                 text: 'Nombre',
                 value: 'Name',
@@ -209,9 +279,11 @@ export default {
                 text: 'Teléfono',
                 value: 'Phone'
             },
-            
-        ],
 
+        ],
+        vehiculo: {},
+        dominio: "",
+        vehicles: [],
         clients: [],
         paises: [],
         nombrePaises: [],
@@ -229,9 +301,16 @@ export default {
                 return pattern.test(value) || 'Nombre inválido'
             },
         ],
+        reglaDominio: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^(([A-Z]{2}[0-9]{3}[A-Z]{2}){0,1}([A-Z]{3}[0-9]{3}){0,1}){1}$/
+                return pattern.test(value) || 'Dominio inválido'
+            },
+        ],
         reglaID: [value => !!value || 'Requerido.'],
 
-        reglaCUIT: [ value => (value || '').length <= 13|| 'Máximo 13 caracteres',
+        reglaCUIT: [value => (value || '').length <= 13 || 'Máximo 13 caracteres',
             value => {
                 const pattern = /^20|23|24|27|30|33|34([1-9]{1}\d{7}){1}-\d{1}$/
                 return pattern.test(value) || 'Formato de CUIT inválido'
@@ -270,7 +349,7 @@ export default {
 
             },
         ],
-        reglaCUITAux:[],
+        reglaCUITAux: [],
         reglaTelefono: [
             value => !!value || 'Requerido.',
             value => (value || '').length <= 12 || 'Máximo 12 caracteres',
@@ -323,11 +402,18 @@ export default {
         this.iniciar();
     },
 
-
     methods: {
         iniciar() {
             this.getClients();
             this.getPaises();
+            this.getVehicles();
+        },
+
+        getVehicles() {
+            axios.get(urlAPI + 'vehicle')
+                .then(res => {
+                    this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
+                });
         },
 
         getPaises() {
@@ -344,7 +430,7 @@ export default {
                 });
         },
         cambiarRequired(value) {
-            if (value === 'Responsable Inscripto') {
+            if (value === 'RESPONSABLE INSCRIPTO') {
                 this.reglaRazonSocial = [
                     value => !!value || 'Requerido.'
                 ];
@@ -353,7 +439,7 @@ export default {
             }
         },
         cambiarReglaCUIT(value) {
-            if (value != null & value!= '') {
+            if (value != null & value != '') {
                 this.reglaCUITAux = this.reglaCUIT;
             } else {
                 this.reglaCUITAux = [];
@@ -377,7 +463,7 @@ export default {
             this.poblacion = datos[1]
             let cantidad = JSON.stringify(this.poblacion).length;
 
-           // this.reglaID = [];
+            // this.reglaID = [];
             this.reglaID = [value => !!value || 'Requerido.',
                 value => (value || '').length <= cantidad || 'Máximo ' + cantidad + ' caracteres',
                 value => {
@@ -388,7 +474,7 @@ export default {
                     const pattern = /^[0-9]{1,}$/
                     return pattern.test(value) || 'Sólo se permiten números!'
                 },
-            ]   
+            ]
         },
 
         haySeleccionado() {
@@ -406,17 +492,17 @@ export default {
 
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
-                if(this.selected.length > 1){
-                     this.snackbar = true
-                     this.mensaje = "Sólo puede editar un elemento a la vez!"
-                     return;
+                if (this.selected.length > 1) {
+                    this.snackbar = true
+                    this.mensaje = "Sólo puede editar un elemento a la vez!"
+                    return;
                 }
                 this.editedIndex = this.clients.indexOf(item);
                 this.client = Object.assign({}, item);
                 this.separarDatos(item);
                 this.formTitle = "Editar Cliente";
                 this.dialog = true;
-            } 
+            }
         },
 
         deleteItem() {
@@ -433,7 +519,7 @@ export default {
 
         reset() {
             this.selected = [];
-            this.motivos='';
+            this.motivos = '';
             this.$nextTick(() => {
                 this.client = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
@@ -489,7 +575,7 @@ export default {
                 });
         },
 
-         save(id) {
+        save(id) {
             //Cliente Nuevo
             if (id === -1) {
                 this.client = this.getClient(this.client);
@@ -501,7 +587,7 @@ export default {
             }
             //Editar Cliente
             else {
-                if(this.validate()){
+                if (this.validate()) {
                     Object.assign(this.clients[this.editedIndex], this.client)
                     this.editar("ACTIVE", this.client);
                     this.reiniciar();
@@ -548,10 +634,27 @@ export default {
             this.separarEmail(value)
         },
 
-        format(value){
+        format(value) {
             return value == null ? "S/D" : String(value);
-        }
+        },
 
+        getJSONVehicle(){
+            return {
+                "vehicle":{
+                    "VehicleID":this.vehiculo,
+                    "Domain": this.dominio
+                }
+            }
+        },
+
+        asociarVehiculo() {
+            if (this.$refs.asociarVehiculo.validate()) {     
+                axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle",this.getJSONVehicle())
+            .then(res=>{
+                if(res!=null){
+                    this.vehiculo = null; this.dominio = ""; this.agregarVehiculo = false;this.selected=[];this.mensaje="Vehículo asociado con éxito"; this.snackbar=true}})
+         }
+        },
     },
 };
 </script>
