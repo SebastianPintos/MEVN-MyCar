@@ -23,7 +23,7 @@ const factura = require('../controllers/factura');
 const monedas = require('../controllers/monedas');
 
 const category = require('../controllers/category');
-const subcategory = require('../controllers/subcategory');
+const subcategory = require('../controllers/subCategory');
 
 const controlStock = require('../controllers/controlStock');
 const Email = require('../lib/Email')
