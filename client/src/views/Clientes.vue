@@ -228,7 +228,7 @@ export default {
         defaultClient: new client(),
         selected: [],
         expanded: [],
-        categorias: ['Responsable Inscripto', 'Exento', 'Consumidor Final'],
+        categorias: ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
         search: '',
         poblacion: '',
         valid: true,
@@ -430,7 +430,7 @@ export default {
                 });
         },
         cambiarRequired(value) {
-            if (value === 'Responsable Inscripto') {
+            if (value === 'RESPONSABLE INSCRIPTO') {
                 this.reglaRazonSocial = [
                     value => !!value || 'Requerido.'
                 ];
