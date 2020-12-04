@@ -27,7 +27,7 @@ ctrl.index = (req, res) => {
             "Bank": "Banco Ciudad",
             "TransactionNum": "1231666",
             "CBU": "54666219815",
-            "Holder": "Juan Carlos Pelotudo"
+            "Holder": "Juan Carlos"
         }
     }
 } */
@@ -46,11 +46,9 @@ ctrl.create = (req, res) => {
 
     paymentType.save((err) => {
         if(err) {console.log(err)}
-        res.send({
-            success: true
-        })
-    });
-};
+        res.send({paymentType});
+});
+}
 
 ctrl.update = (req, res) => {
     var id = req.params.paymentType_id;

@@ -20,17 +20,19 @@
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
 
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
+                    <div v-if="validateUsers('Administrativo')">
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
                         <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
+                        </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="corroborarSeleccionado">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="corroborarSeleccionado">
+                            <v-icon>mdi-delete</v-icon>
+                        </v-btn>
 
-                    <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Vehículo'">
-                        <v-icon>mdi-plus</v-icon>
-                    </v-btn>
+                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Vehículo'">
+                            <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                    </div>
 
                 </v-toolbar>
             </template>
@@ -276,6 +278,12 @@ export default {
     },
 
     methods: {
+        validateUsers(...authorizedUsers){
+            if(localStorage.getItem('userType') != null){
+                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+            }
+            return false;
+        },
         save() {
             this.$refs.menu.save(this.editedItem.Expiration)
         },

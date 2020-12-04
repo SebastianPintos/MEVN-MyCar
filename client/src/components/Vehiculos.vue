@@ -81,7 +81,8 @@
                         Stock
                     </v-btn>
 
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                    <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
 
@@ -227,6 +228,7 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
+                    </div>
                 </v-toolbar>
             </template>
         </v-data-table>
@@ -453,6 +455,12 @@ export default {
     },
 
     methods: {
+        validateUsers(...authorizedUsers){
+            if(localStorage.getItem('userType') != null){
+                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+            }
+            return false;
+        },
 
         getPaises() {
             axios.get('https://restcountries.eu/rest/v2/all')

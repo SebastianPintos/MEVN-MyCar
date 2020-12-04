@@ -73,7 +73,8 @@
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                    <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
                     <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
@@ -221,6 +222,7 @@
                         </v-card>
 
                     </v-dialog>
+                    </div>
 
                     <v-btn dark class="mb-2" color="warning" @click="controlarStock">
                         Stock
@@ -508,6 +510,12 @@ export default {
                 this.snackbar = true
                 this.mensaje = "No ha seleccionado ningun elemento!"
                 return true;
+            }
+            return false;
+        },
+        validateUsers(...authorizedUsers){
+            if(localStorage.getItem('userType') != null){
+                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
             }
             return false;
         },
