@@ -297,7 +297,6 @@ export default {
                         "Reserved": 0,
                         "Expiration": this.selected[0].Product[i].Expiration,
                         "Dealer": this.selected[0].Dealer,
-                        "BranchOffice": this.selected[0].BranchOffice,
                         "Product": this.selected[0].Product[i].ProductID._id,
                         "Price": this.selected[0].Product[i].ProductID.SalePrice
 
