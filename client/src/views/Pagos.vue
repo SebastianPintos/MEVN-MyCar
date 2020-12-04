@@ -83,13 +83,30 @@
 
             </v-card-text>
             <v-card-actions>
-                <v-btn class="success" block>
+                <v-btn class="success" block @click="mostrarDetalleFactura">
                     <v-icon>mdi-check</v-icon>
                 </v-btn>
             </v-card-actions>
         </v-card>
     </v-form>
-
+    <v-dialog v-model="detalleFactura" persistent>
+        <v-card>
+            <v-card-title>
+                <h2>Confirmación</h2>
+            </v-card-title>
+            <v-card-text>
+                <v-text-field disabled value="Se emitirá una factura A"></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+                <v-btn class="info">
+                    <v-icon>mdi-cancel</v-icon>
+                </v-btn>
+                <v-btn class="info">
+                    <v-icon>mdi-check</v-icon>
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </div>
 </template>
 
@@ -99,31 +116,34 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         dias: [],
+        detalleFactura: false,
         horas: [],
         clientes: [],
         tarjetas: ["American Express", "Visa", "MasterCard"],
-        bancos: ["ICBC","HCBC","Banco Provincia","Santander Río"],
-        monedas: ["ARS","EUR","USD"],
+        bancos: ["ICBC", "HCBC", "Banco Provincia", "Santander Río"],
+        monedas: ["ARS", "EUR", "USD"],
         cliente: null,
         aceptoCliente: false,
         valid: true,
         desTarjeta: true,
         desTransferencia: true,
         desEfectivo: true,
+
         numeroRequerido: [
             value => {
                 const pattern = /^[0-9]$/
                 return pattern.test(value) || 'Requerido.'
             },
         ],
+
         mediosPago: {
-            Credicard:{
+            Credicard: {
 
             },
-            WireTransfer:{
+            WireTransfer: {
 
             },
-            Cash:{
+            Cash: {
 
             }
         },
@@ -150,6 +170,9 @@ export default {
         },
         editarEfectivo() {
             this.desEfectivo = !this.desEfectivo;
+        },
+        mostrarDetalleFactura() {
+            this.detalleFactura=true;
         },
     },
 }
