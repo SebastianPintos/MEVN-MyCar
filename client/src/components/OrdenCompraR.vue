@@ -432,13 +432,13 @@ export default {
                     return null;
                 }
             };
+            //ACÁ FALTA LA PARTE DE BRANCHOFFICE    "BranchOffice": "5fb3d83987565231fcd5a756",
             return {
                 "purchaseOrder": {
                     "OrderDate": new Date(),
                     "Price": precio,
                     "Product": product,
-                    "Dealer": this.proveedor,
-                    "BranchOffice": "5fb3d83987565231fcd5a756",
+                    "Dealer": this.proveedor
                 }
             }
 

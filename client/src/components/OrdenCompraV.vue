@@ -429,13 +429,14 @@ export default {
                 this.dialogMensaje = true;
                 return null;
             }
+            //ACA FALTA LA PARTE DE LA SUCURSAL    "BranchOffice": "5fb3d83987565231fcd5a756",
             return {
                 "purchaseOrderV": {
                     "OrderDate": new Date(),
                     "Price": precio,
                     "Vehicle": vehicle,
                     "Dealer": this.proveedor,
-                    "BranchOffice": "5fb3d83987565231fcd5a756",
+                 
                 }
             }
 
