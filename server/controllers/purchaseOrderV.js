@@ -40,9 +40,7 @@ ctrl.create = (req, res) => {
     
     purchaseOrderV.save((err) => {
         if(err) {console.log(err)}
-        res.send({
-            success: true
-        });
+        res.send({purchaseOrderV});
     });
 };
 

@@ -525,12 +525,10 @@ export default {
                 return null;
             }
             return {
-                "paymentType": {
                     "Price": this.mediosPago.Cash.Price,
                     "Type": "CASH",
                     "CurrencyType": this.mediosPago.Cash.CurrencyType,
                     "ExchangeRate": this.mediosPago.Cash.ExchangeRate
-                }
             };
         },
 
@@ -539,7 +537,6 @@ export default {
                 return null;
             }
             return {
-                "paymentType": {
                     "Price": this.mediosPago.Credicard.Price,
                     "Type": "CREDICARD",
                     "CurrencyType": this.mediosPago.Credicard.CurrencyType,
@@ -550,7 +547,6 @@ export default {
                         "Name": this.mediosPago.Credicard.Name,
                         "Number": this.mediosPago.Credicard.Number
                     },
-                }
             }
         },
 
@@ -559,7 +555,6 @@ export default {
                 return null;
             }
             return {
-                "paymentType": {
                     "Price": this.mediosPago.WireTransfer.Price,
                     "Type": "WIRETRANSFER",
                     "CurrencyType": this.mediosPago.WireTransfer.CurrencyType,
@@ -569,7 +564,6 @@ export default {
                         "TransactionNum": this.mediosPago.WireTransfer.TransactionNum,
                         "CBU": this.mediosPago.WireTransfer.CBU,
                         "Holder": this.mediosPago.WireTransfer.Holder
-                    }
                 }
             }
         },
@@ -587,52 +581,54 @@ export default {
             if (efectivo != null) {
                 this.medios.push(efectivo);
             };
-            let repuestos= [];
-            this.repuestos.forEach(r=>{
+            let repuestos = [];
+            this.repuestos.forEach(r => {
                 repuestos.push(r._id);
             });
-            if(repuestos.length==0){
+            if (repuestos.length == 0) {
                 repuestos = null;
             };
 
-            let vehiculosSold= [];
-
-            /*
-  OrderDate: {type: Date},
-  ArrivalDate: {type: Date},
-  Price: {type: Number, required: true},
-  Vehicle: [{
-    ChasisNum: {type: String, required: true},
-    EngineNum: {type: String, required: true},
-    Color: {type: String, required: true}, 
-    VehicleID : {type: Schema.Types.ObjectId, required: true, ref: 'Vehicle'},
-    Price: {type: Number, required: true},
-  }],
-  Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
-  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
-  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
-  */
-  //FALTA AGREGAR SUCURSAL
-            this.encargados.forEach( e=>{
-                axios.post(urlAPI+'purchaseOrderV/add',{
-                    "purchaseOrderV":{
-                    "OrderDate": new Date(),
-                    "Price": e.SuggestedPrice,
-                    "Vehicle":[{"ChasisNum":"0",
-                    "EngineNum":"0","Color":e.Color,
-                    "VehicleID": e._id,
-                    "Price": e.SuggestedPrice}],
-                    "Dealer": e.Dealer,
-                    "BranchOffice": e.BranchOffice,
-                    "Status":"ACTIVE"
-                }})
+            let vehiculosSold = [];
+            //FALTA AGREGAR SUCURSAL
+            let encargados = [];
+            this.encargados.forEach(e => {
+                axios.post(urlAPI + 'purchaseOrderV/add', {
+                    "purchaseOrderV": {
+                        "OrderDate": new Date(),
+                        "Price": e.SuggestedPrice,
+                        "Vehicle": [{
+                            "ChasisNum": "0",
+                            "EngineNum": "0",
+                            "Color": e.Color,
+                            "VehicleID": e._id,
+                            "Price": e.SuggestedPrice
+                        }],
+                        "Dealer": e.Dealer,
+                        "BranchOffice": e.BranchOffice,
+                        "Status": "ACTIVE"
+                    }
+                }).then(res => {
+                    if (res != null) {
+                        vehiculosSold.push({
+                            "PurchaseOrderV": res.data.purchaseOrderV._id,
+                            "VehicleStock": null
+                        })
+                        encargados.push(res.data.purchaseOrderV._id);
+                    }
+                })
             });
-            this.vehiculosStock.forEach(v=>{
-                vehiculosSold.push({"Vehicle":v._id,"VehicleStock": null});
+            this.vehiculosStock.forEach(v => {
+                vehiculosSold.push({
+                    "VehicleStock": v._id,
+                    "PurchaseOrderV": null
+                });
             });
-            if(vehiculosSold.length==0){
+            if (vehiculosSold.length == 0) {
                 vehiculosSold = null;
             };
+
+            console.log("MEDIOS DE PAGO: "+JSON.stringify(this.medios))
             //FALTA EMPLEADO
             let sell = {
                 "sell": {
@@ -640,14 +636,14 @@ export default {
                     "Tax": this.Factura.Impuesto,
                     "Client": this.cliente,
                     "ProductStock": repuestos,
-                    "VehicleSold": vehiculosSold
+                    "VehicleSold": vehiculosSold,
+                    "PaymentType": this.medios
                 }
             }
-            await axios.post(urlAPI+'sellVehicle/add',sell).then(res=>
-            {
-                if(res!=null){
-                    this.tituloMensaje="Operación exitosa";
-                    this.mensaje="Compra realizada con éxito";
+            await axios.post(urlAPI + 'sellVehicle/add', sell).then(res => {
+                if (res != null) {
+                    this.tituloMensaje = "Operación exitosa";
+                    this.mensaje = "Compra realizada con éxito";
                     this.dialogMensaje = true;
                     this.reiniciarFactura();
                 }
@@ -669,7 +665,6 @@ export default {
                 }
             }
         },
-
 
         getEncargados() {
             let length = 0;
@@ -807,7 +802,6 @@ export default {
                 })
             });
 
-            
             this.encargados.forEach(r => {
                 let precioNeto = 0.0;
                 let impuesto = 0.0;
@@ -815,7 +809,7 @@ export default {
                 let descontado = 0.0;
                 let precio = 0.0;
                 let nombre = r.Brand + " " + r.Model +
-                    " " + r.year+" "+r.Type+" "+r.Category;
+                    " " + r.year + " " + r.Type + " " + r.Category;
                 if (r.SuggestedPrice != null) {
                     if (r.descontado > 0) {
                         descuento = r.descuento;
