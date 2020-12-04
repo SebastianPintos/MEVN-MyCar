@@ -390,20 +390,24 @@ export default {
             /*
             ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
             */
+
             if (this.$refs.formTarjeta.validate() &
                 this.$refs.formTransferencia.validate() &
                 this.$refs.formEfectivo.validate()) {
-                let categoriaFiscal = this.cliente.TaxtCategory;
-                if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
-                    this.Factura.Kind = 'A';
-                }
-                if (categoriaFiscal == 'EXENTO') {
-                    this.Factura.Kind = 'E';
-                } else {
-                    this.Factura.Kind = 'B';
-                }
+                let categoriaFiscal = "";
+                let cliente = this.clientes.filter(c => c._id == this.cliente);
 
-                this.detalleFactura = true;
+                if (cliente != null) {
+                    categoriaFiscal = cliente[0].TaxCategory;
+                    if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
+                        this.Factura.Kind = 'A';
+                    } else if (categoriaFiscal == 'EXENTO') {
+                        this.Factura.Kind = 'E';
+                    } else {
+                        this.Factura.Kind = 'B';
+                    }
+                    this.detalleFactura = true;
+                }
             }
         },
         comprobarFormCliente() {
@@ -454,8 +458,8 @@ export default {
             this.detalleFactura = false;
 
             //FALTA BRANCHOFFICE
-            axios.post(urlAPI+'factura/add',{
-                "factura":{
+            axios.post(urlAPI + 'factura/add', {
+                "factura": {
                     "Client": this.cliente,
                     "Kind": this.Factura.Kind,
                     "Status": this.Factura.Status,
@@ -464,7 +468,7 @@ export default {
                     "Impuesto": this.Factura.Impuesto
                 }
             });
-            
+
             this.dialogDetalle = true;
         },
 
