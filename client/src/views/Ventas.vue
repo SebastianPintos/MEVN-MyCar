@@ -22,7 +22,7 @@
             <v-card-text>
                 <v-container>
                     <ol v-if="vehiculos!= null || repuestos!=null">
-                        <h3 v-if="vehiculos.length>0">Vehículo: </h3>
+                        <h3 v-if="vehiculos.length>0">Vehículos Stock: </h3>
                         <li v-for="(vehiculo,index) in vehiculos" :key="index">
                             <v-row>
                                 <v-col cols="12" md="6">
@@ -113,6 +113,90 @@
                             </div>
                         </li>
                     </ol>
+
+                    
+                        <h3 v-if="encargados.length>0">Vehículos Encargados: </h3>
+                        <li v-for="(vehiculo,index) in encargados" :key="index">
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field readonly value="Marca:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field readonly :value="vehiculo.Brand"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field readonly value="Modelo:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field readonly :value="vehiculo.Model"></v-text-field>
+                                </v-col>
+                            </v-row>
+
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field readonly value="Año:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field readonly :value="vehiculo.year"></v-text-field>
+                                </v-col>
+                            </v-row>
+
+                           
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field readonly value="Color:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field readonly :value="vehiculo.Color"></v-text-field>
+                                </v-col>
+                            </v-row>
+
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field readonly value="Precio:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field readonly :value="vehiculo.SuggestedPrice" prefix="$"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <div v-if="vehiculo.descuento>0">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field readonly value="Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field readonly :value="vehiculo.descuento" suffix="%"></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field readonly value="Precio con Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field readonly :value="vehiculo.descontado" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+                        </li>
+                    </ol>
+
                     <ol>
                         <h3 v-if="repuestos.length>0">Repuestos: </h3>
                         <li v-for="(repuesto,index) in repuestos" :key="index">
@@ -244,6 +328,7 @@ export default {
             total: 0
         },
         vehiculos: [],
+        encargados: [],
         repuestos: []
     }),
     components: {
@@ -264,6 +349,22 @@ export default {
                 let vehiculo = JSON.parse(localStorage.getItem(String("v" + i)));
                 if (vehiculo != null && vehiculo.carrito) {
                     this.vehiculos.push(vehiculo);
+                }
+            }
+        },
+
+
+        getEncargados() {
+            let length = 0;
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthvM")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let vehiculo = JSON.parse(localStorage.getItem(String("vM" + i)));
+                if (vehiculo != null && vehiculo.carrito) {
+                    this.encargados.push(vehiculo);
                 }
             }
         },
@@ -294,6 +395,16 @@ export default {
                 }
             });
 
+            this.vehiculos.forEach(v => {
+                if (v.SuggestedPrice != null) {
+                    if (v.descontado > 0) {
+                        this.total += v.descontado;
+                    } else {
+                        this.total += v.SuggestedPrice;
+                    }
+                }
+            });
+
             this.repuestos.forEach(v => {
                 if (v.Price != null) {
                     if (v.descontado > 0) {
@@ -307,6 +418,7 @@ export default {
         
         mostrarCarrito() {
             this.getVehiculos();
+            this.getEncargados();
             this.getRepuestos();
             this.calcularTotal();
             if (this.vehiculos.length > 0 || this.repuestos.length > 0) {

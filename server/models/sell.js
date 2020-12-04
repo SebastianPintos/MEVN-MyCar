@@ -16,8 +16,8 @@ var sellSchema = new Schema({
   Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
   ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],
   VehicleSold: [{
-      Vehicle: {type: Schema.Types.ObjectId, ref: 'Vehicle'},
-      VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'}
+      VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'},
+      PurchaseOrderV: {type: Schema.Types.ObjectId, ref: 'PurchaseOrderV'}
     }],
   PaymentType: [ 
     {Price: {type: Number},

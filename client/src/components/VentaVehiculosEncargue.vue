@@ -128,11 +128,15 @@ export default {
                             let carrito = false;
                             let descuento = 0;
                             let descontado = 0;
+                            let color = "";
                             if (item != null) {
                                 carrito = item.carrito;
                             }
                             if (item!=null && item.descuento!=null) {
                                     descuento = item.descuento;
+                            }
+                            if (item!=null && item.Color!=null) {
+                                    color = item.Color;
                             }
                             if (item!=null && item.descontado!=null) {
                                     descontado = item.descontado;
@@ -142,13 +146,16 @@ export default {
                                 "Brand": vehiculos[i].Brand,
                                 "Model": vehiculos[i].Model,
                                 "Type": vehiculos[i].Type,
+                                "year": vehiculos[i].year,
                                 "Category": vehiculos[i].Category,
                                 "Fuel": vehiculos[i].Fuel,
                                 "transmission": vehiculos[i].transmission,
+                                "Dealer": vehiculos[i].Dealer,
                                 "SuggestedPrice": vehiculos[i].SuggestedPrice,
                                 "carrito": carrito,
                                 "descuento": descuento,
-                                "descontado": descontado
+                                "descontado": descontado,
+                                "Color": color
                             };
                             this.vehiculos.push(vehiculoAGuardar);
                             this.vehiculosFiltrados.push(vehiculoAGuardar);
@@ -193,8 +200,9 @@ export default {
                 let item = JSON.parse(localStorage.getItem("vM" + String(index)));
                 if (item != null) {
                     item.descuento = this.descuento;
-                    let valorDescuento = (item.PurchasedPrice*this.descuento)/100;
-                    item.descontado =item.PurchasedPrice-valorDescuento;
+                    item.Color = this.colorElegido;
+                    let valorDescuento = (item.SuggestedPrice*this.descuento)/100;
+                    item.descontado =item.SuggestedPrice-valorDescuento;
                     localStorage.setItem(String("vM" + String(index)), JSON.stringify(item));
                 }
                 }   

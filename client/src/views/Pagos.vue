@@ -136,8 +136,7 @@
 
             <v-card-text>
                 <v-container>
-                    <ol v-if="Factura.SubTotalVehiculosStock!= 0 || Factura.SubTotalRepuestos!=0 ||
-                    Factura.SubTotalVehiculosEncargados!=0">
+                    <ol>
                         <li v-for="(elemento,index) in Factura.Elements" :key="index">
                             <v-row>
                                 <v-col cols="12" md="6">
@@ -352,7 +351,7 @@ export default {
             TotalImpuesto: 0,
         },
         vehiculosStock: [],
-        vehiculosEncargados: [],
+        encargados: [],
         repuestos: [],
         requerido: [
             value => !!value || 'Requerido.',
@@ -362,6 +361,7 @@ export default {
         this.getClientes();
         this.getMonedas();
         this.getVehiculosStock();
+        this.getEncargados();
         this.getRepuestos();
     },
     methods: {
@@ -502,7 +502,7 @@ export default {
             this.calcularTotal();
         },
 
-       /* agregarFactura() {
+        agregarFactura() {
             //FALTA BRANCHOFFICE
             axios.post(urlAPI + 'factura/add', {
                 "factura": {
@@ -515,17 +515,10 @@ export default {
                 }
             }).then(res => {
                 if (res != null) {
-                    this.reiniciarFactura();
-                    this.agregarPagos().then(res =>
-
-                        {
-                            if (res != null) {
-                                console.log(this.medios);
-                            }
-                        });
+                    this.agregarPagos();
                 }
             });
-        },*/
+        },
 
         getEfectivo() {
             if (this.desEfectivo) {
@@ -603,6 +596,37 @@ export default {
             };
 
             let vehiculosSold= [];
+
+            /*
+  OrderDate: {type: Date},
+  ArrivalDate: {type: Date},
+  Price: {type: Number, required: true},
+  Vehicle: [{
+    ChasisNum: {type: String, required: true},
+    EngineNum: {type: String, required: true},
+    Color: {type: String, required: true}, 
+    VehicleID : {type: Schema.Types.ObjectId, required: true, ref: 'Vehicle'},
+    Price: {type: Number, required: true},
+  }],
+  Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
+  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+  */
+  //FALTA AGREGAR SUCURSAL
+            this.encargados.forEach( e=>{
+                axios.post(urlAPI+'purchaseOrderV/add',{
+                    "purchaseOrderV":{
+                    "OrderDate": new Date(),
+                    "Price": e.SuggestedPrice,
+                    "Vehicle":[{"ChasisNum":"0",
+                    "EngineNum":"0","Color":e.Color,
+                    "VehicleID": e._id,
+                    "Price": e.SuggestedPrice}],
+                    "Dealer": e.Dealer,
+                    "BranchOffice": e.BranchOffice,
+                    "Status":"ACTIVE"
+                }})
+            });
             this.vehiculosStock.forEach(v=>{
                 vehiculosSold.push({"Vehicle":v._id,"VehicleStock": null});
             });
@@ -619,12 +643,13 @@ export default {
                     "VehicleSold": vehiculosSold
                 }
             }
-            axios.post(urlAPI+'sellVehicle/add',sell).then(res=>
+            await axios.post(urlAPI+'sellVehicle/add',sell).then(res=>
             {
                 if(res!=null){
                     this.tituloMensaje="Operación exitosa";
                     this.mensaje="Compra realizada con éxito";
                     this.dialogMensaje = true;
+                    this.reiniciarFactura();
                 }
             });
         },
@@ -641,6 +666,23 @@ export default {
                 let vehiculoStock = JSON.parse(localStorage.getItem(String("v" + i)));
                 if (vehiculoStock != null && vehiculoStock.carrito) {
                     this.vehiculosStock.push(vehiculoStock);
+                }
+            }
+        },
+
+
+        getEncargados() {
+            let length = 0;
+            this.encargados = [];
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthvM")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let encargado = JSON.parse(localStorage.getItem(String("vM" + i)));
+                if (encargado != null && encargado.carrito) {
+                    this.encargados.push(encargado);
                 }
             }
         },
@@ -753,6 +795,58 @@ export default {
                 else {
                     precioNeto = precio;
                     this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                this.Factura.Elements.push({
+                    "Name": nombre,
+                    "PrecioNeto": precioNeto,
+                    "Impuesto": impuesto,
+                    "Descuento": descuento,
+                    "PrecioConDescuento": descontado
+                })
+            });
+
+            
+            this.encargados.forEach(r => {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                let nombre = r.Brand + " " + r.Model +
+                    " " + r.year+" "+r.Type+" "+r.Category;
+                if (r.SuggestedPrice != null) {
+                    if (r.descontado > 0) {
+                        descuento = r.descuento;
+                        descontado = r.descontado;
+                        precio = descontado;
+                    } else {
+                        precio = r.SuggestedPrice;
+                    }
+                }
+                //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                //IMPUESTOS: PRECIO NETO + 21% 
+                if (this.Factura.Kind == "A") {
+                    precioNeto = precio;
+                    impuesto = precio + (21 * precio / 100);
+                    this.Factura.NetoVEncargados += precioNeto;
+                    this.Factura.impuestoVEncargados += impuesto;
+                    this.Factura.TotalNeto += precioNeto;
+                    this.Factura.TotalImpuesto += impuesto;
+                }
+
+                //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                else if (this.Factura.Kind == "B") {
+                    precioNeto = precio + (21 * precio / 100);
+                    this.Factura.NetoVEncargados += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                else {
+                    precioNeto = precio;
+                    this.Factura.NetoVEncargados += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
 

@@ -13,7 +13,7 @@ var PurchaseOrderVSchema = new Schema({
     Price: {type: Number, required: true},
   }],
   Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
-  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+  BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });
 
