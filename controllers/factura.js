@@ -1,5 +1,5 @@
 const ctrl = {};
-var Factura = require("../models/Factura");
+var Factura = require("../models/factura");
 
 ctrl.index = (req, res) => {
     Factura.find((err, factura) => {
