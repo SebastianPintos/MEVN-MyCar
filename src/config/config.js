@@ -1,3 +1,3 @@
-var urlAPI = "http://localhost:8081/";
+var urlAPI = "https://backendmycar.herokuapp.com/";
 
 export default urlAPI;
