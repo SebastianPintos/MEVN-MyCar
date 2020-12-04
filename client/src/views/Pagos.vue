@@ -452,6 +452,19 @@ export default {
             this.calcularTotal();
             console.log(JSON.stringify(this.Factura));
             this.detalleFactura = false;
+
+            //FALTA BRANCHOFFICE
+            axios.post(urlAPI+'factura/add',{
+                "factura":{
+                    "Client": this.cliente,
+                    "Kind": this.Factura.Kind,
+                    "Status": this.Factura.Status,
+                    "Elements": this.Factura.Elements,
+                    "PrecioNeto": this.Factura.TotalNeto,
+                    "Impuesto": this.Factura.Impuesto
+                }
+            });
+            
             this.dialogDetalle = true;
         },
 
