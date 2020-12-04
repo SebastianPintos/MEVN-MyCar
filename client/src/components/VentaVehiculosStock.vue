@@ -57,7 +57,7 @@ export default {
         valid: true,
         requerido: [
             value => {
-                const pattern = /^[0-9]{1,}$/
+                const pattern = /^[0-9]{1,}([,]{1}[0-9]{1,}){0,1}([.]{1}[0-9]{1,}){0,1}$/
                 return pattern.test(value) || 'Requerido.'
             },
             value => parseFloat(value) < 100 || 'El máximo es 100%!'
