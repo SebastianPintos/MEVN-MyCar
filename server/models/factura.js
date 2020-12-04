@@ -13,7 +13,7 @@ var Factura = new Schema({
             Descuento: {type: Number},
             PrecioConDescuento: {type: Number}
     }],
-  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+  BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
   PrecioNeto:{type: Number},
   Impuesto: {type: Number}
 });

@@ -103,26 +103,152 @@
             </v-card-actions>
         </v-card>
     </v-form>
+
     <v-dialog v-model="detalleFactura" persistent>
         <v-card>
             <v-card-title>
                 <h2>Confirmación</h2>
             </v-card-title>
             <v-card-text>
-                <v-text-field disabled prefix="Se emitirá una Factura: " :value="kind"></v-text-field>
+                <v-text-field disabled prefix="Se emitirá una Factura: " :value="Factura.Kind"></v-text-field>
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
                     <v-btn class="info mb-2" @click="detalleFactura=false">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2">
+                    <v-btn class="info mb-2" @click="generarFactura()">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogDetalle">
+        <v-card>
+
+            <v-card-title>
+                <v-flex class="text-center">
+                    <h1>Factura: {{Factura.Kind}}</h1>
+                </v-flex>
+            </v-card-title>
+
+            <v-card-text>
+                <v-container>
+                    <ol v-if="Factura.SubTotalVehiculosStock!= 0 || Factura.SubTotalRepuestos!=0 ||
+                    Factura.SubTotalVehiculosEncargados!=0">
+                        <li v-for="(elemento,index) in Factura.Elements" :key="index">
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field disabled label="Elemento :"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="elemento.Name"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field disabled label="Precio:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="elemento.PrecioNeto" prefix="$"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <div v-if="elemento.Descuento>0">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.Descuento" suffix="%"></v-text-field>
+                                    </v-col>
+                                </v-row>
+
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+
+                            <div v-if="Factura.Kind=='A'">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Impuestos:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+                        </li>
+                    </ol>
+                    <div v-if="Factura.Kind!='A'">
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </div>
+
+                    <div v-else>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total Neto:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total+IVA:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalImpuesto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </div>
+
+                </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn class="info mb-2" @click="dialogDetalle=false;">
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn class="info mb-2" @click="dialogDetalle=false; reiniciarFactura()">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
 </div>
 </template>
 
@@ -133,6 +259,7 @@ export default {
     data: () => ({
         detalleFactura: false,
         clientes: [],
+        dialogDetalle: false,
         tarjetas: ["American Express", "Visa", "MasterCard"],
         bancos: ["ICBC", "HCBC", "Banco Provincia", "Santander Río"],
         monedas: [],
@@ -189,11 +316,45 @@ export default {
             Cash: {
                 Price: '',
                 Moneda: '',
-            }
+            },
         },
-
-        kind: '',
-
+        Factura: {
+            Client: "",
+            Kind: "",
+            Status: "NO PAGADA",
+            Elements: [],
+            BranchOffice: "",
+            PrecioNeto: 0,
+            Impuesto: 0,
+            NetoRepuestos: 0,
+            NetoVStock: 0,
+            NetoVEncargados: 0,
+            impuestoRepuestos: 0,
+            impuestoVStock: 0,
+            impuestoVEncargados: 0,
+            TotalNeto: 0,
+            TotalImpuesto: 0,
+        },
+        FacturaDefault: {
+            Client: "",
+            Kind: "",
+            Status: "NO PAGADA",
+            Elements: [],
+            BranchOffice: "",
+            PrecioNeto: 0,
+            Impuesto: 0,
+            NetoRepuestos: 0,
+            NetoVStock: 0,
+            NetoVEncargados: 0,
+            impuestoRepuestos: 0,
+            impuestoVStock: 0,
+            impuestoVEncargados: 0,
+            TotalNeto: 0,
+            TotalImpuesto: 0,
+        },
+        vehiculosStock: [],
+        vehiculosEncargados: [],
+        repuestos: [],
         requerido: [
             value => !!value || 'Requerido.',
         ],
@@ -234,16 +395,16 @@ export default {
                 this.$refs.formEfectivo.validate()) {
                 let categoriaFiscal = this.cliente.TaxtCategory;
                 if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
-                    this.kind = 'A';
+                    this.Factura.Kind = 'A';
                 }
                 if (categoriaFiscal == 'EXENTO') {
-                    this.kind = 'E';
+                    this.Factura.Kind = 'E';
                 } else {
-                    this.kind = 'B';
+                    this.Factura.Kind = 'B';
                 }
-                
+
                 this.detalleFactura = true;
-            } 
+            }
         },
         comprobarFormCliente() {
             if (this.$refs.formCliente.validate()) {
@@ -282,7 +443,165 @@ export default {
                 this.reglaEfectivo = [];
                 this.reglaPrecioEfectivo = [];
             }
+        },
+
+        //Sumar todos los repuestos y vehículos
+        generarFactura() {
+            this.getVehiculosStock();
+            this.getRepuestos();
+            this.calcularTotal();
+            console.log(JSON.stringify(this.Factura));
+            this.detalleFactura = false;
+            this.dialogDetalle = true;
+        },
+
+        getVehiculosStock() {
+            let length = 0;
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let vehiculoStock = JSON.parse(localStorage.getItem(String("v" + i)));
+                if (vehiculoStock != null && vehiculoStock.carrito) {
+                    this.vehiculosStock.push(vehiculoStock);
+                }
+            }
+        },
+
+        getRepuestos() {
+            let length = 0;
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthr")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let repuesto = JSON.parse(localStorage.getItem(String("r" + i)));
+                if (repuesto != null && repuesto.carrito) {
+                    this.repuestos.push(repuesto);
+                }
+            }
+        },
+
+        calcularTotal() {
+            this.vehiculosStock.forEach(v => {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                let nombre = v.Vehicle.Brand + " " + v.Vehicle.Model +
+                    " " + v.Vehicle.year + " " + v.Vehicle.Type +
+                    " " + v.Vehicle.Kind + " " + v.Color;
+                if (v.PurchasedPrice != null) {
+                    if (v.descontado > 0) {
+                        descuento = v.descuento;
+                        descontado = v.descontado;
+                        precio = descontado;
+                    } else {
+                        precio = v.PurchasedPrice;
+                    }
+                }
+                //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                //IMPUESTOS: PRECIO NETO + 21% 
+                if (this.Factura.Kind == "A") {
+                    precioNeto = precio;
+                    impuesto = precio + (21 * precio / 100);
+                    this.Factura.NetoVStock += precioNeto;
+                    this.Factura.impuestoVStock += impuesto;
+                    this.Factura.TotalNeto += precioNeto;
+                    this.Factura.TotalImpuesto += impuesto;
+                }
+
+                //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                else if (this.Factura.Kind == "B") {
+                    precioNeto = precio + (21 * precio / 100);
+                    this.Factura.NetoVStock += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                else {
+                    precioNeto = precio;
+                    this.Factura.NetoVStock += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                this.Factura.Elements.push({
+                    "Name": nombre,
+                    "PrecioNeto": precioNeto,
+                    "Impuesto": impuesto,
+                    "Descuento": descuento,
+                    "PrecioConDescuento": descontado
+                })
+            });
+
+            this.repuestos.forEach(r => {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                let nombre = r.Product.Brand + " " + r.Product.Category +
+                    " " + r.Product.SubCategory;
+                if (r.Price != null) {
+                    if (r.descontado > 0) {
+                        descuento = r.descuento;
+                        descontado = r.descontado;
+                        precio = descontado;
+                    } else {
+                        precio = r.Price;
+                    }
+                }
+                //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                //IMPUESTOS: PRECIO NETO + 21% 
+                if (this.Factura.Kind == "A") {
+                    precioNeto = precio;
+                    impuesto = precio + (21 * precio / 100);
+                    this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.impuestoRepuestos += impuesto;
+                    this.Factura.TotalNeto += precioNeto;
+                    this.Factura.TotalImpuesto += impuesto;
+                }
+
+                //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                else if (this.Factura.Kind == "B") {
+                    precioNeto = precio + (21 * precio / 100);
+                    this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                else {
+                    precioNeto = precio;
+                    this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                this.Factura.Elements.push({
+                    "Name": nombre,
+                    "PrecioNeto": precioNeto,
+                    "Impuesto": impuesto,
+                    "Descuento": descuento,
+                    "PrecioConDescuento": descontado
+                })
+            });
+
+            if (this.Factura.Kind == 'A') {
+                this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
+                    this.Factura.impuestoVEncargados +
+                    this.Factura.impuestoVStock;
+            }
+        },
+
+        reiniciarFactura() {
+            let kind = this.Factura.Kind;
+            this.Factura = this.FacturaDefault;
+            this.Factura.Kind = kind;
         }
+
     },
 }
 </script>
