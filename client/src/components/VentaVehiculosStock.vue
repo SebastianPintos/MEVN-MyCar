@@ -138,7 +138,8 @@ export default {
                                 "BranchOffice": vehiculos[i].BranchOffice,
                                 "carrito": carrito,
                                 "descuento": descuento,
-                                "descontado": descontado
+                                "descontado": descontado,
+                                "Kind": vehiculos[i].Kind
                             };
                             this.vehiculos.push(vehiculoAGuardar);
                             this.vehiculosFiltrados.push(vehiculoAGuardar);

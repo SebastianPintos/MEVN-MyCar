@@ -414,6 +414,17 @@ export default {
                     }
                 }
             });
+
+            
+            this.encargados.forEach(v => {
+                if (v.SuggestedPrice != null) {
+                    if (v.descontado > 0) {
+                        this.total += v.descontado;
+                    } else {
+                        this.total += v.SuggestedPrice;
+                    }
+                }
+            });
         },
         
         mostrarCarrito() {
@@ -421,7 +432,7 @@ export default {
             this.getEncargados();
             this.getRepuestos();
             this.calcularTotal();
-            if (this.vehiculos.length > 0 || this.repuestos.length > 0) {
+            if (this.vehiculos.length > 0 || this.repuestos.length > 0 || this.encargados.length>0) {
                 this.dialogDetalle = true;
             }
         },
