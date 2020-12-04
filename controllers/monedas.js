@@ -1,5 +1,5 @@
 const ctrl = {};
-var Monedas = require("../models/Monedas");
+var Monedas = require("../models/monedas");
 
 ctrl.index = (req, res) => {
     Monedas.find((err, monedas) => {
