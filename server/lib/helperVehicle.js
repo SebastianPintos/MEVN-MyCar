@@ -23,24 +23,6 @@ helperVehicle.SellVehicle = async (sell) => {
                 }
             })
         }
-        else{
-            if(VehicleSold[i].Vehicle){
-                var vehicleOrder = new VehicleOrder({
-                    Vehicle: VehicleSold[i].Vehicle,
-                    Sell: sell._id,
-                    Status: 'ORDER'
-                });
-                console.log(vehicleOrder);
-
-                await vehicleOrder.save((err, data) => {
-                    if(err) {console.log(err)}
-                    else{
-                        console.log(data);
-                    }
-                });
-                
-            }
-        }
     }
 }
 
