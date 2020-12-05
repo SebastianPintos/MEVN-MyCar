@@ -26,6 +26,11 @@ helperStock.checkMin = async (repuesto) => {
     for(let i=0; i< productControl.length; i++){
            if(repuesto.Product == productControl[i].Product && productQuantity < productControl[i].Min){
                console.log("GENERAR ORDEN");
+               /* let purchaseOrder =  PurchaseOrder({
+                   OrderDate: new Date(),
+                   //Price:
+                   Product:[]
+               }) */
            }
        }
    });
