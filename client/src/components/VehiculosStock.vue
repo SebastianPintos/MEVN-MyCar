@@ -469,7 +469,7 @@ export default {
         validate() {
             if (this.editedItem.Kind == "USADO") {
                 try {
-                    let modificar = parseFloat(this.editedItem.UsedDetail.PriceModifier);
+                    parseFloat(this.editedItem.UsedDetail.PriceModifier);
                 } catch (e) {
                     if (e != null) {
                         return false;

@@ -94,8 +94,8 @@
                     </v-card-text>
                 </v-card>
             </v-form>
-
-            </v-card-text>
+   <!--/v-card-text-->
+         
             <v-card-actions>
                 <v-btn class="success" block @click="mostrarDetalleFactura">
                     <v-icon>mdi-check</v-icon>
@@ -535,6 +535,7 @@ export default {
             }).then(res => {
                 if (res != null) {
                     this.agregarPagos();
+                    this.agregarFactura();
                 }
             });
         },
@@ -621,20 +622,16 @@ export default {
             //FALTA AGREGAR SUCURSAL
             await this.agregarEncargados().then(res => {
                 if (res != null) {
-                    let sell = this.getSell(repuestos);
+                    this.getSell(repuestos);
                     return;
                 }
             });
-
-            let sell = setTimeout(this.getSell(repuestos), 3000);
 
         },
 
         getSell(repuestos) {
             let sell = {
                 "sell": {
-                    "PriceFreeTax": this.Factura.TotalNeto,
-                    "Tax": this.Factura.Impuesto,
                     "Client": this.cliente,
                     "ProductStock": repuestos,
                     "VehicleSold": this.vehiculosSold,

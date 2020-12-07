@@ -36,13 +36,7 @@ ctrl.sellVehicle = async (req, res) => {
     console.log(body);
     
     var sell = new Sell({
-        PriceFreeTax: body.PriceFreeTax,
-        Tax: body.Tax,
-        Discount: body.Discount,
         RewarderDiscount: body.RewarderDiscount,
-        CompanyName: body.CompanyName,
-        CUIT: body.CUIT,
-        TaxCategory: body.TaxCategory,
         Client: body.Client,
         Employee: body.Employee,
         Service: body.Service,

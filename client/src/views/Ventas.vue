@@ -195,9 +195,10 @@
                                 </v-row>
                             </div>
                         </li>
-                    </ol>
+                    
 
                     <ol>
+                
                         <h3 v-if="repuestos.length>0">Repuestos: </h3>
                         <li v-for="(repuesto,index) in repuestos" :key="index">
                             <v-row>
