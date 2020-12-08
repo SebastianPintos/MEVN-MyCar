@@ -29,6 +29,8 @@ ctrl.create = (req, res) => {
     var body = req.body.purchaseOrderV;
    // console.log(req.body.purchaseOrderV); 
     var purchaseOrderV = new PurchaseOrderV({
+        Type: body.Type,
+        Code: body.Code,
         OrderDate: body.OrderDate,
         ArrivalDate: body.ArrivalDate,
         Price: body.Price,
@@ -52,6 +54,8 @@ ctrl.update = (req, res) => {
         else {
             if(!purchaseOrderV) {console.log('No se encontró el producto específico')}
             else {
+                purchaseOrderV.Type = body.Type;
+                purchaseOrderV.Code = body.Code;
                 purchaseOrderV.OrderDate= body.OrderDate;
                 purchaseOrderV.ArrivalDate= body.ArrivalDate;
                 purchaseOrderV.Price= body.Price;
@@ -113,4 +117,23 @@ ctrl.setArrival = (req, res) => {
     });
 };
 
+ctrl.setEstado = (req, res) => {
+    var id = req.params.purchaseOrderV_id;
+    PurchaseOrderV.findOne({_id: id}, (err, purchaseOrderV) => {
+        if(err) {console.log(err)}
+        else {
+            if(!purchaseOrderV) {console.log('No se encontró el producto específico')}
+            else {
+                purchaseOrderV.Type = "RECIBIDA";
+                purchaseOrderV.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+};
 module.exports = ctrl;

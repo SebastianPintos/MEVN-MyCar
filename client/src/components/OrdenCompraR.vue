@@ -17,6 +17,9 @@
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on">
+                        <v-icon>mdi-information-outline</v-icon>
+                    </v-btn>
                     <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogStock=true">
                         <v-icon @click="dialogStock=true">mdi-paperclip</v-icon>
                     </v-btn>
@@ -150,6 +153,7 @@ export default {
         snackbar: false,
         proveedor: null,
         purchaseOrders: [],
+        orden: null,
         fueraServicio: [],
         noLlegaron: [],
         max: [],
@@ -168,9 +172,13 @@ export default {
         ],
 
         headers: [{
-                text: 'Proveedor',
-                value: 'Dealer.Email',
+                text: 'Código',
+                value: 'Code',
                 align: 'start',
+            },
+            {
+                text: 'Proveedor',
+                value: 'Dealer.Email'
             },
             {
                 text: 'Fecha de Orden',
@@ -303,7 +311,9 @@ export default {
                     }
                 };
                 axios.post(urlAPI + 'productStock/add', repuestoStock);
-                axios.post(urlAPI+'product/'+this.selected[0].Product[i].ProductID._id+'/actualizarPrecio',{"precio":this.selected[0].Product[i].Price})
+                axios.post(urlAPI + 'product/' + this.selected[0].Product[i].ProductID._id + '/actualizarPrecio', {
+                    "precio": this.selected[0].Product[i].Price
+                })
             }
             axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {
@@ -444,19 +454,33 @@ export default {
         },
         corroborarValidez(output) {
 
-            if (output.length != 5) {
-                this.mensaje = "<h4>Columnas inválidas, debe contener exactamente 5 columnas.</h4>";
+            if (output.length != 6) {
+                this.mensaje = "<h4>Columnas inválidas, debe contener exactamente 6 columnas.</h4>";
                 this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
                 this.dialogMensaje = true;
                 return false;
+            } else {
+                this.orden = this.purchaseOrders.filter(order => {
+                    order.Type == "ENVIADA" &
+                        order.Code == output[6][1];
+                })
+                if (this.orden == null || this.orden != null & this.orden.length == 0) {
+                    this.mensaje += "<h4>El código" + output[6][1] + " no existe</h4>";
+
+                }
             }
             //FILA 0: SKU
             for (let i = 1; i < output[0].length; i++) {
                 if (output[0][i] == null) {
-                    this.mensaje = "<h4>El código SKU es obligatorio</h4>";
-                    this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
-                    this.dialogMensaje = true;
-                    return false;
+                    this.mensaje += "<h4>El código SKU es obligatorio</h4>";
+                    // this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
+
+                    //this.dialogMensaje = true;
+                    //return false;
+                } else {
+                    if (output[0][i] != this.orden[0].SKU) {
+                        this.mensaje += "<h4>El código SKU: " + output[0][i] + " no coincide con el código de la orden enviada</h4>";
+                    }
                 }
             }
             //FILA 3: TOTAL OBLIGATORIO

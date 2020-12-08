@@ -17,6 +17,9 @@
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on">
+                        <v-icon>mdi-information-outline</v-icon>
+                    </v-btn>
                     <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogStock=true">
                         <v-icon @click="dialogStock=true">mdi-paperclip</v-icon>
                     </v-btn>
@@ -69,10 +72,10 @@
                                     <v-text-field disabled :value="'Marca: '+vehiculo.VehicleID.Brand"></v-text-field>
                                     <v-text-field disabled :value="' Modelo: '+vehiculo.VehicleID.Model"></v-text-field>
                                     <v-text-field disabled :value="'Año: '+vehiculo.VehicleID.year"></v-text-field>
-                                     <v-text-field disabled :value="'Color: '+vehiculo.Color"></v-text-field>
+                                    <v-text-field disabled :value="'Color: '+vehiculo.Color"></v-text-field>
                                     <v-text-field disabled :value="'N° de Chasis: '+vehiculo.ChasisNum"></v-text-field>
                                     <v-text-field disabled :value="'N° de Motor: '+vehiculo.EngineNum"></v-text-field>
-                                   
+
                                     <v-row>
                                         <v-radio-group mandatory class="text-align: left" v-model="recibidos[r]" row :rules="requerido">
                                             <h3>Recibido: </h3>
@@ -148,9 +151,10 @@ export default {
         proveedores: [],
         proveedor: null,
         vehiclesStock: [],
-        vehicles:[],
+        vehicles: [],
         max: [],
         ordenes: [],
+        orden: null,
         search: '',
         recibidos: [],
         reglaNumero: [
@@ -164,9 +168,13 @@ export default {
         ],
 
         headers: [{
+                text: 'Código',
+                value: 'Code',
+                align: 'start',
+            },
+            {
                 text: 'Proveedor',
                 value: 'Dealer.Email',
-                align: 'start',
             },
             {
                 text: 'Fecha de Orden',
@@ -214,7 +222,7 @@ export default {
                     }
                 })
         },
-        
+
         async getVehicles() {
             await axios.get(urlAPI + 'vehicle')
                 .then(res => {
@@ -285,7 +293,6 @@ export default {
                 this.mensaje = "Esta orden ya ha sido verificada!";
                 this.snackbar = true;
                 return;
-
             }
 
             for (let j = 0; j < this.selected[0].Vehicle.length; j++) {
@@ -392,7 +399,7 @@ export default {
             let vehicle = [];
 
             for (let i = 1; i < output[1].length; i++) {
-                let vehicleID = this.vehicles.filter(v => 
+                let vehicleID = this.vehicles.filter(v =>
                     v.Brand == output[0][i] &
                     v.Model == output[1][i] &
                     v.Type == output[2][i] &
@@ -435,41 +442,67 @@ export default {
                     "Price": precio,
                     "Vehicle": vehicle,
                     "Dealer": this.proveedor,
-                 
+
                 }
             }
 
         },
         corroborarValidez(output) {
-            if (output.length != 12) {
-                this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
-                this.mensaje = "<h4>Columnas inválidas, debe contener exactamente 12 columnas</h4>";
+            if (output.length != 14) {
+                this.titulo = "<h1 class='text-center'>Contenido Inválido</h1>";
+                this.mensaje += "<h4>Columnas inválidas, debe contener exactamente 14 columnas</h4>";
                 this.dialogMensaje = true;
                 return false;
             }
+            if (output[12][1] == null) {
+                this.titulo = "<h1 class='text-center'>Contenido Inválido</h1>";
+                this.mensaje += "<h4>El código no puede estar vacío</h4>";
+                this.dialogMensaje = true;
+                return false;
+            } else {
+                this.orden = this.ordenes.filter(orden => { orden.Type=="ENVIADA" &
+                    orden.Code == output[12][1]
+                });
+                if (this.orden == null) {
+                    //this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
+                    this.mensaje += "<h4>El código de la orden no existe</h4>";
+                //    this.dialogMensaje = true;
+                 //   return false;
+                }
+            }
             for (let i = 1; i < output[1].length; i++) {
                 if (output[11][i] == null) {
-                    this.titulo = "<h1>Formato de archivo Inválido</h1>";
-                    this.mensaje = "<h4>El precio es obligatorio</h4>";
-                    this.dialogMensaje = true;
-                    return false;
+                    //this.titulo = "<h1>Formato de archivo Inválido</h1>";
+                    this.mensaje += "<h4>El precio es obligatorio</h4>";
+                  //  this.dialogMensaje = true;
+                   // return false;
                 }
                 try {
                     let precio = parseFloat(output[11][i]);
                     if (precio < 0) {
-                        this.titulo = "<h1>Formato de archivo Inválido</h1>";
-                        this.mensaje = "<h4>El precio no debe ser negativo!</h4>";
-                        this.dialogMensaje = true;
-                        return false;
+                     //   this.titulo = "<h1>Formato de archivo Inválido</h1>";
+                        this.mensaje += "<h4>El precio no debe ser negativo!</h4>";
+                      //  this.dialogMensaje = true;
+                        //return false;
+                    }
+                    else{
+                        if(this.orden.Price != output[11][i]){
+                        this.mensaje += "<h4>El precio no coincide con el precio de la orden original</h4>";
+                        }
                     }
                 } catch (e) {
                     if (e != null) {
-                        this.titulo = "<h1>Formato de archivo Inválido</h1>";
-                        this.mensaje = "<h4>El precio debe ser un valor numérico!</h4>";
-                        this.dialogMensaje = true;
-                        return false;
+                      //  this.titulo = "<h1>Formato de archivo Inválido</h1>";
+                        this.mensaje += "<h4>El precio debe ser un valor numérico!</h4>";
+                    //    this.dialogMensaje = true;
+                     //   return false;
                     }
                 }
+            }
+            if(this.mensaje!=""){
+                this.titulo="<h1>Contenido inválido</h1>";
+                this.dialogMensaje = true;
+                return false;
             }
             return true;
         }

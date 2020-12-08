@@ -111,6 +111,7 @@ module.exports = app => {
     router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
     router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
     router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
+    router.post('/purchaseOrder/:purchaseOrder_id/setEstado', purchaseOrder.setEstado);
 
     
     router.get('/purchaseOrderV', purchaseOrderV.index);
@@ -118,6 +119,7 @@ module.exports = app => {
     router.post('/purchaseOrderV/:purchaseOrderV_id/update', purchaseOrderV.update);
     router.delete('/purchaseOrderV/:purchaseOrderV_id/delete', purchaseOrderV.remove);
     router.post('/purchaseOrderV/:purchaseOrderV_id/setArrival', purchaseOrderV.setArrival);
+    router.post('/purchaseOrderV/:purchaseOrderV_id/setEstado', purchaseOrderV.setEstado);
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);
