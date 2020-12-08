@@ -22,6 +22,10 @@ const paymentType = require('../controllers/PaymentType');
 const factura = require('../controllers/factura');
 const monedas = require('../controllers/monedas');
 
+const paises = require('../controllers/paises');
+const provincias = require('../controllers/provincias');
+const localidades = require('../controllers/localidades');
+
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
@@ -166,6 +170,18 @@ module.exports = app => {
     router.post('/vehicleControl/:vehicleControl_id/delete', controlStock.removeCV);
     router.post('/vehicleControl/add', controlStock.createCV);
     
+    router.get('/paises', paises.index);
+    router.post('/paises/add', paises.create);
+    router.post('/paises/:paises_id/update', paises.update);
 
+    router.get('/provincias', provincias.index);
+    router.post('/provincias/add', provincias.create);
+    router.post('/provincias/:provincias_id/update', provincias.update);
+    
+    
+    router.get('/localidades', localidades.index);
+    router.post('/localidades/add', localidades.create);
+    router.post('/localidades/:localidades_id/update', localidades.update);
+    
     app.use(router);
 }

@@ -7,5 +7,5 @@ var PaisesSchema = new Schema({
     Population: {type: String},    
 });
  
-var paises = mongoose.model("Paises", paisesSchema);
+var paises = mongoose.model("Paises", PaisesSchema);
 module.exports = paises;
