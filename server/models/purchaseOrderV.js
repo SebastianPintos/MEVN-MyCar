@@ -17,6 +17,7 @@ var PurchaseOrderVSchema = new Schema({
   BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
   Type: {type: String, enum: ['ENVIADA', 'RECIBIDA'], required: true},
+  Info: {type: String}
 });
 
 var PurchaseOrderV = mongoose.model("PurchaseOrderV", PurchaseOrderVSchema);

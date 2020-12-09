@@ -511,9 +511,6 @@ export default {
                 return false;
             } else {
                  this.getOrden();
-                if (this.orden == null) {
-                    this.mensaje += "<h4>El código" + this.output[5][1] + " no existe</h4>";
-                }
             }
             //FILA 0: SKU
             for (let i = 1; i < this.output[0].length; i++) {

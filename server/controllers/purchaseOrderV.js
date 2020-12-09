@@ -38,6 +38,7 @@ ctrl.create = (req, res) => {
         Dealer : body.Dealer, 
         Status: "ACTIVE", 
         BranchOffice: body.BranchOffice,
+        Info: body.Info
     });
     
     purchaseOrderV.save((err) => {
@@ -62,8 +63,8 @@ ctrl.update = (req, res) => {
                 purchaseOrderV.Vehicle= body.Vehicle;
                 purchaseOrderV.Dealer = body.Dealer;
                 purchaseOrderV.BranchOffice= body.BranchOffice;
-                purchaseOrderV.Status = body.Status
-                
+                purchaseOrderV.Status = body.Status;
+                purchaseOrderV.Info = body.Info
                 purchaseOrderV.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
