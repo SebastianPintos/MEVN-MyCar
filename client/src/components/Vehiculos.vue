@@ -21,10 +21,6 @@
                                 <v-col cols="12" sm="6" md="3">
                                     <v-select v-model="filtros.Category" :items="categoriesList" label="Categoria"></v-select>
                                 </v-col>
-
-                                <v-col cols="12" sm="6" md="4">
-                                    <v-select v-model="filtros.Kind" :items="filtroNuevoUsado" label="Nuevo/Usado"></v-select>
-                                </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.Fuel" :items="fuelsList" label="Combustible"></v-select>
                                 </v-col>
@@ -116,9 +112,6 @@
 
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-select v-model="editedItem.Category" :items="categoriesList" label="Categoria" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.Kind" label="Nuevo/Usado" :items="nuevoUsado" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
@@ -332,10 +325,6 @@ export default {
                 value: 'Category'
             },
             {
-                text: 'Nuevo/Usado',
-                value: 'Kind'
-            },
-            {
                 text: 'Combustible',
                 value: 'Fuel'
             },
@@ -394,8 +383,7 @@ export default {
             year: '',
             Dealer: '',
             pDesde: '',
-            pHasta: '',
-            Kind: '',
+            pHasta: ''
         }],
 
         editedIndex: -1,
@@ -412,9 +400,7 @@ export default {
             year: '',
             Dealer: '',
             SuggestedPrice: 0,
-            Status: '',
-            Kind: '',
-
+            Status: ''
         },
         defaultItem: {
             Brand: '',
@@ -426,8 +412,7 @@ export default {
             origin: '',
             year: '',
             Dealer: '',
-            SuggestedPrice: 0,
-            Kind: '',
+            SuggestedPrice: 0
         },
     }),
 
@@ -649,8 +634,7 @@ export default {
             let pDesde = this.filtros.pDesde != null & this.filtros.pDesde != ""
             let pHasta = this.filtros.pHasta != null & this.filtros.pHasta != ""
             let Dealer = this.filtros.Dealer != null & this.filtros.Dealer != ""
-            let Kind = this.filtros.Kind != null & this.filtros.Kind != ""
-            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !pDesde & !pHasta & !Dealer & !Kind) {
+            if (!Brand & !Model & !Category & !Fuel & !Type & !transmission & !origin & !year & !pDesde & !pHasta & !Dealer) {
                 return
             }
             let BrandMatches = true
@@ -664,7 +648,6 @@ export default {
             let pDesdeMatches = true
             let pHastaMatches = true
             let DealerMatches = true
-            let KindMatches = true
             let repAux = []
             let cant = 0
 
@@ -680,9 +663,8 @@ export default {
                 pDesdeMatches = pDesde ? this.vehículos[i].SuggestedPrice >= this.filtros.pDesde : pDesdeMatches
                 pHastaMatches = pHasta ? this.vehículos[i].SuggestedPrice <= this.filtros.pHasta : pHastaMatches
                 DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
-                KindMatches = Kind ? this.vehículos[i].Dealer.Kind === this.filtros.Kind || this.filtros.Kind == "TODOS" : KindMatches
-
-                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & pDesdeMatches & pHastaMatches & DealerMatches & KindMatches) {
+              
+                if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & pDesdeMatches & pHastaMatches & DealerMatches) {
                     repAux[cant] = this.vehículos[i]
                     cant++
                 }
@@ -726,8 +708,7 @@ export default {
                     "year": this.editedItem.year,
                     "Dealer": this.editedItem.Dealer,
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
-                    "Status": "ACTIVE",
-                    "Kind": this.editedItem.Kind,
+                    "Status": "ACTIVE"
                 }
             })
             this.getVehicles()
@@ -760,8 +741,7 @@ export default {
                         "year": vehicle.year,
                         "Dealer": dealer,
                         "SuggestedPrice": suggestedPrice,
-                        "Status": "ACTIVE",
-                        "Kind": vehicle.Kind,
+                        "Status": "ACTIVE"
                     }
                 })
             })
@@ -780,8 +760,7 @@ export default {
                     "origin": this.editedItem.origin,
                     "year": this.editedItem.year,
                     "Dealer": this.editedItem.Dealer,
-                    "SuggestedPrice": this.editedItem.SuggestedPrice,
-                    "Kind": this.editedItem.Kind,
+                    "SuggestedPrice": this.editedItem.SuggestedPrice
                 }
             })
             this.getVehicles()
@@ -850,8 +829,6 @@ export default {
                     this.stockUsados.noDisponibles++;
             });
             this.dialogStock = true;
-            console.log("NUEVOS: " + JSON.stringify(this.stockNuevos));
-            console.log("USADOS: " + JSON.stringify(this.stockUsados));
         },
     },
 }
