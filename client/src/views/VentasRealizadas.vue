@@ -81,20 +81,47 @@ export default {
         max: 0,
         cantidad: 0,
         dialogCantidad: false,
+        /* RewarderDiscount: [{
+    Detail: {type: String},
+    Service: {type: Schema.Types.ObjectId, ref: 'Service'}
+  }],
+  Client: {type: Schema.Types.ObjectId, ref: 'Client'},
+  Factura: {type: Schema.Types.ObjectId, ref: 'Factura'},
+  Employee: {type: Schema.Types.ObjectId,  ref: 'Employee'},
+  Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
+  ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],
+  VehicleSold: [{
+      VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'},
+      PurchaseOrderV: {type: Schema.Types.ObjectId, ref: 'PurchaseOrderV'}
+    }],
+  PaymentType: [ 
+    {Price: {type: Number},
+    Type: {type: String, enum: ['CASH', 'CREDICARD', 'WIRETRANSFER']},
+    CurrencyType: {type: String}, //EUR ARS USD REAL
+    ExchangeRate: {type: Number},
+    Credicard: {
+      Company: {type: String},
+      Bank: {type: String},
+      Name: {type: String},
+      Number: {type: String}
+    },
+    WireTransfer: {
+      Bank: {type: String},
+      TransactionNum: {type: String},
+      CBU: {type: String},
+      Holder: {type: String}
+    }}],
+  WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
+},{timestamps: true}*/
         headers: [{
-                text: 'Marca',
-                value: 'Product.Brand',
+                text: 'ID Cliente',
+                value: 'Client.DNI',
                 align: 'start',
                 sortable: false,
             },
             {
                 text: 'Categoría',
                 value: 'Product.Category',
-            },
-
-            {
-                text: 'Sub-categoría',
-                value: 'Product.SubCategory',
             },
             {
                 text: 'N° Lote',
