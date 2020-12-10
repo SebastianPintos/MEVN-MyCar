@@ -12,6 +12,14 @@ ctrl.listVehicle = (req, res) => {
     }).populate('VehicleSold');
 };
 
+ctrl.listProduct = (req,res) => {
+    Sell.find((err, sell) => {
+        if (err) { console.log(err) }
+        res.send({
+            Sell: sell
+        })
+    }).populate('ProdutStock');
+};
 /* {
     "sell": {
         "PriceFreeTax": "2000000",
@@ -61,6 +69,37 @@ ctrl.sellVehicle = async (req, res) => {
             res.status(200).json({title: 'Venta generada correctamente'});
         }
     });
-}
+};
+
+ctrl.sellProduct = async (req,res) => {
+    var body = req.body.sell;
+    console.log(body);
+
+    var sell = new Sell({
+        PriceFreeTax: body.PriceFreeTax,
+        Tax: body.Tax,
+        Discount: body.Discount,
+        RewarderDiscount: body.RewarderDiscount,
+        CompanyName: body.CompanyName,
+        CUIT: body.CUIT,
+        TaxCategory: body.TaxCategory,
+        Client: body.Client,
+        Employee: body.Employee,
+        Service: body.Service,
+        ProductStock: body.ProductStock,
+        VehicleSold: body.VehicleSold,
+        PaymentType: body.PaymentType
+    })
+    console.log(sell);
+
+    sell.save(async (err, sellDB) => {
+        if(err) {console.log(err)}
+        else{ 
+            console.log(sellDB);
+            await helperProduct.SellProduct(sellDB);
+            res.status(200).json({title: 'Venta de productos generada correctamente'});
+        }
+    });
+};
 
 module.exports = ctrl;

@@ -150,6 +150,8 @@ module.exports = app => {
     router.post('/sellVehicle/add', sell.sellVehicle);
     router.get('/sellVehicle', sell.listVehicle);
 
+    router.post('/sellProduct/add', sell.sellProduct);
+    router.get('/sellProduct',sell.listProduct);
 
     router.get('/paymentType', paymentType.index);
     router.post('/paymentType/add', paymentType.create);

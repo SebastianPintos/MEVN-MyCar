@@ -223,4 +223,22 @@ helperProduct.CreateMail = (reservation, services) => {
 
 }
 
+helperProduct.SellProduct = async (sell) => {
+   var productsSold = sell.productStock;
+   for(x=0; x < productsSold.length; x++){
+    await ProductStock.findOne( {id: products[x].id, Status: 'ACTIVE'}, (err,productDb) => {
+        console.log(productDb);
+        if(err) {console.log(err)} 
+        else{ 
+            productDb.Available -= 1;
+            productDb.Reserved -= 1; 
+        }
+        await productDb.save((err) => {
+            if(err) {console.log(err)}
+        });
+    });  
+}
+
+}
+
 module.exports = helperProduct;
