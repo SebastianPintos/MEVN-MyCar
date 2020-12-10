@@ -6,6 +6,7 @@ var sellSchema = new Schema({
     Service: {type: Schema.Types.ObjectId, ref: 'Service'}
   }],
   Client: {type: Schema.Types.ObjectId, ref: 'Client'},
+  Factura: {type: Schema.Types.ObjectId, ref: 'Factura'},
   Employee: {type: Schema.Types.ObjectId,  ref: 'Employee'},
   Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
   ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],

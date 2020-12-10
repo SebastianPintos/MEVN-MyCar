@@ -9,7 +9,7 @@ ctrl.listVehicle = (req, res) => {
         res.send({
             Sell: sell
         })
-    }).populate('VehicleSell').populate('PaymentType');
+    }).populate('VehicleSell').populate('PaymentType').populate('Factura');
 };
 
 /* {
@@ -42,7 +42,8 @@ ctrl.sellVehicle = async (req, res) => {
         Service: body.Service,
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
-        PaymentType: body.PaymentType
+        PaymentType: body.PaymentType,
+        Factura: body.Factura
     })
 
     console.log(sell);

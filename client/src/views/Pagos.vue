@@ -15,7 +15,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
-                    <v-btn block class="success" @click="comprobarFormCliente">
+                    <v-btn block class="success" @click="comprobarFormCliente();">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                     <v-btn block class="warning" to="/clientes">
@@ -26,10 +26,12 @@
         </v-card>
     </v-form>
 
-    <v-form v-if="aceptoCliente" ref="formPagar" v-model="validPagos" lazy-validation>
+    <v-form v-show="aceptoCliente" ref="formPagar" v-model="validPagos" lazy-validation>
         <v-card>
-
-            <v-form v-if="aceptoCliente" ref="formTarjeta" v-model="valid" lazy-validation>
+            <v-card-title class="text-center">
+                <h2 class="text-center" style="background-color:green;width:100%">Total a Abonar: ${{Factura.Total}}</h2>
+            </v-card-title>
+            <v-form v-show="aceptoCliente" ref="formTarjeta" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Tarjeta</h2>
@@ -52,7 +54,7 @@
                 </v-card>
             </v-form>
 
-            <v-form v-if="aceptoCliente" ref="formTransferencia" v-model="valid" lazy-validation>
+            <v-form v-show="aceptoCliente" ref="formTransferencia" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Transferencia</h2>
@@ -76,7 +78,7 @@
                 </v-card>
             </v-form>
 
-            <v-form v-if="aceptoCliente" ref="formEfectivo" v-model="valid" lazy-validation>
+            <v-form v-show="aceptoCliente" ref="formEfectivo" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Efectivo</h2>
@@ -94,10 +96,10 @@
                     </v-card-text>
                 </v-card>
             </v-form>
-   <!--/v-card-text-->
-         
+            <!--/v-card-text-->
+
             <v-card-actions>
-                <v-btn class="success" block @click="mostrarDetalleFactura">
+                <v-btn class="success" block @click="mostrarMsjMontoNoCoincide">
                     <v-icon>mdi-check</v-icon>
                 </v-btn>
             </v-card-actions>
@@ -240,7 +242,7 @@
                     <v-btn class="info mb-2" @click="dialogDetalle=false;">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2" @click="agregarPagos();dialogDetalle=false;">
+                    <v-btn class="info mb-2" @click="agregarFactura();dialogDetalle=false;">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
@@ -342,6 +344,7 @@ export default {
                 ExchangeRate: '',
             },
         },
+        totalAPagar: 0,
         Factura: {
             Client: "",
             Kind: "",
@@ -357,6 +360,7 @@ export default {
             impuestoVStock: 0,
             impuestoVEncargados: 0,
             TotalNeto: 0,
+            Total: 0,
             TotalImpuesto: 0,
         },
         vehiculosStock: [],
@@ -369,6 +373,7 @@ export default {
     }),
     created() {
         this.getClientes();
+        //this.generarFactura();
         this.getMonedas();
         this.getVehiculosStock();
         this.getEncargados();
@@ -380,7 +385,7 @@ export default {
                 this.dialogMensaje = false;
                 location.href = "/";
                 return;
-            } 
+            }
             this.dialogMensaje = false;
         },
         async getClientes() {
@@ -405,7 +410,22 @@ export default {
         editarEfectivo() {
             this.desEfectivo = !this.desEfectivo;
         },
-        mostrarDetalleFactura() {
+
+        mostrarMsjMontoNoCoincide() {
+            this.totalAPagar = this.calcularTotalPagos();
+
+            if (this.totalAPagar != this.Factura.Total) {
+                this.tituloMensaje = "Monto ingresado inválido";
+                this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.Total;
+                this.dialogMensaje = true;
+                this.pago = false;
+                return;
+            }
+            this.detalleFactura = true;
+
+        },
+
+        CalcularTipoFactura() {
             /*
             ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
             */
@@ -425,30 +445,14 @@ export default {
                     } else {
                         this.Factura.Kind = 'B';
                     }
-                    let totalAPagar = this.calcularTotalPagos();
-                    this.generarFactura();
-                    if (this.Factura.Kind == 'A' & totalAPagar != this.Factura.TotalImpuesto) {
-                        this.tituloMensaje = "Monto ingresado inválido";
-                        this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.TotalImpuesto;
-                        this.dialogMensaje = true;
-                        this.pago = false;
-                        return;
-                    } else {
-                        if (totalAPagar != this.Factura.TotalNeto) {
-                            this.tituloMensaje = "Monto ingresado inválido";
-                            this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.TotalNeto;
-                            this.dialogMensaje = true;
-                            this.pago = false;
-                            return;
-                        }
-                    }
-                    this.detalleFactura = true;
-                }
+                    this.calcularTotal();
+                   }
             }
         },
         comprobarFormCliente() {
             if (this.$refs.formCliente.validate()) {
                 this.aceptoCliente = true;
+                this.CalcularTipoFactura();
             }
         },
 
@@ -515,12 +519,6 @@ export default {
             }
         },
 
-        //Sumar todos los repuestos y vehículos
-        generarFactura() {
-            this.reiniciarFactura();
-            this.calcularTotal();
-        },
-
         agregarFactura() {
             //FALTA BRANCHOFFICE
             axios.post(urlAPI + 'factura/add', {
@@ -534,8 +532,7 @@ export default {
                 }
             }).then(res => {
                 if (res != null) {
-                    this.agregarPagos();
-                    this.agregarFactura();
+                    this.agregarPagos(res.data.factura._id);
                 }
             });
         },
@@ -603,7 +600,7 @@ export default {
             };
         },
 
-        async agregarPagos() {
+        async agregarPagos(idFactura) {
             let repuestos = [];
             this.repuestos.forEach(r => {
                 repuestos.push(r._id);
@@ -618,41 +615,54 @@ export default {
                     "PurchaseOrderV": null
                 });
             });
-
-            //FALTA AGREGAR SUCURSAL
-            await this.agregarEncargados().then(res => {
-                if (res != null) {
-                    this.getSell(repuestos);
-                    return;
-                }
-            });
+            if (this.encargados.length > 0) {
+                //FALTA AGREGAR SUCURSAL
+                this.agregarEncargados(repuestos,idFactura);
+            } else {
+                this.guardar(repuestos, idFactura);
+            }
 
         },
 
-        getSell(repuestos) {
+        getSell(repuestos, idFactura) {
             let sell = {
                 "sell": {
                     "Client": this.cliente,
                     "ProductStock": repuestos,
                     "VehicleSold": this.vehiculosSold,
-                    "PaymentType": this.medios
+                    "PaymentType": this.medios,
+                    "Factura": idFactura
                 }
             }
             this.guardar(sell);
         },
-        guardar(sell) {
-            axios.post(urlAPI + 'sellVehicle/add', sell).then(res => {
+
+        guardar(repuestos, idFactura) {
+            this.agregarMedios();
+           
+            axios.post(urlAPI + 'sellVehicle/add', {
+                "sell": {
+                    "Client": this.cliente,
+                    "ProductStock": repuestos,
+                    "VehicleSold": this.vehiculosSold,
+                    "PaymentType": mediosPago,
+                    "Factura": idFactura
+                }
+            }).then(res => {
                 if (res != null) {
                     this.tituloMensaje = "Operación exitosa";
                     this.mensaje = "Compra realizada con éxito";
                     this.dialogMensaje = true;
                     this.pago = true;
-                    this.reiniciarFactura();
+                    localStorage.deleteItem("carrito");
+                    localStorage.deleteItem("lengthv");
+                    localStorage.deleteItem("lengthvM");
+                    localStorage.deleteItem("lengthr");
                 }
             });
         },
 
-        async agregarEncargados() {
+        async agregarEncargados(repuestos, idFactura) {
             for (let i = 0; i < this.encargados.length; i++) {
                 await axios.post(urlAPI + 'purchaseOrderV/add', {
                     "purchaseOrderV": {
@@ -667,7 +677,8 @@ export default {
                         }],
                         "Dealer": this.encargados[i].Dealer,
                         "BranchOffice": this.encargados[i].BranchOffice,
-                        "Status": "ACTIVE"
+                        "Status": "ACTIVE",
+                        "Type": "ENVIADA"
                     }
                 }).then(res => {
                     if (res != null) {
@@ -676,8 +687,8 @@ export default {
                             "VehicleStock": null
                         });
                     }
-                    if (i == this.encargados[i].length - 1) {
-                        return res.data;
+                    if (i == this.encargados.length - 1) {
+                        this.guardar(repuestos, idFactura);
                     }
                 });
 
@@ -892,6 +903,9 @@ export default {
                 this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
                     this.Factura.impuestoVEncargados +
                     this.Factura.impuestoVStock;
+                this.Factura.Total = this.Factura.TotalImpuesto;
+            } else {
+                this.Factura.Total = this.Factura.TotalNeto;
             }
         },
 
@@ -907,6 +921,10 @@ export default {
             this.Factura.impuestoVStock = 0;
             this.Factura.TotalNeto = 0;
             this.Factura.TotalImpuesto = 0;
+        },
+
+        vender() {
+            this.mostrarMsjMontoNoCoincide();
         }
     }
 };
