@@ -1,14 +1,139 @@
 <template>
 <div>
-    <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="ventas" :search="search" item-key="_idTabla" class="elevation-1">
-           <template v-slot:item.Factura.PrecioNeto="{ item }">
+    <v-data-table v-model="selected" show-select :single-select="singleSelect" :headers="headers" :items="ventas" :search="search" item-key="_id" class="elevation-1">
+        <template v-slot:top>
+            <v-toolbar flat>
+               <v-flex class="text-right">
+                    <v-btn right color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialogFactura">
+                        <v-icon>
+                            mdi-information-outline
+                        </v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-toolbar>
+        </template>
+
+        <template v-slot:item.Factura.PrecioNeto="{ item }">
             {{ formatPrice(item.Factura.PrecioNeto) }}
         </template>   
           <template v-slot:item.Date="{ item }">
             {{ formatDate(item.Date) }}
         </template>     
-        
     </v-data-table>
+
+     <v-dialog v-model="mostrarFactura">
+        <v-card>
+
+            <v-card-title>
+                <v-flex class="text-center">
+                    <h1>Factura: {{Factura.Kind}}</h1>
+                </v-flex>
+            </v-card-title>
+            <v-card-text>
+                <v-container>
+                    <ol>
+                        <li v-for="(elemento,index) in Factura.Elements" :key="index">
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field disabled label="Elemento :"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="elemento.Name"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field disabled label="Precio:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="elemento.PrecioNeto" prefix="$"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <div v-if="elemento.Descuento>0">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.Descuento" suffix="%"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+                            <div v-if="Factura.Kind=='A'">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Impuestos:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+                        </li>
+                    </ol>
+                    <div v-if="Factura.Kind!='A'">
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </div>
+                    <div v-else>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total Neto:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total+IVA:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalImpuesto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </div>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn class="info mb-2" @click="mostrarFactura=false;selected=[]">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
     
 </div>
 </template>
@@ -27,6 +152,16 @@ export default {
         on: '',
         valid: true,
         attrs: '',
+        mostrarFactura: false,
+        
+        Factura: {
+                Kind: "",
+                Elements: [],
+                BranchOffice: "",
+                TotalNeto: 0,
+                TotalImpuesto: 0,
+            },
+        
         /* 
         RewarderDiscount: [{Detail,Service:[]}],
         Client,
@@ -96,6 +231,17 @@ export default {
             value = value.slice(0, 10);
             return value;
         },
+        mostrarDialogFactura(){
+            if(this.selected.length>0){
+              this.Factura.Kind = this.selected[0].Factura.Kind;
+              this.Factura.Elements = this.selected[0].Factura.Elements;
+              this.Factura.BranchOffice = this.selected[0].Factura.BranchOffice;
+              this.Factura.TotalNeto = this.selected[0].Factura.PrecioNeto;
+              this.Factura.TotalImpuesto = this.selected[0].Factura.Impuesto;
+               
+              this.mostrarFactura = true;
+            }
+        }
     },
 
 }
