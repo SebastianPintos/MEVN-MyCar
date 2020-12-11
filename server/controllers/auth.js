@@ -55,7 +55,7 @@ ctrl.login = async (req, res) => {
                 }
             }
         }
-    })
+    }).populate('BranchOffice');
 }
 
 ctrl.changePassword = async (req, res) => {
@@ -91,7 +91,7 @@ ctrl.changePassword = async (req, res) => {
                         });
                     }
                 }
-            })
+            }).populate('BranchOffice');
         }
     })
 }

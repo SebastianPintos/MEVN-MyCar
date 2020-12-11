@@ -267,9 +267,9 @@
 
 </div>
 <div v-else>
-<v-card>
-<h1>Aún no pertenece a ninguna sucursal!</h1>
-</v-card>
+    <v-card>
+        <h1 class="text-center" width="100%" height="100%">Aún no pertenece a ninguna sucursal!</h1>
+    </v-card>
 </div>
 </template>
 
@@ -375,15 +375,16 @@ export default {
         requerido: [
             value => !!value || 'Requerido.',
         ],
+        employee: null
     }),
     created() {
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
-        if(employee!=null & employee.BranchOffice!=null & employee.BranchOffice!=''){
+        if (employee != null & employee.BranchOffice != null & employee.BranchOffice != '') {
             this.Factura.BranchOffice = employee.BranchOffice;
+            this.employee = employee;
         }
         this.getClientes();
-        //this.generarFactura();
         this.getMonedas();
         this.getVehiculosStock();
         this.getEncargados();
@@ -435,7 +436,7 @@ export default {
 
         },
 
-        getClienteAsociado(){
+        getClienteAsociado() {
             return this.clientes.filter(c => c._id == this.cliente);
         },
 
@@ -460,7 +461,7 @@ export default {
                         this.Factura.Kind = 'B';
                     }
                     this.calcularTotal();
-                   }
+                }
             }
         },
         comprobarFormCliente() {
@@ -632,7 +633,7 @@ export default {
             });
             if (this.encargados.length > 0) {
                 //FALTA AGREGAR SUCURSAL
-                this.agregarEncargados(repuestos,idFactura);
+                this.agregarEncargados(repuestos, idFactura);
             } else {
                 this.guardar(repuestos, idFactura);
             }
@@ -643,15 +644,17 @@ export default {
             this.agregarMedios();
             let cliente = this.getClienteAsociado();
             cliente = cliente.length > 0 ? cliente[0].CUIT : "";
+            let employee = this.employee!=null ? this.employee._id: null;
             axios.post(urlAPI + 'sellVehicle/add', {
                 "sell": {
                     "Client": this.cliente,
                     "ProductStock": repuestos,
                     "VehicleSold": this.vehiculosSold,
-                    "PaymentType": mediosPago,
+                    "PaymentType": this.mediosPago,
                     "Factura": idFactura,
                     "Date": new Date(),
-                    "CUIT": cuit
+                    "Employee": employee,
+                    "CUIT": cliente
                 }
             }).then(res => {
                 if (res != null) {
@@ -659,10 +662,10 @@ export default {
                     this.mensaje = "Compra realizada con éxito";
                     this.dialogMensaje = true;
                     this.pago = true;
-                    localStorage.deleteItem("carrito");
-                    localStorage.deleteItem("lengthv");
-                    localStorage.deleteItem("lengthvM");
-                    localStorage.deleteItem("lengthr");
+                    localStorage.removeItem("carrito");
+                    localStorage.removeItem("lengthv");
+                    localStorage.removeItem("lengthvM");
+                    localStorage.removeItem("lengthr");
                 }
             });
         },

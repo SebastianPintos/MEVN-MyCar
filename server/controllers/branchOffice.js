@@ -53,7 +53,7 @@ ctrl.create = (req, res) => {
     branchOffice.save((err) => {
         if(err) {console.log(err)}
         res.send({
-            success: true
+            branchOffice
         });
     });
 };
@@ -78,7 +78,7 @@ ctrl.update = (req, res) => {
                 branchOffice.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
-                        success: true
+                        branchOffice
                     })
                 });
             }
