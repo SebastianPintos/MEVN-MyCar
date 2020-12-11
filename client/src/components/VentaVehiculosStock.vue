@@ -57,6 +57,7 @@ export default {
         descuento: 0,
         descontado: 0,
         attrs: '',
+        employee: null,
         valid: true,
         requerido: [
             value => {
@@ -98,6 +99,10 @@ export default {
         ],
     }),
     created() {
+        let employee = localStorage.getItem("employee");
+        if(employee!=null){
+            this.employee = JSON.parse(employee);
+        }
         this.iniciar();
     },
     methods: {
@@ -109,9 +114,12 @@ export default {
             let vehiculos = [];
             let vehiculoAGuardar = {};
             let cont = 0;
-            await axios.get(urlAPI + "vehiclestock")
+            await axios.get(urlAPI + "vehicleStock")
                 .then(res => {
                     vehiculos = res.data.vehicle.filter(v => v.Status === "AVAILABLE");
+                    /*if(this.employee!=null & this.employee.BranchOffice!=null){
+                        vehiculos = vehiculos.filter(v => v.BranchOffice == this.employee.BranchOffice._id);
+                    }*/
                     if (vehiculos != null) {
                         for (let i = 0; i < vehiculos.length; i++) {
                             let item = JSON.parse(localStorage.getItem(String("v" + i)));
