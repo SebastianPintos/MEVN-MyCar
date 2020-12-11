@@ -51,7 +51,7 @@
   BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 -->
-        <v-dialog v-model="dialogNuevo" max-width="600px">
+        <v-dialog v-model="dialogNuevo" max-width="600px" persistent>
             <v-card>
                 <v-card-title>{{titulo}}</v-card-title>
                 <v-form ref="form" v-model="valid" lazy-validation>
@@ -205,7 +205,10 @@ export default {
     }),
 
     created() {
-        this.getRepuestosStock();
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        let branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice._id : "";
+        this.getRepuestosStock(branchOffice);
         this.getRepuestos();
         this.getSucursales();
     },
@@ -231,16 +234,15 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
-        async getRepuestosStock() {
+        async getRepuestosStock(branchOffice) {
             await axios.get(urlAPI + 'productStock')
                 .then(res => {
                     let productsStock = res.data.productStock;
                     if (productsStock != null) {
-                        productsStock.forEach(r => {
-                            if (r.Status == "ACTIVE") {
-                                this.productsStock.push(r);
-                            }
-                        })
+                        this.productsStock = productsStock.filter(r=>r.Status=="ACTIVE");
+                        if(branchOffice!=""){
+                            this.productsStock = this.productsStock.filter(r=>r.BranchOffice==branchOffice);
+                        }
                     }
                 })
         },

@@ -303,6 +303,10 @@ export default {
             for (let i = 0; i < this.selected[0].Product.length; i++) {
                 let noDisponibles = Number(this.fueraServicio[i]) + Number(this.noLlegaron[i]);
                 let disponibles = Number(this.selected[0].Product[i].TotalOrdered) - noDisponibles;
+                let employee = localStorage.getItem("employee");
+                employee = JSON.parse(employee);
+                let branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice : null;
+                
                 let repuestoStock = {
                     "productStock": {
                         "BatchNum": this.selected[0].Product[i].BatchNum,
@@ -313,8 +317,8 @@ export default {
                         "Expiration": this.selected[0].Product[i].Expiration,
                         "Dealer": this.selected[0].Dealer,
                         "Product": this.selected[0].Product[i].ProductID._id,
-                        "Price": this.selected[0].Product[i].ProductID.SalePrice
-
+                        "Price": this.selected[0].Product[i].ProductID.SalePrice,
+                        "BranchOffice": branchOffice
                     }
                 };
                 axios.post(urlAPI + 'productStock/add', repuestoStock);

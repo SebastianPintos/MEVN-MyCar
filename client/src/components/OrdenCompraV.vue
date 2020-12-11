@@ -321,6 +321,10 @@ export default {
         guardarLlegada() {
             for (let i = 0; i < this.selected[0].Vehicle.length; i++) {
                 let status = this.recibidos[i] == "true" ? "AVAILABLE" : "NOT AVAILABLE";
+                let employee = localStorage.getItem("employee");
+                employee = JSON.parse(employee);
+                let branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice : null;
+                
                 let vehiculoStock = {
                     "vehicleStock": {
                         "ChasisNum": this.selected[0].Vehicle[i].ChasisNum,
@@ -331,6 +335,7 @@ export default {
                         "Vehicle": this.selected[0].Vehicle[i].VehicleID._id,
                         "Dealer": this.selected[0].Dealer._id,
                         "Kind": "NUEVO",
+                        "BranchOffice": branchOffice
                     }
                 };
 

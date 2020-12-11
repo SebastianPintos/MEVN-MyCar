@@ -272,7 +272,10 @@ export default {
     }),
 
     created() {
-        this.getVehicleStock();
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        let branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice._id : "";
+        this.getVehicleStock(branchOffice);
         this.getVehiculos();
         this.getSucursales();
     },
@@ -311,15 +314,13 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
-        /**/
+        
         async getVehicleStock() {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
-                    let vehicleStock = res.data.vehicle;
-                    if (vehicleStock != null) {
-                        vehicleStock.forEach(r => {
-                            this.vehicleStock.push(r);
-                        })
+                    this.vehicleStock = res.data.vehicle;
+                   if(branchOffice!=""){
+                            this.vehicleStock = this.vehicleStock.filter(v=>v.BranchOffice==branchOffice);
                     }
                 })
         },
