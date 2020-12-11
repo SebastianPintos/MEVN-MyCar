@@ -13,7 +13,6 @@ var VehicleSchema = new Schema({
     SuggestedPrice: {type: Number, required: true},
     Detail: {type: String},
     Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
-    Kind: {type: String, enum: ['NUEVO', 'USADO'], required: true},
     Dealer: {
         type: Schema.Types.ObjectId,
         required: true,

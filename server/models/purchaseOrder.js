@@ -30,6 +30,7 @@ BatchNum: {type: String},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
     */ 
 var PurchaseOrderSchema = new Schema({
+  Code: {type: String},
   OrderDate: {type: Date},
   ArrivalDate: {type: Date},
   Price: {type: Number, required: true},
@@ -43,6 +44,8 @@ var PurchaseOrderSchema = new Schema({
   Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
   BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+  Type: {type: String, enum: ['ENVIADA', 'RECIBIDA'], required: true},
+  Info: {type: String},
 });
 
 var PurchaseOrder = mongoose.model("PurchaseOrder", PurchaseOrderSchema);

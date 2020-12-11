@@ -1,6 +1,9 @@
 <template>
 <div>
     <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
+        <template v-slot:item.PurchasedPrice="{ item }">
+            {{ formatPrice(item.PurchasedPrice) }}
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -118,11 +121,11 @@ export default {
                             if (item != null) {
                                 carrito = item.carrito;
                             }
-                            if (item!=null && item.descuento!=null) {
-                                    descuento = item.descuento;
+                            if (item != null && item.descuento != null) {
+                                descuento = item.descuento;
                             }
-                            if (item!=null && item.descontado!=null) {
-                                    descontado = item.descontado;
+                            if (item != null && item.descontado != null) {
+                                descontado = item.descontado;
                             }
                             vehiculoAGuardar = {
                                 "_id": vehiculos[i]._id,
@@ -179,16 +182,16 @@ export default {
         confirmarElemento() {
             if (this.$refs.form.validate()) {
                 let index = this.vehiculos.indexOf(this.ultimoEnCarrito);
-                if(index!=-1){
-                    
-                let item = JSON.parse(localStorage.getItem("v" + String(index)));
-                if (item != null) {
-                    item.descuento = this.descuento;
-                    let valorDescuento = (item.PurchasedPrice*this.descuento)/100;
-                    item.descontado =item.PurchasedPrice-valorDescuento;
-                    localStorage.setItem(String("v" + String(index)), JSON.stringify(item));
+                if (index != -1) {
+
+                    let item = JSON.parse(localStorage.getItem("v" + String(index)));
+                    if (item != null) {
+                        item.descuento = this.descuento;
+                        let valorDescuento = (item.PurchasedPrice * this.descuento) / 100;
+                        item.descontado = item.PurchasedPrice - valorDescuento;
+                        localStorage.setItem(String("v" + String(index)), JSON.stringify(item));
+                    }
                 }
-                }   
                 this.descuento = 0;
                 this.descontado = 0;
                 this.aplicarDescuento = false;
@@ -197,6 +200,9 @@ export default {
         cancelarCarrito() {
             this.eliminarDelCarrito(this.ultimoEnCarrito);
             this.aplicarDescuento = false
+        },
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
 
     }

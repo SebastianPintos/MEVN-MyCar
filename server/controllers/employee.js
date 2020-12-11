@@ -8,7 +8,7 @@ ctrl.index = (req, res) => {
         res.send({
             employee: employee
         });
-    });
+    }).populate('BranchOffice');
 };
 
 ctrl.create = (req, res) => {

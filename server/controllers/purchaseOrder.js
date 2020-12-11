@@ -29,6 +29,8 @@ ctrl.create = (req, res) => {
     var body = req.body.purchaseOrder;
    // console.log(req.body.purchaseOrder); 
     var purchaseOrder = new PurchaseOrder({
+        Type : body.Type,
+        Code: body.Code,
         OrderDate: body.OrderDate,
         ArrivalDate: body.ArrivalDate,
         Price: body.Price,
@@ -36,6 +38,7 @@ ctrl.create = (req, res) => {
         Dealer : body.Dealer, 
         Status: "ACTIVE", 
         BranchOffice: body.BranchOffice,
+        Info: body.Info
     });
     
     purchaseOrder.save((err) => {
@@ -54,14 +57,17 @@ ctrl.update = (req, res) => {
         else {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
+                purchaseOrder.Type = body.Type;
+                purchaseOrder.Code = body.Code;
                 purchaseOrder.OrderDate= body.OrderDate;
                 purchaseOrder.ArrivalDate= body.ArrivalDate;
                 purchaseOrder.Price= body.Price;
                 purchaseOrder.Product= body.Product;
                 purchaseOrder.Dealer = body.Dealer;
                 purchaseOrder.BranchOffice= body.BranchOffice;
-                purchaseOrder.Status = body.Status
-                
+                purchaseOrder.Status = body.Status;
+                purchaseOrder.Info = body.Info
+
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -102,6 +108,27 @@ ctrl.setArrival = (req, res) => {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
                 purchaseOrder.ArrivalDate = new Date();
+
+                purchaseOrder.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+};
+
+ctrl.setEstado = (req, res) => {
+    var id = req.params.purchaseOrder_id;
+    PurchaseOrder.findOne({_id: id}, (err, purchaseOrder) => {
+        if(err) {console.log(err)}
+        else {
+            if(!purchaseOrder) {console.log('No se encontró el producto específico')}
+            else {
+                purchaseOrder.Type = "RECIBIDA";
 
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}

@@ -16,7 +16,6 @@ var BranchOfficeSchema = new Schema({
   Status: {type: String},
   Employee: [{
     type: Schema.Types.ObjectId,
-    required: true,
     ref: 'Employee'
   }],
   Hours: {//Las horas de apertura y cierre se guardan en minutos desde que empezo el dia. Ejemplo si abre a las 9:00hs y cierra 17:00hs, se guardaria Open: 540, Close: 1020.

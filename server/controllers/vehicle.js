@@ -28,8 +28,7 @@ ctrl.create = (req, res) => {
         SuggestedPrice: body.SuggestedPrice,
         Detail: body.Detail,
         Status: "ACTIVE",
-        Dealer: body.Dealer,
-        Kind: body.Kind,
+        Dealer: body.Dealer
     });
 
     
@@ -61,9 +60,7 @@ ctrl.update = (req, res) => {
                 vehicle.SuggestedPrice= body.SuggestedPrice;
                 vehicle.Detail= body.Detail;
                 vehicle.Status = body.Status;
-                vehicle.Dealer = body.Dealer;
-                vehicle.Kind = body.Kind;
-
+                vehicle.Dealer = body.Dealer
                 vehicle.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

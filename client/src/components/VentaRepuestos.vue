@@ -5,7 +5,10 @@
             {{ format(item.BatchNum) }}
         </template>
         <template v-slot:item.Expiration="{ item }">
-            {{ format(item.Expiration) }}
+            {{ formatDate(item.Expiration) }}
+        </template>
+        <template v-slot:item.Product.SalePrice="{ item }">
+            {{ formatPrice(item.Product.SalePrice) }}
         </template>
         <template v-slot:[`item.actions`]="{ item }">
 
@@ -121,7 +124,7 @@ export default {
                 sortable: false
             },
         ],
-   requerido: [
+        requerido: [
             value => {
                 const pattern = /^[0-9]{1,}([,]{1}[0-9]{1,}){0,1}([.]{1}[0-9]{1,}){0,1}$/
                 return pattern.test(value) || 'Requerido.'
@@ -252,6 +255,17 @@ export default {
 
         format(value) {
             return value == null ? "S/D" : String(value);
+        },
+        formatDate(value) {
+            if (value == null) {
+                return "N/A";
+            }
+            value = String(value);
+            value = value.slice(0, 10);
+            return value;
+        },
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
     },
 

@@ -1,17 +1,14 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var sellSchema = new Schema({
-  PriceFreeTax: {type: Number, required: true},
-  Tax: {type: Number},
-  Discount: {type: Number},
-  RewarderDiscount: [{
+ CUIT: {type: String},
+ Date: {type: Date},
+ RewarderDiscount: [{
     Detail: {type: String},
     Service: {type: Schema.Types.ObjectId, ref: 'Service'}
   }],
-  CompanyName: {type: String},
-  CUIT: {type: String},
-  TaxCategory: {type: String},
   Client: {type: Schema.Types.ObjectId, ref: 'Client'},
+  Factura: {type: Schema.Types.ObjectId, ref: 'Factura'},
   Employee: {type: Schema.Types.ObjectId,  ref: 'Employee'},
   Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
   ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],

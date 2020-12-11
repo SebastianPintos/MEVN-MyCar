@@ -1,6 +1,10 @@
 <template>
 <div>
     <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
+        <template v-slot:item.SuggestedPrice="{ item }">
+            {{ formatPrice(item.SuggestedPrice) }}
+        </template>
+
         <template v-slot:[`item.actions`]="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -53,7 +57,7 @@ export default {
         on: '',
         ultimoEnCarrito: null,
         colorElegido: '',
-        colores: ['Amarillo','Azul','Blanco','Gris','Negro','Rojo','Verde'],
+        colores: ['Amarillo', 'Azul', 'Blanco', 'Gris', 'Negro', 'Rojo', 'Verde'],
         descuento: 0,
         descontado: 0,
         attrs: '',
@@ -90,7 +94,7 @@ export default {
                 text: 'Combustible',
                 value: 'Fuel',
             },
-            
+
             {
                 text: 'Transmision',
                 value: 'transmission',
@@ -132,14 +136,14 @@ export default {
                             if (item != null) {
                                 carrito = item.carrito;
                             }
-                            if (item!=null && item.descuento!=null) {
-                                    descuento = item.descuento;
+                            if (item != null && item.descuento != null) {
+                                descuento = item.descuento;
                             }
-                            if (item!=null && item.Color!=null) {
-                                    color = item.Color;
+                            if (item != null && item.Color != null) {
+                                color = item.Color;
                             }
-                            if (item!=null && item.descontado!=null) {
-                                    descontado = item.descontado;
+                            if (item != null && item.descontado != null) {
+                                descontado = item.descontado;
                             }
                             vehiculoAGuardar = {
                                 "_id": vehiculos[i]._id,
@@ -195,17 +199,17 @@ export default {
         confirmarElemento() {
             if (this.$refs.form.validate()) {
                 let index = this.vehiculos.indexOf(this.ultimoEnCarrito);
-                if(index!=-1){
-                    
-                let item = JSON.parse(localStorage.getItem("vM" + String(index)));
-                if (item != null) {
-                    item.descuento = this.descuento;
-                    item.Color = this.colorElegido;
-                    let valorDescuento = (item.SuggestedPrice*this.descuento)/100;
-                    item.descontado =item.SuggestedPrice-valorDescuento;
-                    localStorage.setItem(String("vM" + String(index)), JSON.stringify(item));
+                if (index != -1) {
+
+                    let item = JSON.parse(localStorage.getItem("vM" + String(index)));
+                    if (item != null) {
+                        item.descuento = this.descuento;
+                        item.Color = this.colorElegido;
+                        let valorDescuento = (item.SuggestedPrice * this.descuento) / 100;
+                        item.descontado = item.SuggestedPrice - valorDescuento;
+                        localStorage.setItem(String("vM" + String(index)), JSON.stringify(item));
+                    }
                 }
-                }   
                 this.descuento = 0;
                 this.descontado = 0;
                 this.aplicarDescuento = false;
@@ -216,6 +220,9 @@ export default {
             this.aplicarDescuento = false
         },
 
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
+        },
     }
 }
 </script>

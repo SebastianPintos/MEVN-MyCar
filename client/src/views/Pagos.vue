@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="Factura.BranchOffice!=''">
 
     <v-form v-if="aceptoCliente==false" ref="formCliente" v-model="valid" lazy-validation>
         <v-card>
@@ -15,7 +15,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
-                    <v-btn block class="success" @click="comprobarFormCliente">
+                    <v-btn block class="success" @click="comprobarFormCliente();">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                     <v-btn block class="warning" to="/clientes">
@@ -26,10 +26,12 @@
         </v-card>
     </v-form>
 
-    <v-form v-if="aceptoCliente" ref="formPagar" v-model="validPagos" lazy-validation>
+    <v-form v-show="aceptoCliente" ref="formPagar" v-model="validPagos" lazy-validation>
         <v-card>
-
-            <v-form v-if="aceptoCliente" ref="formTarjeta" v-model="valid" lazy-validation>
+            <v-card-title class="text-center">
+                <h2 class="text-center" style="background-color:green;width:100%">Total a Abonar: ${{Factura.Total}}</h2>
+            </v-card-title>
+            <v-form v-show="aceptoCliente" ref="formTarjeta" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Tarjeta</h2>
@@ -52,7 +54,7 @@
                 </v-card>
             </v-form>
 
-            <v-form v-if="aceptoCliente" ref="formTransferencia" v-model="valid" lazy-validation>
+            <v-form v-show="aceptoCliente" ref="formTransferencia" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Transferencia</h2>
@@ -76,7 +78,7 @@
                 </v-card>
             </v-form>
 
-            <v-form v-if="aceptoCliente" ref="formEfectivo" v-model="valid" lazy-validation>
+            <v-form v-show="aceptoCliente" ref="formEfectivo" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Efectivo</h2>
@@ -94,10 +96,10 @@
                     </v-card-text>
                 </v-card>
             </v-form>
+            <!--/v-card-text-->
 
-            </v-card-text>
             <v-card-actions>
-                <v-btn class="success" block @click="mostrarDetalleFactura">
+                <v-btn class="success" block @click="mostrarMsjMontoNoCoincide">
                     <v-icon>mdi-check</v-icon>
                 </v-btn>
             </v-card-actions>
@@ -240,7 +242,7 @@
                     <v-btn class="info mb-2" @click="dialogDetalle=false;">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2" @click="agregarPagos();dialogDetalle=false;">
+                    <v-btn class="info mb-2" @click="agregarFactura();dialogDetalle=false;">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
@@ -263,6 +265,11 @@
 
     </v-dialog>
 
+</div>
+<div v-else>
+    <v-card>
+        <h1 class="text-center" width="100%" height="100%">Aún no pertenece a ninguna sucursal!</h1>
+    </v-card>
 </div>
 </template>
 
@@ -342,6 +349,7 @@ export default {
                 ExchangeRate: '',
             },
         },
+        totalAPagar: 0,
         Factura: {
             Client: "",
             Kind: "",
@@ -357,6 +365,7 @@ export default {
             impuestoVStock: 0,
             impuestoVEncargados: 0,
             TotalNeto: 0,
+            Total: 0,
             TotalImpuesto: 0,
         },
         vehiculosStock: [],
@@ -366,8 +375,15 @@ export default {
         requerido: [
             value => !!value || 'Requerido.',
         ],
+        employee: null
     }),
     created() {
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        if (employee != null & employee.BranchOffice != null & employee.BranchOffice != '') {
+            this.Factura.BranchOffice = employee.BranchOffice;
+            this.employee = employee;
+        }
         this.getClientes();
         this.getMonedas();
         this.getVehiculosStock();
@@ -380,7 +396,7 @@ export default {
                 this.dialogMensaje = false;
                 location.href = "/";
                 return;
-            } 
+            }
             this.dialogMensaje = false;
         },
         async getClientes() {
@@ -405,7 +421,26 @@ export default {
         editarEfectivo() {
             this.desEfectivo = !this.desEfectivo;
         },
-        mostrarDetalleFactura() {
+
+        mostrarMsjMontoNoCoincide() {
+            this.totalAPagar = this.calcularTotalPagos();
+
+            if (this.totalAPagar != this.Factura.Total) {
+                this.tituloMensaje = "Monto ingresado inválido";
+                this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.Total;
+                this.dialogMensaje = true;
+                this.pago = false;
+                return;
+            }
+            this.detalleFactura = true;
+
+        },
+
+        getClienteAsociado() {
+            return this.clientes.filter(c => c._id == this.cliente);
+        },
+
+        CalcularTipoFactura() {
             /*
             ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
             */
@@ -414,7 +449,7 @@ export default {
                 this.$refs.formTransferencia.validate() &
                 this.$refs.formEfectivo.validate()) {
                 let categoriaFiscal = "";
-                let cliente = this.clientes.filter(c => c._id == this.cliente);
+                let cliente = this.getClienteAsociado();
 
                 if (cliente != null) {
                     categoriaFiscal = cliente[0].TaxCategory;
@@ -425,30 +460,14 @@ export default {
                     } else {
                         this.Factura.Kind = 'B';
                     }
-                    let totalAPagar = this.calcularTotalPagos();
-                    this.generarFactura();
-                    if (this.Factura.Kind == 'A' & totalAPagar != this.Factura.TotalImpuesto) {
-                        this.tituloMensaje = "Monto ingresado inválido";
-                        this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.TotalImpuesto;
-                        this.dialogMensaje = true;
-                        this.pago = false;
-                        return;
-                    } else {
-                        if (totalAPagar != this.Factura.TotalNeto) {
-                            this.tituloMensaje = "Monto ingresado inválido";
-                            this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.TotalNeto;
-                            this.dialogMensaje = true;
-                            this.pago = false;
-                            return;
-                        }
-                    }
-                    this.detalleFactura = true;
+                    this.calcularTotal();
                 }
             }
         },
         comprobarFormCliente() {
             if (this.$refs.formCliente.validate()) {
                 this.aceptoCliente = true;
+                this.CalcularTipoFactura();
             }
         },
 
@@ -515,12 +534,6 @@ export default {
             }
         },
 
-        //Sumar todos los repuestos y vehículos
-        generarFactura() {
-            this.reiniciarFactura();
-            this.calcularTotal();
-        },
-
         agregarFactura() {
             //FALTA BRANCHOFFICE
             axios.post(urlAPI + 'factura/add', {
@@ -530,11 +543,12 @@ export default {
                     "Status": this.Factura.Status,
                     "Elements": this.Factura.Elements,
                     "PrecioNeto": this.Factura.TotalNeto,
-                    "Impuesto": this.Factura.Impuesto
+                    "Impuesto": this.Factura.Impuesto,
+                    "BranchOffice": this.Factura.BranchOffice
                 }
             }).then(res => {
                 if (res != null) {
-                    this.agregarPagos();
+                    this.agregarPagos(res.data.factura._id);
                 }
             });
         },
@@ -602,7 +616,7 @@ export default {
             };
         },
 
-        async agregarPagos() {
+        async agregarPagos(idFactura) {
             let repuestos = [];
             this.repuestos.forEach(r => {
                 repuestos.push(r._id);
@@ -617,45 +631,46 @@ export default {
                     "PurchaseOrderV": null
                 });
             });
-
-            //FALTA AGREGAR SUCURSAL
-            await this.agregarEncargados().then(res => {
-                if (res != null) {
-                    let sell = this.getSell(repuestos);
-                    return;
-                }
-            });
-
-            let sell = setTimeout(this.getSell(repuestos), 3000);
+            if (this.encargados.length > 0) {
+                //FALTA AGREGAR SUCURSAL
+                this.agregarEncargados(repuestos, idFactura);
+            } else {
+                this.guardar(repuestos, idFactura);
+            }
 
         },
 
-        getSell(repuestos) {
-            let sell = {
+        guardar(repuestos, idFactura) {
+            this.agregarMedios();
+            let cliente = this.getClienteAsociado();
+            cliente = cliente.length > 0 ? cliente[0].CUIT : "";
+            let employee = this.employee!=null ? this.employee._id: null;
+            axios.post(urlAPI + 'sellVehicle/add', {
                 "sell": {
-                    "PriceFreeTax": this.Factura.TotalNeto,
-                    "Tax": this.Factura.Impuesto,
                     "Client": this.cliente,
                     "ProductStock": repuestos,
                     "VehicleSold": this.vehiculosSold,
-                    "PaymentType": this.medios
+                    "PaymentType": this.mediosPago,
+                    "Factura": idFactura,
+                    "Date": new Date(),
+                    "Employee": employee,
+                    "CUIT": cliente
                 }
-            }
-            this.guardar(sell);
-        },
-        guardar(sell) {
-            axios.post(urlAPI + 'sellVehicle/add', sell).then(res => {
+            }).then(res => {
                 if (res != null) {
                     this.tituloMensaje = "Operación exitosa";
                     this.mensaje = "Compra realizada con éxito";
                     this.dialogMensaje = true;
                     this.pago = true;
-                    this.reiniciarFactura();
+                    localStorage.removeItem("carrito");
+                    localStorage.removeItem("lengthv");
+                    localStorage.removeItem("lengthvM");
+                    localStorage.removeItem("lengthr");
                 }
             });
         },
 
-        async agregarEncargados() {
+        async agregarEncargados(repuestos, idFactura) {
             for (let i = 0; i < this.encargados.length; i++) {
                 await axios.post(urlAPI + 'purchaseOrderV/add', {
                     "purchaseOrderV": {
@@ -670,7 +685,8 @@ export default {
                         }],
                         "Dealer": this.encargados[i].Dealer,
                         "BranchOffice": this.encargados[i].BranchOffice,
-                        "Status": "ACTIVE"
+                        "Status": "ACTIVE",
+                        "Type": "ENVIADA"
                     }
                 }).then(res => {
                     if (res != null) {
@@ -679,8 +695,8 @@ export default {
                             "VehicleStock": null
                         });
                     }
-                    if (i == this.encargados[i].length - 1) {
-                        return res.data;
+                    if (i == this.encargados.length - 1) {
+                        this.guardar(repuestos, idFactura);
                     }
                 });
 
@@ -895,6 +911,9 @@ export default {
                 this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
                     this.Factura.impuestoVEncargados +
                     this.Factura.impuestoVStock;
+                this.Factura.Total = this.Factura.TotalImpuesto;
+            } else {
+                this.Factura.Total = this.Factura.TotalNeto;
             }
         },
 
@@ -910,6 +929,10 @@ export default {
             this.Factura.impuestoVStock = 0;
             this.Factura.TotalNeto = 0;
             this.Factura.TotalImpuesto = 0;
+        },
+
+        vender() {
+            this.mostrarMsjMontoNoCoincide();
         }
     }
 };

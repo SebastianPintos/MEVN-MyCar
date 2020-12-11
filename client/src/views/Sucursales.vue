@@ -723,7 +723,7 @@ export default {
             })
             let item = {
                 Employee: empleados,
-                Name: ""
+                Sucursal: null
             };
             this.asignarSucursal(item);
             this.sucursales.splice(this.sucursales.indexOf(this.selected[0]), 1);
@@ -918,18 +918,22 @@ export default {
                 };
                 //Nuevo
                 if (this.selected[0] == null) {
-                    this.asignarSucursal(item);
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
-                    axios.post(urlAPI + 'branchOffice/add', jsonSucursal);
-                    this.sucursales.push(item);
-                    this.reiniciar();
+                    axios.post(urlAPI + 'branchOffice/add', jsonSucursal).then(res=>
+                    {
+                        if(res!=null){
+                             this.asignarSucursal({Sucursal: res.data.branchOffice._id, Employee:this.editedItem.employee});
+                             this.sucursales.push(item);
+                             this.reiniciar();
+                        }
+                    });
                 }
                 //Editar
                 else {
                     //this.editedItem.Email = this.principioEmail + "@" + this.finEmail;
                     //this.editedItem.Phone = this.num;
                     Object.assign(this.sucursales[this.editedIndex], item);
-                    this.asignarSucursal(item);
+                    this.asignarSucursal({Sucursal: item._id , Employee:this.editedItem.employee});
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
                     axios.post(urlAPI + 'branchOffice/' + this.selected[0]._id + "/update", jsonSucursal);
                     this.reiniciar();
@@ -940,7 +944,7 @@ export default {
         asignarSucursal(item) {
             item.Employee.forEach(e => {
                 axios.post(urlAPI + 'employee/' + e + '/asignarSucursal', {
-                    "sucursal": item.Name
+                    "sucursal": item.Sucursal
                 });
             })
         },

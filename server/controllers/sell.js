@@ -7,9 +7,10 @@ ctrl.listVehicle = (req, res) => {
     Sell.find((err, sell) => {
         if (err) { console.log(err) }
         res.send({
-            Sell: sell
+            sell: sell
         })
-    }).populate('VehicleSold');
+    }).populate('VehicleSell').populate('PaymentType').populate('Factura').populate('Client');
+
 };
 
 /* {
@@ -36,19 +37,16 @@ ctrl.sellVehicle = async (req, res) => {
     console.log(body);
     
     var sell = new Sell({
-        PriceFreeTax: body.PriceFreeTax,
-        Tax: body.Tax,
-        Discount: body.Discount,
-        RewarderDiscount: body.RewarderDiscount,
-        CompanyName: body.CompanyName,
         CUIT: body.CUIT,
-        TaxCategory: body.TaxCategory,
+        Date: body.Date,
+        RewarderDiscount: body.RewarderDiscount,
         Client: body.Client,
         Employee: body.Employee,
         Service: body.Service,
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
-        PaymentType: body.PaymentType
+        PaymentType: body.PaymentType,
+        Factura: body.Factura
     })
 
     console.log(sell);

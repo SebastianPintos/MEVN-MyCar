@@ -4,7 +4,7 @@
         <v-tab @click="vistaVehiculos = true; vistaRepuestos = false; ventasRealizadas=false">Vehículos</v-tab>
         <v-tab @click=" vistaVehiculos = false; vistaRepuestos = true;ventasRealizadas=false">Repuestos</v-tab>
         <v-tab @click=" vistaVehiculos = false; vistaRepuestos = false;ventasRealizadas=true">Ventas Realizadas</v-tab>
-        <v-btn color="grey" style="height: 100%" @click="mostrarCarrito">
+        <v-btn color="#00ced1" style="height: 100%" @click="mostrarCarrito">
             <v-icon>mdi-cart-outline</v-icon>
         </v-btn>
     </v-tabs>
@@ -195,9 +195,10 @@
                                 </v-row>
                             </div>
                         </li>
-                    </ol>
+                    
 
                     <ol>
+                
                         <h3 v-if="repuestos.length>0">Repuestos: </h3>
                         <li v-for="(repuesto,index) in repuestos" :key="index">
                             <v-row>
