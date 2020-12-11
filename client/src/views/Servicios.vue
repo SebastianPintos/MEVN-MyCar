@@ -259,6 +259,7 @@ export default {
         products: [],
         vehicles: [],
         expanded: [],
+        employee: null
     }),
 
     computed: {
@@ -268,8 +269,15 @@ export default {
     },
 
     created() {
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        if (employee != null & employee.BranchOffice != null & employee.BranchOffice != '') {
+            this.filtros.BranchOffice = employee.BranchOffice;
+            this.employee = employee;
+        }
         this.iniciar();
     },
+    
     methods: {
         iniciar() {
             this.getServices();
@@ -290,9 +298,11 @@ export default {
                             this.servicios.push(servicio);
                             this.serviciosFiltrados.push(servicio);
                         })
+                        this.aplicarFiltros();
                     }
                 });
         },
+        
         getSucursales() {
             axios.get(urlAPI + 'branchOffice')
                 .then(res => {
@@ -300,12 +310,14 @@ export default {
                 });
 
         },
+        
         getProducts() {
             axios.get(urlAPI + 'product')
                 .then(res => {
                     this.products = res.data.product.filter(product => product.Status === "ACTIVE")
                 });
         },
+        
         getVehicles() {
             axios.get(urlAPI + 'vehicle')
                 .then(res => {
@@ -413,6 +425,7 @@ export default {
         validate() {
             return this.$refs.form.validate()
         },
+        
         aplicarFiltros() {
             let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
             let Model = this.filtros.Model != null & this.filtros.Model != ""
@@ -443,6 +456,7 @@ export default {
             }
             this.serviciosFiltrados = serviciosAux;
         },
+
         reiniciarFiltros() {
             this.filtros = [{
                 BranchOffice: '',
