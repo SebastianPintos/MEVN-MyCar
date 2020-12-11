@@ -8,8 +8,8 @@ const ctrl = {};
 //mailgun
 const auth = {
     auth: {
-        api_key: 'c4a39abe02c973b1a361520c29439f0a-2af183ba-3221cf59',
-        domain: 'sandboxf762f1139bbe47978788fe273ca4738e.mailgun.org'
+        api_key: '0815227d5a1c7675f1aa0f7457c6bcf3-4879ff27-54c7ad37',
+        domain: 'sandbox2639bfb5b9284744aa584b5e2c7c77a1.mailgun.org'
     }
 };
 
