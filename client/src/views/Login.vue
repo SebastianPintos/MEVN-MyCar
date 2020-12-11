@@ -93,6 +93,7 @@ export default {
         .then(data => {
           localStorage.setItem("userType",data.data.Hierarchy)
           localStorage.setItem("userName",data.data.Name + " " + data.data.LastName)
+          localStorage.setItem("employee",JSON.stringify(data.data))
           })
     }
   }

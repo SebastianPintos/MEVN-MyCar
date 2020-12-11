@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="Factura.BranchOffice!=''">
 
     <v-form v-if="aceptoCliente==false" ref="formCliente" v-model="valid" lazy-validation>
         <v-card>
@@ -266,6 +266,11 @@
     </v-dialog>
 
 </div>
+<div v-else>
+<v-card>
+<h1>Aún no pertenece a ninguna sucursal!</h1>
+</v-card>
+</div>
 </template>
 
 <script>
@@ -372,6 +377,11 @@ export default {
         ],
     }),
     created() {
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        if(employee!=null & employee.BranchOffice!=null & employee.BranchOffice!=''){
+            this.Factura.BranchOffice = employee.BranchOffice;
+        }
         this.getClientes();
         //this.generarFactura();
         this.getMonedas();
@@ -532,7 +542,8 @@ export default {
                     "Status": this.Factura.Status,
                     "Elements": this.Factura.Elements,
                     "PrecioNeto": this.Factura.TotalNeto,
-                    "Impuesto": this.Factura.Impuesto
+                    "Impuesto": this.Factura.Impuesto,
+                    "BranchOffice": this.Factura.BranchOffice
                 }
             }).then(res => {
                 if (res != null) {

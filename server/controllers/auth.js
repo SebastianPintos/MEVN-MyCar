@@ -20,6 +20,7 @@ ctrl.signup = async (req, res) => {
         StartDate: body.StartDate,
         DischargeDate: body.DischargeDate,
         Address: body.Address,
+        BranchOffice: ""
     });
 
     employee.save((err) => {
