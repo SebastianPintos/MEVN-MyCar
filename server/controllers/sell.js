@@ -10,6 +10,7 @@ ctrl.listVehicle = (req, res) => {
             sell: sell
         })
     }).populate('VehicleSell').populate('PaymentType').populate('Factura').populate('Client');
+
 };
 
 /* {
