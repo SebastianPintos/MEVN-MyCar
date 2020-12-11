@@ -16,8 +16,8 @@ var sellSchema = new Schema({
       VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'},
       PurchaseOrderV: {type: Schema.Types.ObjectId, ref: 'PurchaseOrderV'}
     }],
-  PaymentType: [ 
-    {Price: {type: Number},
+  PaymentType: [{
+    Price: {type: Number},
     Type: {type: String, enum: ['CASH', 'CREDICARD', 'WIRETRANSFER']},
     CurrencyType: {type: String}, //EUR ARS USD REAL
     ExchangeRate: {type: Number},

@@ -56,7 +56,7 @@ ctrl.update = (req, res) => {
                 productStock.BranchOffice = body.BranchOffice,
                 
                 
-                helper.checkMin(body);
+                //helper.checkMin(body);
                 
                 productStock.save((err) => {
                     if(err) {console.log(err)}
