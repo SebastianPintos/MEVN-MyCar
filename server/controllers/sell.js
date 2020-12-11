@@ -7,9 +7,9 @@ ctrl.listVehicle = (req, res) => {
     Sell.find((err, sell) => {
         if (err) { console.log(err) }
         res.send({
-            Sell: sell
+            sell: sell
         })
-    }).populate('VehicleSell').populate('PaymentType').populate('Factura');
+    }).populate('VehicleSell').populate('PaymentType').populate('Factura').populate('Client');
 };
 
 /* {
@@ -36,6 +36,8 @@ ctrl.sellVehicle = async (req, res) => {
     console.log(body);
     
     var sell = new Sell({
+        CUIT: body.CUIT,
+        Date: body.Date,
         RewarderDiscount: body.RewarderDiscount,
         Client: body.Client,
         Employee: body.Employee,

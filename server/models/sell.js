@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var sellSchema = new Schema({
+ CUIT: {type: String},
+ Date: {type: Date},
  RewarderDiscount: [{
     Detail: {type: String},
     Service: {type: Schema.Types.ObjectId, ref: 'Service'}

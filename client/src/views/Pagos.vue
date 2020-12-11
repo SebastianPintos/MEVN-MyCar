@@ -425,6 +425,10 @@ export default {
 
         },
 
+        getClienteAsociado(){
+            return this.clientes.filter(c => c._id == this.cliente);
+        },
+
         CalcularTipoFactura() {
             /*
             ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
@@ -434,7 +438,7 @@ export default {
                 this.$refs.formTransferencia.validate() &
                 this.$refs.formEfectivo.validate()) {
                 let categoriaFiscal = "";
-                let cliente = this.clientes.filter(c => c._id == this.cliente);
+                let cliente = this.getClienteAsociado();
 
                 if (cliente != null) {
                     categoriaFiscal = cliente[0].TaxCategory;
@@ -624,29 +628,19 @@ export default {
 
         },
 
-        getSell(repuestos, idFactura) {
-            let sell = {
-                "sell": {
-                    "Client": this.cliente,
-                    "ProductStock": repuestos,
-                    "VehicleSold": this.vehiculosSold,
-                    "PaymentType": this.medios,
-                    "Factura": idFactura
-                }
-            }
-            this.guardar(sell);
-        },
-
         guardar(repuestos, idFactura) {
             this.agregarMedios();
-           
+            let cliente = this.getClienteAsociado();
+            cliente = cliente.length > 0 ? cliente[0].CUIT : "";
             axios.post(urlAPI + 'sellVehicle/add', {
                 "sell": {
                     "Client": this.cliente,
                     "ProductStock": repuestos,
                     "VehicleSold": this.vehiculosSold,
                     "PaymentType": mediosPago,
-                    "Factura": idFactura
+                    "Factura": idFactura,
+                    "Date": new Date(),
+                    "CUIT": cuit
                 }
             }).then(res => {
                 if (res != null) {

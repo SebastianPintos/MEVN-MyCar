@@ -3,7 +3,7 @@
     <div>
         <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="productsStock" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
             <template v-slot:item.Expiration="{ item }">
-                {{ formatDate(item.Expiration,'N/A')}}
+                {{ formatDate(item.Expiration)}}
             </template>
             <template v-slot:item.Price="{ item }">
                 {{ formatPrice(item.Price) }}
