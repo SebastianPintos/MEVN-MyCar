@@ -95,12 +95,6 @@
                     </v-list-item-icon>
                     <v-list-item-title>Sucursales</v-list-item-title>
                 </v-list-item>
-                <v-list-item v-if="validateUsers('Administrativo','Gerente','Administrador')" :to="'/proveedores'">
-                    <v-list-item-icon>
-                        <v-icon>mdi-package-variant</v-icon>
-                    </v-list-item-icon :to="'/proveedores'">
-                    <v-list-item-title>Proveedores</v-list-item-title>
-                </v-list-item>
                   <v-list-item :to="'/mails'">
                     <v-list-item-icon>
                         <v-icon>mdi-email-multiple</v-icon>
