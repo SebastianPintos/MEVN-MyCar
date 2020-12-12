@@ -11,11 +11,11 @@
                     <v-container>
                         <h2>Filtros</h2>
                         <v-row>
-                            <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="filtros.Brand" label="Marca-Vehículo"></v-text-field>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-select v-model="filtros.Brand" v-on:change="filterModels()" :items="brandsList" item-text="Name" item-value="Name" label="Marca-Vehículo" :rules="requerido"></v-select>
                             </v-col>
                             <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="filtros.Model" label="Modelo-Vehículo"></v-text-field>
+                                <v-select v-model="filtros.Model" :items="filteredModels" item-text="Name" item-value="Name" label="Modelo-Vehículo"></v-select>
                             </v-col>
                             <v-col cols="12" sm="4" md="3">
                                 <v-select v-model="filtros.Year" :items="años" label="Año-Vehículo"></v-select>
@@ -259,7 +259,10 @@ export default {
         products: [],
         vehicles: [],
         expanded: [],
-        employee: null
+        employee: null,
+        brandsList: [],
+        modelsList: [],
+        filteredModels: []
     }),
 
     computed: {
@@ -277,7 +280,7 @@ export default {
         }
         this.iniciar();
     },
-    
+
     methods: {
         iniciar() {
             this.getServices();
@@ -302,7 +305,7 @@ export default {
                     }
                 });
         },
-        
+
         getSucursales() {
             axios.get(urlAPI + 'branchOffice')
                 .then(res => {
@@ -310,19 +313,27 @@ export default {
                 });
 
         },
-        
+
         getProducts() {
             axios.get(urlAPI + 'product')
                 .then(res => {
                     this.products = res.data.product.filter(product => product.Status === "ACTIVE")
                 });
         },
-        
+
         getVehicles() {
             axios.get(urlAPI + 'vehicle')
                 .then(res => {
                     this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
                 });
+            axios.get(urlAPI + 'brand')
+                .then(res => {
+                    this.brandsList = res.data.brand.filter(brand => brand.Kind == 'VEHICLE');
+                })
+            axios.get(urlAPI + 'model')
+                .then(res => {
+                    this.modelsList = res.data.model;
+                })
         },
 
         async createService() {
@@ -425,7 +436,7 @@ export default {
         validate() {
             return this.$refs.form.validate()
         },
-        
+
         aplicarFiltros() {
             let Brand = this.filtros.Brand != null & this.filtros.Brand != ""
             let Model = this.filtros.Model != null & this.filtros.Model != ""
@@ -488,6 +499,20 @@ export default {
             }
             this.close()
         },
+
+        filterModels() {
+            if (this.filtros.Brand != '') {
+                this.filteredModels = []
+                let actualBrand;
+                actualBrand = this.brandsList.find(brand => brand.Name == this.filtros.Brand)
+                this.modelsList.forEach(model => {
+                    if (model.Brand == actualBrand._id) {
+                        this.filteredModels.push(model)
+                    }
+                })
+            }
+        },
+
     }
 };
 </script>

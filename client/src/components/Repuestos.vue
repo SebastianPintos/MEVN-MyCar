@@ -12,16 +12,14 @@
                         <v-container>
                             <h2>Filtros</h2>
                             <v-row>
-                                <v-col cols="12" sm="6" md="3">
-                                    <v-text-field v-model="filtros.Category" label="Categoria"></v-text-field>
+                                <v-col cols="12" sm="6" md="6">
+                                    <v-select v-model="filtros.Brand" v-on:change="filterCategory(filtros.Brand)" :items="brandsList" item-text="Name" item-value="Name" label="Marca" :rules="requerido"></v-select>
                                 </v-col>
-
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-text-field v-model="filtros.SubCategory" label="Sub Categoría"></v-text-field>
+                                    <v-select v-model="filtros.Category" :items="filteredCategory" item-text="Name" item-value="Name" label="Categoría" v-on:change="filterSubcategory(filtros.Category)"></v-select>
                                 </v-col>
-
                                 <v-col cols="12" sm="6" md="3">
-                                    <v-text-field v-model="filtros.Brand" label="Marca"></v-text-field>
+                                    <v-select v-model="filtros.SubCategory" :items="filteredSubCategory" item-text="Name" item-value="Name" label="Sub-Categoría"></v-select>
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
@@ -75,153 +73,151 @@
                     <v-spacer></v-spacer>
                     <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                    <v-dialog v-model="dialog" max-width="500px" persistent>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                                <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
-                                <v-card-title>
-                                    <span class="headline">{{ formTitle }}</span>
-                                </v-card-title>
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Category" label="Categoria" :rules="requerido"></v-text-field>
-                                            </v-col>
+                            <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
+                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                            <v-icon>mdi-delete</v-icon>
+                        </v-btn>
+                        <v-dialog v-model="dialog" max-width="500px" persistent>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-card>
+                                <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
+                                    <v-card-title>
+                                        <span class="headline">{{ formTitle }}</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Brand" v-on:change="filterCategory(editedItem.Brand)" :items="brandsList" item-text="Name" item-value="Name" label="Marca" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="3">
+                                                    <v-select v-model="editedItem.Category" :items="filteredCategory" item-text="Name" item-value="Name" label="Categoría" v-on:change="filterSubcategory(editedItem.Category)"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="3">
+                                                    <v-select v-model="editedItem.SubCategory" :items="filteredSubCategory" item-text="Name" item-value="Name" label="Sub-Categoría"></v-select>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.SubCategory" label="Sub Categoría"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="4" md="6">
+                                                    <v-text-field :rules="reglaSKU" v-model="editedItem.SKU" label="SKU"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Brand" label="Marca" :rules="requerido"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="4" md="6">
+                                                    <v-text-field :rules="reglaPrecio" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="4" md="6">
-                                                <v-text-field :rules="reglaSKU" v-model="editedItem.SKU" label="SKU"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="4" md="6">
+                                                    <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="4" md="6">
-                                                <v-text-field :rules="reglaPrecio" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="4" md="12">
+                                                    <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="4" md="6">
-                                                <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="4" md="12">
+                                                    <v-text-field v-model="editedItem.ShippingDealer" label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="4" md="12">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
-                                            </v-col>
+                                                <v-col cols="12" sm="4" md="12">
+                                                    <v-text-field v-model="editedItem.ShippingBranch" label="Tiempo de envío Proveedor (días)" :rules="requerido"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="4" md="12">
-                                                <v-text-field v-model="editedItem.ShippingDealer" label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <v-textarea v-model="editedItem.Description" label="Descripción"></v-textarea>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
 
-                                            <v-col cols="12" sm="4" md="12">
-                                                <v-text-field v-model="editedItem.ShippingBranch" label="Tiempo de envío Proveedor (días)" :rules="requerido"></v-text-field>
-                                            </v-col>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn text @click="close" class="info">
+                                            <v-icon>mdi-cancel</v-icon>
+                                        </v-btn>
+                                        <v-btn text @click="save" class="info">
+                                            <v-icon>mdi-check</v-icon>
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
 
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-textarea v-model="editedItem.Description" label="Descripción"></v-textarea>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
+                            <v-card>
+                                <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
 
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn text @click="close" class="info">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
-                                    <v-btn text @click="save" class="info">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
+                                    <v-card-title>
+                                        <span class="tituloChico">Editar varios</span>
+                                    </v-card-title>
 
-                        <v-card>
-                            <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
 
-                                <v-card-title>
-                                    <span class="tituloChico">Editar varios</span>
-                                </v-card-title>
+                                                <v-btn-toggle v-model="toggle_none1">
+                                                    <v-btn fab dark small class="warning">
+                                                        <v-icon>mdi-plus</v-icon>
+                                                    </v-btn>
+                                                    <v-btn fab dark small class="warning">
+                                                        <v-icon>mdi-minus</v-icon>
+                                                    </v-btn>
+                                                </v-btn-toggle>
 
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
+                                                <v-col cols="12" sm="6" md="10">
+                                                    <v-text-field id="precioVenta" suffix="%" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2">
+                                                    <v-btn :class="classBotonVenta" @click="clickPrecioVenta()">
+                                                        <v-icon>{{nombrePrecioVenta}}</v-icon>
+                                                    </v-btn>
+                                                </v-col>
 
-                                            <v-btn-toggle v-model="toggle_none1">
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-plus</v-icon>
-                                                </v-btn>
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-minus</v-icon>
-                                                </v-btn>
-                                            </v-btn-toggle>
+                                                <v-btn-toggle v-model="toggle_none2">
+                                                    <v-btn fab dark small class="warning">
+                                                        <v-icon>mdi-plus</v-icon>
+                                                    </v-btn>
+                                                    <v-btn fab dark small class="warning">
+                                                        <v-icon>mdi-minus</v-icon>
+                                                    </v-btn>
+                                                </v-btn-toggle>
 
-                                            <v-col cols="12" sm="6" md="10">
-                                                <v-text-field id="precioVenta" suffix="%" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonVenta" @click="clickPrecioVenta()">
-                                                    <v-icon>{{nombrePrecioVenta}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
+                                                <v-col cols="12" sm="6" md="10">
+                                                    <v-text-field :disabled="deshabilitarPrecioCompra" suffix="%" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2">
+                                                    <v-btn :class="classBotonCompra" @click="clickPrecioCompra()">
+                                                        <v-icon>{{nombrePrecioCompra}}</v-icon>
+                                                    </v-btn>
+                                                </v-col>
 
-                                            <v-btn-toggle v-model="toggle_none2">
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-plus</v-icon>
-                                                </v-btn>
-                                                <v-btn fab dark small class="warning">
-                                                    <v-icon>mdi-minus</v-icon>
-                                                </v-btn>
-                                            </v-btn-toggle>
+                                                <v-col cols="12" sm="6" md="10">
+                                                    <v-select :disabled="deshabilitarProveedor" :rules="reglaEditarProveedor" v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="ID Proveedor" required></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2">
+                                                    <v-btn :class="classBotonProveedor" @click="clickProveedor()">
+                                                        <v-icon>{{nombreProveedor}}</v-icon>
+                                                    </v-btn>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="6" md="10">
-                                                <v-text-field :disabled="deshabilitarPrecioCompra" suffix="%" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonCompra" @click="clickPrecioCompra()">
-                                                    <v-icon>{{nombrePrecioCompra}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
 
-                                            <v-col cols="12" sm="6" md="10">
-                                                <v-select :disabled="deshabilitarProveedor" :rules="reglaEditarProveedor" v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="ID Proveedor" required></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonProveedor" @click="clickProveedor()">
-                                                    <v-icon>{{nombreProveedor}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn class="info" text @click="close">
+                                            <v-icon>mdi-cancel</v-icon>
+                                        </v-btn>
+                                        <v-btn class="info" text @click="save">
+                                            <v-icon>mdi-check</v-icon>
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
 
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-
-                                <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="close">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
-                                    <v-btn class="info" text @click="save">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                    </v-dialog>
+                        </v-dialog>
                     </div>
 
                     <v-btn dark class="mb-2" color="warning" @click="controlarStock">
@@ -423,6 +419,11 @@ export default {
             Dealer: '',
             Status: '',
         },
+        brandsList: [],
+        categoryList: [],
+        subcategoryList: [],
+        filteredCategory: [],
+        filteredSubCategory: [],
         defaultItem: {
             ShippingDealer: '',
             ShippingBranch: '',
@@ -485,6 +486,19 @@ export default {
                         }
                     })
                 })
+
+            axios.get(urlAPI + 'brand')
+                .then(res => {
+                    this.brandsList = res.data.brand.filter(brand => brand.Kind == 'PRODUCT');
+                })
+            axios.get(urlAPI + 'category')
+                .then(res => {
+                    this.categoryList = res.data.category;
+                })
+            axios.get(urlAPI + 'subcategory')
+                .then(res => {
+                    this.subcategoryList = res.data.subcategory;
+                })
         },
 
         getrepuestosStock() {
@@ -513,9 +527,9 @@ export default {
             }
             return false;
         },
-        validateUsers(...authorizedUsers){
-            if(localStorage.getItem('userType') != null){
-                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+        validateUsers(...authorizedUsers) {
+            if (localStorage.getItem('userType') != null) {
+                return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
             }
             return false;
         },
@@ -838,6 +852,34 @@ export default {
         reiniciar() {
             this.close()
             this.$refs.form.resetValidation()
+        },
+
+        filterCategory(marca) {
+            console.log("MARCA: " + marca)
+            if (marca != '') {
+                this.filteredCategory = []
+                let actualBrand;
+                actualBrand = this.brandsList.find(brand => brand.Name == marca)
+                this.categoryList.forEach(category => {
+                    if (category.Brand == actualBrand._id) {
+                        this.filteredCategory.push(category)
+                    }
+                })
+            }
+        },
+
+        filterSubcategory(category) {
+            if (category != '') {
+                this.filteredSubCategory = []
+                let actualCategory;
+                actualCategory = this.categoryList.find(c => c.Name == category)
+
+                this.subcategoryList.forEach(scategory => {
+                    if (scategory.Category._id == actualCategory._id) {
+                        this.filteredSubCategory.push(scategory)
+                    }
+                })
+            }
         },
 
     },
