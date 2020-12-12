@@ -27,17 +27,17 @@
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field prefix="$" v-model="filtros.cDesde" label="Precio última Compra Desde"></v-text-field>
+                                    <v-text-field type="number" prefix="$" v-model="filtros.cDesde" label="Precio última Compra Desde"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field prefix="$" v-model="filtros.cHasta" label="Precio última Compra Hasta"></v-text-field>
+                                    <v-text-field type="number" prefix="$" v-model="filtros.cHasta" label="Precio última Compra Hasta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field prefix="$" v-model="filtros.vDesde" label="Precio de Venta Desde"></v-text-field>
+                                    <v-text-field type="number" prefix="$" v-model="filtros.vDesde" label="Precio de Venta Desde"></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field prefix="$" v-model="filtros.vHasta" label="Precio de Venta Hasta"></v-text-field>
+                                    <v-text-field type="number" prefix="$" v-model="filtros.vHasta" label="Precio de Venta Hasta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor"></v-select>
@@ -107,11 +107,11 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="6">
-                                                    <v-text-field :rules="reglaPrecio" prefix="$" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                                    <v-text-field type="number" :rules="reglaPrecio" prefix="$" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="6">
-                                                    <v-text-field :rules="reglaPrecio" prefix="$" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
+                                                    <v-text-field type="number" :rules="reglaPrecio" prefix="$" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="12">
@@ -119,11 +119,11 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="12">
-                                                    <v-text-field v-model="editedItem.ShippingDealer" label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
+                                                    <v-text-field type="number" v-model="editedItem.ShippingDealer" label="Tiempo envío entre Sucursales (días)" :rules="requerido"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="12">
-                                                    <v-text-field v-model="editedItem.ShippingBranch" label="Tiempo de envío Proveedor (días)" :rules="requerido"></v-text-field>
+                                                    <v-text-field type="number" v-model="editedItem.ShippingBranch" label="Tiempo de envío Proveedor (días)" :rules="requerido"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
@@ -166,7 +166,7 @@
                                                 </v-btn-toggle>
 
                                                 <v-col cols="12" sm="6" md="10">
-                                                    <v-text-field id="precioVenta" suffix="%" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
+                                                    <v-text-field type="number" id="precioVenta" suffix="%" :disabled="deshabilitarPrecioVenta" :rules="reglaEditarVenta" v-model="editedItem.SalePrice" prefix="$" label="Precio de Venta"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="2">
                                                     <v-btn :class="classBotonVenta" @click="clickPrecioVenta()">
@@ -184,7 +184,7 @@
                                                 </v-btn-toggle>
 
                                                 <v-col cols="12" sm="6" md="10">
-                                                    <v-text-field :disabled="deshabilitarPrecioCompra" suffix="%" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
+                                                    <v-text-field type="number" :disabled="deshabilitarPrecioCompra" suffix="%" :rules="reglaEditarCompra" v-model="editedItem.LastPurchasePrice" prefix="$" label="Precio de última Compra"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="2">
                                                     <v-btn :class="classBotonCompra" @click="clickPrecioCompra()">
