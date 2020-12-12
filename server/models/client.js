@@ -18,8 +18,9 @@ var ClientSchema = new Schema({
         TaxCategory: {type: String},
         ChangeStatus: [{
             Motive: {type: String},
-            EmployerID: {type: Schema.Types.ObjectId, required: true}
-        },{timestamps: true}]
+            EmployerID: {type: Schema.Types.ObjectId, required: true},
+            Time: {type: Date}
+        }]
   });
 
 var client = mongoose.model("Client", ClientSchema);

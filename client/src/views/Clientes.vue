@@ -15,7 +15,7 @@
                 <td :colspan="headers.length">
 
                     <v-chip-group>
-                        <v-chip color="success" small v-for="v in item.Vehicle"  :key="v._id">Vehículo: {{v.Domain}}</v-chip>
+                        <v-chip color="success" small v-for="v in item.Vehicle" :key="v._id">Vehículo: {{v.Domain}}</v-chip>
                     </v-chip-group>
                 </td>
             </template>
@@ -228,7 +228,7 @@ export default {
         defaultClient: new client(),
         selected: [],
         expanded: [],
-        categorias: ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
+        categorias: ['AUTÓNOMO', 'CONSUMIDOR FINAL', 'EXENTO', 'MONOTRIBUTISTA', 'RESPONSABLE INSCRIPTO'],
         search: '',
         poblacion: '',
         valid: true,
@@ -385,8 +385,12 @@ export default {
         ],
         attrs: '',
         on: '',
+        alta: false,
+        baja: false,
+        modificacion: false,
         motivos: '',
         formTitle: '',
+        employee: null
     }),
 
     created() {
@@ -395,6 +399,9 @@ export default {
 
     methods: {
         iniciar() {
+            this.employee = localStorage.getItem("employee");
+            this.employee = JSON.parse(this.employee);
+
             this.getClients();
             this.getPaises();
             this.getVehicles();
@@ -501,9 +508,10 @@ export default {
         },
 
         deleteItemConfirm() {
+            this.baja = true;
             for (let i = 0; i < this.selected.length; i++) {
-                this.editar("INACTIVE", this.selected[i],false);
-                if(i== this.selected.length-1){
+                this.editar("INACTIVE", this.selected[i], false);
+                if (i == this.selected.length - 1) {
                     this.reset();
                 }
                 this.clients.splice(this.clients.indexOf(this.selected[i]), 1);
@@ -511,9 +519,11 @@ export default {
         },
 
         reset() {
-            this.dialogDelete=false;
-            this.dialog=false;
-            this.$refs.form.resetValidation();
+            if(this.dialog){
+                this.$refs.form.resetValidation();
+            }
+            this.dialogDelete = false;
+            this.dialog = false;
             this.selected = [];
             this.motivos = '';
             this.$nextTick(() => {
@@ -525,6 +535,9 @@ export default {
             this.num = '';
             this.principioEmail = '';
             this.finEmail = '';
+            this.alta = false;
+            this.baja = false;
+            this.modificacion = false;
         },
 
         validate() {
@@ -539,6 +552,35 @@ export default {
         },
 
         getJSONClient(selected) {
+            /*     ChangeStatus: [{
+            Motive: {type: String},
+            EmployerID: {type: Schema.Types.ObjectId, required: true}
+        },{timestamps: true}]*/
+            let changeStatus = [];
+            let idEmployee = this.employee != null ? this.employee._id : null;
+            let time = new Date();
+            if (this.alta) {
+                changeStatus.push({
+                    "Motive": "ALTA",
+                    "EmployerID": idEmployee,
+                    "Time": new Date()
+                })
+            } else if (this.baja) {
+                changeStatus = selected.ChangeStatus;
+                changeStatus.push({
+                    "Motive": "BAJA " + (this.motivos != "" ? this.motivos : ""),
+                    "EmployerID": idEmployee,
+                    "Time": new Date()
+                })
+            } else {
+                changeStatus = selected.ChangeStatus;
+                changeStatus.push({
+                    "Motive": "MODIFICACIÓN ",
+                    "EmployerID": idEmployee,
+                    "Time": new Date()
+                })
+            }
+
             return {
                 "client": {
                     "Name": selected.Name,
@@ -551,6 +593,7 @@ export default {
                     "CompanyName": selected.CompanyName,
                     "Nationality": selected.Nationality,
                     "TaxCategory": selected.TaxCategory,
+                    "ChangeStatus": changeStatus
                 }
             };
         },
@@ -560,8 +603,8 @@ export default {
                         "Accept": "application/json",
                         "Content-Type": "application/json; charset=utf-8"
                     }
-                }).then(res=>{
-                    if(res!=null){
+                }).then(res => {
+                    if (res != null) {
                         this.reset();
                     }
                 })
@@ -573,6 +616,7 @@ export default {
         save(id) {
             //Cliente Nuevo
             if (id === -1) {
+                this.alta = true;
                 this.client = this.getClient(this.client);
                 if (this.validate()) {
                     this.post(urlAPI + 'client/add', JSON.stringify(this.getJSONClient(this.client)));
@@ -581,22 +625,17 @@ export default {
             }
             //Editar Cliente
             else {
+                this.modificacion = true;
                 if (this.validate()) {
                     Object.assign(this.clients[this.editedIndex], this.client)
-                    this.editar("ACTIVE", this.client,true);
+                    this.editar("ACTIVE", this.client, true);
                 }
             }
         },
 
         editar(estado, selected, reset) {
             selected.Status = estado;
-            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected))).then(
-                res=>{
-                    if(res!=null && res){
-                        this.reset();
-                    }
-                }
-            );
+            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)))
         },
 
         separarTel(value) {
@@ -626,22 +665,29 @@ export default {
             return value == null ? "S/D" : String(value);
         },
 
-        getJSONVehicle(){
+        getJSONVehicle() {
             return {
-                "vehicle":{
-                    "VehicleID":this.vehiculo,
+                "vehicle": {
+                    "VehicleID": this.vehiculo,
                     "Domain": this.dominio
                 }
             }
         },
 
         asociarVehiculo() {
-            if (this.$refs.asociarVehiculo.validate()) {     
-                axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle",this.getJSONVehicle())
-            .then(res=>{
-                if(res!=null){
-                    this.vehiculo = null; this.dominio = ""; this.agregarVehiculo = false;this.selected=[];this.mensaje="Vehículo asociado con éxito"; this.snackbar=true}})
-         }
+            if (this.$refs.asociarVehiculo.validate()) {
+                axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle", this.getJSONVehicle())
+                    .then(res => {
+                        if (res != null) {
+                            this.vehiculo = null;
+                            this.dominio = "";
+                            this.agregarVehiculo = false;
+                            this.selected = [];
+                            this.mensaje = "Vehículo asociado con éxito";
+                            this.snackbar = true
+                        }
+                    })
+            }
         },
     },
 };
