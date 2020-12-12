@@ -21,6 +21,8 @@ const sell = require('../controllers/sell');
 const paymentType = require('../controllers/PaymentType');
 const factura = require('../controllers/factura');
 const monedas = require('../controllers/monedas');
+const documentation = require('../controllers/documentation');
+const deliveryVehicle = require('../controllers/deliveryVehicle');
 
 const paises = require('../controllers/paises');
 const provincias = require('../controllers/provincias');
@@ -56,6 +58,16 @@ module.exports = app => {
     router.post('/dealer/:dealer_id/update', dealer.update);
     router.delete('/dealer/:dealer_id/delete', dealer.remove);
     router.get('/dealer/:dealer_id', dealer.getOne);
+    
+    router.get('/documentation', documentation.index);
+    router.post('/documentation/add', documentation.create);
+    router.post('/documentation/:documentation_id/update', documentation.update);
+    router.delete('/documentation/:documentation_id/delete', documentation.remove);
+
+    router.get('/deliveryVehicle', deliveryVehicle.index);
+    router.post('/deliveryVehicle/add', deliveryVehicle.create);
+    router.post('/deliveryVehicle/:deliveryVehicle_id/update', deliveryVehicle.update);
+    router.delete('/deliveryVehicle/:deliveryVehicle_id/delete', deliveryVehicle.remove);
 
     router.get('/employee', employee.index);
     router.post('/employee/add', employee.create);

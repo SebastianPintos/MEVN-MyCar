@@ -56,7 +56,8 @@ ctrl.sellVehicle = async (req, res) => {
         else{ 
             console.log(sellDB);
             await helperVehicle.SellVehicle(sellDB);
-            res.status(200).json({title: 'Venta generada correctamente'});
+            res.send({sell});
+            //res.status(200).json({title: 'Venta generada correctamente'});
         }
     });
 }

@@ -281,6 +281,8 @@ export default {
         detalleFactura: false,
         dialogMensaje: false,
         tituloMensaje: "",
+        documentosNacionales: [],
+        documentosImportados: [],
         pago: false,
         mensaje: "",
         clientes: [],
@@ -389,6 +391,7 @@ export default {
         this.getVehiculosStock();
         this.getEncargados();
         this.getRepuestos();
+        this.getDocumentos();
     },
     methods: {
         aceptarMensaje() {
@@ -403,6 +406,15 @@ export default {
             await axios.get(urlAPI + 'client')
                 .then(res => {
                     this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                });
+        },
+
+        async getDocumentos() {
+            await axios.get(urlAPI + 'documentation')
+                .then(res => {
+                    let documentation = res.data.documentation.filter(d => d.Status == "ACTIVE");
+                    this.documentosImportados = res.data.documentation.filter(d => d.Origin == this.employee.BranchOffice.Address.Country);
+                    this.documentosNacionales =  res.data.documentation.filter(d => d.Origin != this.employee.BranchOffice.Address.Country);
                 });
         },
 
@@ -658,6 +670,58 @@ export default {
                 }
             }).then(res => {
                 if (res != null) {
+                    this.vehiculosSold.forEach(v=>{
+                        if(v.VehicleStock!=null){
+                            if(v.VehicleStock.Vehicle.origin == employee.BranchOffice._id.Adress.Country){
+                                axios.post(urlAPI+'deliveryVehicle',{
+                                    "deliveryVehicle":{
+                                        "Documentation": this.documentosNacionales,
+                                        "Sell": res.data.sell._id,
+                                        "Status":"ACTIVE",
+                                        "VehicleStock": v.VehicleStock
+                                    }})
+                                //DOCUMENTOS NACIONALES
+                            }
+                            else{
+                                //DOCUMENTOS IMPORTADOS
+                                  axios.post(urlAPI+'deliveryVehicle',{
+                                    "deliveryVehicle":{
+                                        "Documentation": this.documentosImportados,
+                                        "Sell": res.data.sell._id,
+                                        "Status":"ACTIVE",
+                                        "VehicleStock": v.VehicleStock
+                                    }})
+                            }
+                        }
+                        if(v.PurchaseOrderV!=null){
+                            if(v.PurchaseOrderV.Vehicle.origin == employee.BranchOffice._id.Adress.Country){
+                                //FILTRAR DOCUMENTOS NACIONALES
+                                  axios.post(urlAPI+'deliveryVehicle',{
+                                    "deliveryVehicle":{
+                                        "Documentation": this.documentosNacionales,
+                                        "Sell": res.data.sell._id,
+                                        "Status":"ACTIVE",
+                                        "PurchaseOrderV": v.PurchaseOrderV
+                                    }})
+                            }
+                            else{
+                                //FILTRAR DOCUMENTOS IMPORTADOS
+                                   axios.post(urlAPI+'deliveryVehicle',{
+                                    "deliveryVehicle":{
+                                        "Documentation": this.documentosImportados,
+                                        "Sell": res.data.sell._id,
+                                        "Status":"ACTIVE",
+                                        "PurchaseOrderV": v.PurchaseOrderV
+                                    }})
+                            }
+
+                        }
+                        
+                    });
+                  /*  axios.post(urlAPI+'documentation',{
+                        "documentation":
+                        "Name":
+                    })*/
                     this.tituloMensaje = "Operación exitosa";
                     this.mensaje = "Compra realizada con éxito";
                     this.dialogMensaje = true;
