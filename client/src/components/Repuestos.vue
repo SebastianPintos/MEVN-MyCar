@@ -596,7 +596,8 @@ export default {
             this.closeDelete()
         },
         reset() {
-            this.selected = []
+            this.selected = [];
+            this.$refs.form.resetValidation();
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1

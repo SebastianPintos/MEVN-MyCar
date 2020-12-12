@@ -48,7 +48,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn class="info" right @click="dialogStock=false">
+                        <v-btn class="info" right @click="reset">
                             <v-icon>mdi-cancel</v-icon>
                         </v-btn>
                         <v-btn class="info" right @click="readFile">
@@ -432,6 +432,7 @@ export default {
                             this.allOrdenes = [];
                             this.getOrdenes();
                             this.procesar = false;
+                            this.reset();
                         }
                     });
                 } else {
@@ -443,6 +444,7 @@ export default {
                                 this.ordenes = [];
                                 this.allOrdenes = [];
                                 this.getOrdenes();
+                                this.reset();
                             }
                         });
                     }
@@ -598,6 +600,12 @@ export default {
                 this.dialogMensaje = true;
            
             }
+        },
+        reset() {
+            this.dialogStock = false;
+            this.chosenFile = null;
+            this.proveedor = null;
+            this.$refs.formStock.resetValidation();
         },
 
 }

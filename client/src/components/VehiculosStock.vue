@@ -268,14 +268,15 @@ export default {
         editedIndex: -1,
         attrs: '',
         on: '',
+        branchOffice: null,
 
     }),
 
     created() {
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
-        let branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice._id : "";
-        this.getVehicleStock(branchOffice);
+        this.branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice._id : "";
+        this.getVehicleStock(this.branchOffice);
         this.getVehiculos();
         this.getSucursales();
     },
@@ -315,12 +316,12 @@ export default {
             return value == null ? "$0" : "$" + value;
         },
 
-        async getVehicleStock() {
+        async getVehicleStock(branchOffice) {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
                     this.vehicleStock = res.data.vehicle;
                    if(branchOffice!=""){
-                            this.vehicleStock = this.vehicleStock.filter(v=>v.BranchOffice==branchOffice);
+                            this.vehicleStock = this.vehicleStock.filter(v=>v.BranchOffice._id==branchOffice);
                     }
                 })
         },
@@ -395,7 +396,7 @@ export default {
             this.editedItem = this.defaultItem;
             this.vehicleStock = [];
             this.selected = [];
-            this.getVehicleStock();
+            this.getVehicleStock(this.branchOffice==null?"": this.branchOffice);
             this.nuevo = false;
             this.dialogNuevo = false;
         },
