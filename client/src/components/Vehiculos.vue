@@ -40,11 +40,11 @@
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor" required></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.pDesde" prefix="$" label="Precio Sugerido Desde"></v-text-field>
+                                    <v-text-field type="number" v-model="filtros.pDesde" prefix="$" label="Precio Sugerido Desde"></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.pHasta" prefix="$" label="Precio Sugerido Hasta"></v-text-field>
+                                    <v-text-field type="number" v-model="filtros.pHasta" prefix="$" label="Precio Sugerido Hasta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="12">
                                     <v-btn class="success" @click="aplicarFiltros">

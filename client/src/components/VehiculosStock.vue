@@ -63,7 +63,7 @@
                                 Estado: {{data.item.Kind}}, Tipo: {{data.item.Type}} Transmisión: {{data.item.transmission}}, Combustible: {{data.item.Fuel}}
                             </template>
                         </v-select>
-                        <v-text-field label="Precio" prefix="$" v-model="editedItem.PurchasedPrice" :rules="reglaPrecio"></v-text-field>
+                        <v-text-field type="number" label="Precio" prefix="$" v-model="editedItem.PurchasedPrice" :rules="reglaPrecio"></v-text-field>
 
                         <v-textarea label="Detalle" v-model="editedItem.Detail"></v-textarea>
 
@@ -314,7 +314,7 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
-        
+
         async getVehicleStock() {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
