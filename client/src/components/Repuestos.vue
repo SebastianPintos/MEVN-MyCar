@@ -95,10 +95,10 @@
                                                 <v-col cols="12" sm="6" md="6">
                                                     <v-select v-model="editedItem.Brand" v-on:change="filterCategory(editedItem.Brand)" :items="brandsList" item-text="Name" item-value="Name" label="Marca" :rules="requerido"></v-select>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="3">
+                                                <v-col cols="12" sm="6" md="6">
                                                     <v-select v-model="editedItem.Category" :items="filteredCategory" item-text="Name" item-value="Name" label="Categoría" v-on:change="filterSubcategory(editedItem.Category)"></v-select>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="3">
+                                                <v-col cols="12" sm="6" md="6">
                                                     <v-select v-model="editedItem.SubCategory" :items="filteredSubCategory" item-text="Name" item-value="Name" label="Sub-Categoría"></v-select>
                                                 </v-col>
 
@@ -107,11 +107,11 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="6">
-                                                    <v-text-field :rules="reglaPrecio" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
+                                                    <v-text-field :rules="reglaPrecio" prefix="$" v-model="editedItem.LastPurchasePrice" label="Precio última Compra"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="6">
-                                                    <v-text-field :rules="reglaPrecio" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
+                                                    <v-text-field :rules="reglaPrecio" prefix="$" v-model="editedItem.SalePrice" label="Precio de Venta"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="4" md="12">
@@ -855,7 +855,6 @@ export default {
         },
 
         filterCategory(marca) {
-            console.log("MARCA: " + marca)
             if (marca != '') {
                 this.filteredCategory = []
                 let actualBrand;
