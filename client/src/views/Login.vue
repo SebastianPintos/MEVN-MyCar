@@ -105,8 +105,4 @@ export default {
   width: 40%;
   padding-left: 10%;
 }
-h2 {
-  text-align: center;
-  color: white;
-}
 </style>
