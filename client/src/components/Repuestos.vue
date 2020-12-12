@@ -135,7 +135,7 @@
 
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn text @click="close" class="info">
+                                        <v-btn text @click="reset" class="info">
                                             <v-icon>mdi-cancel</v-icon>
                                         </v-btn>
                                         <v-btn text @click="save" class="info">
@@ -207,7 +207,7 @@
 
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn class="info" text @click="close">
+                                        <v-btn class="info" text @click="reset">
                                             <v-icon>mdi-cancel</v-icon>
                                         </v-btn>
                                         <v-btn class="info" text @click="save">
@@ -268,7 +268,7 @@
                             <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn text @click="closeDelete" class="info">
+                                <v-btn text @click="reset" class="info">
                                     <v-icon>mdi-cancel</v-icon>
                                 </v-btn>
                                 <v-btn text @click="deleteItemConfirm" class="info">
@@ -447,7 +447,7 @@ export default {
             val || this.close()
         },
         dialogDelete(val) {
-            val || this.closeDelete()
+            val || this.close()
         },
     },
     created() {
@@ -593,7 +593,6 @@ export default {
                 this.repuestos.splice(this.repuestos.indexOf(item), 1)
                 this.deleteproduct(item)
             });
-            this.closeDelete()
         },
         reset() {
             this.selected = [];
@@ -602,8 +601,12 @@ export default {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
+            this.close();
+
         },
         close() {
+            this.dialogStock = false;
+            this.dialogDelete = false;
             this.dialog = false;
             this.toggle_none1 = null;
             this.toggle_none2 = null;
@@ -619,14 +622,9 @@ export default {
             this.reglaEditarCompra = [];
             this.reglaEditarProveedor = [];
             this.reglaEditarVenta = [];
-            this.reset();
         },
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
-        },
-        closeDelete() {
-            this.dialogDelete = false
-            this.reset()
         },
         validate() {
             return this.$refs.form.validate()
@@ -740,7 +738,11 @@ export default {
         },
 
         deleteproduct(item) {
-            axios.delete(urlAPI + 'product/' + item._id + '/delete')
+            axios.delete(urlAPI + 'product/' + item._id + '/delete').then(res => {
+                if (res != null) {
+                    this.reset();
+                }
+            })
         },
 
         async updateproduct() {
@@ -759,9 +761,13 @@ export default {
                     "Status": "ACTIVE",
                     "Kind": "PRODUCT",
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                    this.initialize();
+                    this.getRepuestos();
+                }
             })
-            this.initialize();
-            this.getRepuestos();
         },
 
         async updateManyproducts() {
@@ -796,12 +802,14 @@ export default {
                         "Kind": "PRODUCT",
                         "ShippingDealer": product.ShippingDealer,
                         "ShippingBranch": product.ShippingBranch,
-
                     }
                 })
+                if (i == this.selected.length - 1) {
+                    this.reset();
+                    this.initialize();
+                    this.getRepuestos();
+                }
             })
-            this.initialize();
-            this.getRepuestos();
         },
 
         async createproduct() {
@@ -819,17 +827,19 @@ export default {
                     "Dealer": this.editedItem.Dealer,
                     "Kind": "PRODUCT",
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.initialize();
+                    this.getRepuestos();
+                    this.reset();
+                }
             })
-            this.initialize();
-            this.getRepuestos();
         },
         save() {
             if (this.editedIndex > -1) {
                 if (this.validate()) {
                     Object.assign(this.repuestos[this.editedIndex], this.editedItem)
                     this.updateproduct();
-                    this.reset();
-                    this.reiniciar();
                 }
             } else {
                 if (this.selected.length > 1) {
@@ -837,22 +847,15 @@ export default {
                         this.updateManyproducts()
                         this.$refs.editarVarios.resetValidation();
                         this.reset();
-                        this.close();
                     }
                 } else {
                     if (this.validate()) {
-                        this.repuestos.push(this.editedItem)
-                        this.createproduct()
-                        this.reiniciar();
+                        this.repuestos.push(this.editedItem);
+                        this.createproduct();
                     }
                 }
 
             }
-        },
-
-        reiniciar() {
-            this.close()
-            this.$refs.form.resetValidation()
         },
 
         filterCategory(marca) {

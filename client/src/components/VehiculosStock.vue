@@ -75,7 +75,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-flex class="text-right">
-                            <v-btn class="mb-2 info" @click="editedItem=defaultItem;dialogNuevo=false">
+                            <v-btn class="mb-2 info" @click="reset">
                                 <v-icon>mdi-cancel</v-icon>
                             </v-btn>
                             <v-btn class="mb-2 info" @click="guardar">
@@ -399,6 +399,7 @@ export default {
             this.getVehicleStock(this.branchOffice==null?"": this.branchOffice);
             this.nuevo = false;
             this.dialogNuevo = false;
+            this.$refs.form.resetValidation();
         },
 
         eliminar() {

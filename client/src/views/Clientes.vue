@@ -107,7 +107,7 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="mb-2 info" text @click="close">
+                                    <v-btn class="mb-2 info" text @click="reset">
                                         <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
                                     <v-btn class="mb-2 info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
@@ -126,7 +126,7 @@
                             </v-col>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
+                                <v-btn color="blue darken-1" text @click="reset">Cancelar</v-btn>
                                 <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
@@ -389,15 +389,6 @@ export default {
         formTitle: '',
     }),
 
-    watch: {
-        dialog(val) {
-            val || this.reiniciar()
-        },
-        dialogDelete(val) {
-            val || this.closeDelete()
-        },
-    },
-
     created() {
         this.iniciar();
     },
@@ -511,29 +502,29 @@ export default {
 
         deleteItemConfirm() {
             for (let i = 0; i < this.selected.length; i++) {
-                this.editar("INACTIVE", this.selected[i]);
+                this.editar("INACTIVE", this.selected[i],false);
+                if(i== this.selected.length-1){
+                    this.reset();
+                }
                 this.clients.splice(this.clients.indexOf(this.selected[i]), 1);
             }
-            this.closeDelete()
         },
 
         reset() {
+            this.dialogDelete=false;
+            this.dialog=false;
+            this.$refs.form.resetValidation();
             this.selected = [];
             this.motivos = '';
             this.$nextTick(() => {
                 this.client = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
-        },
-
-        close() {
-            this.dialog = false
-            this.reset()
-        },
-
-        closeDelete() {
-            this.dialogDelete = false
-            this.reset()
+            this.client = new client();
+            this.prefijo = '';
+            this.num = '';
+            this.principioEmail = '';
+            this.finEmail = '';
         },
 
         validate() {
@@ -569,6 +560,10 @@ export default {
                         "Accept": "application/json",
                         "Content-Type": "application/json; charset=utf-8"
                     }
+                }).then(res=>{
+                    if(res!=null){
+                        this.reset();
+                    }
                 })
                 .catch(err => {
                     console.log(err)
@@ -582,33 +577,26 @@ export default {
                 if (this.validate()) {
                     this.post(urlAPI + 'client/add', JSON.stringify(this.getJSONClient(this.client)));
                     this.clients.push(this.client);
-                    this.reiniciar();
                 }
             }
             //Editar Cliente
             else {
                 if (this.validate()) {
                     Object.assign(this.clients[this.editedIndex], this.client)
-                    this.editar("ACTIVE", this.client);
-                    this.reiniciar();
+                    this.editar("ACTIVE", this.client,true);
                 }
             }
         },
 
-        editar(estado, selected) {
+        editar(estado, selected, reset) {
             selected.Status = estado;
-            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)));
-        },
-
-        reiniciar() {
-            this.close();
-            this.selected = [];
-            this.client = new client();
-            this.prefijo = '';
-            this.num = '';
-            this.principioEmail = '';
-            this.finEmail = '';
-            this.$refs.form.resetValidation();
+            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected))).then(
+                res=>{
+                    if(res!=null && res){
+                        this.reset();
+                    }
+                }
+            );
         },
 
         separarTel(value) {

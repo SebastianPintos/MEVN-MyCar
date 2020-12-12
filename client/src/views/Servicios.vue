@@ -89,7 +89,10 @@
                                             </v-select>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="12">
-                                            <v-select v-model="editedItem.Products" label="Productos" multiple chips deletable-chips :items="products" item-text="SubCategory" item-value="_id" :rules="requerido">
+                                            <v-select v-model="editedItem.Products" label="Productos" multiple chips deletable-chips :items="products" item-text="Brand" item-value="_id" :rules="requerido">
+                                                <template slot="item" slot-scope="data">
+                                                    {{ data.item.Brand }} - {{ data.item.Category }} {{ data.item.SubCategory }}
+                                                </template>
                                             </v-select>
                                         </v-col>
 
@@ -99,7 +102,7 @@
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn class="info" text @click="close">
+                                <v-btn class="info" text @click="reset">
                                     <v-icon>mdi-cancel</v-icon>
                                 </v-btn>
                                 <v-btn class="info" text @click="save">
@@ -136,7 +139,7 @@
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">
+                                <v-btn color="blue darken-1" text @click="reset">
                                     Cancelar
                                 </v-btn>
                                 <v-btn color="blue darken-1" text @click="save">
@@ -152,7 +155,7 @@
                         <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn class="info" text @click="closeDelete">
+                            <v-btn class="info" text @click="dialogDelete=false">
                                 <v-icon>mdi-cancel</v-icon>
                             </v-btn>
                             <v-btn class="info" text @click="deleteItemConfirm">
@@ -172,6 +175,16 @@
             </td>
         </template>
     </v-data-table>
+
+    <v-snackbar v-model="snackbar">
+        {{ mensaje }}
+
+        <template v-slot:action="{ attrs }">
+            <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+                Aceptar
+            </v-btn>
+        </template>
+    </v-snackbar>
 </div>
 </template>
 
@@ -188,6 +201,8 @@ export default {
         editedIndex: -1,
         on: '',
         attrs: '',
+        snackbar: false,
+        mensaje: '',
         dialog: false,
         dialogDelete: false,
         toggle_none: null,
@@ -348,8 +363,12 @@ export default {
                     "Product": this.editedItem.Products,
                     "BranchOffice": this.editedItem.BranchOffice
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                    this.getServices();
+                }
             })
-            this.getServices()
         },
         deleteService(item) {
             axios.delete(urlAPI + 'service/' + item._id + '/delete').then(() => this.getServices())
@@ -368,8 +387,12 @@ export default {
                     "Product": this.editedItem.Products,
                     "BranchOffice": this.editedItem.BranchOffice
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                    this.getServices();
+                }
             })
-            this.getServices()
         },
 
         haySeleccionado() {
@@ -386,10 +409,20 @@ export default {
         },
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
+                let vehicle = this.selected[0].Vehicle != null ? this.selected[0].Vehicle._id : null;
+                let product = null;
+                if(this.selected[0].Product!=null)
+                {
+                    product=[];
+                    this.selected[0].Product.forEach(p=>{
+                        product.push(p._id);
+                    })
+                }
                 if (this.selected.length === 1) {
                     this.editedIndex = this.servicios.indexOf(item)
                     this.editedItem = Object.assign({}, item)
-                    this.editedItem.Vehicle = this.editedItem.Vehicle._id
+                    this.editedItem.Vehicle = vehicle;
+                    this.editedItem.Products = product;
                     if (this.dealersList != null) {
                         this.dealersList.forEach(dealer => {
                             if (dealer._id == item.Dealer) {
@@ -412,27 +445,24 @@ export default {
         },
 
         deleteItemConfirm() {
-            this.selected.forEach(item => {
-                this.deleteService(item)
-            });
-            this.closeDelete()
+            for (let i = 0; i < this.selected.length; i++) {
+                this.deleteService(this.selected[i]);
+                if (i == this.selected.length - 1) {
+                    this.reset();
+                }
+            }
         },
+
         reset() {
+            this.dialog = false;
             this.selected = []
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
-        },
-        close() {
-            this.dialog = false
-            this.reset()
+            this.$refs.form.resetValidation();
         },
 
-        closeDelete() {
-            this.dialogDelete = false
-            this.reset()
-        },
         validate() {
             return this.$refs.form.validate()
         },
@@ -481,23 +511,23 @@ export default {
 
             if (this.editedIndex > -1) {
                 if (this.validate()) {
+                    if (this.selected.length > 0) {
+                        this.mensaje = "Solo se puede editar un elemento a la vez!";
+                        this.snackbar = true;
+                        return;
+                    } else if (this.selected == 0) {
+                        this.mensaje = "No ha seleccionado ningún elemento!";
+                        this.snackbar = true;
+                        return;
+                    }
                     Object.assign(this.servicios[this.editedIndex], this.editedItem)
                     this.updateService();
                 }
             } else {
-                if (this.selected.length > 1) {
-                    if (this.$refs.editarVarios.validate()) {
-                        this.updateManyServices()
-                    }
-                } else {
-                    if (this.validate()) {
-                        this.createService();
-
-                    }
+                if (this.validate()) {
+                    this.createService();
                 }
-
             }
-            this.close()
         },
 
         filterModels() {
