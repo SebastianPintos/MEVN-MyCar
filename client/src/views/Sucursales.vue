@@ -730,6 +730,9 @@ export default {
         },
 
         reset() {
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
             this.dialog = false;
             this.selected = [];
             this.$nextTick(() => {
@@ -761,7 +764,6 @@ export default {
             this.prefijo = "";
             this.principioEmail = "";
             this.finEmail = "";
-            this.$refs.form.resetValidation();
         },
 
         validate() {

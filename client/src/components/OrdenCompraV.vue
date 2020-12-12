@@ -17,7 +17,7 @@
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-                 <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="verInfo">
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="verInfo">
                         <v-icon>mdi-information-outline</v-icon>
                     </v-btn>
                     <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogStock=true">
@@ -323,8 +323,8 @@ export default {
                 let status = this.recibidos[i] == "true" ? "AVAILABLE" : "NOT AVAILABLE";
                 let employee = localStorage.getItem("employee");
                 employee = JSON.parse(employee);
-                let branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice : null;
-                
+                let branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : null;
+
                 let vehiculoStock = {
                     "vehicleStock": {
                         "ChasisNum": this.selected[0].Vehicle[i].ChasisNum,
@@ -404,19 +404,17 @@ export default {
                         }
                         console.log("GUARDAR ORDEN")
                         this.guardarOrden();
-                    }
-                    else{
-                        if(this.mensaje!=""){
-                                this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
-                        this.dialogMensaje=true;
+                    } else {
+                        if (this.mensaje != "") {
+                            this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
+                            this.dialogMensaje = true;
                         }
                     }
                 };
 
                 // Leemos el contenido del archivo seleccionado
                 reader.readAsBinaryString(file);
-            }
-            else{
+            } else {
                 "NO ES VALIDO"
             }
         },
@@ -455,160 +453,161 @@ export default {
                 this.dialogMensaje = true;
             }
 
-        this.dialogStock = false;
-    },
-    getJSONOrder() {
-        let precio = 0;
-        let vehicle = [];
+            this.dialogStock = false;
+        },
+        getJSONOrder() {
+            let precio = 0;
+            let vehicle = [];
 
-        for (let i = 1; i < this.output[1].length; i++) {
-            let vehicleID = this.vehicles.filter(v =>
-                v.Brand == this.output[0][i] &
-                v.Model == this.output[1][i] &
-                v.Type == this.output[2][i] &
-                v.Category == this.output[3][i] &
-                v.Fuel == this.output[4][i] &
-                v.transmission == this.output[5][i] &
-                v.origin == this.output[6][i] &
-                v.year == this.output[7][i]);
-            if (vehicleID != null & vehicleID.length > 0) {
-                let precioUnitario = Number(this.output[11][i]);
-                precio += precioUnitario;
-                vehicle.push({
-                    "VehicleID": vehicleID[0],
-                    "ChasisNum": this.output[8][i],
-                    "Color": this.output[10][i],
-                    "EngineNum": this.output[9][i],
-                    "Price": precioUnitario,
-                })
-            } else {
-                this.mensaje += "<h2> Vehículo no encontrado </h2>";
-                this.mensaje += "<h4> -Marca: " + this.output[0][i] + " </h4>";
-                this.mensaje += "<h4> -Modelo: " + this.output[1][i] + " </h4>";
-                this.mensaje += "<h4> -Año: " + this.output[7][i] + " </h4>";
-                this.mensaje += "<h4> -Tipo: " + this.output[2][i] + " </h4>";
-                this.mensaje += "<h4> -Categoría: " + this.output[3][i] + " </h4>";
-                this.mensaje += "<h4> -Comubistible: " + this.output[4][i] + " </h4>";
-                this.mensaje += "<h4> -Transmisión: " + this.output[5][i] + " </h4>";
-                this.mensaje += "<h4> -Origen: " + this.output[6][i] + " </h4>";
+            for (let i = 1; i < this.output[1].length; i++) {
+                let vehicleID = this.vehicles.filter(v =>
+                    v.Brand == this.output[0][i] &
+                    v.Model == this.output[1][i] &
+                    v.Type == this.output[2][i] &
+                    v.Category == this.output[3][i] &
+                    v.Fuel == this.output[4][i] &
+                    v.transmission == this.output[5][i] &
+                    v.origin == this.output[6][i] &
+                    v.year == this.output[7][i]);
+                if (vehicleID != null & vehicleID.length > 0) {
+                    let precioUnitario = Number(this.output[11][i]);
+                    precio += precioUnitario;
+                    vehicle.push({
+                        "VehicleID": vehicleID[0],
+                        "ChasisNum": this.output[8][i],
+                        "Color": this.output[10][i],
+                        "EngineNum": this.output[9][i],
+                        "Price": precioUnitario,
+                    })
+                } else {
+                    this.mensaje += "<h2> Vehículo no encontrado </h2>";
+                    this.mensaje += "<h4> -Marca: " + this.output[0][i] + " </h4>";
+                    this.mensaje += "<h4> -Modelo: " + this.output[1][i] + " </h4>";
+                    this.mensaje += "<h4> -Año: " + this.output[7][i] + " </h4>";
+                    this.mensaje += "<h4> -Tipo: " + this.output[2][i] + " </h4>";
+                    this.mensaje += "<h4> -Categoría: " + this.output[3][i] + " </h4>";
+                    this.mensaje += "<h4> -Comubistible: " + this.output[4][i] + " </h4>";
+                    this.mensaje += "<h4> -Transmisión: " + this.output[5][i] + " </h4>";
+                    this.mensaje += "<h4> -Origen: " + this.output[6][i] + " </h4>";
+                }
+            };
+            if (this.mensaje != "") {
+                this.titulo = "<h1 class='text-center'>Vehículo/s inexistente/s</h1><br>";
+                this.dialogMensaje = true;
+                return null;
             }
-        };
-        if (this.mensaje != "") {
-            this.titulo = "<h1 class='text-center'>Vehículo/s inexistente/s</h1><br>";
-            this.dialogMensaje = true;
-            return null;
-        }
-        //ACA FALTA LA PARTE DE LA SUCURSAL    "BranchOffice": "5fb3d83987565231fcd5a756",
-        return {
-            "purchaseOrderV": {
-                "OrderDate": new Date(),
-                "Price": precio,
-                "Vehicle": vehicle,
-                "Dealer": this.proveedor,
-                "Info": this.mensaje,
-                "Type":"RECIBIDA",
-                "Code": this.output[12][1]
+            //ACA FALTA LA PARTE DE LA SUCURSAL    "BranchOffice": "5fb3d83987565231fcd5a756",
+            return {
+                "purchaseOrderV": {
+                    "OrderDate": new Date(),
+                    "Price": precio,
+                    "Vehicle": vehicle,
+                    "Dealer": this.proveedor,
+                    "Info": this.mensaje,
+                    "Type": "RECIBIDA",
+                    "Code": this.output[12][1]
 
-            }
-        }
-
-    },
-    corroborarValidez() {
-        if (this.output.length != 13) {
-            this.titulo = "<h1 class='text-center'>Contenido Inválido</h1>";
-            this.mensaje += "<h4>Columnas inválidas, debe contener exactamente 13 columnas</h4>";
-            this.dialogMensaje = true;
-            return false;
-        } 
-        this.getOrden();
-    
-        for (let i = 1; i < this.output[1].length; i++) {
-            if (this.output[11][i] == null) {
-                this.mensaje += "<h4>El precio es obligatorio</h4>";
-                return false;
-            } else {
-                if (this.orden != null && this.orden.Vehicle != null & this.orden.Vehicle.filter(o => o.VehicleID.Price == this.output[11][i]).length == 0) {
-                    this.mensaje += "<h4>El precio del vehículo número: " + i + " no coincide con el precio de la orden original</h4>";
                 }
             }
-            if (this.orden != null && this.orden.Vehicle != null & this.orden.Vehicle.filter(v =>
-                    v.VehicleID.Brand == this.output[0][i] &
-                    v.VehicleID.Model == this.output[1][i] &
-                    v.VehicleID.Type == this.output[2][i] &
-                    v.VehicleID.Category == this.output[3][i] &
-                    v.VehicleID.Fuel == this.output[4][i] &
-                    v.VehicleID.transmission == this.output[5][i] &
-                    v.VehicleID.origin == this.output[6][i] &
-                    v.VehicleID.year == this.output[7][i]
-                ).length == 0) {
-                this.mensaje += "<h2> Vehículo no coincide con ningún vehículo en la orden original</h2>";
-                this.mensaje += "<h4> -Marca: " + this.output[0][i] + " </h4>";
-                this.mensaje += "<h4> -Modelo: " + this.output[1][i] + " </h4>";
-                this.mensaje += "<h4> -Año: " + this.output[7][i] + " </h4>";
-                this.mensaje += "<h4> -Tipo: " + this.output[2][i] + " </h4>";
-                this.mensaje += "<h4> -Categoría: " + this.output[3][i] + " </h4>";
-                this.mensaje += "<h4> -Comubistible: " + this.output[4][i] + " </h4>";
-                this.mensaje += "<h4> -Transmisión: " + this.output[5][i] + " </h4>";
-                this.mensaje += "<h4> -Origen: " + this.output[6][i] + " </h4>";
-            }
-        
-        try {
-            console.log("OUTPUT [11]["+i+"]: "+this.output[11][i])
-            let precio = parseFloat(this.output[11][i]);
-            if (precio < 0) {
-                this.mensaje += "<h4>El precio no debe ser negativo!</h4>";
+
+        },
+        corroborarValidez() {
+            if (this.output.length != 13) {
+                this.titulo = "<h1 class='text-center'>Contenido Inválido</h1>";
+                this.mensaje += "<h4>Columnas inválidas, debe contener exactamente 13 columnas</h4>";
+                this.dialogMensaje = true;
                 return false;
             }
-        } catch (e) {
-            if (e != null) {
-                this.mensaje += "<h4>El precio debe ser un valor numérico!</h4>";
+            this.getOrden();
+
+            for (let i = 1; i < this.output[1].length; i++) {
+                if (this.output[11][i] == null) {
+                    this.mensaje += "<h4>El precio es obligatorio</h4>";
+                    return false;
+                } else {
+                    if (this.orden != null && this.orden.Vehicle != null & this.orden.Vehicle.filter(o => o.VehicleID.Price == this.output[11][i]).length == 0) {
+                        this.mensaje += "<h4>El precio del vehículo número: " + i + " no coincide con el precio de la orden original</h4>";
+                    }
+                }
+                if (this.orden != null && this.orden.Vehicle != null & this.orden.Vehicle.filter(v =>
+                        v.VehicleID.Brand == this.output[0][i] &
+                        v.VehicleID.Model == this.output[1][i] &
+                        v.VehicleID.Type == this.output[2][i] &
+                        v.VehicleID.Category == this.output[3][i] &
+                        v.VehicleID.Fuel == this.output[4][i] &
+                        v.VehicleID.transmission == this.output[5][i] &
+                        v.VehicleID.origin == this.output[6][i] &
+                        v.VehicleID.year == this.output[7][i]
+                    ).length == 0) {
+                    this.mensaje += "<h2> Vehículo no coincide con ningún vehículo en la orden original</h2>";
+                    this.mensaje += "<h4> -Marca: " + this.output[0][i] + " </h4>";
+                    this.mensaje += "<h4> -Modelo: " + this.output[1][i] + " </h4>";
+                    this.mensaje += "<h4> -Año: " + this.output[7][i] + " </h4>";
+                    this.mensaje += "<h4> -Tipo: " + this.output[2][i] + " </h4>";
+                    this.mensaje += "<h4> -Categoría: " + this.output[3][i] + " </h4>";
+                    this.mensaje += "<h4> -Comubistible: " + this.output[4][i] + " </h4>";
+                    this.mensaje += "<h4> -Transmisión: " + this.output[5][i] + " </h4>";
+                    this.mensaje += "<h4> -Origen: " + this.output[6][i] + " </h4>";
+                }
+
+                try {
+                    console.log("OUTPUT [11][" + i + "]: " + this.output[11][i])
+                    let precio = parseFloat(this.output[11][i]);
+                    if (precio < 0) {
+                        this.mensaje += "<h4>El precio no debe ser negativo!</h4>";
+                        return false;
+                    }
+                } catch (e) {
+                    if (e != null) {
+                        this.mensaje += "<h4>El precio debe ser un valor numérico!</h4>";
+                        return false;
+                    }
+                }
+            }
+            if (this.mensaje != "") {
+                this.titulo = "<h1>Contenido inválido</h1>";
+                this.dialogMensaje = true;
                 return false;
             }
-        }
-        }
-        if (this.mensaje != "") {
-            this.titulo = "<h1>Contenido inválido</h1>";
-            this.dialogMensaje = true;
-            return false;
-        }
-        return true;
-    },
+            return true;
+        },
 
-    aceptarDialog() {
-        this.dialogMensaje = false;
-        this.mensaje = '';
-        this.titulo = '';
-        if (this.procesar) {
-            this.guardarOrden()
-        }
-    },
+        aceptarDialog() {
+            this.dialogMensaje = false;
+            this.mensaje = '';
+            this.titulo = '';
+            if (this.procesar) {
+                this.guardarOrden()
+            }
+        },
 
-    verInfo(){
+        verInfo() {
             if (this.selected.length == 0) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
                 this.snackbar = true;
                 return;
             }
-          
+
             this.titulo = "<h1>Información de procesamiento</h1><br>"
-            if (this.selected[0].Info=="" || this.selected[0].Info==null){
+            if (this.selected[0].Info == "" || this.selected[0].Info == null) {
                 this.mensaje = "<h4>Orden procesada con éxito</h4>";
                 this.dialogMensaje = true;
-            }
-            else{
+            } else {
                 this.mensaje = this.selected[0].Info;
                 this.dialogMensaje = true;
-           
+
             }
         },
         reset() {
+            if (this.dialogStock) {
+                this.$refs.formStock.resetValidation();
+            }
             this.dialogStock = false;
             this.chosenFile = null;
             this.proveedor = null;
-            this.$refs.formStock.resetValidation();
         },
 
-}
+    }
 
 };
 </script>

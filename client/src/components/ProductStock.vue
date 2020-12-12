@@ -343,10 +343,12 @@ export default {
         },
 
         reset() {
+            if (this.dialogNuevo) {
+                this.$refs.form.resetValidation();
+            }
             this.editedItem = this.defaultItem;
             this.dialogNuevo = false;
             this.nuevo = false;
-            this.$refs.form.resetValidation();
         }
     },
 

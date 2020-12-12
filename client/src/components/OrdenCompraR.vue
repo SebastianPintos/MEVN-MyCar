@@ -583,10 +583,12 @@ export default {
         },
 
         reset() {
+            if(this.dialogStock){
+                this.$refs.formStock.resetValidation();
+            }
             this.dialogStock = false;
             this.chosenFile = null;
             this.proveedor = null;
-            this.$refs.formStock.resetValidation();
         },
     },
 

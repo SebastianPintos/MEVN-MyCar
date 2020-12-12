@@ -586,6 +586,9 @@ export default {
             this.dialogDelete = false;
         },
         reset() {
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
             this.selected = []
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
@@ -602,7 +605,6 @@ export default {
             this.reglaEditarProveedor = [];
             this.dialog = false;
             this.dialogDelete = false;
-            this.$refs.form.resetValidation();
         },
         validate() {
             return this.$refs.form.validate()
@@ -677,8 +679,8 @@ export default {
         },
 
         deleteVehicle(item) {
-            axios.delete(urlAPI + 'vehicle/' + item._id + '/delete').then(res=>{
-                if(res!=null){
+            axios.delete(urlAPI + 'vehicle/' + item._id + '/delete').then(res => {
+                if (res != null) {
                     this.reset();
                 }
             })

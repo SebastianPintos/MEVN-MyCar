@@ -411,10 +411,9 @@ export default {
             if (!this.mensajeNoSelecciono()) {
                 let vehicle = this.selected[0].Vehicle != null ? this.selected[0].Vehicle._id : null;
                 let product = null;
-                if(this.selected[0].Product!=null)
-                {
-                    product=[];
-                    this.selected[0].Product.forEach(p=>{
+                if (this.selected[0].Product != null) {
+                    product = [];
+                    this.selected[0].Product.forEach(p => {
                         product.push(p._id);
                     })
                 }
@@ -454,13 +453,15 @@ export default {
         },
 
         reset() {
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
             this.dialog = false;
             this.selected = []
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
-            this.$refs.form.resetValidation();
         },
 
         validate() {

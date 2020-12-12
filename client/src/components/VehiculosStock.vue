@@ -22,7 +22,7 @@
 
                     <div v-if="validateUsers('Administrativo')">
                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
-                        <v-icon>mdi-pencil</v-icon>
+                            <v-icon>mdi-pencil</v-icon>
                         </v-btn>
 
                         <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="corroborarSeleccionado">
@@ -181,7 +181,7 @@ export default {
         reglaPrecioNoRequerido: [
             value => {
                 const pattern = /^[-]{0,1}[0-9]{1,}(.[0-9]{1,}){0,1}$/
-                return pattern.test(value) || value.length == 0  || 'Sólo se permiten números!'
+                return pattern.test(value) || value.length == 0 || 'Sólo se permiten números!'
             },
         ],
 
@@ -275,16 +275,16 @@ export default {
     created() {
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
-        this.branchOffice = employee!=null & employee.BranchOffice!=null ? employee.BranchOffice._id : "";
+        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice._id : "";
         this.getVehicleStock(this.branchOffice);
         this.getVehiculos();
         this.getSucursales();
     },
 
     methods: {
-        validateUsers(...authorizedUsers){
-            if(localStorage.getItem('userType') != null){
-                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+        validateUsers(...authorizedUsers) {
+            if (localStorage.getItem('userType') != null) {
+                return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
             }
             return false;
         },
@@ -320,8 +320,8 @@ export default {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
                     this.vehicleStock = res.data.vehicle;
-                   if(branchOffice!=""){
-                            this.vehicleStock = this.vehicleStock.filter(v=>v.BranchOffice._id==branchOffice);
+                    if (branchOffice != "") {
+                        this.vehicleStock = this.vehicleStock.filter(v => v.BranchOffice._id == branchOffice);
                     }
                 })
         },
@@ -393,13 +393,15 @@ export default {
         },
 
         reset() {
+            if (this.dialogNuevo) {
+                this.$refs.form.resetValidation();
+            }
             this.editedItem = this.defaultItem;
             this.vehicleStock = [];
             this.selected = [];
-            this.getVehicleStock(this.branchOffice==null?"": this.branchOffice);
+            this.getVehicleStock(this.branchOffice == null ? "" : this.branchOffice);
             this.nuevo = false;
             this.dialogNuevo = false;
-            this.$refs.form.resetValidation();
         },
 
         eliminar() {

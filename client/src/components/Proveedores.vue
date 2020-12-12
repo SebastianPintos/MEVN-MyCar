@@ -348,10 +348,13 @@ export default {
         },
 
         reset() {
-            this.DealerCity= "";
-            this.DealerStreet= '';
-            this.DealerNumber= '';
-            this.DealerProvince= '';
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
+            this.DealerCity = "";
+            this.DealerStreet = '';
+            this.DealerNumber = '';
+            this.DealerProvince = '';
 
             this.selected = [];
             this.motivos = '';
@@ -361,7 +364,6 @@ export default {
             })
             this.dialog = false;
             this.dialogDelete = false;
-            this.$refs.form.resetValidation();
         },
 
         validate() {
@@ -443,7 +445,7 @@ export default {
                     }
                     this.post(urlAPI + 'dealer/add', DealerAux);
                     this.dealers.push(DealerAux);
-                   
+
                 }
             }
         },
