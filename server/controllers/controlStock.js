@@ -21,7 +21,7 @@ ctrl.createCP = (req, res) => {
         Status: "ACTIVE",
     });
 
-    //helper.checkMinCreation(body);
+    helper.checkMinCreation(body);
     productControl.save((err) => {
         if(err) {console.log(err)}
         res.send({

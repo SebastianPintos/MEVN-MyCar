@@ -9,10 +9,10 @@ ctrl.listVehicle = (req, res) => {
         res.send({
             sell: sell
         })
-    }).populate('VehicleSell').populate('PaymentType').populate('Factura').populate('Client');
+    }).populate('VehicleSold').populate('PaymentType').populate('Factura').populate('Client');
 
 };
-
+ 
 /* {
     "sell": {
         "PriceFreeTax": "2000000",
