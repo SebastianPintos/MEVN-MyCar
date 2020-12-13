@@ -30,7 +30,9 @@ const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
 const controlStock = require('../controllers/controlStock');
-const Email = require('../lib/Email')
+const Email = require('../lib/Email');
+
+const pruebas = require('../controllers/pruebas');
 
 module.exports = app => {
     router.get('/', home.index);
@@ -143,6 +145,8 @@ module.exports = app => {
     router.post('/reservation/checkHour', reservation.checkHour);
     
     router.post('/reservation/prueba', reservation.pruebas);
+
+    router.post('/prueba/sellproduct', pruebas.sellProduct);
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);

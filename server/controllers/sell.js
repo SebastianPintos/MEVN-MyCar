@@ -1,5 +1,5 @@
 const Sell = require('../models/sell');
-const helperVehicle = require('../lib/helperVehicle');
+const helperSell = require('../lib/helperSell');
 const helperProduct = require('../lib/helperProduct');
 const ctrl = {};
 
@@ -55,7 +55,8 @@ ctrl.sellVehicle = async (req, res) => {
         if(err) {console.log(err)}
         else{ 
             console.log(sellDB);
-            await helperVehicle.SellVehicle(sellDB);
+            await helperSell.SellVehicle(sellDB);
+            await helperSell.SellProduct(sellDB);
             res.status(200).json({title: 'Venta generada correctamente'});
         }
     });
