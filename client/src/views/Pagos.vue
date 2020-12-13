@@ -769,6 +769,7 @@ export default {
                                 "purchaseOrderV": {
                                     "OrderDate": new Date(),
                                     "Price": this.encargados[i].SuggestedPrice,
+                                    "Venta": true,
                                     "Vehicle": [{
                                         "ChasisNum": "0",
                                         "EngineNum": "0",
@@ -779,7 +780,7 @@ export default {
                                     "Dealer": this.encargados[i].Dealer,
                                     "BranchOffice": this.encargados[i].BranchOffice,
                                     "Status": "ACTIVE",
-                                    "Type": "ENVIADA"
+                                    "Type": "RECIBIDA"
                                 }
                             }).then(res => {
                                 if (res != null) {

@@ -222,6 +222,7 @@ export default {
             await axios.get(urlAPI + 'purchaseOrder')
                 .then(res => {
                     this.purchaseOrders = [];
+                    this.allOrders = [];
                     let purchaseOrders = res.data.purchaseOrder;
                     if (purchaseOrders != null) {
                         purchaseOrders.forEach(orden => {
@@ -329,8 +330,6 @@ export default {
 
             axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {
-                    this.allOrders = [];
-                    this.purchaseOrders = [];
                     this.getOrders();
                     this.titulo = "<h1 class='text-center'>Carga realizada con éxito</h1>";
                     this.mensaje = "<h3>Podrá ver los elementos cargados en la sección: Stock.</h3>";
@@ -421,8 +420,6 @@ export default {
                 if (this.procesar) {
                     axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
                         if (res != null) {
-                            this.purchaseOrders = [];
-                            this.allOrders = [];
                             this.getOrders();
                             this.procesar = false;
                             this.reset();
@@ -434,8 +431,6 @@ export default {
                         id = this.allOrders[id]._id;
                         axios.post(urlAPI + 'purchaseOrder/' + id + "/update", orden).then(res => {
                             if (res != null) {
-                                this.purchaseOrders = [];
-                                this.allOrders = [];
                                 this.getOrders();
                                 this.reset();
                             }

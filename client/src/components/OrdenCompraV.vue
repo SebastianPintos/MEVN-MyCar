@@ -271,6 +271,7 @@ export default {
             await axios.get(urlAPI + 'purchaseOrderV')
                 .then(res => {
                     this.ordenes = [];
+                    this.allOrdenes = [];
                     let ordenes = res.data.purchaseOrderV;
                     if (ordenes != null) {
                         ordenes.forEach(orden => {
@@ -319,8 +320,12 @@ export default {
         },
 
         guardarLlegada() {
+            let vendido = this.selected[0].Venta != null & this.selected[0].Venta == true;
             for (let i = 0; i < this.selected[0].Vehicle.length; i++) {
                 let status = this.recibidos[i] == "true" ? "AVAILABLE" : "NOT AVAILABLE";
+                if (vendido & status == "AVAILABLE") {
+                    status = "SOLD"
+                }
                 let employee = localStorage.getItem("employee");
                 employee = JSON.parse(employee);
                 let branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : null;
@@ -346,12 +351,12 @@ export default {
                         this.titulo = "<h1 class='text-center'>Carga realizada con éxito</h1>";
                         this.mensaje = "<h3>Podrá ver los elementos cargados en la sección: Stock.</h3>";
                         this.dialogMensaje = true;
+                        this.selected = [];
+                        this.recibidos = [];
+                        this.dialogConfirm = false;
                     }
                 });
             }
-            this.selected = [];
-            this.recibidos = [];
-            this.dialogConfirm = false;
         },
 
         parseCSV(text) {
@@ -426,8 +431,6 @@ export default {
                 if (this.procesar) {
                     axios.post(urlAPI + 'purchaseOrderV/add', orden).then(res => {
                         if (res != null) {
-                            this.ordenes = [];
-                            this.allOrdenes = [];
                             this.getOrdenes();
                             this.procesar = false;
                             this.reset();

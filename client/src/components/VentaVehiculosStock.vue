@@ -118,7 +118,7 @@ export default {
                 .then(res => {
                     vehiculos = res.data.vehicle.filter(v => v.Status === "AVAILABLE");
                     if(this.employee!=null & this.employee.BranchOffice!=null){
-                        vehiculos = vehiculos.filter(v => v.BranchOffice._id == this.employee);
+                        vehiculos = vehiculos.filter(v => v.BranchOffice == this.employee.BranchOffice);
                     }
                     if (vehiculos != null) {
                         for (let i = 0; i < vehiculos.length; i++) {
