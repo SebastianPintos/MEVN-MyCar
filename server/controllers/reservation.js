@@ -175,8 +175,8 @@ ctrl.reserveProduct = async (req, res) => {
 }
 
 ctrl.pruebas = async (req, res) => {
-    var body = req.body.product;
-    await helperStock.checkMin(body);
+    var body = req.body.productControl;
+    await helperStock.checkMinCreation(body);
     res.send("asas");
 }
 

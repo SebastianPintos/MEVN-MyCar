@@ -1,5 +1,5 @@
 const Sell = require('../models/sell');
-const helperVehicle = require('../lib/helperVehicle');
+const helperSell = require('../lib/helperSell');
 const helperProduct = require('../lib/helperProduct');
 const ctrl = {};
 
@@ -9,10 +9,10 @@ ctrl.listVehicle = (req, res) => {
         res.send({
             sell: sell
         })
-    }).populate('VehicleSell').populate('PaymentType').populate('Factura').populate('Client');
+    }).populate('VehicleSold').populate('PaymentType').populate('Factura').populate('Client');
 
 };
-
+ 
 /* {
     "sell": {
         "PriceFreeTax": "2000000",
@@ -55,11 +55,28 @@ ctrl.sellVehicle = async (req, res) => {
         if(err) {console.log(err)}
         else{ 
             console.log(sellDB);
-          //  await helperVehicle.SellVehicle(sellDB);
-            res.send({sell});
-            //res.status(200).json({title: 'Venta generada correctamente'});
+            await helperSell.SellVehicle(sellDB);
+            await helperSell.SellProduct(sellDB);
+            res.status(200).json(sellDB);
         }
     });
+}
+
+ctrl.sellService = async (req, res) => {
+    var body = req.body.sell;
+    
+    var sell = new Sell({
+        CUIT: body.CUIT,
+        Date: body.Date,
+        RewarderDiscount: body.RewarderDiscount,
+        Client: body.Client,
+        Employee: body.Employee,
+        Service: body.Service,
+        ProductStock: body.ProductStock,
+        VehicleSold: body.VehicleSold,
+        PaymentType: body.PaymentType,
+        Factura: body.Factura
+    })
 }
 
 module.exports = ctrl;
