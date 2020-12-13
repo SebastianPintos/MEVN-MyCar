@@ -40,11 +40,11 @@
                                     <v-select v-model="filtros.Dealer" :items="dealersList" item-text="Email" item-value="Email" label="Proveedor" required></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.pDesde" prefix="$" label="Precio Sugerido Desde"></v-text-field>
+                                    <v-text-field type="number" v-model="filtros.pDesde" prefix="$" label="Precio Sugerido Desde"></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.pHasta" prefix="$" label="Precio Sugerido Hasta"></v-text-field>
+                                    <v-text-field type="number" v-model="filtros.pHasta" prefix="$" label="Precio Sugerido Hasta"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6" md="12">
                                     <v-btn class="success" @click="aplicarFiltros">
@@ -79,148 +79,148 @@
 
                     <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
+                            <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                            <v-icon>mdi-delete</v-icon>
+                        </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px" persistent>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                                <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
+                        <v-dialog v-model="dialog" max-width="500px" persistent>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-card>
+                                <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
 
-                                <v-card-title>
-                                    <span class="headline">{{ formTitle }}</span>
-                                </v-card-title>
+                                    <v-card-title>
+                                        <span class="headline">{{ formTitle }}</span>
+                                    </v-card-title>
 
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Brand" v-on:change="filterModels()" :items="brandsList" item-text="Name" item-value="Name" label="Marca" :rules="requerido"></v-select>
-                                            </v-col>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Brand" v-on:change="filterModels()" :items="brandsList" item-text="Name" item-value="Name" label="Marca" :rules="requerido"></v-select>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Model" :items="filteredModels" item-text="Name" item-value="Name" label="Modelo" :rules="requerido"></v-select>
-                                            </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Model" :items="filteredModels" item-text="Name" item-value="Name" label="Modelo" :rules="requerido"></v-select>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.Category" :items="categoriesList" label="Categoria" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.Fuel" :items="fuelsList" label="Combustible" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.transmission" :items="transmissionsList" label="Transmision" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.origin" :items="paises" item-text="name" label="Origen" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido" :rules="requerido"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.Category" :items="categoriesList" label="Categoria" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.Fuel" :items="fuelsList" label="Combustible" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.transmission" :items="transmissionsList" label="Transmision" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.origin" :items="paises" item-text="name" label="Origen" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Dealer" :items="dealersList" item-text="Email" item-value="_id" label="Proveedor" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="editedItem.SuggestedPrice" prefix="$" label="Precio Sugerido" :rules="requerido"></v-text-field>
+                                                </v-col>
 
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
 
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn class="info" text @click="reset">
+                                            <v-icon>mdi-cancel</v-icon>
+                                        </v-btn>
+                                        <v-btn class="info" text @click="save">
+                                            <v-icon>mdi-check</v-icon>
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
+
+                            <v-card>
+                                <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
+
+                                    <v-card-title>
+                                        <span class="headline">Editar varios</span>
+                                    </v-card-title>
+
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <v-btn-toggle v-model="toggle_none">
+                                                        <v-btn fab dark small class="warning">
+                                                            <v-icon>mdi-plus</v-icon>
+                                                        </v-btn>
+                                                        <v-btn fab dark small class="warning">
+                                                            <v-icon>mdi-minus</v-icon>
+                                                        </v-btn>
+                                                    </v-btn-toggle>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="editedItem.SuggestedPrice" :disabled="deshabilitarPorcentaje" suffix="%" label="Precio" :rules="reglaEditarPorcentaje"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2">
+                                                    <v-btn :class="classBotonPorcentaje" @click="clickPorcentaje()">
+                                                        <v-icon>{{nombrePorcentaje}}</v-icon>
+                                                    </v-btn>
+                                                </v-col>
+
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Dealer" :items="dealersList" :disabled="deshabilitarProveedor" item-text="Email" item-value="_id" label="Proveedor" :rules="reglaEditarProveedor"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2">
+                                                    <v-btn :class="classBotonProveedor" @click="clickProveedor()">
+                                                        <v-icon>{{nombreProveedor}}</v-icon>
+                                                    </v-btn>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1" text @click="reset">
+                                            Cancelar
+                                        </v-btn>
+                                        <v-btn color="blue darken-1" text @click="save">
+                                            Guardar
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
+
+                        </v-dialog>
+                        <v-dialog v-model="dialogDelete" max-width="500px" persistent>
+                            <v-card>
+                                <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="close">
+                                    <v-btn class="info" text @click="dialogDelete=false">
                                         <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn class="info" text @click="save">
+                                    <v-btn class="info" text @click="deleteItemConfirm">
                                         <v-icon>mdi-check</v-icon>
                                     </v-btn>
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                        <v-card>
-                            <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
-
-                                <v-card-title>
-                                    <span class="headline">Editar varios</span>
-                                </v-card-title>
-
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-btn-toggle v-model="toggle_none">
-                                                    <v-btn fab dark small class="warning">
-                                                        <v-icon>mdi-plus</v-icon>
-                                                    </v-btn>
-                                                    <v-btn fab dark small class="warning">
-                                                        <v-icon>mdi-minus</v-icon>
-                                                    </v-btn>
-                                                </v-btn-toggle>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.SuggestedPrice" :disabled="deshabilitarPorcentaje" suffix="%" label="Precio" :rules="reglaEditarPorcentaje"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonPorcentaje" @click="clickPorcentaje()">
-                                                    <v-icon>{{nombrePorcentaje}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Dealer" :items="dealersList" :disabled="deshabilitarProveedor" item-text="Email" item-value="_id" label="Proveedor" :rules="reglaEditarProveedor"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="2">
-                                                <v-btn :class="classBotonProveedor" @click="clickProveedor()">
-                                                    <v-icon>{{nombreProveedor}}</v-icon>
-                                                </v-btn>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-
-                                <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
-                                    </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save">
-                                        Guardar
-                                    </v-btn>
                                 </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                    </v-dialog>
-                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
-                        <v-card>
-                            <v-card-title class="headline">Estas seguro de que quiere eliminar el/los elemento/s?</v-card-title>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn class="info" text @click="closeDelete">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                                <v-btn class="info" text @click="deleteItemConfirm">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                            </v-card>
+                        </v-dialog>
                     </div>
                 </v-toolbar>
             </template>
@@ -241,16 +241,16 @@
                     <v-card-text>
                         <h2>Nuevos</h2>
                         <h3 v-if="stockNuevos.disponibles==0">-Sin Stock-</h3>
-                            <v-text-field disabled :label="'Disponibles: '+stockNuevos.disponibles"></v-text-field>
-                            <v-text-field disabled :label="'No Disponibles: '+stockNuevos.noDisponibles"></v-text-field>
-                            <v-text-field disabled :label="'Reservados: '+stockNuevos.reservados"></v-text-field>
-                            <v-text-field disabled :label="'Vendidos: '+stockNuevos.vendidos"></v-text-field>
-                         <h2>Usados</h2>
+                        <v-text-field disabled :label="'Disponibles: '+stockNuevos.disponibles"></v-text-field>
+                        <v-text-field disabled :label="'No Disponibles: '+stockNuevos.noDisponibles"></v-text-field>
+                        <v-text-field disabled :label="'Reservados: '+stockNuevos.reservados"></v-text-field>
+                        <v-text-field disabled :label="'Vendidos: '+stockNuevos.vendidos"></v-text-field>
+                        <h2>Usados</h2>
                         <h3 v-if="stockUsados.disponibles==0">-Sin Stock-</h3>
-                            <v-text-field disabled :label="'Disponibles: '+stockUsados.disponibles"></v-text-field>
-                            <v-text-field disabled :label="'No Disponibles: '+stockUsados.noDisponibles"></v-text-field>
-                            <v-text-field disabled :label="'Reservados: '+stockUsados.reservados"></v-text-field>
-                            <v-text-field disabled :label="'Vendidos: '+stockUsados.vendidos"></v-text-field>
+                        <v-text-field disabled :label="'Disponibles: '+stockUsados.disponibles"></v-text-field>
+                        <v-text-field disabled :label="'No Disponibles: '+stockUsados.noDisponibles"></v-text-field>
+                        <v-text-field disabled :label="'Reservados: '+stockUsados.reservados"></v-text-field>
+                        <v-text-field disabled :label="'Vendidos: '+stockUsados.vendidos"></v-text-field>
                     </v-card-text>
                 </v-flex>
                 <v-card-actions>
@@ -422,15 +422,6 @@ export default {
         },
     },
 
-    watch: {
-        dialog(val) {
-            val || this.close()
-        },
-        dialogDelete(val) {
-            val || this.closeDelete()
-        },
-    },
-
     created() {
         this.initialize();
         this.getVehicles();
@@ -440,9 +431,9 @@ export default {
     },
 
     methods: {
-        validateUsers(...authorizedUsers){
-            if(localStorage.getItem('userType') != null){
-                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+        validateUsers(...authorizedUsers) {
+            if (localStorage.getItem('userType') != null) {
+                return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
             }
             return false;
         },
@@ -592,9 +583,12 @@ export default {
                 this.vehículos.splice(this.vehículos.indexOf(item), 1)
                 this.deleteVehicle(item)
             });
-            this.closeDelete()
+            this.dialogDelete = false;
         },
         reset() {
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
             this.selected = []
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
@@ -609,15 +603,8 @@ export default {
             this.deshabilitarProveedor = true;
             this.reglaEditarPorcentaje = [];
             this.reglaEditarProveedor = [];
-        },
-        close() {
-            this.dialog = false
-            this.reset()
-        },
-
-        closeDelete() {
-            this.dialogDelete = false
-            this.reset()
+            this.dialog = false;
+            this.dialogDelete = false;
         },
         validate() {
             return this.$refs.form.validate()
@@ -663,7 +650,7 @@ export default {
                 pDesdeMatches = pDesde ? this.vehículos[i].SuggestedPrice >= this.filtros.pDesde : pDesdeMatches
                 pHastaMatches = pHasta ? this.vehículos[i].SuggestedPrice <= this.filtros.pHasta : pHastaMatches
                 DealerMatches = Dealer ? this.vehículos[i].Dealer.Email === this.filtros.Dealer : DealerMatches
-              
+
                 if (BrandMatches & ModelMatches & CategoryMatches & FuelMatches & TypeMatches & transmissionMatches & originMatches & yearMatches & pDesdeMatches & pHastaMatches & DealerMatches) {
                     repAux[cant] = this.vehículos[i]
                     cant++
@@ -672,7 +659,7 @@ export default {
             this.vehículosFiltrados = repAux
 
         },
-         formatPrice(value) {
+        formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
         reiniciarFiltros() {
@@ -692,7 +679,11 @@ export default {
         },
 
         deleteVehicle(item) {
-            axios.delete(urlAPI + 'vehicle/' + item._id + '/delete')
+            axios.delete(urlAPI + 'vehicle/' + item._id + '/delete').then(res => {
+                if (res != null) {
+                    this.reset();
+                }
+            })
         },
 
         async updateVehicle() {
@@ -710,8 +701,12 @@ export default {
                     "SuggestedPrice": this.editedItem.SuggestedPrice,
                     "Status": "ACTIVE"
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                    this.getVehicles()
+                }
             })
-            this.getVehicles()
         },
 
         async updateManyVehicles() {
@@ -744,8 +739,11 @@ export default {
                         "Status": "ACTIVE"
                     }
                 })
+                if (i == this.selected.length - 1) {
+                    this.reset();
+                    this.getVehicles();
+                }
             })
-            this.getVehicles()
         },
 
         async createVehicle() {
@@ -762,8 +760,12 @@ export default {
                     "Dealer": this.editedItem.Dealer,
                     "SuggestedPrice": this.editedItem.SuggestedPrice
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                    this.getVehicles()
+                }
             })
-            this.getVehicles()
         },
 
         save() {
@@ -782,12 +784,9 @@ export default {
                     if (this.validate()) {
                         this.vehículos.push(this.editedItem);
                         this.createVehicle();
-
                     }
                 }
-
             }
-            this.close()
         },
 
         calcularStock() {
@@ -804,7 +803,7 @@ export default {
                 return;
             }
             let vehiculosEnStock = this.vehicleStock.filter(v => v.Vehicle._id == this.selected[0]._id);
-    
+
             let nuevos = vehiculosEnStock.filter(v => v.Kind == "NUEVO");
             let usados = vehiculosEnStock.filter(v => v.Kind == "USADO");
 

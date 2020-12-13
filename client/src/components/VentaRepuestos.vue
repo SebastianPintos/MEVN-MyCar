@@ -82,6 +82,7 @@ export default {
         ultimoEnCarrito: null,
         attrs: '',
         max: 0,
+        employee: null,
         cantidad: 0,
         dialogCantidad: false,
         headers: [{
@@ -132,7 +133,12 @@ export default {
             value => parseFloat(value) < 100 || 'El máximo es 100%!'
         ],
     }),
+
     created() {
+        let employee = localStorage.getItem("employee");
+        if(employee!=null){
+            this.employee = JSON.parse(employee);
+        }
         this.iniciar();
     },
     methods: {
@@ -156,7 +162,12 @@ export default {
             let cont = 0;
             await axios.get(urlAPI + "productStock")
                 .then(res => {
+                        
                     repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
+                    if(this.employee!=null & this.employee.BranchOffice!=null){
+                        repuestos = repuestos.filter(r=> r.BranchOffice._id == this.employee.BranchOffice);
+                    }
+
                     if (repuestos != null) {
                         for (let i = 0; i < repuestos.length; i++) {
                             let item = JSON.parse(localStorage.getItem(String("r" + i)));

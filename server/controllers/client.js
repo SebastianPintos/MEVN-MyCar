@@ -25,7 +25,8 @@ ctrl.create = (req, res) => {
         CompanyName: body.CompanyName,
         Nationality: body.Nationality,
         TaxCategory: body.TaxCategory,
-        Vehicle: body.Vehicle
+        Vehicle: body.Vehicle,
+        ChangeStatus: body.ChangeStatus
     });
 
     client.save((err) => {
@@ -55,6 +56,7 @@ ctrl.update = (req, res) => {
                 client.Nationality = body.Nationality;
                 client.TaxCategory = body.TaxCategory;
                 client.Vehicle = body.Vehicle;
+                client.ChangeStatus = body.ChangeStatus
 
                 client.save((err) => {
                     if(err) {console.log(err)}

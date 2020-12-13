@@ -22,7 +22,7 @@
 
                     <div v-if="validateUsers('Administrativo')">
                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
-                        <v-icon>mdi-pencil</v-icon>
+                            <v-icon>mdi-pencil</v-icon>
                         </v-btn>
 
                         <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="corroborarSeleccionado">
@@ -63,7 +63,7 @@
                                 Estado: {{data.item.Kind}}, Tipo: {{data.item.Type}} Transmisión: {{data.item.transmission}}, Combustible: {{data.item.Fuel}}
                             </template>
                         </v-select>
-                        <v-text-field label="Precio" prefix="$" v-model="editedItem.PurchasedPrice" :rules="reglaPrecio"></v-text-field>
+                        <v-text-field type="number" label="Precio" prefix="$" v-model="editedItem.PurchasedPrice" :rules="reglaPrecio"></v-text-field>
 
                         <v-textarea label="Detalle" v-model="editedItem.Detail"></v-textarea>
 
@@ -75,7 +75,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-flex class="text-right">
-                            <v-btn class="mb-2 info" @click="editedItem=defaultItem;dialogNuevo=false">
+                            <v-btn class="mb-2 info" @click="reset">
                                 <v-icon>mdi-cancel</v-icon>
                             </v-btn>
                             <v-btn class="mb-2 info" @click="guardar">
@@ -181,7 +181,7 @@ export default {
         reglaPrecioNoRequerido: [
             value => {
                 const pattern = /^[-]{0,1}[0-9]{1,}(.[0-9]{1,}){0,1}$/
-                return pattern.test(value) || value.length == 0  || 'Sólo se permiten números!'
+                return pattern.test(value) || value.length == 0 || 'Sólo se permiten números!'
             },
         ],
 
@@ -268,19 +268,23 @@ export default {
         editedIndex: -1,
         attrs: '',
         on: '',
+        branchOffice: null,
 
     }),
 
     created() {
-        this.getVehicleStock();
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
+        this.getVehicleStock(this.branchOffice);
         this.getVehiculos();
         this.getSucursales();
     },
 
     methods: {
-        validateUsers(...authorizedUsers){
-            if(localStorage.getItem('userType') != null){
-                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+        validateUsers(...authorizedUsers) {
+            if (localStorage.getItem('userType') != null) {
+                return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
             }
             return false;
         },
@@ -311,15 +315,13 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
-        /**/
-        async getVehicleStock() {
+
+        async getVehicleStock(branchOffice) {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
-                    let vehicleStock = res.data.vehicle;
-                    if (vehicleStock != null) {
-                        vehicleStock.forEach(r => {
-                            this.vehicleStock.push(r);
-                        })
+                    this.vehicleStock = res.data.vehicle;
+                    if (branchOffice != "") {
+                        this.vehicleStock = this.vehicleStock.filter(v => v.BranchOffice._id == branchOffice);
                     }
                 })
         },
@@ -391,10 +393,13 @@ export default {
         },
 
         reset() {
+            if (this.dialogNuevo) {
+                this.$refs.form.resetValidation();
+            }
             this.editedItem = this.defaultItem;
             this.vehicleStock = [];
             this.selected = [];
-            this.getVehicleStock();
+            this.getVehicleStock(this.branchOffice == null ? "" : this.branchOffice);
             this.nuevo = false;
             this.dialogNuevo = false;
         },

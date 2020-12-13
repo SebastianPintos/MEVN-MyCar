@@ -48,7 +48,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn class="info" right @click="dialogStock=false">
+                        <v-btn class="info" right @click="reset">
                             <v-icon>mdi-cancel</v-icon>
                         </v-btn>
                         <v-btn class="info" right @click="readFile">
@@ -222,6 +222,7 @@ export default {
             await axios.get(urlAPI + 'purchaseOrder')
                 .then(res => {
                     this.purchaseOrders = [];
+                    this.allOrders = [];
                     let purchaseOrders = res.data.purchaseOrder;
                     if (purchaseOrders != null) {
                         purchaseOrders.forEach(orden => {
@@ -303,6 +304,10 @@ export default {
             for (let i = 0; i < this.selected[0].Product.length; i++) {
                 let noDisponibles = Number(this.fueraServicio[i]) + Number(this.noLlegaron[i]);
                 let disponibles = Number(this.selected[0].Product[i].TotalOrdered) - noDisponibles;
+                let employee = localStorage.getItem("employee");
+                employee = JSON.parse(employee);
+                let branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : null;
+
                 let repuestoStock = {
                     "productStock": {
                         "BatchNum": this.selected[0].Product[i].BatchNum,
@@ -313,8 +318,8 @@ export default {
                         "Expiration": this.selected[0].Product[i].Expiration,
                         "Dealer": this.selected[0].Dealer,
                         "Product": this.selected[0].Product[i].ProductID._id,
-                        "Price": this.selected[0].Product[i].ProductID.SalePrice
-
+                        "Price": this.selected[0].Product[i].ProductID.SalePrice,
+                        "BranchOffice": branchOffice
                     }
                 };
                 axios.post(urlAPI + 'productStock/add', repuestoStock);
@@ -322,11 +327,9 @@ export default {
                     "precio": this.selected[0].Product[i].Price
                 })
             }
-            
+
             axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {
-                    this.allOrders = [];
-                    this.purchaseOrders=[];
                     this.getOrders();
                     this.titulo = "<h1 class='text-center'>Carga realizada con éxito</h1>";
                     this.mensaje = "<h3>Podrá ver los elementos cargados en la sección: Stock.</h3>";
@@ -369,7 +372,7 @@ export default {
                     // Si la posición aún no fue creada
                     if (value != null) {
                         if (this.output[col] === undefined) this.output[col] = [];
-                       this.output[col][row] = value;
+                        this.output[col][row] = value;
                     }
                 });
             });
@@ -397,9 +400,8 @@ export default {
                             this.mensaje = "<h4>¿Desea procesar igualmente la orden?</h4>";
                             this.dialogMensaje = true;
                             return;
-                        }
-                        else if(this.mensaje!=""){
-                           this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
+                        } else if (this.mensaje != "") {
+                            this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
                             this.dialogMensaje = true;
                         }
                         this.guardarOrden();
@@ -418,30 +420,27 @@ export default {
                 if (this.procesar) {
                     axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
                         if (res != null) {
-                            this.purchaseOrders = [];
-                            this.allOrders = [];
                             this.getOrders();
                             this.procesar = false;
+                            this.reset();
                         }
                     });
                 } else {
                     let id = this.allOrders.indexOf(this.orden);
-                    if(id!=-1){
-                    id = this.allOrders[id]._id;
-                    axios.post(urlAPI + 'purchaseOrder/' + id + "/update", orden).then(res => {
-                        if (res != null) {
-                            this.purchaseOrders = [];
-                            this.allOrders = [];
-                            this.getOrders();
-                        }
-                    });
+                    if (id != -1) {
+                        id = this.allOrders[id]._id;
+                        axios.post(urlAPI + 'purchaseOrder/' + id + "/update", orden).then(res => {
+                            if (res != null) {
+                                this.getOrders();
+                                this.reset();
+                            }
+                        });
                     }
                 }
                 this.dialogStock = false;
-            }
-            else{
-                 this.titulo = "<h1 class='text-center'>Repuesto/s inexistente/s</h1><br>";
-                 this.dialogMensaje = true;                   
+            } else {
+                this.titulo = "<h1 class='text-center'>Repuesto/s inexistente/s</h1><br>";
+                this.dialogMensaje = true;
             }
         },
         getJSONOrder() {
@@ -470,15 +469,15 @@ export default {
                     this.procesar = false;
                 }
             };
-            if(this.mensaje!=""){
-                
-            this.mensaje = mensaje + this.mensaje;
+            if (this.mensaje != "") {
+
+                this.mensaje = mensaje + this.mensaje;
                 return null;
             }
-            
+
             this.mensaje = mensaje + this.mensaje;
             //ACÁ FALTA LA PARTE DE BRANCHOFFICE    "BranchOffice": "5fb3d83987565231fcd5a756",
-            
+
             return {
                 "purchaseOrder": {
                     "Code": this.output[5][1],
@@ -487,18 +486,18 @@ export default {
                     "Product": product,
                     "Dealer": this.proveedor,
                     "Type": "RECIBIDA",
-                    "Status":"ACTIVE",
+                    "Status": "ACTIVE",
                     "Info": this.mensaje
                 }
             }
         },
 
         getOrden() {
-            let orden = this.allOrders.filter(o => 
-               o.Code == this.output[5][1] && o.Type =="ENVIADA"
+            let orden = this.allOrders.filter(o =>
+                o.Code == this.output[5][1] && o.Type == "ENVIADA"
             );
-           if(orden.length>0){
-               this.orden = orden[0];
+            if (orden.length > 0) {
+                this.orden = orden[0];
             }
         },
 
@@ -510,7 +509,7 @@ export default {
                 this.dialogMensaje = true;
                 return false;
             } else {
-                 this.getOrden();
+                this.getOrden();
             }
             //FILA 0: SKU
             for (let i = 1; i < this.output[0].length; i++) {
@@ -518,9 +517,9 @@ export default {
                     this.mensaje += "<h4>El código SKU es obligatorio</h4>";
                     return false;
                 } else {
-                        if (this.orden!=null && this.orden.Product!=null & this.orden.Product.filter(o=>o.ProductID.SKU == this.output[0][i]).length == 0 ) {
-                            this.mensaje += "<h4>No existe un producto con SKU: " + this.output[0][i] + " en la orden original</h4>";
-                        }
+                    if (this.orden != null && this.orden.Product != null & this.orden.Product.filter(o => o.ProductID.SKU == this.output[0][i]).length == 0) {
+                        this.mensaje += "<h4>No existe un producto con SKU: " + this.output[0][i] + " en la orden original</h4>";
+                    }
                 }
             }
             //FILA 3: TOTAL OBLIGATORIO
@@ -531,7 +530,7 @@ export default {
                     return false;
                 } else {
                     if (this.orden != null && this.output[3][i] &&
-                    this.orden.Product!=null && this.orden.Product[i]!=null && this.orden.Product[i].ProductID.TotalOrdered) {
+                        this.orden.Product != null && this.orden.Product[i] != null && this.orden.Product[i].ProductID.TotalOrdered) {
                         this.mensaje = "<h4>Total inválido, no coincide con el valor de la orden enviada</h4>";
                     }
                 }
@@ -551,22 +550,21 @@ export default {
             return ret;
         },
 
-        verInfo(){
+        verInfo() {
             if (this.selected.length == 0) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
                 this.snackbar = true;
                 return;
             }
-          
+
             this.titulo = "<h1>Información de procesamiento</h1><br>"
-            if (this.selected[0].Info=="" || this.selected[0].Info==null){
+            if (this.selected[0].Info == "" || this.selected[0].Info == null) {
                 this.mensaje = "<h4>Orden procesada con éxito</h4>";
                 this.dialogMensaje = true;
-            }
-            else{
+            } else {
                 this.mensaje = this.selected[0].Info;
                 this.dialogMensaje = true;
-           
+
             }
         },
 
@@ -577,6 +575,15 @@ export default {
             if (this.procesar) {
                 this.guardarOrden()
             }
+        },
+
+        reset() {
+            if(this.dialogStock){
+                this.$refs.formStock.resetValidation();
+            }
+            this.dialogStock = false;
+            this.chosenFile = null;
+            this.proveedor = null;
         },
     },
 

@@ -12,7 +12,7 @@ ctrl.index = (req, res) => {
 
 ctrl.create = (req, res) => {
     var body = req.body.localidades;
-    var Localidades = new Localidades({
+    var localidades = new Localidades({
         Name: body.Name,
         Provincia: body.Provincia,
        });
