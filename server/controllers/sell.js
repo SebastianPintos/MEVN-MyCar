@@ -62,4 +62,21 @@ ctrl.sellVehicle = async (req, res) => {
     });
 }
 
+ctrl.sellService = async (req, res) => {
+    var body = req.body.sell;
+    
+    var sell = new Sell({
+        CUIT: body.CUIT,
+        Date: body.Date,
+        RewarderDiscount: body.RewarderDiscount,
+        Client: body.Client,
+        Employee: body.Employee,
+        Service: body.Service,
+        ProductStock: body.ProductStock,
+        VehicleSold: body.VehicleSold,
+        PaymentType: body.PaymentType,
+        Factura: body.Factura
+    })
+}
+
 module.exports = ctrl;
