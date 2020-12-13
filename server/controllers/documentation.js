@@ -15,10 +15,10 @@ ctrl.create = (req, res) => {
     console.log(req.body.documentation); 
     var documentation = new Documentation({
        Name: body.Name,
-       Completed: body.Completed,
        EstimatedTime: body.EstimatedTime,
        Origin: body.Origin,
-       Status: body.Status
+       Status: body.Status,
+       BranchOffice: body.BranchOffice
     });
 
     documentation.save((err) => {
@@ -38,10 +38,11 @@ ctrl.update = (req, res) => {
             if(!documentation) {console.log('No se encontró el empleado')}
             else {
                 documentation.Name = body.Name;
-                documentation.Completed = body.Completed;
                 documentation.EstimatedTime = body.EstimatedTime;
                 documentation.Origin = body.Origin;
-                documentation.Status = body.Status
+                documentation.Status = body.Status;
+                documentation.BranchOffice = body.BranchOffice
+                
                 documentation.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

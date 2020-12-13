@@ -2,11 +2,10 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var DocumentationSchema = new Schema({
-        Name: {type: String, required: true, unique:true},
-        Completed :{type: Boolean},
+        Name: {type: String, required: true},
         EstimatedTime: {type: Number},
-        Origin: {type: String, enum: ['NACIONAL', 'IMPORTADO'], required: true},
-        Sell: {type: Schema.Types.ObjectId, ref: 'Sell'},
+        Origin: {type: String, enum: ['NACIONAL', 'IMPORTADO','GENERAL'], required: true},
+        BranchOffice: {type: Schema.Types.ObjectId, ref: 'BranchOffice'},
         Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
     });
 

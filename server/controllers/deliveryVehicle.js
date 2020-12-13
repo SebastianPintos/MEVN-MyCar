@@ -7,7 +7,7 @@ ctrl.index = (req, res) => {
         res.send({
             deliveryVehicle: deliveryVehicle
         });
-    })
+    }).populate('Documentation').populate('VehicleStock').populate('PurchaseOrderV');
 };
 
 ctrl.create = (req, res) => {
@@ -15,7 +15,6 @@ ctrl.create = (req, res) => {
     console.log(req.body.deliveryVehicle); 
     var deliveryVehicle = new DeliveryVehicle({
         Documentation: body.Documentation,
-        Sell: body.Sell,
         Status: body.Status,
         VehicleStock: body.VehicleStock,
         PurchaseOrderV : body.PurchaseOrderV
@@ -24,7 +23,7 @@ ctrl.create = (req, res) => {
     deliveryVehicle.save((err) => {
         if(err) {console.log(err)}
         res.send({
-            success: true
+            deliveryVehicle
         });
     });
 };
@@ -38,7 +37,6 @@ ctrl.update = (req, res) => {
             if(!deliveryVehicle) {console.log('No se encontró el empleado')}
             else {
                 deliveryVehicle.Documentation= body.Documentation;
-                deliveryVehicle.Sell= body.Sell;
                 deliveryVehicle.Status= body.Status;
                 deliveryVehicle.PurchaseOrderV = body.PurchaseOrderV;
                 deliveryVehicle.VehicleStock = body.VehicleStock;
@@ -46,7 +44,7 @@ ctrl.update = (req, res) => {
                 deliveryVehicle.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
-                        success: true
+                        deliveryVehicle
                     })
                 });
             }
@@ -65,7 +63,7 @@ ctrl.remove = (req, res) => {
                 deliveryVehicle.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
-                        success: true
+                        deliveryVehicle
                     })
                 });
             }
