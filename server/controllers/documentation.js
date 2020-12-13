@@ -7,7 +7,7 @@ ctrl.index = (req, res) => {
         res.send({
             documentation: documentation
         });
-    })
+    }).populate('BranchOffice');
 };
 
 ctrl.create = (req, res) => {

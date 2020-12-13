@@ -1,7 +1,7 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="productsStock" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+        <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="documentation" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
             <template v-slot:item.Expiration="{ item }">
                 {{ formatDate(item.Expiration)}}
             </template>
@@ -122,7 +122,7 @@ export default {
         selected: [],
         date: null,
         dialogDelete: false,
-        productsStock: [],
+        documentation: [],
         search: '',
         requerido: [
             value => !!value || 'Requerido.',
@@ -154,37 +154,25 @@ export default {
                 return pattern.test(value) || 'Sólo se permiten números!'
             },
         ],
-
+/*  Name: {type: String, required: true},
+        EstimatedTime: {type: Number},
+        Origin: {type: String, enum: ['NACIONAL', 'IMPORTADO','GENERAL'], required: true},
+        BranchOffice: {type: Schema.Types.ObjectId, ref: 'BranchOffice'},
+        Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+    });*/
         headers: [{
-                text: 'SKU',
-                value: 'Product.SKU',
+                text: 'Name',
+                value: 'Name',
                 align: 'start',
             },
             {
-                text: 'N° de Lote',
-                value: 'BatchNum',
+                text: 'Tiempo Estimado(días)',
+                value: 'EstimatedTime',
             },
             {
-                text: 'Disponibles',
-                value: 'Available',
+                text: 'Alcance',
+                value: 'Origin',
             },
-            {
-                text: 'Reservados',
-                value: 'Reserved',
-            },
-            {
-                text: 'Fuera de Servicio',
-                value: 'OutOfService'
-            },
-
-            {
-                text: 'Precio',
-                value: 'Price',
-            },
-            {
-                text: 'Vencimiento',
-                value: 'Expiration',
-            }
         ],
         repuestos: [],
         sucursales: [],
@@ -198,10 +186,8 @@ export default {
     created() {
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
-        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
-        this.getRepuestosStock(this.branchOffice);
-        this.getRepuestos();
-        this.getSucursales();
+        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice: "";
+        this.getDocumentation(this.branchOffice);
     },
 
     methods: {
@@ -225,14 +211,14 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
-        async getRepuestosStock(branchOffice) {
-            await axios.get(urlAPI + 'productStock')
+        async getDocumentation(branchOffice) {
+            await axios.get(urlAPI + 'documentation')
                 .then(res => {
-                    let productsStock = res.data.productStock;
-                    if (productsStock != null) {
-                        this.productsStock = productsStock.filter(r => r.Status == "ACTIVE");
+                    let documentation = res.data.documentation;
+                    if (documentation != null) {
+                        this.documentation = documentation.filter(d => d.Status == "ACTIVE");
                         if (branchOffice != "") {
-                            this.productsStock = this.productsStock.filter(r => r.BranchOffice._idTabla == branchOffice);
+                            this.documentation = this.documentation.filter(d => d.BranchOffice._id == branchOffice);
                         }
                     }
                 })
@@ -283,8 +269,8 @@ export default {
                     axios.post(urlAPI + "productStock/add", auxRepuesto).then(res => {
                         if (res != null) {
                             this.editedItem = this.defaultItem;
-                            this.productsStock = [];
-                            this.getRepuestosStock(this.branchOffice);
+                            this.documentation = [];
+                            this.getDocumentation(this.branchOffice);
                             this.reset();
                         }
                     })
@@ -292,9 +278,9 @@ export default {
                 } else {
                     axios.post(urlAPI + "productStock/" + this.selected[0]._id + "/update", auxRepuesto).then(res => {
                         if (res != null) {
-                            this.productsStock = [];
+                            this.documentation = [];
                             this.editedItem = this.defaultItem;
-                            this.getRepuestosStock(this.branchOffice);
+                            this.getDocumentation(this.branchOffice);
                             this.reset();
                         }
                     })
@@ -305,7 +291,7 @@ export default {
         eliminar() {
             axios.delete(urlAPI + "productStock/" + this.selected[0]._id + "/delete").then(res => {
                 if (res != null) {
-                    this.productsStock.splice(this.productsStock.indexOf(this.selected[0]), 1)
+                    this.documentation.splice(this.documentation.indexOf(this.selected[0]), 1)
                     this.selected = [];
                     this.dialogDelete = false;
                     this.reset();

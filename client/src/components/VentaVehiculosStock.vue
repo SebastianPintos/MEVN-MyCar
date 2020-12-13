@@ -117,9 +117,9 @@ export default {
             await axios.get(urlAPI + "vehicleStock")
                 .then(res => {
                     vehiculos = res.data.vehicle.filter(v => v.Status === "AVAILABLE");
-                    /*if(this.employee!=null & this.employee.BranchOffice!=null){
-                        vehiculos = vehiculos.filter(v => v.BranchOffice == this.employee.BranchOffice._id);
-                    }*/
+                    if(this.employee!=null & this.employee.BranchOffice!=null){
+                        vehiculos = vehiculos.filter(v => v.BranchOffice._id == this.employee);
+                    }
                     if (vehiculos != null) {
                         for (let i = 0; i < vehiculos.length; i++) {
                             let item = JSON.parse(localStorage.getItem(String("v" + i)));

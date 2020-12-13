@@ -275,7 +275,7 @@ export default {
     created() {
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
-        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice._id : "";
+        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
         this.getVehicleStock(this.branchOffice);
         this.getVehiculos();
         this.getSucursales();

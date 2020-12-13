@@ -165,7 +165,7 @@ export default {
                         
                     repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
                     if(this.employee!=null & this.employee.BranchOffice!=null){
-                        repuestos = repuestos.filter(r=> r.BranchOffice == this.employee.BranchOffice._id);
+                        repuestos = repuestos.filter(r=> r.BranchOffice._id == this.employee.BranchOffice);
                     }
 
                     if (repuestos != null) {
