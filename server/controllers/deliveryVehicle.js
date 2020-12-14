@@ -7,7 +7,7 @@ ctrl.index = (req, res) => {
         res.send({
             deliveryVehicle: deliveryVehicle
         });
-    }).populate('Documentation').populate('VehicleStock').populate('PurchaseOrderV');
+    }).populate('Documentation.DocumentationID').populate('VehicleStock').populate('PurchaseOrderV');
 };
 
 ctrl.create = (req, res) => {
@@ -37,12 +37,10 @@ ctrl.update = (req, res) => {
             if(!deliveryVehicle) {console.log('No se encontró el empleado')}
             else {
                 deliveryVehicle.Documentation= body.Documentation;
-                deliveryVehicle.Status= body.Status;
-                deliveryVehicle.PurchaseOrderV = body.PurchaseOrderV;
-                deliveryVehicle.VehicleStock = body.VehicleStock;
-                
+               deliveryVehicle.Status = body.Status;
                 deliveryVehicle.save((err) => {
                     if(err) {console.log(err)}
+                    console.log("UPDATE: "+deliveryVehicle)
                     res.send({
                         deliveryVehicle
                     })

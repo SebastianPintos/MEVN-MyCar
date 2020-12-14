@@ -9,7 +9,7 @@ ctrl.listVehicle = (req, res) => {
         res.send({
             sell: sell
         })
-    }).populate('VehicleSell').populate('PaymentType').populate('Factura').populate('Client');
+    }).populate('PaymentType').populate('Factura').populate('Client').populate('VehicleSold.DeliveryVehicle.Vehicle.Vehicle');
 
 };
 
