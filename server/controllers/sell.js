@@ -1,5 +1,5 @@
 const Sell = require('../models/sell');
-const helperVehicle = require('../lib/helperVehicle');
+const helperSell = require('../lib/helperSell');
 const helperProduct = require('../lib/helperProduct');
 const ctrl = {};
 
@@ -9,28 +9,8 @@ ctrl.listVehicle = (req, res) => {
         res.send({
             sell: sell
         })
-    }).populate('PaymentType').populate('Factura').populate('Client').populate('VehicleSold.DeliveryVehicle.Vehicle.Vehicle');
-
+    }).populate('VehicleSold').populate('PaymentType').populate('Factura').populate('Client');
 };
-
-/* {
-    "sell": {
-        "PriceFreeTax": "2000000",
-        "Tax": "21",
-        "Discount": "0",
-        "CompanyName": "Morgue Juanito SRL",
-        "CUIT": "20360772528",
-        "TaxCategory": "RESPONSABLE INSCRIPTO",
-        "Cliente": "5faad8b67e6c362bb0ba3136",
-        "Employee": "5fc5404274173634a099be7f",
-        "Service": [],
-        "ProductStock": [],
-        "VehicleSold":[{
-            "VehicleStock": "5fc9566be84a6b031cd9a692"
-        }],
-        "PaymentType": ["5fc94d3138063149f8a977a3"]
-    }
-} */
 
 ctrl.sellVehicle = async (req, res) => {
     var body = req.body.sell;
@@ -55,11 +35,28 @@ ctrl.sellVehicle = async (req, res) => {
         if(err) {console.log(err)}
         else{ 
             console.log(sellDB);
-          //  await helperVehicle.SellVehicle(sellDB);
-            res.send({sell});
-            //res.status(200).json({title: 'Venta generada correctamente'});
+            await helperSell.SellVehicle(sellDB);
+            await helperSell.SellProduct(sellDB);
+            res.status(200).json(sellDB);
         }
     });
+}
+
+ctrl.sellService = async (req, res) => {
+    var body = req.body.sell;
+    
+    var sell = new Sell({
+        CUIT: body.CUIT,
+        Date: body.Date,
+        RewarderDiscount: body.RewarderDiscount,
+        Client: body.Client,
+        Employee: body.Employee,
+        Service: body.Service,
+        ProductStock: body.ProductStock,
+        VehicleSold: body.VehicleSold,
+        PaymentType: body.PaymentType,
+        Factura: body.Factura
+    })
 }
 
 module.exports = ctrl;

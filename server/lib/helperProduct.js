@@ -3,6 +3,7 @@ const Product = require('../models/product');
 const ProductStock = require('../models/productStock');
 const Service = require("../models/service");
 const Reservation = require('../models/reservation');
+const helperStock = require('../lib/helperStock');
 
 //Recibe un lista de servicios que a su vez contiene una lista de productos. La funcion checkea si hay existencia en el stock sufuciente para cubrir todos los productos
 //Devuelve un lista con los productos que no tiene cantidad suficiente.
@@ -125,7 +126,7 @@ helperProduct.reserveProduct = async (service) => {
     console.log(arrayProductQuantity);
 
     for (i = 0; i < arrayProductQuantity.length; i++) {
-        await ProductStock.find({ Product: arrayProductQuantity[i].id, Status: 'ACTIVE' }, (err, productsDB) => {
+        await ProductStock.find({ Product: arrayProductQuantity[i].id, Status: 'ACTIVE' }, async (err, productsDB) => {
             if (err) { console.log(err) }
             else {
                 var quantity = 0;
@@ -141,9 +142,13 @@ helperProduct.reserveProduct = async (service) => {
                             productsDB[y].Available = 0;
                         }
                     }
-                    productsDB[y].save((err) => {
+                    
+                    await productsDB[y].save((err) => {
                         if (err) { console.log(err) }
                     });
+
+                    await helperStock.checkMin(productsDB[y]);
+
                 }
             }
         });
