@@ -1,8 +1,8 @@
 <template>
 <div>
 <v-tabs background-color="#2764c4" tile dark grow>
-      <v-tab  @click="realizadas=false;entregas=true">Entregas pendientes</v-tab>
-      <v-tab  @click="realizadas=true;entregas=false">Entregas realizadas</v-tab>
+      <v-tab  @click="realizadas=false;entregas=true">pendientes</v-tab>
+      <v-tab  @click="realizadas=true;entregas=false">realizadas</v-tab>
     </v-tabs>
 
 <Entregas v-show="entregas" />
