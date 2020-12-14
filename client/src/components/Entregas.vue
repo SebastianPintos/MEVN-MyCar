@@ -132,16 +132,16 @@ export default {
                 value: 'Transmission',
             },
             {
-                text: 'Origen',
-                value: 'Origin',
-            },
-            {
                 text: 'Tipo',
                 value: 'Type',
             },
             {
                 text: 'Nuevo/Usado',
                 value: 'Kind',
+            },
+            {
+                text: 'Categoría',
+                value: 'Category',
             },
             {
                 text: 'Color',
@@ -168,7 +168,7 @@ export default {
     }),
     created() {
         let employee = localStorage.getItem("employee");
-        employee = JSON.parse(employee);
+        this.employee = JSON.parse(employee);
         this.iniciar();
     },
     methods: {
@@ -190,26 +190,18 @@ export default {
                         if (v.VehicleSold != null) {
                             v.VehicleSold.forEach(delivery => {
                                 delivery = this.delivery.find(d => d._id == delivery);
-                                if (delivery != null) {
+                                if (delivery != null && this.employee!=null) {
                                     if (delivery != null && delivery.Status == "ACTIVE") {
                                         let documentos = this.getDocumentosObligatorios(delivery.Documentation);
                                         let estimado = this.calcularEstimado(documentos, v.Date);
-
-                                        //deliveryVehicle.VehicleStock.BranchOffice == this.employee.BranchOffice
-                                        if (delivery.VehicleStock != null) {
+                                        if (delivery.VehicleStock != null && delivery.VehicleStock.BranchOffice == this.employee.BranchOffice) {
                                             let vehiculo = this.vehiculos.find(v => v._id == delivery.VehicleStock.Vehicle);
 
                                             if (vehiculo != null) {
-                                                //let documentation = this.documentation.find(d => d._id == delivery.Documentation);
-
-                                                // console.log("DELIVERY DOCUMENTATION: " + JSON.stringify(delivery.Documentation))
-                                                // console.log("DOC " + JSON.stringify(documentation))
-
                                                 this.agregarEntrega(v, vehiculo, documentos, delivery.VehicleStock.Color, estimado, delivery.VehicleStock._id, null, delivery);
                                             }
                                         }
-                                        //deliveryVehicle.PurchaseOrderV.BranchOffice == this.employee.BranchOffice
-                                        else if (delivery.PurchaseOrderV != null) {
+                                        else if (delivery.PurchaseOrderV != null && delivery.PurchaseOrderV.BranchOffice == this.employee.BranchOffice) {
                                             let vehiculo = this.vehiculos.find(v => v._id == delivery.PurchaseOrderV.Vehicle[0].VehicleID);
                                             if (vehiculo != null) {
                                                 this.agregarEntrega(v, vehiculo, documentos, delivery.PurchaseOrderV.Vehicle[0].Color, estimado, null, delivery.PurchaseOrderV._id, delivery);
@@ -217,11 +209,9 @@ export default {
                                         }
                                     }
                                 }
-
                             })
                         }
                     })
-
                 });
         },
 
@@ -268,8 +258,8 @@ export default {
                     "Marca": vehiculo.Brand,
                     "Model": vehiculo.Model,
                     "Año": vehiculo.year,
-                    "Origen": vehiculo.origin,
-                    "Transmission": vehiculo.Transmission,
+                    "Transmission": vehiculo.transmission,
+                    "Category":vehiculo.Category,
                     "Type": vehiculo.Type,
                     "Kind": vehiculo.Kind,
                     "Client": venta.Client,
@@ -303,20 +293,6 @@ export default {
                 this.dialogMensaje = true;
             }
         },
-        /*   "Documentation": [
-                {
-                    "_id": "5fd591b99fa7b109ac13fc72",
-                    "DocumentationID": {
-                        "_id": "5fd59073e5b6fc6ac87253ed",
-                        "Name": "Documento de Importación",
-                        "EstimatedTime": 10,
-                        "Origin": "IMPORTADO",
-                        "Status": "ACTIVE",
-                        "BranchOffice": "5fcef91a7434e320b41077b4",
-                        "__v": 0
-                    },
-                    "Completed": false
-                },*/
         getDocumentosObligatorios(documentos) {
             let ret = [];
             documentos.forEach(d => {
@@ -339,7 +315,6 @@ export default {
         },
 
         guardar() {
-            console.log("SELECTED: " + JSON.stringify(this.selected[0]));
             let completo = false;
             let cont = 0;
             for (let i = 0; i < this.editedItem.Documentation.length; i++) {
