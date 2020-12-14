@@ -335,7 +335,9 @@ export default {
             axios.post(urlAPI + "deliveryVehicle/" + this.selected[0].id + "/update", {
                 "deliveryVehicle": {
                     "Documentation": documentation,
-                    "Status": completo ? "INACTIVE" : "ACTIVE"
+                    "Status": completo ? "INACTIVE" : "ACTIVE",
+                    "Date": new Date(),
+                    "Employee": this.employee._id
                 }
             }).then(res => {
                 if (res != null) {

@@ -38,6 +38,8 @@ ctrl.update = (req, res) => {
             else {
                 deliveryVehicle.Documentation= body.Documentation;
                deliveryVehicle.Status = body.Status;
+               deliveryVehicle.Date = body.Date;
+               deliveryVehicle.Employee = body.Employee;
                 deliveryVehicle.save((err) => {
                     if(err) {console.log(err)}
                     console.log("UPDATE: "+deliveryVehicle)

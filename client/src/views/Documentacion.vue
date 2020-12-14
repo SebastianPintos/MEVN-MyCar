@@ -2,8 +2,7 @@
 <div>
 <v-tabs background-color="#2764c4" tile dark grow>
       <v-tab  @click="vistaABM = true;">ABM</v-tab>
-      <v-tab  @click="vistaABM = false;">Entregas</v-tab>
-   
+      <v-tab  @click="vistaABM = false;">Entregas pendientes</v-tab>
     </v-tabs>
 
 <Documentacion v-show="vistaABM" />
