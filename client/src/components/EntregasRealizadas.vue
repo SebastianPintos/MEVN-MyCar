@@ -138,9 +138,6 @@ export default {
                         if (v.VehicleSold != null) {
                             v.VehicleSold.forEach(delivery => {
                                 delivery = this.delivery.find(d => d._id == delivery);
-                                if(delivery!=null && delivery.Status!=null){
-                                console.log("ESTADO: "+JSON.stringify(delivery.Status))
-                                }
                                 if (delivery != null && this.employee!=null) {
                                     if (delivery != null && delivery.Documentation!=null){
                                     if (delivery.VehicleStock != null && delivery.VehicleStock.BranchOffice == this.employee.BranchOffice) {
