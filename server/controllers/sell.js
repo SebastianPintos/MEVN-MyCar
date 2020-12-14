@@ -56,7 +56,7 @@ ctrl.sellVehicle = async (req, res) => {
         else{ 
             console.log(sellDB);
             await helperSell.SellVehicle(sellDB);
-            await helperSell.SellProduct(sellDB);
+            //await helperSell.SellProduct(sellDB);
             res.status(200).json(sellDB);
         }
     });
