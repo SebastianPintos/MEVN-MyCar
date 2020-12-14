@@ -125,6 +125,15 @@
                     </v-list-item-icon>
                     <v-list-item-title>Documentación</v-list-item-title>
                 </v-list-item>
+                
+                <v-list-item :to="'/entregas'">
+                    <v-list-item-icon>
+                        <v-icon>
+                            mdi-truck-delivery-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Entregas</v-list-item-title>
+                </v-list-item>
+                
 
             </v-list-item-group>
 
