@@ -23,7 +23,7 @@
             <v-card-title>Descuento</v-card-title>
             <v-form ref="form" v-model="valid" lazy-validation>
                 <v-card-text>
-                    <v-select v-model="colorElegido" :items="colores" label="Color"></v-select>
+                    <v-select v-model="colorElegido" :items="colores" label="Color" :rules="requerido"></v-select>
                     <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
                 </v-card-text>
                 <v-card-actions>

@@ -32,6 +32,9 @@ const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
 const controlStock = require('../controllers/controlStock');
+
+const egreso = require('../controllers/egreso');
+const sueldos = require('../controllers/sueldos');
 const Email = require('../lib/Email');
 
 const pruebas = require('../controllers/pruebas');
@@ -200,6 +203,15 @@ module.exports = app => {
     router.get('/localidades', localidades.index);
     router.post('/localidades/add', localidades.create);
     router.post('/localidades/:localidades_id/update', localidades.update);
+ 
     
+    router.get('/egreso', egreso.index);
+    router.post('/egreso/add', egreso.create);
+    router.post('/egreso/:egreso_id/update', egreso.update);
+
+    
+    router.get('/sueldos', sueldos.index);
+    router.post('/sueldos/add', sueldos.create);
+    router.post('/sueldos/:sueldos_id/update', sueldos.update);
     app.use(router);
 }
