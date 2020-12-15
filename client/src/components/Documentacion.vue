@@ -124,7 +124,7 @@ export default {
 
         },
         headers: [{
-                text: 'Name',
+                text: 'Nombre',
                 value: 'Name',
                 align: 'start',
             },

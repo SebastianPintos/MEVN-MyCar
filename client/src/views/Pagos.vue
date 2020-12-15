@@ -732,7 +732,8 @@ export default {
                         "Factura": idFactura,
                         "Date": new Date(),
                         "Employee": employee,
-                        "CUIT": cliente
+                        "CUIT": cliente,
+                        "BranchOffice": employee.BranchOffice
                     }
                 }).then(
                     res => {

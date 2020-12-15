@@ -142,8 +142,15 @@
                     <v-list-item-title>Caja</v-list-item-title>
                 </v-list-item>
                 
+                  <v-list-item :to="'/egresos'">
+                    <v-list-item-icon>
+                        <v-icon>
+                           mdi-cash-minus</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Egresos</v-list-item-title>
+                </v-list-item>
                 
-
+            
             </v-list-item-group>
 
         </v-list>

@@ -208,6 +208,7 @@ module.exports = app => {
     router.get('/egreso', egreso.index);
     router.post('/egreso/add', egreso.create);
     router.post('/egreso/:egreso_id/update', egreso.update);
+    router.post('/egreso/:egreso_id/delete', egreso.remove);
 
     
     router.get('/sueldos', sueldos.index);

@@ -7,14 +7,18 @@ var EgresoSchema = new Schema({
           ref: 'Employee'
         },
         Sueldo: {
+          Employee: {
             type: Schema.Types.ObjectId,
-            ref: 'Sueldo'
+            ref: 'Employee'
+          },
+          Monto: {type: Number},
         },
         BranchOffice: {
           type: Schema.Types.ObjectId,
           ref: 'BranchOffice'
         },
-        Type: {type: String, enum: ['GASTOS GENERALES', 'MOVILIDAD','SUELDO'], required: true},
+        Type: {type: String, enum: ['VARIOS', 'MOVILIDAD','SUELDO'], required: true},
+        Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
         Description: {type: String},
         Monto: {type: Number},
         Date: {type: Date}

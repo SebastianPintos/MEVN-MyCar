@@ -20,7 +20,8 @@ ctrl.create = (req, res) => {
         Type: body.Type,
         Date: body.Date,
         Monto: body.Monto,
-        BranchOffice: body.BranchOffice
+        BranchOffice: body.BranchOffice,
+        Status: body.Status
     });
 
     egreso.save((err) => {
@@ -46,6 +47,7 @@ ctrl.update = (req, res) => {
                 egreso.Sueldo = body.Sueldo;
                 egreso.Monto = body.Monto;
                 egreso.BranchOffice = body.BranchOffice;
+                egreso.Status = body.Status
                 egreso.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -56,5 +58,28 @@ ctrl.update = (req, res) => {
         }
     });
 };
+
+
+ctrl.remove = (req, res) => {
+    var id = req.params.egreso_id;
+    Egreso.findOne({_id: id}, (err, egreso) => {
+        if(err) {console.log(err)}
+        else {
+            if(!egreso) {console.log('No se encontró el producto específico')}
+            else {
+                egreso.Status = 'INACTIVE';
+
+                egreso.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+};
+
 
 module.exports = ctrl;

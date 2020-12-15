@@ -247,6 +247,20 @@ const routes = [
         requiresAuth: true
       }
   },
+
+  {
+    path: "/egresos",
+    name: "Egresos",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "egresos" */ "../views/Egresos.vue"),
+      meta: {
+        title: 'Egresos',
+        requiresAuth: true
+      }
+  },
   
 
 ];
