@@ -2,9 +2,10 @@ ctrl = {};
 const helperReport = require('../lib/helperReport');
 
 ctrl.IncomeExpenses = async (req, res) => {
-    var date = req.body.date;
-    var income = await helperReport.TotalSell(date);
-    var expenses = await helperReport.Expenses(date);
+    var dateStart = req.body.dateStart;
+    var dateFinish = req.body.dateFinish;
+    var income = await helperReport.TotalSell(dateStart, dateFinish);
+    var expenses = await helperReport.Expenses(dateStart, dateFinish);
     if(income && expenses){
         res.status(200).json({income, expenses});
     }else {

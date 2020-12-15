@@ -3,14 +3,13 @@ const PurchaseOrder = require('../models/purchaseOrder');
 
 ctrl = {};
 
-ctrl.TotalSell = async (date) => {
-    var dateStart = new Date(date);
-    var dateFinish = new Date(date);
+ctrl.TotalSell = async (Start, Finish) => {
     var sells = [];
-
+    var report = [];
+    var dateStart = new Date(Start);
+    var dateFinish = new Date(Finish);
     dateStart.setHours(00, 00, 00);
     dateFinish.setHours(23, 00, 00);
-    var report = [];
     console.log(dateStart);
     console.log(dateFinish);
 
@@ -18,37 +17,38 @@ ctrl.TotalSell = async (date) => {
         if(err){console.log(err)}
         else{
             console.log(sellsDB);
-            var office = sellsDB[0].BranchOffice.toString();
+            var office = sellsDB[0].BranchOffice._id.toString();
+            var officeName = sellsDB[0].BranchOffice.Name;
             var totalMoney = 0;
             for(i = 0; i < sellsDB.length; i++){
                 console.log('office', office);
-                console.log('branch', sellsDB[i].BranchOffice);
-                if(office === sellsDB[i].BranchOffice.toString()){
+                console.log('branch', sellsDB[i].BranchOffice._id);
+                if(office === sellsDB[i].BranchOffice._id.toString()){
                     totalMoney += sellsDB[i].Factura.PrecioNeto;
                     console.log('total money' ,  totalMoney);
                     console.log('precio neto' ,  sellsDB[i].Factura.PrecioNeto);
                 }else{
-                    var branchTotal = { id: office, money: totalMoney};
+                    var branchTotal = { id: office, name: officeName, money: totalMoney};
                     report.push(branchTotal);
-                    office = sellsDB[i].BranchOffice.toString();
+                    office = sellsDB[i].BranchOffice._id.toString();
+                    officeName = sellsDB[i].BranchOffice.Name;
                     totalMoney = sellsDB[i].Factura.PrecioNeto;
                 }
             }
-            var branchTotal = { id: office, money: totalMoney};
+            var branchTotal = { id: office, name: officeName, money: totalMoney};
             report.push(branchTotal);
         }
-    }).sort('BranchOffice').populate('Factura');
+    }).sort('BranchOffice').populate('Factura BranchOffice');
 
     console.log(report);
     return report;
 
 }
 
-ctrl.Expenses = async (date) => {
-    var dateStart = new Date(date);
-    var dateFinish = new Date(date);
+ctrl.Expenses = async (Start, Finish) => {
     var expenses = [];
-
+    var dateStart = new Date(Start);
+    var dateFinish = new Date(Finish);
     dateStart.setHours(00, 00, 00);
     dateFinish.setHours(23, 00, 00);
     var report = [];
@@ -59,30 +59,45 @@ ctrl.Expenses = async (date) => {
         if(err){console.log(err)}
         else{
             console.log(purchaseDB);
-            var office = purchaseDB[0].BranchOffice.toString();
+            var office = purchaseDB[0].BranchOffice._id.toString();
+            var officeName = purchaseDB[0].BranchOffice.Name;
             var totalMoney = 0;
             for(i = 0; i < purchaseDB.length; i++){
                 console.log('office', office);
-                console.log('branch', purchaseDB[i].BranchOffice);
-                if(office === purchaseDB[i].BranchOffice.toString()){
+                console.log('branch', purchaseDB[i].BranchOffice._id);
+                if(office === purchaseDB[i].BranchOffice._id.toString()){
                     totalMoney += purchaseDB[i].Price;
                     console.log('total money' ,  totalMoney);
                     console.log('precio neto' ,  purchaseDB[i].Price);
                 }else{
-                    var branchTotal = { id: office, money: totalMoney};
+                    var branchTotal = { id: office, name: officeName, money: totalMoney};
                     report.push(branchTotal);
-                    office = purchaseDB[i].BranchOffice.toString();
+                    office = purchaseDB[i].BranchOffice._id.toString();
+                    officeName = purchaseDB[i].BranchOffice.Name;
                     totalMoney = purchaseDB[i].Price;
                 }
             }
-            var branchTotal = { id: office, money: totalMoney};
+            var branchTotal = { id: office, name: officeName, money: totalMoney};
             report.push(branchTotal);
         }
-    }).sort('BranchOffice');
+    }).sort('BranchOffice').populate('BranchOffice');
 
     console.log(report);
     return report;
 
 }
+
+/* ctrl.Discriminated = async (dateStart, dateFinish) => {
+
+    await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish }}, (err, sellsDB) => {
+        if(err){console.log(err)}
+        else{
+            for(i = 0; i < sellsDB.length; i++){
+
+            }
+
+        }
+    }).sort('BranchOffice').populate({path: 'VehicleSold', populate: { path: }});
+} */
 
 module.exports = ctrl;
