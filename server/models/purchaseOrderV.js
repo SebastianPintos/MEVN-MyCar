@@ -19,6 +19,7 @@ var PurchaseOrderVSchema = new Schema({
   Type: {type: String, enum: ['ENVIADA', 'RECIBIDA'], required: true},
   Info: {type: String},
   Venta: {type: Boolean},
+  Employee: {type: Schema.Types.ObjectId, required: true, ref: 'Employee'}
 });
 
 var PurchaseOrderV = mongoose.model("PurchaseOrderV", PurchaseOrderVSchema);

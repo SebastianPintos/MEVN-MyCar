@@ -248,7 +248,7 @@ export default {
                     this.editedItem.Description = "N/A";
                 }
                 let date = new Date();
-                date = new Date(date.setTime(date.getTime()));
+                date = this.nuevo ? new Date(date.setTime(date.getTime())) : this.selected[0].Date;
                 let auxegresos = {
                     "egreso": {
                         "Employee": this.employee._id,
