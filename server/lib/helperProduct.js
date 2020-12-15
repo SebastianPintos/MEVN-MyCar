@@ -3,6 +3,7 @@ const Product = require('../models/product');
 const ProductStock = require('../models/productStock');
 const Service = require("../models/service");
 const Reservation = require('../models/reservation');
+const helperStock = require('./helperStock');
 
 //Recibe un lista de servicios que a su vez contiene una lista de productos. La funcion checkea si hay existencia en el stock sufuciente para cubrir todos los productos
 //Devuelve un lista con los productos que no tiene cantidad suficiente.
@@ -223,22 +224,11 @@ helperProduct.CreateMail = (reservation, services) => {
 
 }
 
-helperProduct.SellProduct = async (sell) => {
+helperProduct.SellProduct = (sell) => {
    var productsSold = sell.productStock;
    for(x=0; x < productsSold.length; x++){
-    await ProductStock.findOne( {id: products[x].id, Status: 'ACTIVE'}, (err,productDb) => {
-        console.log(productDb);
-        if(err) {console.log(err)} 
-        else{ 
-            productDb.Available -= 1;
-            productDb.Reserved -= 1; 
-        }
-        await productDb.save((err) => {
-            if(err) {console.log(err)}
-        });
-    });  
-}
-
+       helperStock.subtractStock(producstSold[x]);
+   }
 }
 
 module.exports = helperProduct;

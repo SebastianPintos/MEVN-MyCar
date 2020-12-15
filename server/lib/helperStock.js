@@ -51,4 +51,19 @@ helperStock.checkMinCreation = async (controlStock) => {
         console.log("GENERAR ORDEN");
     });
  }
+
+helperStock.subtractStock = async (productStock) => {
+    await ProductStock.findOne( {id: productStock.id, Status: 'ACTIVE'}, (err,productDb) => {
+        console.log(productDb);
+        if(err) {console.log(err)} 
+        else{ 
+            productDb.Available -= 1;
+            productDb.Reserved -= 1;
+        }
+        productDb.save((err) => {
+            if(err) {console.log(err);}
+        });
+    })
+}
+
 module.exports = helperStock; 
