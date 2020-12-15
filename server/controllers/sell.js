@@ -56,7 +56,7 @@ ctrl.sellVehicle = async (req, res) => {
         else{ 
             console.log(sellDB);
             await helperSell.SellVehicle(sellDB);
-            //await helperSell.SellProduct(sellDB);
+            await helperSell.SellProduct(sellDB);
             res.status(200).json(sellDB);
         }
     });
@@ -75,8 +75,9 @@ ctrl.sellService = async (req, res) => {
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
-        Factura: body.Factura
-    })
+        Factura: body.Factura,
+        WorkOrder: body.WorkOrder
+    });
 }
 
 module.exports = ctrl;

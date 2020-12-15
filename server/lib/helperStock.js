@@ -42,7 +42,7 @@ helperStock.checkMin = async (repuesto) => {
                 let countPO = 0;
                 await PurchaseOrder.estimatedDocumentCount((err, count) => {
                     if (err) { console.log(err) }
-                    else { countPO = count }
+                    else { countPO = count + 1}
                 });
 
                 let purchaseOrder = new PurchaseOrder({
@@ -95,7 +95,7 @@ helperStock.checkMinCreation = async (controlStock) => {
             let countPO = 0;
             await PurchaseOrder.estimatedDocumentCount((err, count) => {
                 if (err) { console.log(err) }
-                else { countPO = count }
+                else { countPO = count + 1}
             });
             
             console.log('product ', productStock[0]);

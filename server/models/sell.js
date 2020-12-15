@@ -34,7 +34,8 @@ var sellSchema = new Schema({
       CBU: {type: String},
       Holder: {type: String}
     }}],
-  WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
+    BranchOffice: {type: Schema.Types.ObjectId, ref: 'BranchOffice'},
+    WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
 },{timestamps: true});
 
 var sell = mongoose.model("Sell", sellSchema);
