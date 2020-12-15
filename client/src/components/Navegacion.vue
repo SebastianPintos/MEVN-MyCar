@@ -133,6 +133,15 @@
                     </v-list-item-icon>
                     <v-list-item-title>Entregas</v-list-item-title>
                 </v-list-item>
+
+                  <v-list-item :to="'/caja'">
+                    <v-list-item-icon>
+                        <v-icon>
+                           mdi-cash-register</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Caja</v-list-item-title>
+                </v-list-item>
+                
                 
 
             </v-list-item-group>

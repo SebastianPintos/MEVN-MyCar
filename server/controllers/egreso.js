@@ -19,7 +19,8 @@ ctrl.create = (req, res) => {
         Employee: body.Employee,
         Type: body.Type,
         Date: body.Date,
-        Monto: body.Monto
+        Monto: body.Monto,
+        BranchOffice: body.BranchOffice
     });
 
     egreso.save((err) => {
@@ -44,6 +45,7 @@ ctrl.update = (req, res) => {
                 egreso.Description = body.Description;
                 egreso.Sueldo = body.Sueldo;
                 egreso.Monto = body.Monto;
+                egreso.BranchOffice = body.BranchOffice;
                 egreso.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

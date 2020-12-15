@@ -452,7 +452,7 @@ export default {
                 }
                 this.dialogStock = false;
             } else {
-                this.titulo = "<h1 class='text-center'>Vehpiculo/s inexistente/s</h1><br>";
+                this.titulo = "<h1 class='text-center'>Vehículo/s inexistente/s</h1><br>";
                 this.dialogMensaje = true;
             }
 
