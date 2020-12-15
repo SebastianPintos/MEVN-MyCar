@@ -2,6 +2,7 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
         <h1 class="text-center" style="background-color:DimGray;color:white">INGRESOS/EGRESOS {{fecha}}</h1>
+        <h4 class="text-center" style="background-color:DimGray;color:white">ESTADO: {{caja}}</h4>
         <v-data-table v-model="selected" :headers="headers" :items="movimientos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
 
             <template v-slot:item.Date="{ item }">
@@ -20,12 +21,12 @@
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
 
-                    <div v-if="validateUsers('Administrativo')">
+                    <div v-if="validateUsers('Administrativo') && caja=='CERRADA'">
                         <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                             <v-icon>mdi-cash-lock-open</v-icon>
                         </v-btn>
 
-                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on">
+                        <v-btn v-if="caja=='ABIERTA'" color="error" dark class="mb-2" v-bind="attrs" v-on="on">
                             <v-icon>mdi-cash-lock</v-icon>
                         </v-btn>
 
@@ -55,6 +56,7 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         fecha: null,
+        caja: 'CERRADA',
         ordenesR: [],
         ordenesV: [],
         ventas: [],
@@ -93,7 +95,6 @@ export default {
                 text: 'Decripción',
                 value: 'Description',
             },
-
             {
                 text: 'Responsable',
                 value: 'Responsable',
@@ -105,7 +106,6 @@ export default {
         on: '',
         employee: null,
         date: null
-
     }),
 
     created() {
@@ -116,6 +116,7 @@ export default {
         this.employee = employee;
         this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
         this.getegresos(this.branchOffice);
+        this.getCaja();
         this.getOrdenes();
         this.getVentas();
         this.getEmpleados();
@@ -127,6 +128,17 @@ export default {
                 return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
             }
             return false;
+        },
+
+        
+        getCaja() {
+            if (localStorage.getItem('caja') != null) {
+              this.caja = localStorage.getItem('caja');
+            }
+            else{
+                this.caja = 'CERRADA';
+                localStorage.setItem('caja','CERRADA');
+            }
         },
 
         async getegresos(branchOffice) {
