@@ -22,7 +22,7 @@ ctrl.index = (req, res) => {
         res.send({
             purchaseOrderV: purchaseOrderV
         })
-    }).populate('Vehicle.VehicleID').populate('Dealer').populate('BranchOffice');
+    }).populate('Vehicle.VehicleID').populate('Dealer').populate('BranchOffice').populate('Employee');
 };
 
 ctrl.create = (req, res) => {

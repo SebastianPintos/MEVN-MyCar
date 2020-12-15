@@ -1,7 +1,7 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-    <h1 class="text-center" style="background-color:DimGray;color:white">INGRESOS/EGRESOS {{fecha}}</h1>
+        <h1 class="text-center" style="background-color:DimGray;color:white">INGRESOS/EGRESOS {{fecha}}</h1>
         <v-data-table v-model="selected" :headers="headers" :items="movimientos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
 
             <template v-slot:item.Date="{ item }">
@@ -21,11 +21,11 @@
                     <v-spacer></v-spacer>
 
                     <div v-if="validateUsers('Administrativo')">
-                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
+                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
                             <v-icon>mdi-cash-lock-open</v-icon>
                         </v-btn>
 
-                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="corroborarSeleccionado">
+                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on">
                             <v-icon>mdi-cash-lock</v-icon>
                         </v-btn>
 
@@ -55,7 +55,8 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         fecha: null,
-        ordenes: [],
+        ordenesR: [],
+        ordenesV: [],
         ventas: [],
         dialogMensaje: false,
         mensaje: '',
@@ -70,7 +71,7 @@ export default {
         egresos: [],
         movimientos: [],
         search: '',
-        
+
         headers: [{
                 text: 'Fecha y Hora',
                 value: 'Date',
@@ -92,7 +93,7 @@ export default {
                 text: 'Decripción',
                 value: 'Description',
             },
-            
+
             {
                 text: 'Responsable',
                 value: 'Responsable',
@@ -103,17 +104,20 @@ export default {
         attrs: '',
         on: '',
         employee: null,
-        
+        date: null
+
     }),
 
     created() {
         let date = new Date()
-        this.fecha = date.getDate()+"-"+date.getMonth()+"-"+parseInt(date.getYear()+1900);
+        this.fecha = date.getDate() + "-" + parseInt(date.getMonth() + 1) + "-" + parseInt(date.getYear() + 1900);
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
         this.employee = employee;
         this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
         this.getegresos(this.branchOffice);
+        this.getOrdenes();
+        this.getVentas();
         this.getEmpleados();
     },
 
@@ -124,6 +128,7 @@ export default {
             }
             return false;
         },
+
         async getegresos(branchOffice) {
             await axios.get(urlAPI + 'egreso')
                 .then(res => {
@@ -131,11 +136,11 @@ export default {
                     let egresos = res.data.egreso;
                     if (egresos != null) {
                         if (branchOffice != "") {
-                            egresos.forEach(e=>{
-                                if(e.BranchOffice==branchOffice && e.Status=="ACTIVE"){
-                                    egresos.push({
+                            egresos.forEach(e => {
+                                if (e.BranchOffice == branchOffice && e.Status == "ACTIVE") {
+                                    this.egresos.push({
                                         "Date": e.Date,
-                                        "Responsable": e.Employee,
+                                        "Responsable": e.Employee.DNI,
                                         "Monto": e.Monto,
                                         "Description": e.Description,
                                         "Type": "EGRESO",
@@ -143,32 +148,99 @@ export default {
                                     })
                                 }
                             })
-                        
+                            this.egresos.forEach(e => {
+                                this.movimientos.push(e)
+                            });
                         }
                     }
                 })
         },
-        
-        async getOrdenes(branchOffice) {
-            await axios.get(urlAPI + 'purchaseOrder')
+
+        async getVentas(branchOffice) {
+            await axios.get(urlAPI + 'sellVehicle')
                 .then(res => {
-                    this.ordenesR = [];
-                    let ordenes = res.data.purchaseOrder;
-                    if (ordenes != null) {
+                    this.ventas = [];
+                    let ventas = res.data.sell;
+                    if (ventas != null) {
                         if (branchOffice != "") {
-                            ordenes.forEach(o=>{
-                                if(o.BranchOffice==branchOffice && o.Status=="ACTIVE"){
-                                    ordenes.push({
-                                        "Date": e.ArrivalDate,
-                                        "Responsable": e.Employee,
-                                        "Monto": e.Monto,
-                                        "Description": e.Description,
-                                        "Type": "EGRESO",
-                                        "Motivo": e.Type
+                            ventas.forEach(e => {
+                                if (e.BranchOffice != null && e.BranchOffice._id == branchOffice) {
+                                    this.ventas.push({
+                                        "Date": e.Date,
+                                        "Responsable": e.Employee.DNI,
+                                        "Monto": e.Factura.PrecioNeto,
+                                        "Description": "N/A",
+                                        "Type": "INGRESO",
+                                        "Motivo": "VENTA"
                                     })
                                 }
                             })
-                        
+                            this.ventas.forEach(v => {
+                                this.movimientos.push(v)
+                            });
+                        }
+                    }
+
+                })
+        },
+
+        async getOrdenes(branchOffice) {
+            let fecha = new Date();
+            fecha = new Date(fecha.setTime(fecha.getTime()));
+            await axios.get(urlAPI + 'purchaseOrder')
+                .then(res => {
+                    this.ordenesR = [];
+                    let ordenesR = res.data.purchaseOrder;
+                    if (ordenesR != null) {
+                        if (branchOffice != "") {
+                            ordenesR.forEach(o => {
+                                let date = new Date(o.OrderDate);
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && date.getDate() ==
+                                    fecha.getDate() &&
+                                    date.getMonth() == fecha.getMonth() &&
+                                    date.getYear() == fecha.getYear()) {
+                                    this.ordenesR.push({
+                                        "Date": o.OrderDate,
+                                        "Responsable": o.Employee.DNI,
+                                        "Monto": o.Price,
+                                        "Description": "ORDEN DE COMPRA",
+                                        "Type": "EGRESO",
+                                        "Motivo": "REPUESTOS"
+                                    })
+                                }
+                            })
+                            this.ordenesR.forEach(o => {
+                                this.movimientos.push(o)
+                            });
+                        }
+                    }
+                })
+
+            await axios.get(urlAPI + 'purchaseOrderV')
+                .then(res => {
+                    this.ordenesV = [];
+                    let ordenes = res.data.purchaseOrderV;
+                    if (ordenes != null) {
+                        if (branchOffice != "") {
+                            ordenes.forEach(o => {
+                                let date = new Date(o.OrderDate);
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && date.getDate() ==
+                                    fecha.getDate() &&
+                                    date.getMonth() == fecha.getMonth() &&
+                                    date.getYear() == fecha.getYear()) {
+                                    this.ordenesV.push({
+                                        "Date": o.OrderDate,
+                                        "Responsable": o.Employee.DNI,
+                                        "Monto": o.Price,
+                                        "Description": "ORDEN DE COMPRA",
+                                        "Type": "EGRESO",
+                                        "Motivo": "VEHÍCULOS"
+                                    })
+                                }
+                            })
+                            this.ordenesV.forEach(o => {
+                                this.movimientos.push(o)
+                            });
                         }
                     }
                 })
@@ -188,97 +260,6 @@ export default {
                 })
         },
 
-        guardar() {
-            if (this.validate()) {
-                let sueldo = null;
-
-                if (this.sueldo) {
-                    sueldo = {
-                        "Employee": this.editedItem.Sueldo.Employee,
-                        "Monto": this.editedItem.Sueldo.Monto
-                    };
-                    this.editedItem.Monto = this.editedItem.Sueldo.Monto;
-                    this.editedItem.Description = "N/A";
-                }
-                let date = new Date();
-                date = new Date(date.setTime(date.getTime()));
-                let auxegresos = {
-                    "egreso": {
-                        "Employee": this.employee._id,
-                        "Sueldo": sueldo,
-                        "Monto": this.editedItem.Monto,
-                        "BranchOffice": this.branchOffice,
-                        "Type": this.editedItem.Type,
-                        "Description": this.editedItem.Description,
-                        "Date": date,
-                        "Status": "ACTIVE"
-                    }
-                };
-                if (this.nuevo == true) {
-                    axios.post(urlAPI + "egreso/add", auxegresos).then(res => {
-                        if (res != null) {
-                            this.editedItem = this.defaultItem;
-                            this.getegresos(this.branchOffice);
-                            this.reset();
-                        }
-                    })
-
-                } else {
-                    axios.post(urlAPI + "egreso/" + this.selected[0]._id + "/update", auxegresos).then(res => {
-                        if (res != null) {
-                            this.egresos = [];
-                            this.editedItem = this.defaultItem;
-                            this.getegresos(this.branchOffice);
-                            this.reset();
-                        }
-                    })
-                }
-            }
-        },
-
-        eliminar() {
-            axios.post(urlAPI + "egreso/" + this.selected[0]._id + "/delete").then(res => {
-                if (res != null) {
-                    this.egresos.splice(this.egresos.indexOf(this.selected[0]), 1)
-                    this.selected = [];
-                    this.dialogDelete = false;
-                    this.reset();
-                }
-            })
-
-        },
-        corroborarSeleccionado() {
-            if (this.selected.length != 1) {
-                this.mensaje = "No ha seleccionado ningún elemento!";
-                this.snackbar = true;
-                return;
-            }
-            this.dialogDelete = true;
-        },
-        editar() {
-            if (this.selected.length != 1) {
-                this.mensaje = "No ha seleccionado ningún elemento!";
-                this.snackbar = true;
-                return;
-            }
-            this.editedItem.Description = this.selected[0].Description;
-            if (this.selected[0].Sueldo != null) {
-                this.editedItem.Sueldo.Employee = this.selected[0].Sueldo.Employee;
-                this.editedItem.Sueldo.Monto = this.selected[0].Sueldo.Monto;
-            }
-            this.editedItem.Monto = this.selected[0].Monto;
-            this.editedItem.Employee = this.selected[0].Employee;
-            this.editedItem.BranchOffice = this.selected[0].BranchOffice;
-            this.editedItem.Type = this.selected[0].Type;
-            this.editedItem.Date = this.selected[0].Date;
-            this.titulo = "Editar Egreso";
-            this.dialogNuevo = true;
-        },
-
-        validate() {
-            return this.$refs.form.validate();
-        },
-
         reset() {
             if (this.dialogNuevo) {
                 this.$refs.form.resetValidation();
@@ -286,7 +267,7 @@ export default {
             this.editedItem = this.defaultItem;
             this.dialogNuevo = false;
             this.nuevo = false;
-            this.selected=[];
+            this.selected = [];
         },
 
         formatDate(date) {
@@ -294,7 +275,7 @@ export default {
                 return "N/A";
             }
             date = new Date(date);
-            let dia =this.formatStringDate(date.getDate());
+            let dia = this.formatStringDate(date.getDate());
             let hs = this.formatStringDate(date.getHours());
             let min = this.formatStringDate(date.getMinutes());
             let seg = this.formatStringDate(date.getSeconds());
@@ -303,13 +284,12 @@ export default {
             return date;
         },
 
-        formatStringDate(value){
-            return String(value).length==1? "0"+value : value;
+        formatStringDate(value) {
+            return String(value).length == 1 ? "0" + value : value;
         },
 
-        
-        formatString(value){
-            return value==null? "S/D": value;
+        formatString(value) {
+            return value == null ? "S/D" : value;
         },
 
         formatPrice(value) {
