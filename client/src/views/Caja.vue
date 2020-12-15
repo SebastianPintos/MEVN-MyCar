@@ -49,17 +49,18 @@
         <v-dialog v-model="dialogMensaje" max-width="400px" persistent>
             <v-card>
                 <v-card-text>
-                    <br><h1 class="text-center">Confirmación</h1><br>
+                    <br>
+                    <h1 class="text-center">Confirmación</h1><br>
                     <h3>{{mensaje}}</h3>
                 </v-card-text>
                 <v-card-actions>
-                <v-flex class="text-right" >
-                    <v-btn class="mb-2" @click="dialogMensaje=false;mensaje=''" color="info">
-                        <v-icon>mdi-cancel</v-icon>
-                    </v-btn>
-                    <v-btn class="mb-2" @click="cambiarCaja" color="info">
-                        <v-icon >mdi-check</v-icon>
-                    </v-btn>
+                    <v-flex class="text-right">
+                        <v-btn class="mb-2" @click="dialogMensaje=false;mensaje=''" color="info">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn class="mb-2" @click="cambiarCaja" color="info">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
                     </v-flex>
                 </v-card-actions>
             </v-card>
@@ -147,11 +148,11 @@ export default {
         },
 
         getCaja() {
-            axios.get(urlAPI+'branchOffice').then(res=>{
-                if(res!=null){
+            axios.get(urlAPI + 'branchOffice').then(res => {
+                if (res != null) {
                     let branchOffice = res.data.branchOffice;
-                    branchOffice = branchOffice.find(b=>b._id == this.employee.BranchOffice);
-                    if(branchOffice!=null){
+                    branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
+                    if (branchOffice != null) {
                         this.branchOffice = branchOffice;
                         this.caja = branchOffice.Caja;
                     }
@@ -343,7 +344,20 @@ export default {
                 this.caja = 'ABIERTA';
                 localStorage.setItem('caja', 'ABIERTA');
             }
-            axios.post(urlAPI+'branchOffice/'+this.branchOffice._id+'/setCaja',{"Caja":this.caja});
+            let fecha = new Date();
+            fecha = new Date(fecha.setTime(fecha.getTime()));
+            let change = { 
+                    "Employee": this.employee._id,
+                    "Date": fecha,
+                    "Description":"CAJA: " + this.caja
+                }
+            let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? arrChange = [] : this.branchOffice.ChangeStatus;
+            arrChange.push(change);
+            axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/setCaja', {
+                "Caja": this.caja
+            });
+            axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/changeStatus', arrChange);
+
             this.mensaje = "";
             this.dialogMensaje = false;
         }

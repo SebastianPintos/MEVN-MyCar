@@ -48,7 +48,8 @@ ctrl.create = (req, res) => {
         Status: 'ACTIVE',
         Employee: body.Employee,
         Hours: body.Hours,
-        Caja: body.Caja
+        Caja: body.Caja,
+        ChangeStatus: body.ChangeStatus
     });
 
     branchOffice.save((err) => {
@@ -76,6 +77,7 @@ ctrl.update = (req, res) => {
                 branchOffice.Status = 'ACTIVE'
                 branchOffice.Employee = body.Employee;
                 branchOffice.Hours = body.Hours;
+                branchOffice.ChangeStatus = body.ChangeStatus;
 
                 branchOffice.save((err) => {
                     if(err) {console.log(err)}
@@ -119,6 +121,29 @@ ctrl.setCaja = (req, res) => {
             if(!branchOffice) {console.log('No se encontró el producto específico')}
             else {
                 branchOffice.Caja = caja;
+
+                branchOffice.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+};
+
+ctrl.changeStatus = (req, res) => {
+    var id = req.params.branchOffice_id;
+    var change = req.body;
+   
+    BranchOffice.findOne({_id: id}, (err, branchOffice) => {
+        if(err) {console.log(err)}
+        else {
+            if(!branchOffice) {console.log('No se encontró el producto específico')}
+            else {
+                branchOffice.ChangeStatus = change;
 
                 branchOffice.save((err) => {
                     if(err) {console.log(err)}

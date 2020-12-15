@@ -27,7 +27,12 @@ var BranchOfficeSchema = new Schema({
     Friday: {Open: {type: Number}, Close: {type: Number}},
     Saturday: {Open: {type: Number},Close: {type: Number}},
     Sunday: {Open: {type: Number},Close: {type: Number}}
-  }
+  },
+  ChangeStatus: [{Employee: {
+    type: Schema.Types.ObjectId,
+    ref: 'Employee'
+  }, Date: {type: Date},
+Description: {type: String}},]
 });
 
 var branchOffice = mongoose.model("BranchOffice", BranchOfficeSchema);

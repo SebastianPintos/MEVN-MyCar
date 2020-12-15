@@ -116,6 +116,7 @@ module.exports = app => {
     router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
     router.delete('/branchOffice/:branchOffice_id/delete', branchOffice.remove);
     router.post('/branchOffice/:branchOffice_id/setCaja', branchOffice.setCaja);
+    router.post('/branchOffice/:branchOffice_id/changeStatus', branchOffice.changeStatus);
     
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
