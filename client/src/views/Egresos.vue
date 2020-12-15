@@ -19,7 +19,7 @@
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
 
-                    <div v-if="validateUsers('Administrativo')">
+                    <div v-if="validateUsers('Administrativo') & caja=='ABIERTA'">
                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
                             <v-icon>mdi-pencil</v-icon>
                         </v-btn>
@@ -176,7 +176,8 @@ export default {
             Type: "",
             Description: "",
             Date: null
-        }
+        },
+        caja:"CERRADA"
     }),
 
     created() {
@@ -184,11 +185,29 @@ export default {
         employee = JSON.parse(employee);
         this.employee = employee;
         this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
-        this.getegresos(this.branchOffice);
-        this.getEmpleados();
+        if (employee != null & this.branchOffice != null) {
+            this.iniciar();
+        }
     },
 
     methods: {
+
+        getCaja() {
+            axios.get(urlAPI + 'branchOffice').then(res => {
+                if (res != null) {
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
+                    if (branchOffice != null) {
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
+        },
+        iniciar() {
+            this.getegresos(this.branchOffice);
+            this.getEmpleados();
+            this.getCaja();
+        },
         cambiarInputs() {
             if (this.editedItem.Type == 'SUELDO') {
                 this.sueldo = true;
@@ -215,7 +234,7 @@ export default {
                     let egresos = res.data.egreso;
                     if (egresos != null) {
                         if (branchOffice != "") {
-                            this.egresos = egresos.filter(d => d.BranchOffice == branchOffice && d.Status=="ACTIVE");
+                            this.egresos = egresos.filter(d => d.BranchOffice == branchOffice && d.Status == "ACTIVE");
                         }
                     }
                 })
@@ -333,7 +352,7 @@ export default {
             this.editedItem = this.defaultItem;
             this.dialogNuevo = false;
             this.nuevo = false;
-            this.selected=[];
+            this.selected = [];
         },
 
         formatDate(date) {
@@ -341,7 +360,7 @@ export default {
                 return "N/A";
             }
             date = new Date(date);
-            let dia =this.formatStringDate(date.getDate());
+            let dia = this.formatStringDate(date.getDate());
             let hs = this.formatStringDate(date.getHours());
             let min = this.formatStringDate(date.getMinutes());
             let seg = this.formatStringDate(date.getSeconds());
@@ -350,13 +369,12 @@ export default {
             return date;
         },
 
-        formatStringDate(value){
-            return String(value).length==1? "0"+value : value;
+        formatStringDate(value) {
+            return String(value).length == 1 ? "0" + value : value;
         },
 
-        
-        formatString(value){
-            return value==null? "S/D": value;
+        formatString(value) {
+            return value == null ? "S/D" : value;
         },
 
         formatPrice(value) {

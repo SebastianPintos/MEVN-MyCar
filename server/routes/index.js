@@ -34,7 +34,6 @@ const subcategory = require('../controllers/subcategory');
 const controlStock = require('../controllers/controlStock');
 
 const egreso = require('../controllers/egreso');
-const sueldos = require('../controllers/sueldos');
 const Email = require('../lib/Email');
 
 const pruebas = require('../controllers/pruebas');
@@ -116,6 +115,7 @@ module.exports = app => {
     router.post('/branchOffice/add', branchOffice.create);
     router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
     router.delete('/branchOffice/:branchOffice_id/delete', branchOffice.remove);
+    router.post('/branchOffice/:branchOffice_id/setCaja', branchOffice.setCaja);
     
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
@@ -210,9 +210,5 @@ module.exports = app => {
     router.post('/egreso/:egreso_id/update', egreso.update);
     router.post('/egreso/:egreso_id/delete', egreso.remove);
 
-    
-    router.get('/sueldos', sueldos.index);
-    router.post('/sueldos/add', sueldos.create);
-    router.post('/sueldos/:sueldos_id/update', sueldos.update);
     app.use(router);
 }

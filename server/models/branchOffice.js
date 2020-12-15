@@ -13,7 +13,8 @@ var BranchOfficeSchema = new Schema({
     City: {type: String},
     Province: {type: String}
   },
-  Status: {type: String},
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE']},
+  Caja: {type: String, enum: ['ABIERTA', 'CERRADA']},
   Employee: [{
     type: Schema.Types.ObjectId,
     ref: 'Employee'

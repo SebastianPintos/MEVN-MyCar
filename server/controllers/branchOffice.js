@@ -48,6 +48,7 @@ ctrl.create = (req, res) => {
         Status: 'ACTIVE',
         Employee: body.Employee,
         Hours: body.Hours,
+        Caja: body.Caja
     });
 
     branchOffice.save((err) => {
@@ -66,6 +67,7 @@ ctrl.update = (req, res) => {
         else {
             if(!branchOffice) {console.log('No se encontró el empleado')}
             else {
+                branchOffice.Caja = body.Caja;
                 branchOffice.Name = body.Name;
                 branchOffice.WorkShop = body.WorkShop;
                 branchOffice.Email = body.Email;
@@ -99,6 +101,30 @@ ctrl.remove = (req, res) => {
                     res.send({
                         success: true
 
+                    })
+                });
+            }
+        }
+    });
+};
+
+
+ctrl.setCaja = (req, res) => {
+    var id = req.params.branchOffice_id;
+    var caja = req.body.Caja;
+   
+    BranchOffice.findOne({_id: id}, (err, branchOffice) => {
+        if(err) {console.log(err)}
+        else {
+            if(!branchOffice) {console.log('No se encontró el producto específico')}
+            else {
+                branchOffice.Caja = caja;
+
+                branchOffice.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
                     })
                 });
             }

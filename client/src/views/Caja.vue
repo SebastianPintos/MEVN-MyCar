@@ -21,12 +21,12 @@
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
 
-                    <div v-if="validateUsers('Administrativo') && caja=='CERRADA'">
-                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                    <div v-if="validateUsers('Administrativo')">
+                        <v-btn v-if="caja=='CERRADA'" color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialog">
                             <v-icon>mdi-cash-lock-open</v-icon>
                         </v-btn>
 
-                        <v-btn v-if="caja=='ABIERTA'" color="error" dark class="mb-2" v-bind="attrs" v-on="on">
+                        <v-btn v-if="caja=='ABIERTA'" color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialog">
                             <v-icon>mdi-cash-lock</v-icon>
                         </v-btn>
 
@@ -46,6 +46,25 @@
             </template>
         </v-snackbar>
 
+        <v-dialog v-model="dialogMensaje" max-width="400px" persistent>
+            <v-card>
+                <v-card-text>
+                    <br><h1 class="text-center">Confirmación</h1><br>
+                    <h3>{{mensaje}}</h3>
+                </v-card-text>
+                <v-card-actions>
+                <v-flex class="text-right" >
+                    <v-btn class="mb-2" @click="dialogMensaje=false;mensaje=''" color="info">
+                        <v-icon>mdi-cancel</v-icon>
+                    </v-btn>
+                    <v-btn class="mb-2" @click="cambiarCaja" color="info">
+                        <v-icon >mdi-check</v-icon>
+                    </v-btn>
+                    </v-flex>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
     </div>
 </v-img>
 </template>
@@ -62,11 +81,7 @@ export default {
         ventas: [],
         dialogMensaje: false,
         mensaje: '',
-        nuevo: false,
-        valid: true,
-        dialogNuevo: false,
         snackbar: false,
-        dialogConfirm: false,
         titulo: '',
         menu: false,
         selected: [],
@@ -101,6 +116,7 @@ export default {
             },
         ],
         empleados: [],
+        branchOffice: null,
         editedIndex: -1,
         attrs: '',
         on: '',
@@ -130,15 +146,17 @@ export default {
             return false;
         },
 
-        
         getCaja() {
-            if (localStorage.getItem('caja') != null) {
-              this.caja = localStorage.getItem('caja');
-            }
-            else{
-                this.caja = 'CERRADA';
-                localStorage.setItem('caja','CERRADA');
-            }
+            axios.get(urlAPI+'branchOffice').then(res=>{
+                if(res!=null){
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b=>b._id == this.employee.BranchOffice);
+                    if(branchOffice!=null){
+                        this.branchOffice = branchOffice;
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
         },
 
         async getegresos(branchOffice) {
@@ -307,6 +325,28 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
+
+        mostrarDialog() {
+            if (this.caja == 'ABIERTA') {
+                this.mensaje = "¿Está seguro de que deseas cerrar la caja?";
+                this.dialogMensaje = true;
+            } else {
+                this.mensaje = "¿Está seguro de que deseas abrir la caja?";
+                this.dialogMensaje = true;
+            }
+        },
+
+        cambiarCaja() {
+            if (this.caja == 'ABIERTA') {
+                this.caja = 'CERRADA';
+            } else {
+                this.caja = 'ABIERTA';
+                localStorage.setItem('caja', 'ABIERTA');
+            }
+            axios.post(urlAPI+'branchOffice/'+this.branchOffice._id+'/setCaja',{"Caja":this.caja});
+            this.mensaje = "";
+            this.dialogMensaje = false;
+        }
     },
 
 };
