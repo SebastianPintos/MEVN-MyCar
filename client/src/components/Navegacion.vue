@@ -104,6 +104,14 @@
 
                 </v-list-group>
 
+                <v-list-item :to="'/proveedores'">
+                    <v-list-item-icon>
+                        <v-icon>mdi-package-variant</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Proveedores</v-list-item-title>
+                </v-list-item>
+
+
                 <v-list-item :to="'/servicios'">
                     <v-list-item-icon>
                         <v-icon>mdi-hammer-wrench</v-icon>
