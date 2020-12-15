@@ -75,8 +75,9 @@ ctrl.sellService = async (req, res) => {
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
-        Factura: body.Factura
-    })
+        Factura: body.Factura,
+        WorkOrder: body.WorkOrder
+    });
 }
 
 module.exports = ctrl;

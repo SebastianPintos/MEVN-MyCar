@@ -5,11 +5,22 @@ const VehicleStock = require('../models/vehicleStock');
 const Vehicle = require('../models/vehicle');
 const VehicleOrder = require('../models/vehicleOrder');
 const ProductStock = require('../models/productStock');
+const Sell = require('../models/sell');
 const helperStock = require('../lib/helperStock');
 
 helperSell.SellVehicle = async (sell) => {
 
-    var VehicleSold = sell.VehicleSold;
+    var VehicleSold = [];
+    await Sell.findOne({_id: sell._id}, (err, sellDB) => {
+        if(err) {console.log(err)}
+        else{
+            for(i = 0; i < sellDB.VehicleSold.length; i++){
+                VehicleSold.push(sellDB.VehicleSold[i].VehicleStock);
+            }
+        }
+    }).populate('VehicleSold');
+    
+    console.log(VehicleSold);
 
     for(i = 0; i < VehicleSold.length; i++){
         if(VehicleSold[i].VehicleStock){

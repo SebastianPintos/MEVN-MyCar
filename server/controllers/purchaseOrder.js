@@ -25,12 +25,19 @@ ctrl.index = (req, res) => {
     }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice');
 };
 
-ctrl.create = (req, res) => {
+ctrl.create = async (req, res) => {
     var body = req.body.purchaseOrder;
-   // console.log(req.body.purchaseOrder); 
+   // console.log(req.body.purchaseOrder);
+
+    let countPO = 0;
+    await PurchaseOrder.estimatedDocumentCount((err, count) => {
+        if (err) { console.log(err) }
+        else { countPO = count + 1}
+    });
+
     var purchaseOrder = new PurchaseOrder({
         Type : body.Type,
-        Code: body.Code,
+        Code: countPO,
         OrderDate: body.OrderDate,
         ArrivalDate: body.ArrivalDate,
         Price: body.Price,
@@ -40,6 +47,8 @@ ctrl.create = (req, res) => {
         BranchOffice: body.BranchOffice,
         Info: body.Info
     });
+
+
     
     purchaseOrder.save((err) => {
         if(err) {console.log(err)}
