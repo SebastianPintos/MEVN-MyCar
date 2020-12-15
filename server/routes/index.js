@@ -36,6 +36,7 @@ module.exports = app => {
     router.post('/client/:client_id/update', client.update);
     router.delete('/client/:client_id/delete', client.remove);
     router.post('/client/:client_id/addvehicle', client.addVehicle);
+    router.post('/client/:client_id/notifyArrival',client.notifyArrivalVehicle);
 
     router.get('/vehicle', vehicle.index);
     router.post('/vehicle/add', vehicle.create);
@@ -106,7 +107,6 @@ module.exports = app => {
     router.post('/purchaseOrder/add', purchaseOrder.create);
     router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
     router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
-    router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
 
     
     router.get('/purchaseOrderV', purchaseOrderV.index);

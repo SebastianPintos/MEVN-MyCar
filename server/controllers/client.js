@@ -1,6 +1,9 @@
 const ctrl = {};
 
 var Client = require("../models/client");
+var Sell = require('../models/sell');
+var helper = require('../lib/helperVehicle');
+var Email = require('../lib/Email');
 
 ctrl.index = (req, res) => {
     Client.find((err, client) => {
@@ -108,5 +111,27 @@ ctrl.addVehicle = (req, res) => {
         }
     })
 }
+
+ctrl.notifyArrivalVehicle = (req,res) => {
+    var id = req.params.client_id;
+    var EmailClient = '';
+    var vehicleStockClient;
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                EmailClient = client.Email;
+                Sell.findOne({Client: client}, (err, sell) => {
+                    vehicleStockClient = sell.VehicleSOld.VehicleStock;
+                    var bodyMail = helper.createMailNotifyArrival(vehicleStockClient, client);
+                    Email.sendEmail(EmailClient, 'MyCar',bodyMail);
+                });
+            }
+        }
+    
+    })
+}
+
 
 module.exports = ctrl;

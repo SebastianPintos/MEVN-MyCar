@@ -25,16 +25,16 @@ helperVehicle.SellVehicle = async (sell) => {
         }
     }
 };
-helperVehicle.createMailNotifyArrival = (vehicle, vehicleStock, branchOffice,client) => {
+helperVehicle.createMailNotifyArrival = (vehicleStock, client) => {
     var body = '';
     body += '\n Su vehiculo ha llegado!! \n';
     body += '\n client ' + client.name + ' ' + client.lastName + '\n';
-    body += 'Brand' + vehicle.brand + '\n';
-    body += 'Model' + vehicle.model + '\n';
+    body += 'Brand' + vehicleStock.vehicle.brand + '\n';
+    body += 'Model' + vehicleStock.vehicle.model + '\n';
     body += 'chasisNum' + vehicleStock.ChasisNum + '\n';
     body += 'EngineNum' + vehicleStock.EngineNum + '\n';
     body += 'Color' + vehicleStock.Color + '\n';
-    body += 'branchOffice' + branchOffice.adress.country + ',' + branchOffice.adress.city + ',' + branchOffice.adress.province + '\n';
+    body += 'branchOffice' + vehicleStock.branchOffice.adress.country + ',' + vehicleStock.branchOffice.adress.city + ',' + vehicleStock.branchOffice.adress.province + '\n';
     return body;
 }
 
