@@ -46,6 +46,7 @@ ctrl.sellVehicle = async (req, res) => {
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
+        BranchOffice: body.BranchOffice,
         Factura: body.Factura
     })
 
@@ -76,6 +77,7 @@ ctrl.sellService = async (req, res) => {
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
         Factura: body.Factura,
+        BranchOffice: body.BranchOffice,
         WorkOrder: body.WorkOrder
     });
 }

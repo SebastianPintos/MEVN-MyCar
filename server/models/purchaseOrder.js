@@ -46,7 +46,7 @@ var PurchaseOrderSchema = new Schema({
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
   Type: {type: String, enum: ['ENVIADA', 'RECIBIDA'], required: true},
   Info: {type: String},
-});
+},{timestamps: true});
 
 var PurchaseOrder = mongoose.model("PurchaseOrder", PurchaseOrderSchema);
 module.exports = PurchaseOrder;
