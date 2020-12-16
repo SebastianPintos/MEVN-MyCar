@@ -30,4 +30,13 @@ ctrl.reporte2 = async (req, res) => {
     res.send('asda');
 }
 
+ctrl.reporte3 = async (req, res) => {
+    var dateStart = req.body.dateStart;
+    var dateFinish = req.body.dateFinish;
+
+    var report = await helperReport.Discriminated(dateStart, dateFinish);
+    console.log(report);
+    res.send('asda');
+}
+
 module.exports = ctrl;

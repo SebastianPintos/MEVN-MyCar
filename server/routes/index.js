@@ -162,8 +162,7 @@ module.exports = app => {
     router.post('/prueba/sellproduct', pruebas.sellProduct);
     router.post('/prueba/reporte', pruebas.reporte);
     router.post('/prueba/reporte2', pruebas.reporte2);
-
-    
+    router.post('/prueba/reporte3', pruebas.reporte3);    
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);

@@ -87,17 +87,32 @@ ctrl.Expenses = async (Start, Finish) => {
 
 }
 
-/* ctrl.Discriminated = async (dateStart, dateFinish) => {
+ctrl.Discriminated = async (Start, Finish) => {
 
-    await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish }}, (err, sellsDB) => {
+    var dateStart = new Date(Start);
+    var dateFinish = new Date(Finish);
+    dateStart.setHours(00, 00, 00);
+    dateFinish.setHours(23, 00, 00);
+
+    await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}, (err, sellsDB) => {
         if(err){console.log(err)}
         else{
-            for(i = 0; i < sellsDB.length; i++){
-
-            }
-
+            console.log(sellsDB[0]);
+            console.log(sellsDB[0].VehicleSold);
+            console.log(sellsDB[0].VehicleSold.VehicleStock);
+            var sells = sellsDB;
         }
-    }).sort('BranchOffice').populate({path: 'VehicleSold', populate: { path: }});
-} */
+    }).populate({
+        path: 'VehicleSold',
+        model: 'DeliveryVehicle',
+        populate: {path: 'VehicleStock', model: 'VehicleStock', populate: {
+            path: 'Vehicle', model: 'Vehicle'
+        }}
+    });
+    
+
+    
+
+}
 
 module.exports = ctrl;

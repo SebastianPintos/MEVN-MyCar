@@ -12,7 +12,7 @@ var sellSchema = new Schema({
   Employee: {type: Schema.Types.ObjectId,  ref: 'Employee'},
   Service: [{type: Schema.Types.ObjectId, ref: 'Service'}],
   ProductStock: [{type: Schema.Types.ObjectId, ref: 'ProductStock'}],
-  VehicleSold: [ {type: Schema.Types.ObjectId, ref: 'DeliveryVehicle'}],
+  VehicleSold: [{type: Schema.Types.ObjectId, ref: 'DeliveryVehicle'}],
  /* VehicleSold: [{
       VehicleStock: {type: Schema.Types.ObjectId, ref: 'VehicleStock'},
       PurchaseOrderV: {type: Schema.Types.ObjectId, ref: 'PurchaseOrderV'}

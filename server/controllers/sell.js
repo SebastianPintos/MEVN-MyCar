@@ -6,6 +6,7 @@ const ctrl = {};
 ctrl.listVehicle = (req, res) => {
     Sell.find((err, sell) => {
         if (err) { console.log(err) }
+        console.log(sell);
         res.send({
             sell: sell
         })
