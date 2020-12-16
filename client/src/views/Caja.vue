@@ -207,7 +207,7 @@ export default {
                                 }
                             })
                             this.ventas.forEach(v => {
-                                this.movimientos.push(v)
+                                 this.movimientos.push(v)
                             });
                         }
                     }
@@ -305,14 +305,11 @@ export default {
             if (date == null) {
                 return "N/A";
             }
-            date = new Date(date);
-           // let dia = this.formatStringDate(date.getDate());
-            let dia = "15";
-            let hs = this.formatStringDate(date.getHours());
-            let min = this.formatStringDate(date.getMinutes());
-            let seg = this.formatStringDate(date.getSeconds());
-
-            date = (dia + "-" + (parseInt(date.getMonth() + 1)) + "-" + (date.getYear() + 1900) + " " + hs + ":" + min + ":" + seg);
+          //  date.toLocaleString("es-AR", {timeZone: "America/Argentina/Buenos_Aires"});
+            date = String(date)
+            let fecha = (date.slice(0,10)).split("-");
+            let hora = date.slice(11,19) ;
+            date = fecha[2]+"-"+fecha[1]+"-"+fecha[0]+" "+hora;
             return date;
         },
 
