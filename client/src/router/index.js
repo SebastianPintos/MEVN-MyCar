@@ -261,6 +261,19 @@ const routes = [
         requiresAuth: true
       }
   },
+  {
+    path: "/reportes",
+    name: "Reportes",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "reportes" */ "../views/Reportes.vue"),
+      meta: {
+        title: 'Reportes',
+        requiresAuth: true
+      }
+  }, 
   
 
 ];
