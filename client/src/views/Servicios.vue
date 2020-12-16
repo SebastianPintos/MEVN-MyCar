@@ -45,6 +45,9 @@
     </template>
 
     <v-data-table :expanded.sync="expanded" v-model="selected" show-expand show-select :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_id" class="elevation-1">
+         <template v-slot:item.LaborPrice="{ item }">
+                {{ formatPrice(item.LaborPrice) }}
+            </template>
         <template v-slot:top>
             <v-toolbar flat>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda Rapida" single-line hide-details></v-text-field>
@@ -54,7 +57,7 @@
                     <v-icon>mdi-pencil</v-icon>
                 </v-btn>
 
-                <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected)">
+                <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem(selected[0])">
                     <v-icon>mdi-delete</v-icon>
                 </v-btn>
                 <v-dialog v-model="dialog" max-width="500px" persistent>
@@ -76,7 +79,9 @@
                                         <v-col cols="12" sm="6" md="12">
                                             <v-text-field v-model="editedItem.Description" label="Nombre del service" :rules="requerido"></v-text-field>
                                         </v-col>
-
+                                           <v-col cols="12" sm="6" md="12">
+                                            <v-select v-model="editedItem.Type" label="Tipo" :rules="requerido" :items="types"></v-select>
+                                        </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-text-field v-model="editedItem.LaborPrice" prefix="$" label="Precio mano de obra" :rules="requerido"></v-text-field>
                                         </v-col>
@@ -209,6 +214,7 @@ export default {
         snackbar: false,
         mensaje: '',
         dialog: false,
+        types: ["INTERNO","EXTERNO"],
         dialogDelete: false,
         toggle_none: null,
         serviciosFiltrados: [],
@@ -232,6 +238,7 @@ export default {
             Vehicle: '',
             BranchOffice: [],
             Products: [],
+            Type: ''
 
         },
 
@@ -244,6 +251,7 @@ export default {
             Year: '',
             Products: [],
             BranchOffice: '',
+            Type: ''
         },
 
         headers: [{
@@ -251,6 +259,10 @@ export default {
                 value: 'Description',
                 align: 'start',
                 sortable: false,
+            },
+            {
+                text: 'Tipo',
+                value: 'Type',
             },
             {
                 text: 'Precio',
@@ -321,7 +333,7 @@ export default {
                             this.servicios.push(servicio);
                             this.serviciosFiltrados.push(servicio);
                         })
-                        this.aplicarFiltros();
+                   //     this.aplicarFiltros();
                     }
                 });
         },
@@ -366,7 +378,8 @@ export default {
                         "_id": this.editedItem.Vehicle
                     },
                     "Product": this.editedItem.Products,
-                    "BranchOffice": this.editedItem.BranchOffice
+                    "BranchOffice": this.editedItem.BranchOffice,
+                    "Type": this.editedItem.Type
                 }
             }).then(res => {
                 if (res != null) {
@@ -390,7 +403,8 @@ export default {
                         "_id": this.editedItem.Vehicle
                     },
                     "Product": this.editedItem.Products,
-                    "BranchOffice": this.editedItem.BranchOffice
+                    "BranchOffice": this.editedItem.BranchOffice,
+                    "Type": this.editedItem.Type
                 }
             }).then(res => {
                 if (res != null) {
@@ -427,6 +441,7 @@ export default {
                     this.editedItem = Object.assign({}, item)
                     this.editedItem.Vehicle = vehicle;
                     this.editedItem.Products = product;
+                    this.editedItem.Type = item.Type;
                     if (this.dealersList != null) {
                         this.dealersList.forEach(dealer => {
                             if (dealer._id == item.Dealer) {
@@ -442,8 +457,6 @@ export default {
         },
         deleteItem(items) {
             if (!this.mensajeNoSelecciono()) {
-                this.editedIndex = this.servicios.indexOf(items)
-                this.editedItem = Object.assign({}, items)
                 this.dialogDelete = true
             }
         },
@@ -478,7 +491,7 @@ export default {
             let Model = this.filtros.Model != null & this.filtros.Model != ""
             let BranchOffice = this.filtros.BranchOffice != null & this.filtros.BranchOffice != ""
             let Year = this.filtros.Year != null & this.filtros.Year != ""
-
+            console.log("MARCA: "+Brand+" Modelo:: "+Model+" Anio: "+Year+" Sucursal: "+BranchOffice);
             if (!Brand && !Model && !Year && !BranchOffice) {
                 return
             }
@@ -502,6 +515,8 @@ export default {
                 }
             }
             this.serviciosFiltrados = serviciosAux;
+            console.log("filtrados: "+JSON.stringify(this.serviciosFiltrados))
+            console.log("servicios: "+JSON.stringify(this.servicios))
         },
 
         reiniciarFiltros() {
@@ -517,7 +532,7 @@ export default {
 
             if (this.editedIndex > -1) {
                 if (this.validate()) {
-                    if (this.selected.length > 0) {
+                    if (this.selected.length > 1) {
                         this.mensaje = "Solo se puede editar un elemento a la vez!";
                         this.snackbar = true;
                         return;
@@ -547,6 +562,10 @@ export default {
                     }
                 })
             }
+        },
+
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
 
     }

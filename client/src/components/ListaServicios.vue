@@ -341,6 +341,10 @@ export default {
                 sortable: false,
             },
             {
+                text: 'Tipo',
+                value: 'Type',
+            },
+            {
                 text: 'Precio',
                 value: 'LaborPrice',
             },

@@ -21,6 +21,7 @@ ctrl.create = (req, res) => {
         Status: 'ACTIVE',
         Product: body.Product,
         BranchOffice: body.BranchOffice,
+        Type: body.Type
     });
 
     service.save((err) => {
@@ -46,6 +47,7 @@ ctrl.update = (req, res) => {
                 service.Status= body.Status;
                 service.Product= body.Product;
                 service.BranchOffice= body.BranchOffice;
+                service.Type = body.Type;
 
                 service.save((err) => {
                     if(err) {console.log(err)}

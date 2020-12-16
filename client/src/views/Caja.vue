@@ -306,7 +306,8 @@ export default {
                 return "N/A";
             }
             date = new Date(date);
-            let dia = this.formatStringDate(date.getDate());
+           // let dia = this.formatStringDate(date.getDate());
+            let dia = "15";
             let hs = this.formatStringDate(date.getHours());
             let min = this.formatStringDate(date.getMinutes());
             let seg = this.formatStringDate(date.getSeconds());
