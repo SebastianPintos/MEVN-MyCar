@@ -6,7 +6,7 @@
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
-
+            <div v-if="caja=='ABIERTA'">
             <v-btn v-if="item.carrito == false" fab small color="success">
                 <v-icon class="text-center" @click="agregarAlCarrito(item);aplicarDescuento=true">
                     mdi-cart-plus</v-icon>
@@ -15,6 +15,7 @@
                 <v-icon class="text-center" @click="eliminarDelCarrito(item)">
                     mdi-cart-remove</v-icon>
             </v-btn>
+            </div>
 
         </template>
     </v-data-table>
@@ -23,7 +24,7 @@
             <v-card-title>Descuento</v-card-title>
             <v-form ref="form" v-model="valid" lazy-validation>
                 <v-card-text>
-                    <v-select v-model="colorElegido" :items="colores" label="Color"></v-select>
+                    <v-select v-model="colorElegido" :items="colores" label="Color" :rules="obligatorio"></v-select>
                     <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
@@ -55,6 +56,7 @@ export default {
         vehiculosFiltrados: [],
         search: '',
         on: '',
+        caja: 'CERRADA',
         ultimoEnCarrito: null,
         colorElegido: '',
         colores: ['Amarillo', 'Azul', 'Blanco', 'Gris', 'Negro', 'Rojo', 'Verde'],
@@ -68,6 +70,9 @@ export default {
                 return pattern.test(value) || 'Requerido.'
             },
             value => parseFloat(value) < 100 || 'El máximo es 100%!'
+        ],
+        obligatorio: [
+            value => !!value || 'Requerido.',
         ],
         headers: [{
                 text: 'Marca',
@@ -110,13 +115,31 @@ export default {
                 sortable: false
             },
         ],
+        employee: null,
     }),
     created() {
-        this.iniciar();
+        let employee = localStorage.getItem("employee");
+        if (employee != null) {
+            this.employee = JSON.parse(employee);
+            this.iniciar();
+        }
     },
     methods: {
         iniciar() {
             this.getVehiculos();
+            this.getCaja();
+        },
+
+           getCaja() {
+            axios.get(urlAPI+'branchOffice').then(res=>{
+                if(res!=null){
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b=>b._id == this.employee.BranchOffice);
+                    if(branchOffice!=null){
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
         },
 
         async getVehiculos() {

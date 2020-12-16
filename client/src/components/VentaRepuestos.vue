@@ -11,15 +11,16 @@
             {{ formatPrice(item.Product.SalePrice) }}
         </template>
         <template v-slot:[`item.actions`]="{ item }">
-
-            <v-btn v-if="item.carrito == false" fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(item)">
-                    mdi-cart-plus</v-icon>
-            </v-btn>
-            <v-btn v-else fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
-                    mdi-cart-remove</v-icon>
-            </v-btn>
+            <div v-if="caja=='ABIERTA'">
+                <v-btn v-if="item.carrito == false" fab small color="success">
+                    <v-icon class="text-center" @click="agregarAlCarrito(item)">
+                        mdi-cart-plus</v-icon>
+                </v-btn>
+                <v-btn v-else fab small color="error">
+                    <v-icon class="text-center" @click="eliminarDelCarrito(item)">
+                        mdi-cart-remove</v-icon>
+                </v-btn>
+            </div>
         </template>
     </v-data-table>
     <v-dialog v-model="dialogCantidad" persistent max-width="600">
@@ -73,6 +74,7 @@ export default {
         selected: [],
         descuento: 0,
         descontado: 0,
+        caja: 'CERRADA',
         singleSelect: true,
         repuestos: [],
         repuestosFiltrados: [],
@@ -136,12 +138,26 @@ export default {
 
     created() {
         let employee = localStorage.getItem("employee");
-        if(employee!=null){
+        if (employee != null) {
             this.employee = JSON.parse(employee);
+            this.iniciar();
         }
-        this.iniciar();
+
     },
     methods: {
+
+        getCaja() {
+            axios.get(urlAPI + 'branchOffice').then(res => {
+                if (res != null) {
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
+                    if (branchOffice != null) {
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
+        },
+
         cancelarCantidad() {
             this.eliminarDelCarrito(this.ultimoEnCarrito);
             this.dialogCantidad = false;
@@ -162,10 +178,10 @@ export default {
             let cont = 0;
             await axios.get(urlAPI + "productStock")
                 .then(res => {
-                        
+
                     repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
-                    if(this.employee!=null & this.employee.BranchOffice!=null){
-                        repuestos = repuestos.filter(r=> r.BranchOffice._id == this.employee.BranchOffice);
+                    if (this.employee != null & this.employee.BranchOffice != null) {
+                        repuestos = repuestos.filter(r => r.BranchOffice._id == this.employee.BranchOffice);
                     }
 
                     if (repuestos != null) {

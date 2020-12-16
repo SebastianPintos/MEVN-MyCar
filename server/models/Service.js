@@ -17,7 +17,8 @@ var ServiceSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref: 'BranchOffice'
     }],
-    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true}
+    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+    Type: {type: String, enum: ['INTERNO', 'EXTERNO'], required: true},
 });
 
 var service = mongoose.model('Service', ServiceSchema);

@@ -283,6 +283,7 @@ export default {
         tituloMensaje: "",
         documentosNacionales: [],
         documentosImportados: [],
+        documentosUsados: [],
         pago: false,
         mensaje: "",
         clientes: [],
@@ -424,6 +425,9 @@ export default {
                             this.documentosImportados.push(document);
                         } else if (d.Origin == "NACIONAL" || d.Origin == "GENERAL") {
                             this.documentosNacionales.push(document);
+                        }
+                        else if (d.Origin == "USADO" || d.Origin == "GENERAL") {
+                            this.documentosUsados.push(document);
                         }
                     })
                 });
@@ -663,7 +667,10 @@ export default {
         },
         getJSONDelivery(vehicle, stock) {
             let documentation;
-            if (vehicle.Vehicle.origin == this.employee.Address.Country) {
+            if (vehicle.Vehicle.Kind == "USADO") {
+                documentation = this.documentosUsados;
+            }
+            else if (vehicle.Vehicle.origin == this.employee.Address.Country) {
                 documentation = this.documentosNacionales;
             } else {
                 documentation = this.documentosImportados;
@@ -725,7 +732,8 @@ export default {
                         "Factura": idFactura,
                         "Date": new Date(),
                         "Employee": employee,
-                        "CUIT": cliente
+                        "CUIT": cliente,
+                        "BranchOffice": employee.BranchOffice
                     }
                 }).then(
                     res => {

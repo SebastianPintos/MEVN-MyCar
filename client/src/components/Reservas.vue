@@ -5,6 +5,11 @@
         <v-expansion-panels>
             <v-expansion-panel>
                 <v-expansion-panel-header class="indigo darken-4 white--text">
+                    <template v-slot:actions>
+                        <v-icon color="white">
+                            $expand
+                        </v-icon>
+                    </template>
                     Ver filtros Disponibles
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -576,7 +581,7 @@ export default {
         },
         crearReserva() {
             console.log(this.cliente.cliente);
-            
+
             console.log(JSON.stringify(this.cliente));
             if (!this.validate()) {
                 return;

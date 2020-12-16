@@ -14,7 +14,7 @@
     <VentasRealizadas v-show="ventasRealizadas" />
 
 
-    <v-dialog v-model="dialogDetalle">
+    <v-dialog v-model="dialogDetalle" persistent>
         <v-card>
             <v-flex class="text-center">
                 <v-card-title>Detalle del Carrito</v-card-title>
@@ -328,6 +328,14 @@ export default {
             totalVehiculos: 0,
             total: 0
         },
+        
+        carritoCompletoD: {
+            repuestosCarrito: [],
+            vehiculosCarrito: [],
+            totalRepuestos: 0,
+            totalVehiculos: 0,
+            total: 0
+        },
         vehiculos: [],
         encargados: [],
         repuestos: []
@@ -339,6 +347,7 @@ export default {
     },
     methods: {
         getVehiculos() {
+            this.vehiculos = [];
             let length = 0;
             try {
                 length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
@@ -356,6 +365,7 @@ export default {
 
 
         getEncargados() {
+            this.encargados = [];
             let length = 0;
             try {
                 length = parseInt(JSON.parse(localStorage.getItem("lengthvM")));
@@ -371,6 +381,7 @@ export default {
         },
 
         getRepuestos() {
+            this.repuestos = [];
             let length = 0;
             try {
                 length = parseInt(JSON.parse(localStorage.getItem("lengthr")));
@@ -429,6 +440,7 @@ export default {
         },
         
         mostrarCarrito() {
+            this.carritoCompleto = this.carritoCompletoD;
             this.getVehiculos();
             this.getEncargados();
             this.getRepuestos();

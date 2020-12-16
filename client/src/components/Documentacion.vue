@@ -110,7 +110,7 @@ export default {
                 return pattern.test(value) || 'Sólo se permiten números!'
             },
         ],
-        alcance: ["NACIONAL", "IMPORTADO", "GENERAL"],
+        alcance: ["NACIONAL", "IMPORTADO", "GENERAL","USADO"],
 
         editedItem: {
             Name: '',
@@ -124,7 +124,7 @@ export default {
 
         },
         headers: [{
-                text: 'Name',
+                text: 'Nombre',
                 value: 'Name',
                 align: 'start',
             },
