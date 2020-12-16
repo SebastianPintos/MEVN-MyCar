@@ -174,7 +174,7 @@ export default {
                                     this.fecha.slice(0, 10) == date) {
                                     this.egresos.push({
                                         "Date": e.Date,
-                                        "Responsable": e.Employee.DNI,
+                                        "Responsable": e.Employee.User,
                                         "Monto": e.Monto,
                                         "Description": e.Description,
                                         "Type": "EGRESO",
@@ -205,7 +205,7 @@ export default {
                                 if (e.BranchOffice != null && e.BranchOffice._id == branchOffice && this.fecha.slice(0, 10) == date) {
                                     this.ventas.push({
                                         "Date": e.Date,
-                                        "Responsable": e.Employee.DNI,
+                                        "Responsable": e.Employee.User,
                                         "Monto": e.Factura.PrecioNeto,
                                         "Description": "N/A",
                                         "Type": "INGRESO",
@@ -236,10 +236,10 @@ export default {
                                 if(o.OrderDate!=null){
                                    date = (o.OrderDate).slice(0,10);
                                 }
-                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && date==this.fecha.slice(0,10)) {
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && o.Type=="RECIBIDA" && date==this.fecha.slice(0,10)) {
                                     this.ordenesR.push({
                                         "Date": o.OrderDate,
-                                        "Responsable": o.Employee.DNI,
+                                        "Responsable": o.Employee.User,
                                         "Monto": o.Price,
                                         "Description": "ORDEN DE COMPRA",
                                         "Type": "EGRESO",
@@ -261,14 +261,12 @@ export default {
                     if (ordenes != null) {
                         if (branchOffice != "") {
                             ordenes.forEach(o => {
-                                let date = new Date(o.OrderDate);
-                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && date.getDate() ==
-                                    fecha.getDate() &&
-                                    date.getMonth() == fecha.getMonth() &&
-                                    date.getYear() == fecha.getYear()) {
+                                 let date = e.Date.slice(0, 10);
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && 
+                                 o.Type=="RECIBIDA" && this.fecha.slice(0,10) == date) {
                                     this.ordenesV.push({
                                         "Date": o.OrderDate,
-                                        "Responsable": o.Employee.DNI,
+                                        "Responsable": o.Employee.User,
                                         "Monto": o.Price,
                                         "Description": "ORDEN DE COMPRA",
                                         "Type": "EGRESO",
