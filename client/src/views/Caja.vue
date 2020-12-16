@@ -75,7 +75,7 @@ import axios from "axios"
 import urlAPI from "../config/config.js"
 export default {
     data: () => ({
-        fecha: null,
+        fecha: "",
         caja: 'CERRADA',
         ordenesR: [],
         ordenesV: [],
@@ -91,7 +91,7 @@ export default {
         search: '',
 
         headers: [{
-                text: 'Fecha y Hora',
+                text: 'Hora',
                 value: 'Date',
                 align: 'start',
             },
@@ -122,24 +122,32 @@ export default {
         attrs: '',
         on: '',
         employee: null,
-        date: null
+        date: null,
+        ingresos: []
     }),
 
     created() {
-        let date = new Date()
-        this.fecha = date.getDate() + "-" + parseInt(date.getMonth() + 1) + "-" + parseInt(date.getYear() + 1900);
+        let dateString = new Date().toLocaleString("es-AR", {
+            timeZone: "America/Argentina/Buenos_Aires"
+        });
+        //16/12/2020 11:51:28 -> 16-12-2020 11:51:28
+        this.fecha = dateString.replaceAll("/", "-").slice(0, 10);
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
         this.employee = employee;
-        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
-        this.getegresos(this.branchOffice);
-        this.getCaja();
-        this.getOrdenes();
-        this.getVentas();
-        this.getEmpleados();
+        if (employee != null) {
+            this.getCaja();
+        }
     },
 
     methods: {
+        iniciar() {
+            this.getegresos();
+            this.getOrdenes();
+            this.getVentas();
+            this.getEmpleados();
+            this.getIngresos();
+        },
         validateUsers(...authorizedUsers) {
             if (localStorage.getItem('userType') != null) {
                 return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
@@ -153,25 +161,26 @@ export default {
                     let branchOffice = res.data.branchOffice;
                     branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
                     if (branchOffice != null) {
-                        this.branchOffice = branchOffice;
                         this.caja = branchOffice.Caja;
+                        this.branchOffice = branchOffice;
+                        this.iniciar();
                     }
                 }
             })
         },
 
-        async getegresos(branchOffice) {
+        async getegresos() {
             await axios.get(urlAPI + 'egreso')
                 .then(res => {
                     this.egresos = [];
                     let egresos = res.data.egreso;
                     if (egresos != null) {
-                        if (branchOffice != "") {
+                        if (this.branchOffice != "") {
                             egresos.forEach(e => {
-                                let date = e.Date.slice(0, 10);
+                                let date = String(e.Date).slice(0, 10);;
 
-                                if (e.BranchOffice == branchOffice && e.Status == "ACTIVE" &&
-                                    this.fecha.slice(0, 10) == date) {
+                                if (e.BranchOffice == this.branchOffice._id && e.Status == "ACTIVE" &&
+                                    this.fecha == date) {
                                     this.egresos.push({
                                         "Date": e.Date,
                                         "Responsable": e.Employee.User,
@@ -190,19 +199,19 @@ export default {
                 })
         },
 
-        async getVentas(branchOffice) {
+        async getVentas() {
             await axios.get(urlAPI + 'sellVehicle')
                 .then(res => {
                     this.ventas = [];
                     let ventas = res.data.sell;
                     if (ventas != null) {
-                        if (branchOffice != "") {
+                        if (this.branchOffice != "") {
                             ventas.forEach(e => {
-                                let date = null;
+                                let date = "";
                                 if (e.Date != null) {
-                                    let date = (e.Date).slice(0, 10);
+                                    let date = String(e.Date).slice(0, 10);;
                                 }
-                                if (e.BranchOffice != null && e.BranchOffice._id == branchOffice && this.fecha.slice(0, 10) == date) {
+                                if (e.BranchOffice != null && e.BranchOffice._id == this.branchOffice._id && this.fecha == date) {
                                     this.ventas.push({
                                         "Date": e.Date,
                                         "Responsable": e.Employee.User,
@@ -218,13 +227,11 @@ export default {
                             });
                         }
                     }
-
                 })
         },
 
         async getOrdenes(branchOffice) {
-            let fecha = new Date();
-            fecha = new Date(fecha.setTime(fecha.getTime()));
+
             await axios.get(urlAPI + 'purchaseOrder')
                 .then(res => {
                     this.ordenesR = [];
@@ -233,10 +240,10 @@ export default {
                         if (branchOffice != "") {
                             ordenesR.forEach(o => {
                                 let date = "";
-                                if(o.OrderDate!=null){
-                                   date = (o.OrderDate).slice(0,10);
+                                if (o.OrderDate != null) {
+                                    date = String(o.OrderDate).slice(0, 10);
                                 }
-                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && o.Type=="RECIBIDA" && date==this.fecha.slice(0,10)) {
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && o.Type == "RECIBIDA" && date == this.fecha) {
                                     this.ordenesR.push({
                                         "Date": o.OrderDate,
                                         "Responsable": o.Employee.User,
@@ -261,9 +268,9 @@ export default {
                     if (ordenes != null) {
                         if (branchOffice != "") {
                             ordenes.forEach(o => {
-                                 let date = e.Date.slice(0, 10);
-                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && 
-                                 o.Type=="RECIBIDA" && this.fecha.slice(0,10) == date) {
+                                let date = String(o.Date).slice(0, 10);
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" &&
+                                    o.Type == "RECIBIDA" && this.fecha == date) {
                                     this.ordenesV.push({
                                         "Date": o.OrderDate,
                                         "Responsable": o.Employee.User,
@@ -280,6 +287,35 @@ export default {
                         }
                     }
                 })
+        },
+
+        async getIngresos() {
+            await axios.get(urlAPI + 'ingreso')
+                .then(res => {
+                    this.ingresos = [];
+                    let ingresos = res.data.ingreso;
+                    if (ingresos != null) {
+                        if (this.branchOffice != "") {
+                            ingresos.forEach(o => {
+                                let date = String(o.Date).slice(0, 10);
+                                if (o.BranchOffice == this.branchOffice._id && this.fecha == date) {
+                                    this.ingresos.push({
+                                        "Date": o.Date,
+                                        "Responsable": o.Employee.User,
+                                        "Monto": o.Monto,
+                                        "Description": "N/A",
+                                        "Type": "INGRESO",
+                                        "Motivo": "SALDO INICIAL"
+                                    })
+                                }
+                            })
+                            this.ingresos.forEach(o => {
+                                this.movimientos.push(o)
+                            });
+                        }
+                    }
+                })
+
         },
 
         async getEmpleados() {
@@ -310,12 +346,7 @@ export default {
             if (date == null) {
                 return "N/A";
             }
-            //  date.toLocaleString("es-AR", {timeZone: "America/Argentina/Buenos_Aires"});
-            date = String(date)
-            let fecha = (date.slice(0, 10)).split("-");
-            let hora = date.slice(11, 19);
-            date = fecha[2] + "-" + fecha[1] + "-" + fecha[0] + " " + hora;
-            return date;
+            return date.slice(11, 19);
         },
 
         formatStringDate(value) {
@@ -347,8 +378,12 @@ export default {
                 this.caja = 'ABIERTA';
                 localStorage.setItem('caja', 'ABIERTA');
             }
-            let fecha = new Date();
-            fecha = new Date(fecha.setTime(fecha.getTime()));
+            let dateString = new Date().toLocaleString("es-AR", {
+                timeZone: "America/Argentina/Buenos_Aires"
+            });
+            //16/12/2020 11:51:28 -> 16-12-2020 11:51:28
+            fecha = dateString.replaceAll("/", "-");
+
             let change = {
                 "Employee": this.employee._id,
                 "Date": fecha,

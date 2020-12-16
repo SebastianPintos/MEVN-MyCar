@@ -31,7 +31,7 @@ var BranchOfficeSchema = new Schema({
   ChangeStatus: [{Employee: {
     type: Schema.Types.ObjectId,
     ref: 'Employee'
-  }, Date: {type: Date},
+  }, Date: {type: String},
 Description: {type: String}},]
 });
 

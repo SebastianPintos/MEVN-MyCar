@@ -11,7 +11,7 @@ var IngresoSchema = new Schema({
           ref: 'BranchOffice'
         },
         Monto: {type: Number},
-        Date: {type: Date}
+        Date: {type: String}
 
  });
 

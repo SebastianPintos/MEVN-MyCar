@@ -21,7 +21,7 @@ var EgresoSchema = new Schema({
         Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
         Description: {type: String},
         Monto: {type: Number},
-        Date: {type: Date}
+        Date: {type: String}
 
  });
 

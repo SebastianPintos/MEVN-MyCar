@@ -115,7 +115,6 @@ export default {
         menu: false,
         selected: [],
         sueldo: false,
-        date: null,
         dialogDelete: false,
         egresos: [],
         search: '',
@@ -176,7 +175,7 @@ export default {
             Description: "",
             Date: null
         },
-        caja:"CERRADA"
+        caja: "CERRADA"
     }),
     created() {
         let employee = localStorage.getItem("employee");
@@ -259,8 +258,12 @@ export default {
                     this.editedItem.Monto = this.editedItem.Sueldo.Monto;
                     this.editedItem.Description = "N/A";
                 }
-                let date = new Date();
-                date = this.nuevo ?date.setTime(date.getTime()): this.selected[0].Date;
+                let dateString = new Date().toLocaleString("es-AR", {
+                    timeZone: "America/Argentina/Buenos_Aires"
+                });
+                //16/12/2020 11:51:28
+                //16-12-2020 11:51:28
+                let date = this.nuevo ? dateString.replaceAll("/","-") : String(this.selected[0].Date);
                 let auxegresos = {
                     "egreso": {
                         "Employee": this.employee._id,
@@ -342,20 +345,18 @@ export default {
             this.nuevo = false;
             this.selected = [];
         },
+
         formatDate(date) {
             if (date == null) {
                 return "N/A";
             }
-             //  date.toLocaleString("es-AR", {timeZone: "America/Argentina/Buenos_Aires"});
-            date = String(date)
-            let fecha = (date.slice(0, 10)).split("-");
-            let hora = date.slice(11, 19);
-            date = fecha[2] + "-" + fecha[1] + "-" + fecha[0] + " " + hora;
             return date;
         },
+
         formatString(value) {
             return value == null ? "S/D" : value;
         },
+
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
@@ -368,9 +369,11 @@ export default {
     margin-left: 3px;
     margin-right: 3px;
 }
+
 .btnMasMenos {
     margin: -10%;
 }
+
 .izq {
     align: left;
     margin-left: -90%;

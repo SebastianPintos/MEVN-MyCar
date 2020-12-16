@@ -174,8 +174,10 @@ export default {
 
         guardar() {
             if (this.validate()) {
-                let date = new Date();
-                date = new Date(date.setTime(date.getTime()));
+                 let dateString = new Date().toLocaleString("es-AR", {
+                    timeZone: "America/Argentina/Buenos_Aires"
+                });
+                let date = dateString.replaceAll("/","-");
                 let auxingresos = {
                     "ingreso": {
                         "Employee": this.employee._id,
@@ -211,14 +213,7 @@ export default {
             if (date == null) {
                 return "N/A";
             }
-            date = new Date(date);
-            let dia = this.formatStringDate(date.getDate());
-            let hs = this.formatStringDate(date.getHours());
-            let min = this.formatStringDate(date.getMinutes());
-            let seg = this.formatStringDate(date.getSeconds());
-
-            date = (dia + "-" + (parseInt(date.getMonth() + 1)) + "-" + (date.getYear() + 1900) + " " + hs + ":" + min + ":" + seg);
-            return date;
+           return date;
         },
 
         formatStringDate(value) {
