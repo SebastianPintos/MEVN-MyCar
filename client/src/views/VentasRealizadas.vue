@@ -1,10 +1,12 @@
 <template>
 <div>
     <v-data-table v-model="selected" show-select :single-select="singleSelect" :headers="headers" :items="ventas" :search="search" item-key="_id" class="elevation-1">
-        <template v-slot:top>
-            <v-toolbar flat>
-               <v-flex class="text-right">
-                    <v-btn right color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialogFactura">
+              <template v-slot:top>
+                <v-toolbar flat>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+                    <v-divider class="mx-4" dark vertical></v-divider>
+                    <v-spacer></v-spacer>
+                      <v-btn right color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialogFactura">
                         <v-icon>
                             mdi-information-outline
                         </v-icon>

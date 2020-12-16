@@ -208,9 +208,12 @@ export default {
         files: [],
         data: null,
         chosenFile: null,
+        employee: null,
     }),
 
     created() {
+        let employee = localStorage.getItem("employee");
+        this.employee = JSON.parse(employee);
         this.getRepuestos();
         this.getOrders();
         this.getProveedores();
@@ -477,17 +480,20 @@ export default {
 
             this.mensaje = mensaje + this.mensaje;
             //ACÁ FALTA LA PARTE DE BRANCHOFFICE    "BranchOffice": "5fb3d83987565231fcd5a756",
-
+             let date = new Date();
+             date = new Date(date.setTime(date.getTime()));
+            
             return {
                 "purchaseOrder": {
                     "Code": this.output[5][1],
-                    "OrderDate": new Date(),
+                    "OrderDate": date,
                     "Price": precio,
                     "Product": product,
                     "Dealer": this.proveedor,
                     "Type": "RECIBIDA",
                     "Status": "ACTIVE",
-                    "Info": this.mensaje
+                    "Info": this.mensaje,
+                    "Employee": this.employee._id
                 }
             }
         },

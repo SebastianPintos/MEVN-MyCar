@@ -22,7 +22,7 @@ ctrl.index = (req, res) => {
         res.send({
             purchaseOrder: purchaseOrder
         })
-    }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice');
+    }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice').populate('Employee');
 };
 
 ctrl.create = async (req, res) => {
@@ -45,7 +45,8 @@ ctrl.create = async (req, res) => {
         Dealer : body.Dealer, 
         Status: "ACTIVE", 
         BranchOffice: body.BranchOffice,
-        Info: body.Info
+        Info: body.Info,
+        Employee: body.Employee
     });
 
 
@@ -75,7 +76,8 @@ ctrl.update = (req, res) => {
                 purchaseOrder.Dealer = body.Dealer;
                 purchaseOrder.BranchOffice= body.BranchOffice;
                 purchaseOrder.Status = body.Status;
-                purchaseOrder.Info = body.Info
+                purchaseOrder.Info = body.Info;
+                purchaseOrder.Employee = body.Employee;
 
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}
@@ -116,7 +118,10 @@ ctrl.setArrival = (req, res) => {
         else {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
-                purchaseOrder.ArrivalDate = new Date();
+                let date = new Date();
+                date = new Date(date.setTime(date.getTime()));
+            
+                purchaseOrder.ArrivalDate = date;
 
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}

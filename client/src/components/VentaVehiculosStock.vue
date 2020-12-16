@@ -5,7 +5,7 @@
             {{ formatPrice(item.PurchasedPrice) }}
         </template>
         <template v-slot:[`item.actions`]="{ item }">
-
+            <div v-if="caja=='ABIERTA'">
             <v-btn v-if="item.carrito == false" fab small color="success">
                 <v-icon class="text-center" @click="agregarAlCarrito(item);aplicarDescuento=true">
                     mdi-cart-plus</v-icon>
@@ -14,7 +14,7 @@
                 <v-icon class="text-center" @click="eliminarDelCarrito(item)">
                     mdi-cart-remove</v-icon>
             </v-btn>
-
+            </div>
         </template>
     </v-data-table>
     <v-dialog v-model="aplicarDescuento" max-width="300px" persistent>
@@ -97,17 +97,31 @@ export default {
                 sortable: false
             },
         ],
+        caja: 'CERRADA',
     }),
     created() {
         let employee = localStorage.getItem("employee");
-        if(employee!=null){
+        if (employee != null) {
             this.employee = JSON.parse(employee);
+            this.iniciar();
         }
-        this.iniciar();
     },
     methods: {
+        getCaja() {
+            axios.get(urlAPI + 'branchOffice').then(res => {
+                if (res != null) {
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
+                    if (branchOffice != null) {
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
+        },
+
         iniciar() {
             this.getVehiculos();
+            this.getCaja();
         },
 
         async getVehiculos() {
@@ -117,7 +131,7 @@ export default {
             await axios.get(urlAPI + "vehicleStock")
                 .then(res => {
                     vehiculos = res.data.vehicle.filter(v => v.Status === "AVAILABLE");
-                    if(this.employee!=null & this.employee.BranchOffice!=null){
+                    if (this.employee != null & this.employee.BranchOffice != null) {
                         vehiculos = vehiculos.filter(v => v.BranchOffice == this.employee.BranchOffice);
                     }
                     if (vehiculos != null) {

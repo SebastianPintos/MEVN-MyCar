@@ -283,8 +283,8 @@
 
                                                 <v-radio-group mandatory class="text-align: left" v-model="editedItem.taller" row :rules="requerido">
                                                     <h3>Taller: </h3>
-                                                    <v-radio class="mb-1" label="Sí" value="true"></v-radio>
-                                                    <v-radio class="mb-1" label="No" value="false"></v-radio>
+                                                    <v-radio class="mb-1" label="Sí" :value="true"></v-radio>
+                                                    <v-radio class="mb-1" label="No" :value="false"></v-radio>
                                                 </v-radio-group>
                                             </v-row>
 

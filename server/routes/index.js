@@ -33,6 +33,9 @@ const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
 const controlStock = require('../controllers/controlStock');
+
+const egreso = require('../controllers/egreso');
+const ingreso = require('../controllers/ingreso');
 const Email = require('../lib/Email');
 
 const pruebas = require('../controllers/pruebas');
@@ -114,6 +117,8 @@ module.exports = app => {
     router.post('/branchOffice/add', branchOffice.create);
     router.post('/branchOffice/:branchOffice_id/update', branchOffice.update);
     router.delete('/branchOffice/:branchOffice_id/delete', branchOffice.remove);
+    router.post('/branchOffice/:branchOffice_id/setCaja', branchOffice.setCaja);
+    router.post('/branchOffice/:branchOffice_id/changeStatus', branchOffice.changeStatus);
     
     router.get('/productStock', productStock.index);
     router.post('/productStock/add', productStock.create);
@@ -205,7 +210,18 @@ module.exports = app => {
     router.post('/localidades/add', localidades.create);
     router.post('/localidades/:localidades_id/update', localidades.update);
 
+
     router.post('/report/incomeExpenses', report.IncomeExpenses);
+
     
+    router.get('/egreso', egreso.index);
+    router.post('/egreso/add', egreso.create);
+    router.post('/egreso/:egreso_id/update', egreso.update);
+    router.post('/egreso/:egreso_id/delete', egreso.remove);
+
+    router.get('/ingreso', ingreso.index);
+    router.post('/ingreso/add', ingreso.create);
+    router.post('/ingreso/:ingreso_id/update', ingreso.update);
+
     app.use(router);
 }

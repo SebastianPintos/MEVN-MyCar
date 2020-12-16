@@ -104,6 +104,14 @@
 
                 </v-list-group>
 
+                <v-list-item :to="'/proveedores'">
+                    <v-list-item-icon>
+                        <v-icon>mdi-package-variant</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Proveedores</v-list-item-title>
+                </v-list-item>
+
+
                 <v-list-item :to="'/servicios'">
                     <v-list-item-icon>
                         <v-icon>mdi-hammer-wrench</v-icon>
@@ -125,7 +133,32 @@
                     </v-list-item-icon>
                     <v-list-item-title>Documentación</v-list-item-title>
                 </v-list-item>
+                
+                <v-list-item :to="'/entregas'">
+                    <v-list-item-icon>
+                        <v-icon>
+                            mdi-truck-delivery-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Entregas</v-list-item-title>
+                </v-list-item>
 
+                  <v-list-item :to="'/caja'">
+                    <v-list-item-icon>
+                        <v-icon>
+                           mdi-cash-register</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Caja</v-list-item-title>
+                </v-list-item>
+                
+                  <v-list-item :to="'/egresos'">
+                    <v-list-item-icon>
+                        <v-icon>
+                           mdi-cash</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Ingresos/Egresos</v-list-item-title>
+                </v-list-item>
+                
+            
             </v-list-item-group>
 
         </v-list>
