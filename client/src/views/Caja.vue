@@ -168,7 +168,10 @@ export default {
                     if (egresos != null) {
                         if (branchOffice != "") {
                             egresos.forEach(e => {
-                                if (e.BranchOffice == branchOffice && e.Status == "ACTIVE") {
+                                let date = e.Date.slice(0, 10);
+
+                                if (e.BranchOffice == branchOffice && e.Status == "ACTIVE" &&
+                                    this.fecha.slice(0, 10) == date) {
                                     this.egresos.push({
                                         "Date": e.Date,
                                         "Responsable": e.Employee.DNI,
@@ -195,7 +198,11 @@ export default {
                     if (ventas != null) {
                         if (branchOffice != "") {
                             ventas.forEach(e => {
-                                if (e.BranchOffice != null && e.BranchOffice._id == branchOffice) {
+                                let date = null;
+                                if (e.Date != null) {
+                                    let date = (e.Date).slice(0, 10);
+                                }
+                                if (e.BranchOffice != null && e.BranchOffice._id == branchOffice && this.fecha.slice(0, 10) == date) {
                                     this.ventas.push({
                                         "Date": e.Date,
                                         "Responsable": e.Employee.DNI,
@@ -207,7 +214,7 @@ export default {
                                 }
                             })
                             this.ventas.forEach(v => {
-                                 this.movimientos.push(v)
+                                this.movimientos.push(v)
                             });
                         }
                     }
@@ -225,11 +232,11 @@ export default {
                     if (ordenesR != null) {
                         if (branchOffice != "") {
                             ordenesR.forEach(o => {
-                                let date = new Date(o.OrderDate);
-                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && date.getDate() ==
-                                    fecha.getDate() &&
-                                    date.getMonth() == fecha.getMonth() &&
-                                    date.getYear() == fecha.getYear()) {
+                                let date = "";
+                                if(o.OrderDate!=null){
+                                   date = (o.OrderDate).slice(0,10);
+                                }
+                                if (o.BranchOffice == branchOffice && o.Status == "ACTIVE" && date==this.fecha.slice(0,10)) {
                                     this.ordenesR.push({
                                         "Date": o.OrderDate,
                                         "Responsable": o.Employee.DNI,
@@ -305,11 +312,11 @@ export default {
             if (date == null) {
                 return "N/A";
             }
-          //  date.toLocaleString("es-AR", {timeZone: "America/Argentina/Buenos_Aires"});
+            //  date.toLocaleString("es-AR", {timeZone: "America/Argentina/Buenos_Aires"});
             date = String(date)
-            let fecha = (date.slice(0,10)).split("-");
-            let hora = date.slice(11,19) ;
-            date = fecha[2]+"-"+fecha[1]+"-"+fecha[0]+" "+hora;
+            let fecha = (date.slice(0, 10)).split("-");
+            let hora = date.slice(11, 19);
+            date = fecha[2] + "-" + fecha[1] + "-" + fecha[0] + " " + hora;
             return date;
         },
 
@@ -344,11 +351,11 @@ export default {
             }
             let fecha = new Date();
             fecha = new Date(fecha.setTime(fecha.getTime()));
-            let change = { 
-                    "Employee": this.employee._id,
-                    "Date": fecha,
-                    "Description":"CAJA: " + this.caja
-                }
+            let change = {
+                "Employee": this.employee._id,
+                "Date": fecha,
+                "Description": "CAJA: " + this.caja
+            }
             let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? arrChange = [] : this.branchOffice.ChangeStatus;
             arrChange.push(change);
             axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/setCaja', {
