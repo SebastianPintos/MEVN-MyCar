@@ -3,7 +3,51 @@
     <div>
         <h1 class="text-center" style="background-color:DimGray;color:white">INGRESOS/EGRESOS {{fecha}}</h1>
         <h4 class="text-center" style="background-color:DimGray;color:white">ESTADO: {{caja}}</h4>
-        <v-data-table v-model="selected" :headers="headers" :items="movimientos" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+        <template>
+        <v-expansion-panels>
+            <v-expansion-panel>
+                <v-expansion-panel-header class="indigo darken-4 white--text">
+                    <template v-slot:actions>
+                        <v-icon color="white">
+                            $expand
+                        </v-icon>
+                    </template>
+                    Ver filtros Disponibles
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                    <v-container>
+                        <h2>Filtros</h2>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <v-select label="Tipo" v-model="filtros.Type" :items="['INGRESO','EGRESO']"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-select label="Responsable" v-model="filtros.Employee" :items="empleados" item-text="User" item-value="User"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-select label="Desde" v-model="filtros.Desde" :items="horarios"></v-select>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-select label="Hasta" v-model="filtros.Hasta" :items="horarios"></v-select>
+                            </v-col>
+
+                            
+                            <v-col cols="12" sm="6" md="6">
+                                <v-btn class="success" @click="aplicarFiltros">
+                                    <v-icon>mdi-check</v-icon>
+                                </v-btn>
+                                <v-btn class="warning" @click="reiniciarFiltros">
+                                    <v-icon>mdi-cancel</v-icon>
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-expansion-panels>
+    </template>
+
+        <v-data-table v-model="selected" :headers="headers" :items="movimientos" :search="search" item-key="_id" sort-by="Type" class="elevation-1">
 
             <template v-slot:item.Date="{ item }">
                 {{ formatDate(item.Date) }}
@@ -80,14 +124,22 @@ export default {
         ordenesR: [],
         ordenesV: [],
         ventas: [],
+        horarios: [],
         dialogMensaje: false,
         mensaje: '',
         snackbar: false,
         titulo: '',
         menu: false,
+        filtros:{
+            Type:'',
+            Responsable:'',
+            Desde:'',
+            Hasta:''
+        },
         selected: [],
         egresos: [],
         movimientos: [],
+        allMovimientos: [],
         search: '',
 
         headers: [{
@@ -147,6 +199,49 @@ export default {
             this.getVentas();
             this.getEmpleados();
             this.getIngresos();
+            this.getHorarios();
+        },
+        aplicarFiltros(){
+            let desde = this.filtros.Desde !="";
+            let hasta = this.filtros.Hasta !="";
+            let responsable= this.filtros.Responsable!="";
+            let type = this.filtros.Type!="";
+
+            if (!desde && !hasta && !responsable && !type) {
+                return
+            }
+            this.movimientos = [];
+            let TypeMatches = true
+            let DesdeMatches = true
+            let HastaMatches = true
+            let ResponsableMatches = true
+            let repAux = []
+            let cant = 0
+            for (var i = 0; i < this.allMovimientos.length; i++) {
+                TypeMatches = type ? this.allMovimientos[i].Type === this.filtros.Type : TypeMatches
+                DesdeMatches = desde ? this.allMovimientos[i].Date.slice(11,19) >= this.filtros.Desde : DesdeMatches
+                HastaMatches = hasta ? this.allMovimientos[i].Date.slice(11,19) <= this.filtros.Hasta : HastaMatches
+                ResponsableMatches = responsable ? this.allMovimientos[i].Responsable === this.filtros.Responsable : ResponsableMatches
+
+                if (TypeMatches & DesdeMatches & HastaMatches & ResponsableMatches) {
+                    this.movimientos.push(this.allMovimientos[i]);
+                }
+            }
+        },
+
+        reiniciarFiltros(){
+            this.movimientos = this.allMovimientos;
+            this.filtros.Desde = "";
+            this.filtros.Hasta = "";
+            this.filtros.Responsable="";
+            this.filtros.Type="";
+        },
+        
+        getHorarios(){
+            for(let i=9; i< 23; i++){
+                let hora = i<10 ? "0"+i:i;
+                this.horarios.push(hora+":00");
+            }
         },
         validateUsers(...authorizedUsers) {
             if (localStorage.getItem('userType') != null) {
@@ -193,6 +288,7 @@ export default {
                             })
                             this.egresos.forEach(e => {
                                 this.movimientos.push(e)
+                                this.allMovimientos.push(e)
                             });
                         }
                     }
@@ -224,6 +320,7 @@ export default {
                             })
                             this.ventas.forEach(v => {
                                 this.movimientos.push(v)
+                                this.allMovimientos.push(v)
                             });
                         }
                     }
@@ -231,7 +328,6 @@ export default {
         },
 
         async getOrdenes(branchOffice) {
-
             await axios.get(urlAPI + 'purchaseOrder')
                 .then(res => {
                     this.ordenesR = [];
@@ -250,12 +346,13 @@ export default {
                                         "Monto": o.Price,
                                         "Description": "ORDEN DE COMPRA",
                                         "Type": "EGRESO",
-                                        "Motivo": "REPUESTOS"
+                                        "Motivo": "allMovimientos"
                                     })
                                 }
                             })
                             this.ordenesR.forEach(o => {
                                 this.movimientos.push(o)
+                                this.allMovimientos.push(o)
                             });
                         }
                     }
@@ -283,6 +380,7 @@ export default {
                             })
                             this.ordenesV.forEach(o => {
                                 this.movimientos.push(o)
+                                this.allMovimientos.push(o)
                             });
                         }
                     }
@@ -311,6 +409,7 @@ export default {
                             })
                             this.ingresos.forEach(o => {
                                 this.movimientos.push(o)
+                                this.allMovimientos.push(o)
                             });
                         }
                     }
