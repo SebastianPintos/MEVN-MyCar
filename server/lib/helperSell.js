@@ -94,5 +94,60 @@ helperSell.SellProduct =  async (sell) => {
     }
 }
 
+helperSell.SellProductFromReserve =  async (sell) => {
+    
+    var productSorted = [];
+    for (i = 0; i < sell.ProductStock.length; i++) {
+        if (productSorted.indexOf(sell.ProductStock[i]) === -1) {
+            console.log('sorteador de productos' + productSorted);
+            productSorted.push(sell.ProductStock[i]);
+        }
+    }
+    console.log(productSorted);
+
+    var count = 0;
+    var arrayProductQuantity = [];
+    for (i = 0; i < productSorted.length; i++) {
+        for (y = 0; y < sell.ProductStock.length; y++) {
+            if (productSorted[i] === sell.ProductStock[y]) {
+                count += 1;
+            }
+        }
+        var productQuantity = { id: productSorted[i], quantity: count };
+        arrayProductQuantity.push(productQuantity);
+        count = 0;
+    }
+
+    console.log(arrayProductQuantity);
+
+    for (i = 0; i < arrayProductQuantity.length; i++) {
+        await ProductStock.find({ _id: arrayProductQuantity[i].id, Status: 'ACTIVE' }, async (err, productsDB) => {
+            if (err) { console.log(err) }
+            else {
+                var quantity = 0;
+                console.log(productsDB);
+                for (y = 0; y < productsDB.length; y++) {
+                    if (arrayProductQuantity[i].quantity != 0) {
+                        if (productsDB[y].Reserved >= arrayProductQuantity[i].quantity) {
+                            productsDB[y].Reserved -= arrayProductQuantity[i].quantity;
+                            arrayProductQuantity[i].quantity = 0;
+                        } else {
+                            arrayProductQuantity[i].quantity -= productsDB[y].Reserved;
+                            productsDB[y].Reserved = 0;
+                        }
+                    }                    
+                    
+                    await productsDB[y].save((err) => {
+                        if (err) { console.log(err) }
+                    });
+                    
+                    await helperStock.checkMin(productsDB[y]);
+
+                }
+            }
+        });
+    }
+}
+
 
 module.exports = helperSell;
