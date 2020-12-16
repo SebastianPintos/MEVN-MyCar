@@ -23,6 +23,7 @@ const factura = require('../controllers/factura');
 const monedas = require('../controllers/monedas');
 const documentation = require('../controllers/documentation');
 const deliveryVehicle = require('../controllers/deliveryVehicle');
+const report = require('../controllers/report');
 
 const paises = require('../controllers/paises');
 const provincias = require('../controllers/provincias');
@@ -164,6 +165,9 @@ module.exports = app => {
     router.post('/reservation/prueba', reservation.pruebas);
 
     router.post('/prueba/sellproduct', pruebas.sellProduct);
+    router.post('/prueba/reporte', pruebas.reporte);
+    router.post('/prueba/reporte2', pruebas.reporte2);
+    router.post('/prueba/reporte3', pruebas.reporte3);    
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);
@@ -205,7 +209,10 @@ module.exports = app => {
     router.get('/localidades', localidades.index);
     router.post('/localidades/add', localidades.create);
     router.post('/localidades/:localidades_id/update', localidades.update);
- 
+
+
+    router.post('/report/incomeExpenses', report.IncomeExpenses);
+
     
     router.get('/egreso', egreso.index);
     router.post('/egreso/add', egreso.create);

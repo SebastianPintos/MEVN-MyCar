@@ -6,6 +6,7 @@ const ctrl = {};
 ctrl.listVehicle = (req, res) => {
     Sell.find((err, sell) => {
         if (err) { console.log(err) }
+        console.log(sell);
         res.send({
             sell: sell
         })
@@ -46,8 +47,9 @@ ctrl.sellVehicle = async (req, res) => {
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
-        Factura: body.Factura,
-        BranchOffice: body.BranchOffice
+        BranchOffice: body.BranchOffice,
+        Factura: body.Factura
+
     })
 
     console.log(sell);
@@ -77,8 +79,8 @@ ctrl.sellService = async (req, res) => {
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
         Factura: body.Factura,
-        WorkOrder: body.WorkOrder,
-        BranchOffice: body.BranchOffice
+        BranchOffice: body.BranchOffice,
+        WorkOrder: body.WorkOrder
     });
 }
 
