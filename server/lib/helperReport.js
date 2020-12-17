@@ -98,16 +98,35 @@ ctrl.Discriminated = async (Start, Finish) => {
         if(err){console.log(err)}
         else{
             console.log(sellsDB[0]);
-            console.log(sellsDB[0].VehicleSold);
+            var variable = sellsDB[0].toJSON() ;
+            console.log('variable',variable);
+            console.log('variable',variable.VehicleSold.PurchaseOrderV.Price);
+            var variable2 = sellsDB[0].VehicleSold.toObject();
+            console.log('variable2 ',variable2.PurchaseOrderV);
+            console.log('vehicle sold ', sellsDB[0].VehicleSold);
             console.log(sellsDB[0].VehicleSold.VehicleStock);
+            console.log('purchaseorder ', sellsDB[0].VehicleSold.PurchaseOrderV);
+
             var sells = sellsDB;
         }
     }).populate({
         path: 'VehicleSold',
         model: 'DeliveryVehicle',
-        populate: {path: 'VehicleStock', model: 'VehicleStock', populate: {
-            path: 'Vehicle', model: 'Vehicle'
-        }}
+        populate: [{
+            path: 'VehicleStock', 
+            model: 'VehicleStock', 
+            populate: {
+                path: 'Vehicle', 
+                model: 'Vehicle'
+        }},
+        {
+            path: 'PurchaseOrderV',
+            model: 'PurchaseOrderV',
+            Populate: {
+                path: 'Vehicle.VehicleID',
+                model: 'Vehicle'
+            }
+        }]
     });
     
 

@@ -10,7 +10,7 @@ ctrl.listVehicle = (req, res) => {
         res.send({
             sell: sell
         })
-}).populate('Employee').populate('PaymentType').populate('Factura').populate('Client').populate('VehicleSold.DeliveryVehicle.Vehicle.Vehicle');
+}).populate('Employee').populate('PaymentType').populate('Factura').populate('Client').populate('VehicleSold');
 
 };
  
@@ -65,7 +65,7 @@ ctrl.sellVehicle = async (req, res) => {
     });
 }
 
-ctrl.sellService = async (req, res) => {
+ctrl.sellReservation = async (req, res) => {
     var body = req.body.sell;
     
     var sell = new Sell({
@@ -78,9 +78,17 @@ ctrl.sellService = async (req, res) => {
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
         PaymentType: body.PaymentType,
-        Factura: body.Factura,
         BranchOffice: body.BranchOffice,
-        WorkOrder: body.WorkOrder
+        Factura: body.Factura
+    });
+
+    sell.save(async (err, sellDB) => {
+        if(err) {console.log(err)}
+        else{ 
+            console.log(sellDB);
+            await helperSell.SellProductFromReserve(sellDB);
+            res.status(200).json(sellDB);
+        }
     });
 }
 
