@@ -35,7 +35,7 @@ var sellSchema = new Schema({
       Holder: {type: String}
     }}],
     BranchOffice: {type: Schema.Types.ObjectId, ref: 'BranchOffice'},
-    WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
+    Reservation: {type: Schema.Types.ObjectId, ref: 'Reservation'}
 },{timestamps: true});
 
 var sell = mongoose.model("Sell", sellSchema);

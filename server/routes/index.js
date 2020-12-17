@@ -182,6 +182,7 @@ module.exports = app => {
 
     router.post('/sellVehicle/add', sell.sellVehicle);
     router.get('/sellVehicle', sell.listVehicle);
+    router.post('/sell/reservation', sell.sellReservation);
 
 
     router.get('/paymentType', paymentType.index);
