@@ -2,7 +2,6 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
         <!--Filtros-->
-        <h1>{{filteredModels}}</h1>
         <template>
             <v-expansion-panels>
                 <v-expansion-panel>
