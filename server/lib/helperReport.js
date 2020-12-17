@@ -1,5 +1,8 @@
 const Sell = require('../models/sell');
 const PurchaseOrder = require('../models/purchaseOrder');
+const DeliveryVehicle = require('../models/deliveryVehicle');
+const PurchaseOrderV = require('../models/purchaseOrderV');
+const VehicleStock = require('../models/vehicleStock');
 
 ctrl = {};
 
@@ -89,27 +92,39 @@ ctrl.Expenses = async (Start, Finish) => {
 
 ctrl.Discriminated = async (Start, Finish) => {
 
+    var report = [];
     var dateStart = new Date(Start);
     var dateFinish = new Date(Finish);
     dateStart.setHours(00, 00, 00);
     dateFinish.setHours(23, 00, 00);
 
-    await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}, (err, sellsDB) => {
+    await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}, async (err, sellsDB) => {
         if(err){console.log(err)}
         else{
-            console.log(sellsDB[0]);
-            var variable = sellsDB[0].toJSON() ;
-            console.log('variable',variable);
-            console.log('variable',variable.VehicleSold.PurchaseOrderV.Price);
-            var variable2 = sellsDB[0].VehicleSold.toObject();
-            console.log('variable2 ',variable2.PurchaseOrderV);
-            console.log('vehicle sold ', sellsDB[0].VehicleSold);
-            console.log(sellsDB[0].VehicleSold.VehicleStock);
-            console.log('purchaseorder ', sellsDB[0].VehicleSold.PurchaseOrderV);
+            var office = sellsDB[0].BranchOffice._id.toString();
+            var officeName = sellsDB[0].BranchOffice.Name;
+            var totalMoney = 0;
 
-            var sells = sellsDB;
+            for(i = 0; i < sellsDB.length; i++){
+                console.log('antes de empezar', i + " " + sellsDB[i]);
+                await DeliveryVehicle.findOne({_id: sellsDB[i].VehicleSold}, async (err, delivery)=> {
+                    if(office === sellsDB[i].BranchOffice._id.toString()){
+                        totalMoney += await ctrl.getMoneyfromDelivery(delivery);
+                    }
+                    else {
+                        var branchVehicleSell = {id: office, name: officeName, money: totalMoney};
+                        report.push(branchVehicleSell);
+                        office = sellsDB[i].BranchOffice._id.toString();
+                        officeName = sellsDB[i].BranchOffice.Name;
+                        totalMoney = await ctrl.getMoneyfromDelivery(delivery);
+                    }
+                })
+            }
+            console.log('reporte', report);
+
         }
-    }).populate({
+    }).sort('BranchOffice').populate('BranchOffice');
+    /* .populate({
         path: 'VehicleSold',
         model: 'DeliveryVehicle',
         populate: [{
@@ -127,11 +142,63 @@ ctrl.Discriminated = async (Start, Finish) => {
                 model: 'Vehicle'
             }
         }]
-    });
+    }); */
     
 
     
 
 }
+
+ctrl.getMoneyfromDelivery  = async (delivery) => {
+    var totalMoney = 0;
+    if(delivery.VehicleStock){
+        await VehicleStock.findOne({_id: delivery.VehicleStock}, (err, vehicle)=> {
+            console.log('vehiculo', vehicle);
+            totalMoney += vehicle.Vehicle.SuggestedPrice;
+        }).populate('Vehicle');
+        console.log('vehicle stock', totalMoney);
+    }
+
+    if(delivery.PurchaseOrderV){
+        await PurchaseOrderV.findOne({_id: delivery.PurchaseOrderV}, (err, order) => {
+            console.log('order', order);
+            totalMoney += order.Price;
+        })
+    }
+    console.log(totalMoney);
+    return totalMoney;
+}
+
+
+  /*               console.log('delivery', i + '' + delivery);
+                    if(delivery.PurchaseOrderV){
+                        await PurchaseOrderV.findOne({_id: delivery.PurchaseOrderV}, (err, order) => {
+                            console.log('con order',i +" "+ order.Price);
+                            if(office === sellsDB[i].BranchOffice._id.toString()){
+                                totalMoney += order.Price;
+                            }
+                            else {
+                                var branchTotal = { id: office, name: officeName, money: totalMoney};
+                                report.push(branchTotal);
+                                office = sellsDB[i].BranchOffice._id.toString();
+                                officeName = sellsDB[i].BranchOffice.Name;
+                                totalMoney = order.Price;
+                            }
+                        })
+                    }else {
+                        await VehicleStock.findOne({_id: delivery.VehicleStock}, (err, vehicle) => {
+                            console.log('vehiculostock', i + " " +vehicle.Vehicle.SuggestedPrice);
+                            if(office === sellsDB[i].BranchOffice._id.toString()){
+                                totalMoney += vehicle.Vehicle.SuggestedPrice;
+                            }
+                            else {
+                                var branchTotal = { id: office, name: officeName, money: totalMoney};
+                                report.push(branchTotal);
+                                office = sellsDB[i].BranchOffice._id.toString();
+                                officeName = sellsDB[i].BranchOffice.Name;
+                                totalMoney = vehicle.Vehicle.SuggestedPrice;
+                            }
+                        }).populate('Vehicle')
+                    } */
 
 module.exports = ctrl;

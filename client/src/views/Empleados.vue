@@ -51,7 +51,7 @@
                                                 <v-text-field v-model="editedItem.Email" label="Email" :rules="requerido"></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.Hierarchy" :items="roles" label="Jerarquia" :rules="requerido"></v-select>
+                                                <v-select v-model="editedItem.Hierarchy" :items="roles" label="Jerarquía" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-select v-model="editedItem.BranchOffice" :items="branchOffices" item-text="Name" item-value="_id" label="Sucursal" :rules="requerido"></v-select>
@@ -84,7 +84,7 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="close">
+                                    <v-btn class="info" text @click="reset();close()">
                                         <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
                                     <v-btn class="info" text @click="save">
@@ -117,7 +117,7 @@
                                             </v-col>
 
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Hierarchy" :items="jerarquias" label="Jerarquia" :rules="requerido"></v-select>
+                                                <v-select v-model="editedItem.Hierarchy" :items="jerarquias" label="Jerarquía" :rules="requerido"></v-select>
                                             </v-col>
                                         </v-row>
                                     </v-container>
@@ -125,12 +125,14 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="close">
-                                        Cancelar
+                                    <v-flex class="text-right">
+                                    <v-btn class="mb-2 info" text @click="reset();close()">
+                                        <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn color="blue darken-1" text @click="save">
-                                        Guardar
+                                    <v-btn class="mb-2 info"  text @click="save">
+                                        <v-icon>mdi-check</v-icon>
                                     </v-btn>
+                                    </v-flex>
                                 </v-card-actions>
                             </v-form>
                         </v-card>
@@ -141,7 +143,7 @@
                         <v-card>
                             <v-card-title>Confirmación</v-card-title>
                             <v-card-text>
-                                <h3>¿Estás seguro de que deseas eliminar esta usuario?</h3>
+                                <h3>¿Estás seguro de que deseas eliminar este usuario?</h3>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
@@ -247,7 +249,7 @@ export default {
                 value: 'Email'
             },
             {
-                text: 'Jerarquia',
+                text: 'Jerarquía',
                 value: 'Hierarchy'
             },
             {
@@ -257,6 +259,7 @@ export default {
         ],
 
         empleados: [],
+        formTitle: "Nuevo Empleado",
 
     }),
 
@@ -271,11 +274,6 @@ export default {
 
     created() {
         this.iniciar();
-    },
-    computed: {
-        formTitle() {
-            return this.editedIndex === -1 ? 'Nuevo Empleado' : 'Editar Empleado'
-        },
     },
 
     methods: {
@@ -315,7 +313,7 @@ export default {
                     }
                 }
             })
-            .then(() => this.getEmployees())
+            .then(() => {this.getEmployees(); this.reset()})
         },
 
         updateEmployee(){
@@ -342,7 +340,7 @@ export default {
                     }
                 }
             })
-            .then(() => this.getEmployees())
+            .then(() => {this.getEmployees(); this.reset()})
         },
 
         deleteEmpleado(item) {
@@ -405,13 +403,18 @@ export default {
                     return;
                 }
                 this.editedIndex = this.empleados.indexOf(item);
-                this.formTitle = "Editar Cliente";
+                this.formTitle = "Editar Empleado";
                 this.editedItem = Object.assign({}, item)
                 this.dialog = true;
             }
         },
 
         deleteItem() {
+            if(this.selected.length==0){
+                this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
+                return;
+            }
             this.dialogDelete = true;
         },
 
@@ -425,6 +428,10 @@ export default {
 
         reset() {
             this.selected = [];
+            if(this.dialog){
+                this.$refs.form.resetValidation()
+            }
+            this.formTitle = "Nuevo Empleado";
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
@@ -433,7 +440,6 @@ export default {
 
         close() {
             this.dialog = false
-            this.reset()
         },
 
         closeDelete() {
@@ -449,18 +455,20 @@ export default {
             if (this.editedIndex > -1) {
                 if (this.validate()) {
                     Object.assign(this.empleados[this.editedIndex], this.editedItem)
+                       this.formTitle ="Editar Empleado";
                     this.updateEmployee();
                 }
             } else {
                 if (this.selected.length > 1) {
                     if (this.$refs.editarVarios.validate()) {
+                        this.formTitle ="Editar Empleado";
                         this.updateManyEmployees()
                     }
                 } else {
                     if (this.validate()) {
+                        this.formTitle ="Nuevo Empleado";
                         this.empleados.push(this.editedItem);
                         this.createEmployee();
-
                     }
                 }
 
