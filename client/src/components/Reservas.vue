@@ -220,6 +220,7 @@
 </template>
 
 <script>
+
 import axios from "axios"
 import urlAPI from "../config/config.js"
 export default {
@@ -397,8 +398,11 @@ export default {
         },
 
         async confirmarReserva(event) {
-            await axios.delete(urlAPI + 'reservation/' + event.id + '/delete');
-            this.events.splice(this.events.indexOf(event), 1)
+           // await axios.delete(urlAPI + 'reservation/' + event.id + '/delete');
+           //this.events.splice(this.events.indexOf(event), 1)
+             this.getReserva(event.id);
+             localStorage.setItem("reserva",JSON.stringify(this.editedReserva));
+             location.href="/pagos";
         },
 
         async eliminarReserva(event) {
@@ -741,6 +745,7 @@ export default {
             val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
         },
     },
+ 
 
 }
 </script>
