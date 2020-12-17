@@ -507,7 +507,7 @@ export default {
                 let actualBrand;
                 actualBrand = this.brandsList.find(brand => brand.Name == this.editedItem.Brand)
                 this.modelsList.forEach(model => {
-                    if (model.Brand == actualBrand._id) {
+                    if (model.Brand._id == actualBrand._id) {
                         this.filteredModels.push(model)
                     }
                 })
