@@ -394,11 +394,9 @@ export default {
             this.employee = employee;
             this.getReserva();
             if (this.reserva != null) {
-                //    console.log("RESERVA: "+JSON.stringify(this.reserva));
                 this.cliente = this.reserva.Client._id;
                 this.aceptoCliente = true;
                 this.buscarTipoFactura();
-                
 
             }
             this.getClientes();
@@ -649,6 +647,7 @@ export default {
         },
 
         agregarMedios() {
+            this.medios = [];
             let tarjeta = this.getTarjeta();
             let transferencia = this.getTransferencia();
             let efectivo = this.getEfectivo();
@@ -698,6 +697,8 @@ export default {
             return {
                 "deliveryVehicle": {
                     "Documentation": documentation,
+                    "Employee": this.employee._id,
+                    "Date": new Date(),
                     "Status": "ACTIVE",
                     "VehicleStock": stock ? vehicle._id : null,
                     "PurchaseOrderV": stock == false ? vehicle._id : null
@@ -711,7 +712,7 @@ export default {
             cliente = cliente.length > 0 ? cliente.CUIT : "";
             let employee = this.employee != null ? this.employee._id : null;
             var idsVehiculos = [];
-            // this.vehiculosSold.forEach(v=>{idsVehiculos.push(null)});
+          
             let cont = 0;
             if (this.vehiculosSold.length > 0) {
                 for (let i = 0; i < this.vehiculosSold.length; i++) {
@@ -736,7 +737,7 @@ export default {
                                 }
                             });
                     }
-                    if (cont == this.vehiculosSold) {
+                    if (cont == this.vehiculosSold.length) {
                         this.agregarSell(repuestos, idsVehiculos, idFactura, employee, cliente);
                     }
                 }
@@ -758,7 +759,7 @@ export default {
                     "Client": this.cliente,
                     "ProductStock": repuestos,
                     "VehicleSold": idsVehiculos,
-                    "PaymentType": this.mediosPago,
+                    "PaymentType": this.medios,
                     "Factura": idFactura,
                     "Date": new Date(),
                     "Employee": employee,
@@ -787,14 +788,14 @@ export default {
         venderServicio(sell) {
             axios.post(urlAPI + 'sell/reservation', sell)
                 .then(
-                        res => {
-                            if (res != null)
-                                axios.delete(urlAPI + 'reservation/' + this.reserva._id + '/delete').then(res=>{
-                                    if(res!=null){
-                                        this.resetItems();
-                                    }
-                                });
-                        });
+                    res => {
+                        if (res != null)
+                            axios.delete(urlAPI + 'reservation/' + this.reserva._id + '/delete').then(res => {
+                                if (res != null) {
+                                    this.resetItems();
+                                }
+                            });
+                    });
         },
         resetItems() {
             this.tituloMensaje = "Operación exitosa";
@@ -847,7 +848,8 @@ export default {
                         "Dealer": this.encargados[i].Dealer,
                         "BranchOffice": this.encargados[i].BranchOffice,
                         "Status": "ACTIVE",
-                        "Type": "RECIBIDA"
+                        "Type": "RECIBIDA",
+                        "Employee": this.employee._id
                     }
                 }).then(res => {
                     if (res != null) {
@@ -965,7 +967,6 @@ export default {
             });
 
             if (this.reserva != null) {
-                console.log("LENGTH: " + this.reserva.Service.length)
                 this.reserva.Service.forEach(v => {
                     let precioNeto = 0.0;
                     let impuesto = 0.0;
@@ -975,7 +976,6 @@ export default {
                     v.Product.forEach(p => {
                         precio += p.SalePrice;
                     })
-                    console.log("PRECIO: " + precio);
                     let nombre = v.Description + " Precio: " + precio;
 
                     //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
@@ -1160,11 +1160,13 @@ export default {
 
         getDocumentosObligatorios(documentos) {
             let ret = [];
-            documentos.forEach(d => {
-                if (d.DocumentationID != null) {
-                    ret.push(d);
-                }
-            })
+            if (documentos != null) {
+                documentos.forEach(d => {
+                    if (d.DocumentationID != null) {
+                        ret.push(d);
+                    }
+                })
+            }
             return ret;
         },
     }
