@@ -1,6 +1,7 @@
 <template>
   <v-container fluid class="bkg-reportes">
       <v-container fluid>
+          <v-btn @click="getValues()"></v-btn>
           <v-row justify="space-around">
         <v-col cols="12" md="3">
             <v-card
@@ -10,15 +11,10 @@
                 <v-card-text class="pt-0">
                 
                     <h1 class="cardValue">$ 19.5K</h1>
-                
-                <v-divider class="my-2"></v-divider>
-                <v-icon
-                    class="mr-2"
-                    small
-                >
-                    mdi-clock
-                </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard1}} segundos</span>
+
+               <v-divider class="my-2"></v-divider>
+                <span class="caption grey--text font-weight-light">Valores del ultimo mes</span>
+
                 </v-card-text>
             </v-card>
         </v-col>
@@ -30,15 +26,11 @@
                 <v-card-text class="pt-0">
                 
                     <h1 class="cardValue">$ 12.2K</h1>
+
                 
                 <v-divider class="my-2"></v-divider>
-                <v-icon
-                    class="mr-2"
-                    small
-                >
-                    mdi-clock
-                </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard2}} segundos</span>
+                <span class="caption grey--text font-weight-light">Valores del ultimo mes</span>
+
                 </v-card-text>
             </v-card>
         </v-col>
@@ -110,13 +102,7 @@
                     Last Campaign Performance
                 </div>
                 <v-divider class="my-2"></v-divider>
-                <v-icon
-                    class="mr-2"
-                    small
-                >
-                    mdi-clock
-                </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard4}} segundos</span>
+                <span class="caption grey--text font-weight-light">Valores del ultimo mes</span>
                 </v-card-text>
             </div>
             </v-card>
@@ -148,13 +134,7 @@
                     Last Campaign Performance
                 </div>
                 <v-divider class="my-2"></v-divider>
-                <v-icon
-                    class="mr-2"
-                    small
-                >
-                    mdi-clock
-                </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard4}} segundos</span>
+                <span class="caption grey--text font-weight-light">Valores del ultimo mes</span>
                 </v-card-text>
             </div>
             </v-card>
@@ -186,13 +166,7 @@
                     Last Campaign Performance
                 </div>
                 <v-divider class="my-2"></v-divider>
-                <v-icon
-                    class="mr-2"
-                    small
-                >
-                    mdi-clock
-                </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard4}} segundos</span>
+                <span class="caption grey--text font-weight-light">Valores de todas las sucursales</span>
                 </v-card-text>
             </div>
             </v-card>
@@ -209,6 +183,8 @@
 import BarChart from '@/components/BarChart.vue';
 import StackedChart from '@/components/StackedChart.vue';
 import PieChart from '@/components/PieChart.vue';
+import axios from "axios";
+import urlAPI from "../config/config.js"
 export default {
     components:{
         BarChart,
@@ -216,35 +192,18 @@ export default {
         StackedChart
     },
     data: () => ({
-        tiempoCard1: 0,
-        tiempoCard2: 0,
-        tiempoCard3: 0,
-        tiempoCard4: 0,
-        tiempoCard5: 0,
-        tiempoCard6: 0,
-        labels: [
-        '12am',
-        '3am',
-        '6am',
-        '9am',
-        '12pm',
-        '3pm',
-        '6pm',
-        '9pm',
-        '9pm',
-      ],
-      value: [
-        200,
-        675,
-        410,
-        390,
-        310,
-        460,
-        250,
-        240,
-        120
-      ],
-    })
+    }),
+    methods: {
+        getValues(){
+            console.log("Test")
+            axios.post(urlAPI + 'report/incomeExpenses',{
+              "dateStart": new Date(),
+              "dateFinish": new Date()
+         })
+         .then(data => console.log(data))
+        }
+      
+    }
 }
 </script>
 

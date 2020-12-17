@@ -63,6 +63,12 @@ export default {
     this.renderChart(this.chartdata, this.options)
   },
   methods (){
+      axios.post(urlAPI + 'report/incomeExpenses',{
+          "report":{
+              "dateStart": new Date(),
+              "dateFinish": new Date()
+          }
+      })
   }
 }
 </script>
