@@ -86,7 +86,7 @@ ctrl.sellReservation = async (req, res) => {
         if(err) {console.log(err)}
         else{ 
             console.log(sellDB);
-            //await helperSell.SellProductFromReserve(sellDB);
+            await helperSell.SellProductFromReserve(sellDB);
             res.status(200).json(sellDB);
         }
     });
