@@ -240,8 +240,10 @@ export default {
                     let empleados = res.data.employee;
                     if (empleados != null) {
                         empleados.forEach(s => {
-                            if (s.Status === "ACTIVE" & s.BranchOffice._id == this.employee.BranchOffice) {
+                            if (s.Status === "ACTIVE" & s.BranchOffice!=null){
+                            if(s.BranchOffice._id == this.employee.BranchOffice) {
                                 this.empleados.push(s);
+                            }
                             }
                         })
                     }

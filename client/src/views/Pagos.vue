@@ -765,7 +765,7 @@ export default {
                     "Employee": employee,
                     "CUIT": cliente,
                     "Service": servicios,
-                    "BranchOffice": employee.BranchOffice
+                    "BranchOffice": this.employee.BranchOffice
                 }
             };
 

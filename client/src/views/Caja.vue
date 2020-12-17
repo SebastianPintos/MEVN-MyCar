@@ -304,11 +304,12 @@ export default {
                     if (ventas != null) {
                         if (this.branchOffice != "") {
                             ventas.forEach(e => {
-                                let date = "";
+                                let fString="";
                                 if (e.Date != null) {
-                                    let date = String(e.Date).slice(0, 10);;
-                                }
-                                if (e.BranchOffice != null && e.BranchOffice._id == this.branchOffice._id && this.fecha == date) {
+                                    let date = String(e.Date).slice(0, 10).split("-");
+                                    fString = date[2]+"-"+date[1]+"-"+date[0]; 
+                                 }
+                                if (e.BranchOffice != null && e.BranchOffice == this.branchOffice._id && this.fecha == fString) {
                                     this.ventas.push({
                                         "Date": e.Date,
                                         "Responsable": e.Employee.User,
