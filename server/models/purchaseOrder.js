@@ -48,6 +48,7 @@ var PurchaseOrderSchema = new Schema({
   Info: {type: String},
   Employee: {type: Schema.Types.ObjectId, required: true, ref: 'Employee'},
 },{timestamps: true});
+
 var PurchaseOrder = mongoose.model("PurchaseOrder", PurchaseOrderSchema);
 module.exports = PurchaseOrder;
 
