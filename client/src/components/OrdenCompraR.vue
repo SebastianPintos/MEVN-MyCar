@@ -17,6 +17,9 @@
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="verInfo">
+                        <v-icon>mdi-information-outline</v-icon>
+                    </v-btn>
                     <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogStock=true">
                         <v-icon @click="dialogStock=true">mdi-paperclip</v-icon>
                     </v-btn>
@@ -45,7 +48,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn class="info" right @click="dialogStock=false">
+                        <v-btn class="info" right @click="reset">
                             <v-icon>mdi-cancel</v-icon>
                         </v-btn>
                         <v-btn class="info" right @click="readFile">
@@ -107,17 +110,33 @@
             <v-card>
                 <v-card-text>
                     <br>
-                    <h2>{{mensaje}}</h2>
+                    <span v-html="titulo"></span>
+                    <span v-html="mensaje"></span>
                 </v-card-text>
                 <v-card-actions>
                     <v-flex class="text-right">
-                        <v-btn class="info" @click="dialogMensaje=false; mensaje='' ">
+                        <v-btn v-if="procesar" class="info mb-2" @click="dialogMensaje=false; mensaje='';titulo='';procesar=false ">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+
+                        <v-btn class="info mb-2" @click="aceptarDialog">
                             <v-icon>mdi-check</v-icon>
                         </v-btn>
                     </v-flex>
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-snackbar v-model="snackbar">
+            {{ mensaje }}
+
+            <template v-slot:action="{ attrs }">
+                <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+                    Aceptar
+                </v-btn>
+            </template>
+        </v-snackbar>
+
     </div>
 </v-img>
 </template>
@@ -129,13 +148,17 @@ export default {
     data: () => ({
         dialogMensaje: false,
         mensaje: '',
+        titulo: '',
         dialogStock: false,
         valid: true,
         dialogConfirm: false,
         selected: [],
+        procesar: false,
         proveedores: [],
+        snackbar: false,
         proveedor: null,
         purchaseOrders: [],
+        orden: null,
         fueraServicio: [],
         noLlegaron: [],
         max: [],
@@ -154,9 +177,13 @@ export default {
         ],
 
         headers: [{
-                text: 'Proveedor',
-                value: 'Dealer.Email',
+                text: 'Código',
+                value: 'Code',
                 align: 'start',
+            },
+            {
+                text: 'Proveedor',
+                value: 'Dealer.Email'
             },
             {
                 text: 'Fecha de Orden',
@@ -175,14 +202,18 @@ export default {
 
         editedIndex: -1,
         attrs: '',
+        allOrders: [],
         on: '',
-
+        output: [],
         files: [],
         data: null,
         chosenFile: null,
+        employee: null,
     }),
 
     created() {
+        let employee = localStorage.getItem("employee");
+        this.employee = JSON.parse(employee);
         this.getRepuestos();
         this.getOrders();
         this.getProveedores();
@@ -193,14 +224,17 @@ export default {
         async getOrders() {
             await axios.get(urlAPI + 'purchaseOrder')
                 .then(res => {
+                    this.purchaseOrders = [];
+                    this.allOrders = [];
                     let purchaseOrders = res.data.purchaseOrder;
                     if (purchaseOrders != null) {
                         purchaseOrders.forEach(orden => {
                             if (orden.Status === "ACTIVE") {
-                                this.purchaseOrders.push(orden);
+                                this.allOrders.push(orden);
                             }
                         })
                     }
+                    this.purchaseOrders = this.allOrders.filter(o => o.Type == "RECIBIDA");
                 })
         },
 
@@ -232,18 +266,6 @@ export default {
                 })
         },
 
-        async createproduct(code, bn, total, product) {
-            await axios.post(urlAPI + 'productStock/add', {
-                "productStock": {
-                    "Code": code,
-                    "BatchNum": bn,
-                    "TotalOrdered": total,
-                    "OrderDate": new Date(),
-                    "Product": product,
-                }
-            })
-        },
-
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
@@ -263,23 +285,16 @@ export default {
 
         validarCorroboracionStock() {
             if (this.selected.length == 0) {
-                this.dialogMensaje = true;
                 this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
                 return;
             }
             if (this.selected[0].ArrivalDate != null) {
-                this.dialogMensaje = true;
                 this.mensaje = "Esta orden ya ha sido verificada!";
+                this.snackbar = true;
                 return;
 
             }
-            /*for (let i = 0; i < this.purchaseOrders.length; i++) {
-                for (let j = 0; j < this.purchaseOrders[i].Product.length; j++) {
-                    this.max.push(this.purchaseOrders[i].Product[j].TotalOrdered);
-                    this.fueraServicio.push(0);
-                    this.noLlegaron.push(0);
-                }
-            }*/
             for (let j = 0; j < this.selected[0].Product.length; j++) {
                 this.max.push(this.selected[0].Product[j].TotalOrdered);
                 this.fueraServicio.push(0);
@@ -292,7 +307,11 @@ export default {
             for (let i = 0; i < this.selected[0].Product.length; i++) {
                 let noDisponibles = Number(this.fueraServicio[i]) + Number(this.noLlegaron[i]);
                 let disponibles = Number(this.selected[0].Product[i].TotalOrdered) - noDisponibles;
-              let repuestoStock = {
+                let employee = localStorage.getItem("employee");
+                employee = JSON.parse(employee);
+                let branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : null;
+
+                let repuestoStock = {
                     "productStock": {
                         "BatchNum": this.selected[0].Product[i].BatchNum,
                         "Status": "ACTIVE",
@@ -301,30 +320,30 @@ export default {
                         "Reserved": 0,
                         "Expiration": this.selected[0].Product[i].Expiration,
                         "Dealer": this.selected[0].Dealer,
-                        "BranchOffice": this.selected[0].BranchOffice,
                         "Product": this.selected[0].Product[i].ProductID._id,
-                        "Price": this.selected[0].Product[i].Price
-
+                        "Price": this.selected[0].Product[i].ProductID.SalePrice,
+                        "BranchOffice": branchOffice
                     }
                 };
                 axios.post(urlAPI + 'productStock/add', repuestoStock);
+                axios.post(urlAPI + 'product/' + this.selected[0].Product[i].ProductID._id + '/actualizarPrecio', {
+                    "precio": this.selected[0].Product[i].Price
+                })
             }
+
             axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
                 if (res != null) {
-                    this.purchaseOrders = [];
                     this.getOrders();
+                    this.titulo = "<h1 class='text-center'>Carga realizada con éxito</h1>";
+                    this.mensaje = "<h3>Podrá ver los elementos cargados en la sección: Stock.</h3>";
+                    this.dialogMensaje = true;
                 }
             });
-            this.selected=[];
-            this.dialogConfirm = false;
-            this.fueraServicio=[];
-            this.noLlegaron=[];
-        },
 
-        async updateProduct(productEdited) {
-            await axios.post(urlAPI + 'productStock/' + this.selected[0]._id + '/update', productEdited);
-            this.purchaseOrders = [];
-            this.getOrders();
+            this.selected = [];
+            this.dialogConfirm = false;
+            this.fueraServicio = [];
+            this.noLlegaron = [];
         },
 
         comprobarMax(event, r, array, otroArray) {
@@ -349,33 +368,25 @@ export default {
         },
 
         reverseMatrix(matrix) {
-            let output = [];
             // Por cada fila
             matrix.forEach((values, row) => {
                 // Vemos los valores y su posicion
                 values.forEach((value, col) => {
                     // Si la posición aún no fue creada
                     if (value != null) {
-                        if (output[col] === undefined) output[col] = [];
-                        output[col][row] = value;
+                        if (this.output[col] === undefined) this.output[col] = [];
+                        this.output[col][row] = value;
                     }
                 });
             });
-            return output;
         },
 
         readFile() {
-            //LOTE SKU TOTAL PRECIO UNITARIO
-            /*FORMATO ARCHIVO: 
-              0-SKU: Product.ProductID.SKU
-              1-LOTE: nLote
-              2-VENCIMIENTO: Product.Expiration,
-              3-TOTAL: TotalOrdered,
-              4-PRECIO: Price,*/
+            //0_LOTE 1_SKU 2_VENCIMIENTO, 3_TOTAL 4_PRECIO-UNITARIO 5_CODIGO
             if (this.$refs.formStock.validate()) {
                 if (this.repuestos == null) {
-                    this.dialogMensaje = true;
                     this.mensaje = "No existen repuestos para referenciar!";
+                    this.snackbar = true;
                     return;
                 }
                 let file = this.chosenFile;
@@ -383,10 +394,20 @@ export default {
                 reader.onload = (e) => {
                     // Cuando el archivo se terminó de cargar
                     let lines = this.parseCSV(e.target.result);
-                    let output = this.reverseMatrix(lines);
+                    this.reverseMatrix(lines);
 
-                    if (this.corroborarValidez(output)) {
-                        this.guardarOrden(output);
+                    if (this.corroborarValidez()) {
+                        if (this.orden == null) {
+                            this.procesar = true;
+                            this.titulo = "<h1 class='text-center'>Código de orden inexistente</h1><br>";
+                            this.mensaje = "<h4>¿Desea procesar igualmente la orden?</h4>";
+                            this.dialogMensaje = true;
+                            return;
+                        } else if (this.mensaje != "") {
+                            this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
+                            this.dialogMensaje = true;
+                        }
+                        this.guardarOrden();
                     }
                 };
 
@@ -395,105 +416,181 @@ export default {
             }
         },
 
-        guardarOrden(output) {
-            /*OrderDate: {type: Date},
-            ArrivalDate: {type: Date},
-            Price: {type: Number, required: true},
-            Product: [{
-            ProductID : {type: Schema.Types.ObjectId, required: true, ref: 'Product'},
-            Expiration: {type: Date},
-            TotalOrdered: {type: Number},
-            Price: {type: Number, required: true}
-            }],
-            Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
-            BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
-            Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},*/
-            let orden = this.getJSONOrder(output);
-            axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
-                if (res != null) {
-                    this.purchaseOrders = [];
-                    this.getOrders();
-                }
-            });
-            this.dialogStock = false;
+        guardarOrden() {
+            let orden = this.getJSONOrder();
 
+            if (orden != null) {
+                if (this.procesar) {
+                    axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
+                        if (res != null) {
+                            this.getOrders();
+                            this.procesar = false;
+                            this.reset();
+                        }
+                    });
+                } else {
+                    let id = this.allOrders.indexOf(this.orden);
+                    if (id != -1) {
+                        id = this.allOrders[id]._id;
+                        axios.post(urlAPI + 'purchaseOrder/' + id + "/update", orden).then(res => {
+                            if (res != null) {
+                                this.getOrders();
+                                this.reset();
+                            }
+                        });
+                    }
+                }
+                this.dialogStock = false;
+            } else {
+                this.titulo = "<h1 class='text-center'>Repuesto/s inexistente/s</h1><br>";
+                this.dialogMensaje = true;
+            }
         },
-        getJSONOrder(output) {
-            /* 0-SKU: Product.ProductID.SKU
-              1-LOTE: nLote
-              2-VENCIMIENTO: Product.Expiration,
-              3-TOTAL: TotalOrdered,
-              4-PRECIO: Price,*/
+        getJSONOrder() {
+            /* 0-SKU, 1-LOTE, 2-VENCIMIENTO, 3-TOTAL, 4-PRECIO, 5-CODIGO*/
             let precio = 0;
             let product = [];
-
-            for (let i = 1; i < output[1].length; i++) {
-                let productID = this.repuestos.filter(r => r.SKU == output[0][i]);
+            let mensaje = this.mensaje;
+            this.mensaje = "";
+            for (let i = 1; i < this.output[1].length; i++) {
+                let productID = this.repuestos.filter(r => r.SKU == this.output[0][i]);
                 if (productID != null & productID.length > 0) {
-                    let expiration = new Date(output[2][i]) != null ? new Date(output[2][i]) : null;
-                    let total = Number(output[3][i]);
-                    let precioUnitario = Number(output[4][i]);
+                    let expiration = new Date(this.output[2][i]) != null ? new Date(this.output[2][i]) : null;
+                    let total = Number(this.output[3][i]);
+                    let precioUnitario = Number(this.output[4][i]);
                     precio += precioUnitario * total;
                     product.push({
                         "ProductID": productID[0],
-                        "BatchNum": output[1][i],
+                        "BatchNum": this.output[1][i],
                         "Expiration": expiration,
                         "TotalOrdered": total,
-                        "Price": precioUnitario,
+                        "Price": precioUnitario
                     })
+                } else {
+                    this.mensaje += "<h2> Repuesto no encontrado </h2>";
+                    this.mensaje += "<h4> -SKU: " + this.output[0][i] + " </h4>";
+                    this.procesar = false;
                 }
             };
+            if (this.mensaje != "") {
+
+                this.mensaje = mensaje + this.mensaje;
+                return null;
+            }
+
+            this.mensaje = mensaje + this.mensaje;
+            //ACÁ FALTA LA PARTE DE BRANCHOFFICE    "BranchOffice": "5fb3d83987565231fcd5a756",
+             let date = new Date();
+             date = new Date(date.setTime(date.getTime()));
+            
             return {
                 "purchaseOrder": {
-                    "OrderDate": new Date(),
+                    "Code": this.output[5][1],
+                    "OrderDate": date,
                     "Price": precio,
                     "Product": product,
                     "Dealer": this.proveedor,
-                    "BranchOffice": "5fb3d83987565231fcd5a756",
+                    "Type": "RECIBIDA",
+                    "Status": "ACTIVE",
+                    "Info": this.mensaje,
+                    "Employee": this.employee._id
                 }
             }
-
         },
-        corroborarValidez(output) {
 
-            if (output.length != 5) {
-                this.mensaje = "Columnas inválidas, debe contener:  SKU, N°de Lote, Vencimiento, Total y Precio";
+        getOrden() {
+            let orden = this.allOrders.filter(o =>
+                o.Code == this.output[5][1] && o.Type == "ENVIADA"
+            );
+            if (orden.length > 0) {
+                this.orden = orden[0];
+            }
+        },
+
+        corroborarValidez() {
+            let ret = true;
+            if (this.output.length != 6) {
+                this.mensaje = "<h4>Columnas inválidas, debe contener exactamente 6 columnas.</h4>";
+                this.titulo = "<h1 class='text-center'>Formato de archivo Inválido</h1>";
                 this.dialogMensaje = true;
                 return false;
+            } else {
+                this.getOrden();
             }
             //FILA 0: SKU
-            for (let i = 1; i < output[0].length; i++) {
-                if (output[0][i] == null) {
-                    this.mensaje = "El código SKU es obligatorio";
-                    this.dialogMensaje = true;
+            for (let i = 1; i < this.output[0].length; i++) {
+                if (this.output[0][i] == null) {
+                    this.mensaje += "<h4>El código SKU es obligatorio</h4>";
                     return false;
+                } else {
+                    if (this.orden != null && this.orden.Product != null & this.orden.Product.filter(o => o.ProductID.SKU == this.output[0][i]).length == 0) {
+                        this.mensaje += "<h4>No existe un producto con SKU: " + this.output[0][i] + " en la orden original</h4>";
+                    }
                 }
             }
             //FILA 3: TOTAL OBLIGATORIO
-            for (let i = 1; i < output[3].length; i++) {
+            for (let i = 1; i < this.output[3].length; i++) {
                 const pattern = /^\d{1,}$/
-                if (!pattern.test(output[3][i])) {
-                    this.mensaje = "Total inválido, debe ser un valor numérico";
-                    this.dialogMensaje = true;
+                if (!pattern.test(this.output[3][i])) {
+                    this.mensaje = "<h4>Total inválido, debe ser un valor numérico</h4>";
                     return false;
+                } else {
+                    if (this.orden != null && this.output[3][i] &&
+                        this.orden.Product != null && this.orden.Product[i] != null && this.orden.Product[i].ProductID.TotalOrdered) {
+                        this.mensaje = "<h4>Total inválido, no coincide con el valor de la orden enviada</h4>";
+                    }
                 }
             }
             //FILA 4: PRECIO
-            for (let i = 1; i < output[4].length; i++) {
+            for (let i = 1; i < this.output[4].length; i++) {
                 try {
-                    if (parseFloat(output[4][i]) < 0) {
-                        this.mensaje = "Total inválido, debe ser un número mayor a 0";
-                        this.dialogMensaje = true;
+                    if (parseFloat(this.output[4][i]) < 0) {
+                        this.mensaje = "<h4>Total inválido, debe ser un número mayor a 0</h4>";
                         return false;
                     }
                 } catch (e) {
-                    this.mensaje = "Total inválido, debe ser un número mayor a 0";
-                    this.dialogMensaje = true;
+                    this.mensaje = "<h4>Total inválido, debe ser un número mayor a 0</h4>";
                     return false;
                 }
             }
-            return true;
-        }
+            return ret;
+        },
+
+        verInfo() {
+            if (this.selected.length == 0) {
+                this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
+                return;
+            }
+
+            this.titulo = "<h1>Información de procesamiento</h1><br>"
+            if (this.selected[0].Info == "" || this.selected[0].Info == null) {
+                this.mensaje = "<h4>Orden procesada con éxito</h4>";
+                this.dialogMensaje = true;
+            } else {
+                this.mensaje = this.selected[0].Info;
+                this.dialogMensaje = true;
+
+            }
+        },
+
+        aceptarDialog() {
+            this.dialogMensaje = false;
+            this.mensaje = '';
+            this.titulo = '';
+            if (this.procesar) {
+                this.guardarOrden()
+            }
+        },
+
+        reset() {
+            if(this.dialogStock){
+                this.$refs.formStock.resetValidation();
+            }
+            this.dialogStock = false;
+            this.chosenFile = null;
+            this.proveedor = null;
+        },
     },
 
 };

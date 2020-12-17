@@ -1,63 +1,142 @@
 <template>
 <div>
-    <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="repuestos" :search="search" item-key="_idTabla" class="elevation-1">
-        <template v-slot:item.BatchNum="{ item }">
-            {{ format(item.BatchNum) }}
+    <v-data-table v-model="selected" show-select :single-select="singleSelect" :headers="headers" :items="ventas" :search="search" item-key="_id" class="elevation-1">
+              <template v-slot:top>
+                <v-toolbar flat>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
+                    <v-divider class="mx-4" dark vertical></v-divider>
+                    <v-spacer></v-spacer>
+                      <v-btn right color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialogFactura">
+                        <v-icon>
+                            mdi-information-outline
+                        </v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-toolbar>
         </template>
-        <template v-slot:item.Expiration="{ item }">
-            {{ format(item.Expiration) }}
-        </template>
-        <template v-slot:[`item.actions`]="{ item }">
 
-            <v-btn v-if="item.carrito == false" fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(item)">
-                    mdi-cart-plus</v-icon>
-            </v-btn>
-            <v-btn v-else fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
-                    mdi-cart-remove</v-icon>
-            </v-btn>
-        </template>
+        <template v-slot:item.Factura.PrecioNeto="{ item }">
+            {{ formatPrice(item.Factura.PrecioNeto) }}
+        </template>   
+          <template v-slot:item.Date="{ item }">
+            {{ formatDate(item.Date) }}
+        </template>     
     </v-data-table>
-    <v-dialog v-model="dialogCantidad" persistent max-width="600">
-        <v-card class="mx-auto" max-width="600">
-            <v-flex class="text-center">
-                <v-card-title>Cantidad</v-card-title>
-            </v-flex>
-            <v-form ref="form" v-model="valid" lazy-validation>
-                <v-card-text>
-                    <v-col class="text-center">
-                        <span class="display-3 font-weight-light" v-text="cantidad"></span></v-col>
-                    <v-slider v-model="cantidad" class="slide" color="orange" track-color="grey" always-dirty min="1" :max="max">
-                        <template v-slot:prepend>
-                            <v-icon color="blue" @click="decrement">
-                                mdi-minus
-                            </v-icon>
-                        </template>
 
-                        <template v-slot:append>
-                            <v-icon color="blue" @click="increment">
-                                mdi-plus
-                            </v-icon>
-                        </template>
-                    </v-slider>
-                    <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
+     <v-dialog v-model="mostrarFactura">
+        <v-card>
 
-                </v-card-text>
-                <v-card-actions>
-                    <v-flex class="text-right">
-                        <v-btn class="info mb-2" @click="cancelarCantidad">
-                            <v-icon>mdi-cancel</v-icon>
-                        </v-btn>
-                        <v-btn class="info mb-2" @click="confirmarElemento">
-                            <v-icon>mdi-check</v-icon>
-                        </v-btn>
-                    </v-flex>
-                </v-card-actions>
-            </v-form>
+            <v-card-title>
+                <v-flex class="text-center">
+                    <h1>Factura: {{Factura.Kind}}</h1>
+                </v-flex>
+            </v-card-title>
+            <v-card-text>
+                <v-container>
+                    <ol>
+                        <li v-for="(elemento,index) in Factura.Elements" :key="index">
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field disabled label="Elemento :"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="elemento.Name"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <strong>
+                                        <v-text-field disabled label="Precio:"></v-text-field>
+                                    </strong>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field disabled :value="elemento.PrecioNeto" prefix="$"></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <div v-if="elemento.Descuento>0">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.Descuento" suffix="%"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+                            <div v-if="Factura.Kind=='A'">
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <strong>
+                                            <v-text-field disabled label="Impuestos:"></v-text-field>
+                                        </strong>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
+                        </li>
+                    </ol>
+                    <div v-if="Factura.Kind!='A'">
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </div>
+                    <div v-else>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total Neto:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <strong>
+                                    <v-text-field disabled label="Total+IVA:"></v-text-field>
+                                </strong>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field disabled prefix="$" :value="Factura.TotalImpuesto"></v-text-field>
+                            </v-col>
+                        </v-row>
+                    </div>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-flex class="text-right">
+                    <v-btn class="info mb-2" @click="mostrarFactura=false;selected=[]">
+                        <v-icon>mdi-check</v-icon>
+                    </v-btn>
+                </v-flex>
+            </v-card-actions>
         </v-card>
-
     </v-dialog>
+    
 </div>
 </template>
 
@@ -68,58 +147,56 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         selected: [],
-        descuento: 0,
-        descontado: 0,
         singleSelect: true,
-        repuestos: [],
-        repuestosFiltrados: [],
+        ventas: [],
+        ventasFiltrados: [],
         search: '',
         on: '',
         valid: true,
-        ultimoEnCarrito: null,
         attrs: '',
-        max: 0,
-        cantidad: 0,
-        dialogCantidad: false,
+        mostrarFactura: false,
+        
+        Factura: {
+                Kind: "",
+                Elements: [],
+                BranchOffice: "",
+                TotalNeto: 0,
+                TotalImpuesto: 0,
+            },
+        
+        /* 
+        RewarderDiscount: [{Detail,Service:[]}],
+        Client,
+        Date,
+        Factura,
+        Employee,
+        Service: [],
+        ProductStock: [],
+        VehicleSold: [{VehicleStock,PurchaseOrderV}],
+        PaymentType: [ {Price,Type: ['CASH', 'CREDICARD', 'WIRETRANSFER'],CurrencyType,
+        ExchangeRate: {type: Number},Credicard{},WireTransfer: {} ],
+        WorkOrder: {type: Schema.Types.ObjectId, ref: 'WorkOrder'}
+        },{timestamps: true}*/
         headers: [{
-                text: 'Marca',
-                value: 'Product.Brand',
+                text: 'Fecha',
+                value: 'Date',
                 align: 'start',
                 sortable: false,
             },
             {
-                text: 'Categoría',
-                value: 'Product.Category',
+                text: 'ID del Cliente',
+                value: 'Client.DNI',
+            },
+            {
+                text: 'Factura Emitida',
+                value: 'Factura.Kind',
             },
 
             {
-                text: 'Sub-categoría',
-                value: 'Product.SubCategory',
+                text: 'Total Neto',
+                value: 'Factura.PrecioNeto',
             },
-            {
-                text: 'N° Lote',
-                value: 'BatchNum',
-            },
-
-            {
-                text: 'Vto',
-                value: 'Expiration',
-            },
-
-            {
-                text: 'Precio',
-                value: 'Product.SalePrice',
-            },
-
-            {
-                text: 'Disponibles',
-                value: 'Available',
-            },
-            {
-                text: 'Acciones',
-                value: 'actions',
-                sortable: false
-            },
+         
         ],
         requerido: [
             value => {
@@ -131,148 +208,42 @@ export default {
     }),
     created() {
         this.iniciar();
-        //this.getRepuestos();
     },
     methods: {
-        cancelarCantidad() {
-            this.eliminarDelCarrito(this.ultimoEnCarrito);
-            this.dialogCantidad = false;
-        },
-        /*getRepuestos() {
-            axios.get(urlAPI + 'vehiclestock').then(res => {
-                console.log(res);
-                console.log(JSON.stringify(res));
-                this.repuestos = res.data.vehicle.filter(v => v.Status == "ACTIVE");
-            })
-        },*/
-        decrement() {
-            this.cantidad--
-        },
-        increment() {
-            this.cantidad++
-        },
         iniciar() {
-            this.getRepuestos();
-            //this.obtenerDeLocalStorage();
+            this.getventas();
         },
 
-        async getRepuestos() {
-            let repuestos = [];
+        async getventas() {
+            let ventas = [];
             let repuestoAGuardar = {};
             let cont = 0;
-            await axios.get(urlAPI + "productStock")
+            await axios.get(urlAPI + "sellVehicle")
                 .then(res => {
-                    repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
-                    if (repuestos != null) {
-                        for (let i = 0; i < repuestos.length; i++) {
-                            let item = JSON.parse(localStorage.getItem(String("r" + i)));
-                            let disponibles = repuestos[i].Available != null ? repuestos[i].Available : 0;
-                            if (disponibles > 0) {
-                                let carrito = false;
-                                let descuento = 0;
-                                let descontado = 0;
-                                let cantidad = 0;
-                    
-                                if (item != null && item.carrito != null) {
-                                    carrito = item.carrito;
-                                }
-                                 
-                                if (item != null && item.descontado != null) {
-                                    descontado = item.descontado;
-                                }
-                                if (item != null && item.descuento != null) {
-                                    descuento = item.descuento;
-                                }
-                                if (item != null && item.cantidad != null) {
-                                    cantidad = item.cantidad;
-                                }
-
-                                repuestoAGuardar = {
-                                    "_id": repuestos[i]._id,
-                                    "BatchNum": repuestos[i].BatchNum,
-                                    "Available": repuestos[i].Available,
-                                    "Expiration": repuestos[i].Expiration,
-                                    "Product": repuestos[i].Product,
-                                    "BranchOffice": repuestos[i].BranchOffice,
-                                    "Status": repuestos[i].Status,
-                                    "Price": repuestos[i].Product.SalePrice,
-                                    "carrito": carrito,
-                                    "descuento": descuento,
-                                    "cantidad": cantidad,
-                                    "descontado":descontado
-                                };
-                                this.repuestos.push(repuestoAGuardar);
-                                this.repuestosFiltrados.push(repuestoAGuardar);
-                                localStorage.setItem(String("r" + cont), JSON.stringify(repuestoAGuardar));
-                                cont++;
-                            }
-                        }
-                    }
-                    localStorage.setItem("lengthr", cont);
-                });
+                    this.ventas = res.data.sell;});
         },
-        agregarAlCarrito(item) {
-            this.ultimoEnCarrito = item;
-            this.max = item.Available;
-            this.dialogCantidad = true;
-            let seleccionado = this.repuestos.indexOf(item);
-            if (seleccionado != -1) {
-                this.repuestos[seleccionado].carrito = true;
-                let item = JSON.parse(localStorage.getItem(String("r" + seleccionado)));
-                if (item != null) {
-                    item.carrito = true;
-                    localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
-                }
+         formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
+        },
+        formatDate(value) {
+            if (value == null) {
+                return "N/A";
             }
+            value = String(value);
+            value = value.slice(0, 10);
+            return value;
         },
-        eliminarDelCarrito(item) {
-            let seleccionado = this.repuestos.indexOf(item);
-            if (seleccionado != -1) {
-                this.repuestos[seleccionado].carrito = false;
-                let item = JSON.parse(localStorage.getItem("r" + String(seleccionado)));
-                if (item != null) {
-                    item.carrito = false;
-                    this.descuento = 0;
-                    item.descuento = this.descuento;
-                    localStorage.setItem(String("r" + seleccionado), JSON.stringify(item));
-                }
+        mostrarDialogFactura(){
+            if(this.selected.length>0){
+              this.Factura.Kind = this.selected[0].Factura.Kind;
+              this.Factura.Elements = this.selected[0].Factura.Elements;
+              this.Factura.BranchOffice = this.selected[0].Factura.BranchOffice;
+              this.Factura.TotalNeto = this.selected[0].Factura.PrecioNeto;
+              this.Factura.TotalImpuesto = this.selected[0].Factura.Impuesto;
+               
+              this.mostrarFactura = true;
             }
-        },
-        confirmarElemento() {
-            if (this.$refs.form.validate()) {
-                let index = this.repuestos.indexOf(this.ultimoEnCarrito);
-                if (index != -1) {
-                    let item = JSON.parse(localStorage.getItem("r" + String(index)));
-                    if (item != null) {
-                        item.descuento = this.descuento;
-                        item.cantidad = this.cantidad;
-                        let valorDescuento = (item.Price*this.descuento)/100;
-                        item.descontado =item.Price-valorDescuento;
-                        localStorage.setItem(String("r" + String(index)), JSON.stringify(item));
-                    }
-                    
-                }
-                this.descuento = 0;
-                this.descontado = 0;
-                this.dialogCantidad = false;
-                this.cantidad = 0;
-            }
-        },
-
-        /*obtenerDeLocalStorage() {
-            let length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
-            length++;
-            for (let i = 0; i < length; i++) {
-                let vehiculo = JSON.parse(localStorage.getItem(String("r"+i)));
-                if (vehiculo != null) {
-                    this.repuestos.push(vehiculo);
-                }
-            }
-            this.repuestosFiltrados = this.repuestos;
-        },*/
-        format(value) {
-            return value == null ? "S/D" : String(value);
-        },
+        }
     },
 
 }

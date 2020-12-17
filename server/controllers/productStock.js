@@ -1,5 +1,6 @@
 const ctrl = {};
 var ProductStock = require("../models/productStock");
+const helper = require('../lib/helperStock');
 
 ctrl.index = (req, res) => {
     ProductStock.find((err, productStock) => {
@@ -12,18 +13,21 @@ ctrl.index = (req, res) => {
 
 ctrl.create = (req, res) => {
     var body = req.body.productStock;
-    console.log(req.body.productStock); 
+    console.log(req.body.productStock);
+
     var productStock = new ProductStock({
         BatchNum: body.BatchNum,
         Status: 'ACTIVE',
-        Reserved: 0,
-        Available: 0,
-        OutOfService: 0,
+        Reserved: body.Reserved,
+        Available: body.Available,
+        OutOfService: body.OutOfService,
         Expiration: body.Expiration,
         Product: body.Product,
         Price: body.Price,
         BranchOffice: body.BranchOffice
     });
+
+    helper.checkMin(body);
     
     productStock.save((err) => {
         if(err) {console.log(err)}
@@ -50,6 +54,10 @@ ctrl.update = (req, res) => {
                 productStock.Product = body.Product;
                 productStock.Price = body.Price,
                 productStock.BranchOffice = body.BranchOffice,
+                
+                
+                //helper.checkMin(body);
+                
                 productStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

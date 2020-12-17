@@ -5,6 +5,7 @@ const Service = require('../models/service');
 const Client = require('../models/client');
 const email = require('../lib/Email');
 const helper = require('../lib/helperProduct');
+const helperStock = require('../lib/helperStock');
 
 
 ctrl.index = (req, res) => {
@@ -174,8 +175,8 @@ ctrl.reserveProduct = async (req, res) => {
 }
 
 ctrl.pruebas = async (req, res) => {
-    var body = req.body.reservation;
-    await helper.checkReservationTime(body);
+    var body = req.body.productControl;
+    await helperStock.checkMinCreation(body);
     res.send("asas");
 }
 

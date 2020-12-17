@@ -1,6 +1,10 @@
 <template>
 <div>
     <v-data-table v-if="tabla" v-model="selected" :single-select="singleSelect" :headers="headers" :items="serviciosFiltrados" :search="search" item-key="_idTabla" class="elevation-1">
+         <template v-slot:item.LaborPrice="{ item }">
+                {{ formatPrice(item.LaborPrice) }}
+         </template>
+        
         <template v-slot:[`item.actions`]="{ item }">
 
             <v-btn v-if="item.carrito == false" fab small color="success">
@@ -337,6 +341,10 @@ export default {
                 sortable: false,
             },
             {
+                text: 'Tipo',
+                value: 'Type',
+            },
+            {
                 text: 'Precio',
                 value: 'LaborPrice',
             },
@@ -546,7 +554,7 @@ export default {
             if (!marca && !modelo && !año && !this.filtros.BranchOffice) {
                 return
             }
-
+            this.serviciosFiltrados = [];
             let filtrados = this.servicios.filter(servicio => servicio.BranchOffice.Name == this.filtros.BranchOffice);
             filtrados.forEach(servicio => {
                 if (servicio.Vehicle == null) {
@@ -595,7 +603,6 @@ export default {
             let vehiculos = [];
             this.clientes.forEach(cliente => {
                 if (cliente._id == client) {
-                    console.log("IGUALES");
                     cliente.Vehicle.forEach(vehiculo => {
                         vehiculos.push(vehiculo);
                     })
@@ -622,9 +629,7 @@ export default {
                                 })
                             }
                         });
-                        console.log("CLIENTE: "+JSON.stringify(this.cliente));
-                        console.log(this.cliente);
-                        localStorage.setItem("cliente", JSON.stringify({
+                       localStorage.setItem("cliente", JSON.stringify({
                             "cliente": this.cliente,
                             "vehiculo": this.vehicle,
                             "domain": this.Domain,
@@ -654,6 +659,10 @@ export default {
                 this.elegirCliente = false;
                 this.tabla = true;
             }
+        },
+        
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
 
         corroborarService() {

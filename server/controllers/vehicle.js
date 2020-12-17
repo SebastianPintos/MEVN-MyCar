@@ -27,10 +27,11 @@ ctrl.create = (req, res) => {
         year: body.year,
         SuggestedPrice: body.SuggestedPrice,
         Detail: body.Detail,
-        Status: 'ACTIVE',
-        Dealer: body.Dealer,
-        Kind: body.Kind,
+        Status: "ACTIVE",
+        Dealer: body.Dealer
     });
+
+    
 
     vehicle.save((err) => {
         if(err) {console.log(err)}
@@ -59,9 +60,7 @@ ctrl.update = (req, res) => {
                 vehicle.SuggestedPrice= body.SuggestedPrice;
                 vehicle.Detail= body.Detail;
                 vehicle.Status = body.Status;
-                vehicle.Dealer = body.Dealer;
-                vehicle.Kind = body.Kind;
-
+                vehicle.Dealer = body.Dealer
                 vehicle.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -118,11 +117,12 @@ ctrl.createStock = (req, res) => {
         Detail: body.Detail,
         Vehicle: body.Vehicle,
         UsedDetail: body.UsedDetail,
-        Status: 'AVAILABLE',
+        Status: body.Status,
         Kind: body.Kind,
         BranchOffice: body.BranchOffice
     });
 
+  
     vehicleStock.save((err) => {
         if(err) {console.log(err)}
         res.send({
@@ -152,6 +152,8 @@ ctrl.updateStock = (req, res) => {
                 vehicleStock.ChangeStatus.push(body.ChangeStatus)
                 vehicleStock.BranchOffice = body.BranchOffice,
                 vehicleStock.Kind = body.Kind,
+                
+              
                 vehicleStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -160,6 +162,7 @@ ctrl.updateStock = (req, res) => {
                 });
             }
         }
+
     })
 
 };

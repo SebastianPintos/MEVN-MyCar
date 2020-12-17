@@ -7,13 +7,14 @@ ctrl.index = (req, res) => {
         res.send({
             category: category
         })
-    }).populate('Category');
+    }).populate("BranchOffice");
 };
 
 ctrl.create = (req, res) => {
     var body = req.body.category;
     var category = new Category({
         Name: body.Name,
+        Brand: body.Brand,
         Status: "ACTIVE"
        });
 
@@ -35,6 +36,8 @@ ctrl.update = (req, res) => {
             else {
                 category.Name = body.Name;
                 category.Status = body.Status;
+                category.Brand = body.Brand;
+
                 category.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

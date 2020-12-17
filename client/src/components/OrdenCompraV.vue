@@ -2,7 +2,7 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
 
-        <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="purchaseOrders" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
+        <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="ordenes" :search="search" item-key="_id" sort-by="OrderDate" class="elevation-1">
             <template v-slot:item.OrderDate="{ item }">
                 {{ formatDate(item.OrderDate) }}
             </template>
@@ -17,6 +17,9 @@
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Búsqueda" single-line hide-details></v-text-field>
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="verInfo">
+                        <v-icon>mdi-information-outline</v-icon>
+                    </v-btn>
                     <v-btn color="warning" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogStock=true">
                         <v-icon @click="dialogStock=true">mdi-paperclip</v-icon>
                     </v-btn>
@@ -45,7 +48,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn class="info" right @click="dialogStock=false">
+                        <v-btn class="info" right @click="reset">
                             <v-icon>mdi-cancel</v-icon>
                         </v-btn>
                         <v-btn class="info" right @click="readFile">
@@ -64,23 +67,21 @@
 
                         <ol>
                             <ul>
-                                <li v-for="(repuesto, r) in selected[0].Product" :key="r">
+                                <li v-for="(vehiculo, r) in selected[0].Vehicle" :key="r">
 
-                                    <v-text-field disabled :value="'SKU: '+repuesto.ProductID.SKU"></v-text-field>
-                                    <v-text-field disabled :value="' Marca: '+repuesto.ProductID.Brand"></v-text-field>
-                                    <v-text-field disabled :value="'Categoría: '+repuesto.ProductID.Category"></v-text-field>
-                                    <v-text-field v-if="repuesto.ProductID.SubCategory!=null" disabled :value="'Sub-Categoría: '+repuesto.ProductID.SubCategory"></v-text-field>
-
-                                    <v-text-field v-if="repuesto.ProductID.BatchNum!=null" disabled :value="'N°Lote: '+repuesto.ProductID.BatchNum"></v-text-field>
-                                    <v-text-field disabled :value="'Cantidad: '+repuesto.TotalOrdered"></v-text-field>
+                                    <v-text-field disabled :value="'Marca: '+vehiculo.VehicleID.Brand"></v-text-field>
+                                    <v-text-field disabled :value="' Modelo: '+vehiculo.VehicleID.Model"></v-text-field>
+                                    <v-text-field disabled :value="'Año: '+vehiculo.VehicleID.year"></v-text-field>
+                                    <v-text-field disabled :value="'Color: '+vehiculo.Color"></v-text-field>
+                                    <v-text-field disabled :value="'N° de Chasis: '+vehiculo.ChasisNum"></v-text-field>
+                                    <v-text-field disabled :value="'N° de Motor: '+vehiculo.EngineNum"></v-text-field>
 
                                     <v-row>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field type="number" v-model="fueraServicio[r]" label="Recibidos defectuosos" @keypress="comprobarMax($event,r,fueraServicio,noLlegaron)"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="6">
-                                            <v-text-field type="number" v-model="noLlegaron[r]" label="No Recibidos" @keypress="comprobarMax($event,r,noLlegaron,fueraServicio)"></v-text-field>
-                                        </v-col>
+                                        <v-radio-group mandatory class="text-align: left" v-model="recibidos[r]" row :rules="requerido">
+                                            <h3>Recibido: </h3>
+                                            <v-radio class="mb-1" label="Sí" value="true"></v-radio>
+                                            <v-radio class="mb-1" label="No" value="false"></v-radio>
+                                        </v-radio-group>
                                     </v-row>
 
                                 </li>
@@ -107,17 +108,33 @@
             <v-card>
                 <v-card-text>
                     <br>
-                    <h2>{{mensaje}}</h2>
+                    <span v-html="titulo"></span>
+                    <span v-html="mensaje"></span>
                 </v-card-text>
                 <v-card-actions>
                     <v-flex class="text-right">
-                        <v-btn class="info" @click="dialogMensaje=false; mensaje='' ">
+                        <v-btn v-if="procesar" class="info mb-2" @click="dialogMensaje=false; mensaje='';titulo='';procesar=false ">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+
+                        <v-btn class="info mb-2" @click="aceptarDialog">
                             <v-icon>mdi-check</v-icon>
                         </v-btn>
                     </v-flex>
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-snackbar v-model="snackbar">
+            {{ mensaje }}
+
+            <template v-slot:action="{ attrs }">
+                <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+                    Aceptar
+                </v-btn>
+            </template>
+        </v-snackbar>
+
     </div>
 </v-img>
 </template>
@@ -129,20 +146,24 @@ export default {
     data: () => ({
         dialogMensaje: false,
         mensaje: '',
+        titulo: '',
         dialogStock: false,
         valid: true,
         dialogConfirm: false,
+        snackbar: false,
+        procesar: false,
+        allOrdenes: [],
         selected: [],
         proveedores: [],
         proveedor: null,
-        purchaseOrders: [],
-        fueraServicio: [],
-        noLlegaron: [],
+        vehiclesStock: [],
+        vehicles: [],
         max: [],
-        repuestos: [],
+        output: [],
+        ordenes: [],
+        orden: null,
         search: '',
-        defectuosos: 0,
-        noRecibidos: 0,
+        recibidos: [],
         reglaNumero: [
             value => {
                 const pattern = /^[0-9]{1,}$/
@@ -154,9 +175,13 @@ export default {
         ],
 
         headers: [{
+                text: 'Código',
+                value: 'Code',
+                align: 'start',
+            },
+            {
                 text: 'Proveedor',
                 value: 'Dealer.Email',
-                align: 'start',
             },
             {
                 text: 'Fecha de Orden',
@@ -180,24 +205,51 @@ export default {
         files: [],
         data: null,
         chosenFile: null,
+        employee: null
     }),
 
     created() {
-        this.getRepuestos();
-        this.getOrders();
+        let employee = localStorage.getItem("employee");
+        this.employee = JSON.parse(employee);
+        this.getOrdenes();
+        this.getVehicleStock();
+        this.getVehicles();
         this.getProveedores();
     },
 
     methods: {
 
-        async getOrders() {
-            await axios.get(urlAPI + 'purchaseOrder')
+        async getVehicleStock() {
+            await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
-                    let purchaseOrders = res.data.purchaseOrder;
-                    if (purchaseOrders != null) {
-                        purchaseOrders.forEach(orden => {
+                    let vehiclesStock = res.data.vehicleStock;
+                    if (vehiclesStock != null) {
+                        vehiclesStock.forEach(orden => {
                             if (orden.Status === "ACTIVE") {
-                                this.purchaseOrders.push(orden);
+                                this.vehiclesStock.push(orden);
+                            }
+                        })
+                    }
+                })
+        },
+
+        getOrden() {
+            let orden = this.allOrdenes.filter(o =>
+                o.Code == this.output[12][1] && o.Type == "ENVIADA"
+            );
+            if (orden.length > 0) {
+                this.orden = orden[0];
+            }
+        },
+
+        async getVehicles() {
+            await axios.get(urlAPI + 'vehicle')
+                .then(res => {
+                    let vehicles = res.data.vehicle;
+                    if (vehicles != null) {
+                        vehicles.forEach(v => {
+                            if (v.Status === "ACTIVE") {
+                                this.vehicles.push(v);
                             }
                         })
                     }
@@ -210,7 +262,7 @@ export default {
                     let proveedores = res.data.dealer;
                     if (proveedores != null) {
                         proveedores.forEach(p => {
-                            if (p.Status === "ACTIVE" & p.Kind == "PRODUCT") {
+                            if (p.Status === "ACTIVE" & p.Kind == "VEHICLE") {
                                 this.proveedores.push(p);
                             }
                         })
@@ -218,30 +270,21 @@ export default {
                 })
         },
 
-        async getRepuestos() {
-            await axios.get(urlAPI + 'product')
+        async getOrdenes() {
+            await axios.get(urlAPI + 'purchaseOrderV')
                 .then(res => {
-                    let repuestos = res.data.product;
-                    if (repuestos != null) {
-                        repuestos.forEach(orden => {
+                    this.ordenes = [];
+                    this.allOrdenes = [];
+                    let ordenes = res.data.purchaseOrderV;
+                    if (ordenes != null) {
+                        ordenes.forEach(orden => {
                             if (orden.Status === "ACTIVE") {
-                                this.repuestos.push(orden);
+                                this.allOrdenes.push(orden);
                             }
                         })
+                        this.ordenes = this.allOrdenes.filter(o => o.Type == "RECIBIDA")
                     }
                 })
-        },
-
-        async createproduct(code, bn, total, product) {
-            await axios.post(urlAPI + 'productStock/add', {
-                "productStock": {
-                    "Code": code,
-                    "BatchNum": bn,
-                    "TotalOrdered": total,
-                    "OrderDate": new Date(),
-                    "Product": product,
-                }
-            })
         },
 
         formatPrice(value) {
@@ -263,79 +306,60 @@ export default {
 
         validarCorroboracionStock() {
             if (this.selected.length == 0) {
-                this.dialogMensaje = true;
                 this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
                 return;
             }
             if (this.selected[0].ArrivalDate != null) {
-                this.dialogMensaje = true;
                 this.mensaje = "Esta orden ya ha sido verificada!";
+                this.snackbar = true;
                 return;
-
             }
-            /*for (let i = 0; i < this.purchaseOrders.length; i++) {
-                for (let j = 0; j < this.purchaseOrders[i].Product.length; j++) {
-                    this.max.push(this.purchaseOrders[i].Product[j].TotalOrdered);
-                    this.fueraServicio.push(0);
-                    this.noLlegaron.push(0);
-                }
-            }*/
-            for (let j = 0; j < this.selected[0].Product.length; j++) {
-                this.max.push(this.selected[0].Product[j].TotalOrdered);
-                this.fueraServicio.push(0);
-                this.noLlegaron.push(0);
+
+            for (let j = 0; j < this.selected[0].Vehicle.length; j++) {
+                this.recibidos.push(true);
             }
             this.dialogConfirm = true
         },
 
         guardarLlegada() {
-            for (let i = 0; i < this.selected[0].Product.length; i++) {
-                let noDisponibles = Number(this.fueraServicio[i]) + Number(this.noLlegaron[i]);
-                let disponibles = Number(this.selected[0].Product[i].TotalOrdered) - noDisponibles;
-              let repuestoStock = {
-                    "productStock": {
-                        "BatchNum": this.selected[0].Product[i].BatchNum,
-                        "Status": "ACTIVE",
-                        "Available": disponibles,
-                        "OutOfService": noDisponibles,
-                        "Reserved": 0,
-                        "Expiration": this.selected[0].Product[i].Expiration,
-                        "Dealer": this.selected[0].Dealer,
-                        "BranchOffice": this.selected[0].BranchOffice,
-                        "Product": this.selected[0].Product[i].ProductID._id,
-                        "Price": this.selected[0].Product[i].Price
+            let vendido = this.selected[0].Venta != null & this.selected[0].Venta == true;
+            for (let i = 0; i < this.selected[0].Vehicle.length; i++) {
+                let status = this.recibidos[i] == "true" ? "AVAILABLE" : "NOT AVAILABLE";
+                if (vendido & status == "AVAILABLE") {
+                    status = "SOLD"
+                }
+                let employee = localStorage.getItem("employee");
+                employee = JSON.parse(employee);
+                let branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : null;
 
+                let vehiculoStock = {
+                    "vehicleStock": {
+                        "ChasisNum": this.selected[0].Vehicle[i].ChasisNum,
+                        "EngineNum": this.selected[0].Vehicle[i].EngineNum,
+                        "Status": status,
+                        "Color": this.selected[0].Vehicle[i].Color,
+                        "PurchasedPrice": this.selected[0].Vehicle[i].VehicleID.SuggestedPrice,
+                        "Vehicle": this.selected[0].Vehicle[i].VehicleID._id,
+                        "Dealer": this.selected[0].Dealer._id,
+                        "Kind": "NUEVO",
+                        "BranchOffice": branchOffice
                     }
                 };
-                axios.post(urlAPI + 'productStock/add', repuestoStock);
+
+                axios.post(urlAPI + 'vehicleStock/add', vehiculoStock);
+                axios.post(urlAPI + 'purchaseOrderV/' + this.selected[0]._id + '/setArrival').then(res => {
+                    if (res != null) {
+                        this.getOrdenes();
+                        this.titulo = "<h1 class='text-center'>Carga realizada con éxito</h1>";
+                        this.mensaje = "<h3>Podrá ver los elementos cargados en la sección: Stock.</h3>";
+                        this.dialogMensaje = true;
+                        this.selected = [];
+                        this.recibidos = [];
+                        this.dialogConfirm = false;
+                    }
+                });
             }
-            axios.post(urlAPI + 'purchaseOrder/' + this.selected[0]._id + '/setArrival').then(res => {
-                if (res != null) {
-                    this.purchaseOrders = [];
-                    this.getOrders();
-                }
-            });
-            this.selected=[];
-            this.dialogConfirm = false;
-            this.fueraServicio=[];
-            this.noLlegaron=[];
-        },
-
-        async updateProduct(productEdited) {
-            await axios.post(urlAPI + 'productStock/' + this.selected[0]._id + '/update', productEdited);
-            this.purchaseOrders = [];
-            this.getOrders();
-        },
-
-        comprobarMax(event, r, array, otroArray) {
-            let nuevoValor = Number(String(array[r]) + String(event.key));
-            let total = nuevoValor + Number(otroArray[r]);
-            if (nuevoValor > Number(this.max[r]) || total > Number(this.max[r])) {
-                event.preventDefault();
-                return false;
-            }
-
-            return true;
         },
 
         parseCSV(text) {
@@ -349,152 +373,251 @@ export default {
         },
 
         reverseMatrix(matrix) {
-            let output = [];
+            this.output = [];
             // Por cada fila
             matrix.forEach((values, row) => {
                 // Vemos los valores y su posicion
                 values.forEach((value, col) => {
                     // Si la posición aún no fue creada
                     if (value != null) {
-                        if (output[col] === undefined) output[col] = [];
-                        output[col][row] = value;
+                        if (this.output[col] === undefined) this.output[col] = [];
+                        this.output[col][row] = value;
                     }
                 });
             });
-            return output;
         },
 
         readFile() {
-            //LOTE SKU TOTAL PRECIO UNITARIO
-            /*FORMATO ARCHIVO: 
-              0-SKU: Product.ProductID.SKU
-              1-LOTE: nLote
-              2-VENCIMIENTO: Product.Expiration,
-              3-TOTAL: TotalOrdered,
-              4-PRECIO: Price,*/
+            console.log("read file");
             if (this.$refs.formStock.validate()) {
-                if (this.repuestos == null) {
-                    this.dialogMensaje = true;
-                    this.mensaje = "No existen repuestos para referenciar!";
-                    return;
-                }
                 let file = this.chosenFile;
                 let reader = new FileReader();
                 reader.onload = (e) => {
                     // Cuando el archivo se terminó de cargar
                     let lines = this.parseCSV(e.target.result);
-                    let output = this.reverseMatrix(lines);
+                    this.reverseMatrix(lines);
 
-                    if (this.corroborarValidez(output)) {
-                        this.guardarOrden(output);
+                    if (this.corroborarValidez()) {
+                        if (this.orden == null) {
+                            console.log("ORDEN==NULL")
+                            this.procesar = true;
+                            this.titulo = "<h1 class='text-center'>Código de orden inexistente</h1><br>";
+                            this.mensaje = "<h4>¿Desea procesar igualmente la orden?</h4>";
+                            this.dialogMensaje = true;
+                            return;
+                        } else if (this.mensaje != "") {
+                            console.log("ORDEN!=NULL Y MSJ!=''")
+                            this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
+                            this.dialogMensaje = true;
+                        }
+                        console.log("GUARDAR ORDEN")
+                        this.guardarOrden();
+                    } else {
+                        if (this.mensaje != "") {
+                            this.titulo = "<h1 class='text-center'>Contenido inválido</h1><br>";
+                            this.dialogMensaje = true;
+                        }
                     }
                 };
 
                 // Leemos el contenido del archivo seleccionado
                 reader.readAsBinaryString(file);
+            } else {
+                "NO ES VALIDO"
             }
         },
 
-        guardarOrden(output) {
-            /*OrderDate: {type: Date},
-            ArrivalDate: {type: Date},
-            Price: {type: Number, required: true},
-            Product: [{
-            ProductID : {type: Schema.Types.ObjectId, required: true, ref: 'Product'},
-            Expiration: {type: Date},
-            TotalOrdered: {type: Number},
-            Price: {type: Number, required: true}
-            }],
-            Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
-            BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
-            Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},*/
-            let orden = this.getJSONOrder(output);
-            axios.post(urlAPI + 'purchaseOrder/add', orden).then(res => {
-                if (res != null) {
-                    this.purchaseOrders = [];
-                    this.getOrders();
+        guardarOrden() {
+            console.log("guaradr orden")
+            let orden = this.getJSONOrder();
+            if (orden != null) {
+                if (this.procesar) {
+                    axios.post(urlAPI + 'purchaseOrderV/add', orden).then(res => {
+                        if (res != null) {
+                            this.getOrdenes();
+                            this.procesar = false;
+                            this.reset();
+                        }
+                    });
+                } else {
+                    let id = this.allOrdenes.indexOf(this.orden);
+                    if (id != -1) {
+                        id = this.allOrdenes[id]._id;
+                        axios.post(urlAPI + 'purchaseOrderV/' + id + "/update", orden).then(res => {
+                            if (res != null) {
+                                this.ordenes = [];
+                                this.allOrdenes = [];
+                                this.getOrdenes();
+                                this.reset();
+                            }
+                        });
+                    }
                 }
-            });
+                this.dialogStock = false;
+            } else {
+                this.titulo = "<h1 class='text-center'>Vehículo/s inexistente/s</h1><br>";
+                this.dialogMensaje = true;
+            }
+
             this.dialogStock = false;
-
         },
-        getJSONOrder(output) {
-            /* 0-SKU: Product.ProductID.SKU
-              1-LOTE: nLote
-              2-VENCIMIENTO: Product.Expiration,
-              3-TOTAL: TotalOrdered,
-              4-PRECIO: Price,*/
+        getJSONOrder() {
             let precio = 0;
-            let product = [];
+            let vehicle = [];
 
-            for (let i = 1; i < output[1].length; i++) {
-                let productID = this.repuestos.filter(r => r.SKU == output[0][i]);
-                if (productID != null & productID.length > 0) {
-                    let expiration = new Date(output[2][i]) != null ? new Date(output[2][i]) : null;
-                    let total = Number(output[3][i]);
-                    let precioUnitario = Number(output[4][i]);
-                    precio += precioUnitario * total;
-                    product.push({
-                        "ProductID": productID[0],
-                        "BatchNum": output[1][i],
-                        "Expiration": expiration,
-                        "TotalOrdered": total,
+            for (let i = 1; i < this.output[1].length; i++) {
+                let vehicleID = this.vehicles.filter(v =>
+                    v.Brand == this.output[0][i] &
+                    v.Model == this.output[1][i] &
+                    v.Type == this.output[2][i] &
+                    v.Category == this.output[3][i] &
+                    v.Fuel == this.output[4][i] &
+                    v.transmission == this.output[5][i] &
+                    v.origin == this.output[6][i] &
+                    v.year == this.output[7][i]);
+                if (vehicleID != null & vehicleID.length > 0) {
+                    let precioUnitario = Number(this.output[11][i]);
+                    precio += precioUnitario;
+                    vehicle.push({
+                        "VehicleID": vehicleID[0],
+                        "ChasisNum": this.output[8][i],
+                        "Color": this.output[10][i],
+                        "EngineNum": this.output[9][i],
                         "Price": precioUnitario,
                     })
+                } else {
+                    this.mensaje += "<h2> Vehículo no encontrado </h2>";
+                    this.mensaje += "<h4> -Marca: " + this.output[0][i] + " </h4>";
+                    this.mensaje += "<h4> -Modelo: " + this.output[1][i] + " </h4>";
+                    this.mensaje += "<h4> -Año: " + this.output[7][i] + " </h4>";
+                    this.mensaje += "<h4> -Tipo: " + this.output[2][i] + " </h4>";
+                    this.mensaje += "<h4> -Categoría: " + this.output[3][i] + " </h4>";
+                    this.mensaje += "<h4> -Comubistible: " + this.output[4][i] + " </h4>";
+                    this.mensaje += "<h4> -Transmisión: " + this.output[5][i] + " </h4>";
+                    this.mensaje += "<h4> -Origen: " + this.output[6][i] + " </h4>";
                 }
             };
+            if (this.mensaje != "") {
+                this.titulo = "<h1 class='text-center'>Vehículo/s inexistente/s</h1><br>";
+                this.dialogMensaje = true;
+                return null;
+            }
+            let date = new Date();
+            date = new Date(date.setTime(date.getTime()));
+
+            //ACA FALTA LA PARTE DE LA SUCURSAL    "BranchOffice": "5fb3d83987565231fcd5a756",
             return {
-                "purchaseOrder": {
-                    "OrderDate": new Date(),
+                "purchaseOrderV": {
+                    "OrderDate": date,
                     "Price": precio,
-                    "Product": product,
+                    "Vehicle": vehicle,
                     "Dealer": this.proveedor,
-                    "BranchOffice": "5fb3d83987565231fcd5a756",
+                    "Info": this.mensaje,
+                    "Type": "RECIBIDA",
+                    "Code": this.output[12][1],
+                    "Employee": this.employee._id
+
                 }
             }
 
         },
-        corroborarValidez(output) {
-
-            if (output.length != 5) {
-                this.mensaje = "Columnas inválidas, debe contener:  SKU, N°de Lote, Vencimiento, Total y Precio";
+        corroborarValidez() {
+            if (this.output.length != 13) {
+                this.titulo = "<h1 class='text-center'>Contenido Inválido</h1>";
+                this.mensaje += "<h4>Columnas inválidas, debe contener exactamente 13 columnas</h4>";
                 this.dialogMensaje = true;
                 return false;
             }
-            //FILA 0: SKU
-            for (let i = 1; i < output[0].length; i++) {
-                if (output[0][i] == null) {
-                    this.mensaje = "El código SKU es obligatorio";
-                    this.dialogMensaje = true;
+            this.getOrden();
+
+            for (let i = 1; i < this.output[1].length; i++) {
+                if (this.output[11][i] == null) {
+                    this.mensaje += "<h4>El precio es obligatorio</h4>";
                     return false;
+                } else {
+                    if (this.orden != null && this.orden.Vehicle != null & this.orden.Vehicle.filter(o => o.VehicleID.Price == this.output[11][i]).length == 0) {
+                        this.mensaje += "<h4>El precio del vehículo número: " + i + " no coincide con el precio de la orden original</h4>";
+                    }
                 }
-            }
-            //FILA 3: TOTAL OBLIGATORIO
-            for (let i = 1; i < output[3].length; i++) {
-                const pattern = /^\d{1,}$/
-                if (!pattern.test(output[3][i])) {
-                    this.mensaje = "Total inválido, debe ser un valor numérico";
-                    this.dialogMensaje = true;
-                    return false;
+                if (this.orden != null && this.orden.Vehicle != null & this.orden.Vehicle.filter(v =>
+                        v.VehicleID.Brand == this.output[0][i] &
+                        v.VehicleID.Model == this.output[1][i] &
+                        v.VehicleID.Type == this.output[2][i] &
+                        v.VehicleID.Category == this.output[3][i] &
+                        v.VehicleID.Fuel == this.output[4][i] &
+                        v.VehicleID.transmission == this.output[5][i] &
+                        v.VehicleID.origin == this.output[6][i] &
+                        v.VehicleID.year == this.output[7][i]
+                    ).length == 0) {
+                    this.mensaje += "<h2> Vehículo no coincide con ningún vehículo en la orden original</h2>";
+                    this.mensaje += "<h4> -Marca: " + this.output[0][i] + " </h4>";
+                    this.mensaje += "<h4> -Modelo: " + this.output[1][i] + " </h4>";
+                    this.mensaje += "<h4> -Año: " + this.output[7][i] + " </h4>";
+                    this.mensaje += "<h4> -Tipo: " + this.output[2][i] + " </h4>";
+                    this.mensaje += "<h4> -Categoría: " + this.output[3][i] + " </h4>";
+                    this.mensaje += "<h4> -Comubistible: " + this.output[4][i] + " </h4>";
+                    this.mensaje += "<h4> -Transmisión: " + this.output[5][i] + " </h4>";
+                    this.mensaje += "<h4> -Origen: " + this.output[6][i] + " </h4>";
                 }
-            }
-            //FILA 4: PRECIO
-            for (let i = 1; i < output[4].length; i++) {
+
                 try {
-                    if (parseFloat(output[4][i]) < 0) {
-                        this.mensaje = "Total inválido, debe ser un número mayor a 0";
-                        this.dialogMensaje = true;
+                    console.log("OUTPUT [11][" + i + "]: " + this.output[11][i])
+                    let precio = parseFloat(this.output[11][i]);
+                    if (precio < 0) {
+                        this.mensaje += "<h4>El precio no debe ser negativo!</h4>";
                         return false;
                     }
                 } catch (e) {
-                    this.mensaje = "Total inválido, debe ser un número mayor a 0";
-                    this.dialogMensaje = true;
-                    return false;
+                    if (e != null) {
+                        this.mensaje += "<h4>El precio debe ser un valor numérico!</h4>";
+                        return false;
+                    }
                 }
             }
+            if (this.mensaje != "") {
+                this.titulo = "<h1>Contenido inválido</h1>";
+                this.dialogMensaje = true;
+                return false;
+            }
             return true;
-        }
-    },
+        },
+
+        aceptarDialog() {
+            this.dialogMensaje = false;
+            this.mensaje = '';
+            this.titulo = '';
+            if (this.procesar) {
+                this.guardarOrden()
+            }
+        },
+
+        verInfo() {
+            if (this.selected.length == 0) {
+                this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
+                return;
+            }
+
+            this.titulo = "<h1>Información de procesamiento</h1><br>"
+            if (this.selected[0].Info == "" || this.selected[0].Info == null) {
+                this.mensaje = "<h4>Orden procesada con éxito</h4>";
+                this.dialogMensaje = true;
+            } else {
+                this.mensaje = this.selected[0].Info;
+                this.dialogMensaje = true;
+
+            }
+        },
+        reset() {
+            if (this.dialogStock) {
+                this.$refs.formStock.resetValidation();
+            }
+            this.dialogStock = false;
+            this.chosenFile = null;
+            this.proveedor = null;
+        },
+
+    }
 
 };
 </script>

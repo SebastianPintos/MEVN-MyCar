@@ -1,0 +1,16 @@
+ctrl = {};
+const helperReport = require('../lib/helperReport');
+
+ctrl.IncomeExpenses = async (req, res) => {
+    var dateStart = req.body.dateStart;
+    var dateFinish = req.body.dateFinish;
+    var income = await helperReport.TotalSell(dateStart, dateFinish);
+    var expenses = await helperReport.Expenses(dateStart, dateFinish);
+    if(income && expenses){
+        res.status(200).json({income, expenses});
+    }else {
+        res.status(401).json({title: 'Error al generar los reportes'});
+    }
+}
+
+module.exports = ctrl;

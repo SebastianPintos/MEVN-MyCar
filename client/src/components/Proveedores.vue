@@ -10,97 +10,100 @@
 
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem()">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                    <div v-if="validateUsers('Administrativo','Gerente','Administrador')">
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editItem(selected[0])">
+                            <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px" persistent>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn @click="formTitle='Nuevo Proveedor'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                                <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-form ref="form" v-model="valid" lazy-validation>
+                        <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="deleteItem()">
+                            <v-icon>mdi-delete</v-icon>
+                        </v-btn>
 
-                                <v-card-title>
-                                    <span class="headline">{{ formTitle }}</span>
-                                </v-card-title>
+                        <v-dialog v-model="dialog" max-width="500px" persistent>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn @click="formTitle='Nuevo Proveedor'" color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-card>
+                                <v-form ref="form" v-model="valid" lazy-validation>
 
-                                <v-card-text>
+                                    <v-card-title>
+                                        <span class="headline">{{ formTitle }}</span>
+                                    </v-card-title>
 
-                                    <v-container>
+                                    <v-card-text>
 
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-text-field v-model="Dealer.Name" label="Nombre y Apellido" :rules="reglaNombre"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="12">
-                                                <v-text-field type="number" :rules="reglaTelefono" v-model="Dealer.Phone" label="Teléfono"></v-text-field>
-                                            </v-col>
+                                        <v-container>
 
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field :rules="reglaPrincipioEmail" v-model="principioEmail" label="example"></v-text-field>
-                                            </v-col>
+                                            <v-row>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <v-text-field v-model="Dealer.Name" label="Nombre y Apellido" :rules="reglaNombre"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="12">
+                                                    <v-text-field type="number" :rules="reglaTelefono" v-model="Dealer.Phone" label="Teléfono"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="5" md="6">
-                                                <v-text-field :rules="reglaFinEmail" prefix="@" v-model="finEmail" label="hotmail.com"></v-text-field>
-                                            </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field :rules="reglaPrincipioEmail" v-model="principioEmail" label="example"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="DealerProvince" :items="provincias" label="Provincia" @change=" prov => localidades = getLocalidades(prov)" :rules="requerido"></v-select>
-                                            </v-col>
+                                                <v-col cols="12" sm="5" md="6">
+                                                    <v-text-field :rules="reglaFinEmail" prefix="@" v-model="finEmail" label="hotmail.com"></v-text-field>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="DealerCity" :items="localidades" label="Ciudad" :rules="requerido"></v-select>
-                                            </v-col>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <v-select v-model="DealerProvince" :items="provincias" label="Provincia" @change=" prov => localidades = getLocalidades(prov)" :rules="requerido"></v-select>
+                                                </v-col>
 
-                                            <v-col cols="12" sm="5" md="6">
-                                                <v-text-field v-model="DealerStreet" label="Calle" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="5" md="6">
-                                                <v-text-field prefix="N°: " v-model="DealerNumber" label="Numeración" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                        </v-row>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <v-select v-model="DealerCity" :items="localidades" label="Ciudad" :rules="requerido"></v-select>
+                                                </v-col>
 
-                                    </v-container>
-                                </v-card-text>
+                                                <v-col cols="12" sm="5" md="6">
+                                                    <v-text-field v-model="DealerStreet" label="Calle" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="5" md="6">
+                                                    <v-text-field prefix="N°: " v-model="DealerNumber" label="Numeración" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                            </v-row>
 
+                                        </v-container>
+                                    </v-card-text>
+
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn class="info" text @click="reset">
+                                            <v-icon>mdi-cancel</v-icon>
+                                        </v-btn>
+                                        <v-btn class="info" text @click="save()">
+                                            <v-icon>mdi-check</v-icon>
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
+                        </v-dialog>
+
+                        <v-dialog v-model="dialogDelete" max-width="500px" persistent>
+                            <v-card>
+                                <v-col cols="12" sm="12" md="12">
+                                    <p class="headline">Ingrese los Motivos: </p>
+                                    <v-textarea class="headline" v-model="motivos" label="Motivos" required></v-textarea>
+                                </v-col>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="close">
+                                    <v-btn class="info" text @click="reset">
                                         <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn class="info" text @click="save()">
+                                    <v-btn class="info" text @click="deleteItemConfirm">
                                         <v-icon>mdi-check</v-icon>
                                     </v-btn>
+                                    <v-spacer></v-spacer>
                                 </v-card-actions>
-                            </v-form>
-                        </v-card>
-                    </v-dialog>
-
-                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
-                        <v-card>
-                            <v-col cols="12" sm="12" md="12">
-                                <p class="headline">Ingrese los Motivos: </p>
-                                <v-textarea class="headline" v-model="motivos" label="Motivos" required></v-textarea>
-                            </v-col>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn class="info" text @click="closeDelete">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                                <v-btn class="info" text @click="deleteItemConfirm">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                            </v-card>
+                        </v-dialog>
+                    </div>
 
                 </v-toolbar>
             </template>
@@ -132,9 +135,9 @@ class Dealer {
 import axios from "axios";
 import urlAPI from "../config/config.js"
 export default {
-      props: {
-          tipo: String,
-      },
+    props: {
+        tipo: String,
+    },
     data: () => ({
 
         Dealer: new Dealer(),
@@ -242,10 +245,10 @@ export default {
 
     watch: {
         dialog(val) {
-            val || this.reiniciar()
+            val || this.reset()
         },
         dialogDelete(val) {
-            val || this.closeDelete()
+            val || this.reset()
         },
     },
 
@@ -257,6 +260,12 @@ export default {
         iniciar() {
             this.getDealers();
             this.getProvincias();
+        },
+        validateUsers(...authorizedUsers) {
+            if (localStorage.getItem('userType') != null) {
+                return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
+            }
+            return false;
         },
 
         async getDealers() {
@@ -335,26 +344,26 @@ export default {
                 axios.delete(urlAPI + 'dealer/' + this.selected[i]._id + '/delete')
                 this.dealers.splice(this.dealers.indexOf(this.selected[i]), 1);
             }
-            this.closeDelete()
+            this.reset()
         },
 
         reset() {
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
+            this.DealerCity = "";
+            this.DealerStreet = '';
+            this.DealerNumber = '';
+            this.DealerProvince = '';
+
             this.selected = [];
             this.motivos = '';
             this.$nextTick(() => {
-                this.Dealer = Object.assign({}, this.defaultItem)
-                this.editedIndex = -1
+                this.Dealer = new Dealer();
+                this.editedIndex = -1;
             })
-        },
-
-        close() {
-            this.dialog = false
-            this.reset()
-        },
-
-        closeDelete() {
-            this.dialogDelete = false
-            this.reset()
+            this.dialog = false;
+            this.dialogDelete = false;
         },
 
         validate() {
@@ -386,6 +395,10 @@ export default {
                     "Accept": "application/json",
                     "Content-Type": "application/json; charset=utf-8"
                 }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                }
             })
             this.dealers = [];
             this.getDealers();
@@ -411,11 +424,11 @@ export default {
                     }
                     Object.assign(this.dealers[this.editedIndex], DealerAux);
                     this.update(JSON.stringify(DealerAux));
-                    this.reiniciar();
+
                 }
-                } else {
-                    if (this.validate()) {
-                        let DealerAux = {
+            } else {
+                if (this.validate()) {
+                    let DealerAux = {
                         "dealer": {
                             "Name": this.Dealer.Name,
                             "Phone": this.Dealer.Phone,
@@ -430,50 +443,44 @@ export default {
                             "Kind": this.tipo,
                         }
                     }
-                        this.post(urlAPI + 'dealer/add',DealerAux);
-                        this.dealers.push(DealerAux);
-                        this.reiniciar();
-                    }
+                    this.post(urlAPI + 'dealer/add', DealerAux);
+                    this.dealers.push(DealerAux);
+
                 }
-            },
-
-            async update(data) {
-                    await axios.post(urlAPI + 'dealer/' + this.selected[0]._id + '/update', data, {
-                        headers: {
-                            "Accept": "application/json",
-                            "Content-Type": "application/json; charset=utf-8"
-                        }
-                    })
-                    this.dealers = [];
-                    this.getDealers();
-                },
-
-                guardar(estado, selected, accion, id) {
-                    this.post(urlAPI + 'dealer/' + id + accion, JSON.stringify(this.getJSONDealer(selected, estado)));
-                },
-
-                reiniciar() {
-                    this.close();
-                    this.selected = [];
-                    this.Dealer = new Dealer();
-                    this.principioEmail = '';
-                    this.finEmail = '';
-                    this.$refs.form.resetValidation();
-                },
-
-                separarDatos(value) {
-                    try {
-                        this.principioEmail = value.Email.split("@")[0]
-                        this.finEmail = value.Email.split("@")[1]
-
-                    } catch (e) {
-                        return
-                    }
-                },
-
-  
+            }
         },
-    };
+
+        async update(data) {
+            await axios.post(urlAPI + 'dealer/' + this.selected[0]._id + '/update', data, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json; charset=utf-8"
+                }
+            }).then(res => {
+                if (res != null) {
+                    this.reset();
+                }
+            })
+            this.dealers = [];
+            this.getDealers();
+        },
+
+        guardar(estado, selected, accion, id) {
+            this.post(urlAPI + 'dealer/' + id + accion, JSON.stringify(this.getJSONDealer(selected, estado)));
+        },
+
+        separarDatos(value) {
+            try {
+                this.principioEmail = value.Email.split("@")[0]
+                this.finEmail = value.Email.split("@")[1]
+
+            } catch (e) {
+                return
+            }
+        },
+
+    },
+};
 </script>
 
 <style>
