@@ -35,7 +35,7 @@ ctrl.reporte3 = async (req, res) => {
     var dateFinish = req.body.dateFinish;
 
     var report = await helperReport.Discriminated(dateStart, dateFinish);
-    console.log(report);
+    console.log('reporte afuerade la funcion',report);
     res.send('asda');
 }
 

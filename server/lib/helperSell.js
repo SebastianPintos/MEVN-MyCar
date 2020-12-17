@@ -7,6 +7,8 @@ const VehicleOrder = require('../models/vehicleOrder');
 const ProductStock = require('../models/productStock');
 const Sell = require('../models/sell');
 const helperStock = require('../lib/helperStock');
+const Service = require('../models/service');
+
 
 helperSell.SellVehicle = async (sell) => {
 
@@ -98,11 +100,27 @@ helperSell.SellProduct =  async (sell) => {
 
 helperSell.SellProductFromReserve =  async (sell) => {
     
+    var service = [];
+    for(i = 0; i < sell.Service.length; i++){
+        await Service.findOne({_id: sell.Service[i]}, (err, serviceDB) => {
+            service.push(serviceDB);
+        })
+    }
+    console.log(service);
+    
+    var products = [];
+    for (i = 0; i < service.length; i++) {
+        var arrayProduct = service[i].Product;
+        for (y = 0; y < arrayProduct.length; y++) {
+            products.push(arrayProduct[y].toString());
+        }
+    }
+    console.log(products);
+
     var productSorted = [];
-    for (i = 0; i < sell.ProductStock.length; i++) {
-        if (productSorted.indexOf(sell.ProductStock[i].toString()) === -1) {
-            console.log('sorteador de productos' + productSorted);
-            productSorted.push(sell.ProductStock[i].toString());
+    for (i = 0; i < products.length; i++) {
+        if (productSorted.indexOf(products[i].toString()) === -1) {
+            productSorted.push(products[i].toString());
         }
     }
     console.log(productSorted);
@@ -110,8 +128,8 @@ helperSell.SellProductFromReserve =  async (sell) => {
     var count = 0;
     var arrayProductQuantity = [];
     for (i = 0; i < productSorted.length; i++) {
-        for (y = 0; y < sell.ProductStock.length; y++) {
-            if (productSorted[i] === sell.ProductStock[y].toString()) {
+        for (y = 0; y < products.length; y++) {
+            if (productSorted[i] === products[y].toString()) {
                 count += 1;
             }
         }
@@ -123,7 +141,7 @@ helperSell.SellProductFromReserve =  async (sell) => {
     console.log(arrayProductQuantity);
 
     for (i = 0; i < arrayProductQuantity.length; i++) {
-        await ProductStock.find({ _id: arrayProductQuantity[i].id, Status: 'ACTIVE' }, async (err, productsDB) => {
+        await ProductStock.find({ Product: arrayProductQuantity[i].id, Status: 'ACTIVE' }, async (err, productsDB) => {
             if (err) { console.log(err) }
             else {
                 var quantity = 0;
