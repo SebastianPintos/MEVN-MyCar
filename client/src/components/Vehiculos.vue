@@ -2,6 +2,7 @@
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
         <!--Filtros-->
+        <h1>{{filteredModels}}</h1>
         <template>
             <v-expansion-panels>
                 <v-expansion-panel>
@@ -507,7 +508,7 @@ export default {
                 let actualBrand;
                 actualBrand = this.brandsList.find(brand => brand.Name == this.editedItem.Brand)
                 this.modelsList.forEach(model => {
-                    if (model.Brand == actualBrand._id) {
+                    if (model.Brand._id == actualBrand._id) {
                         this.filteredModels.push(model)
                     }
                 })
