@@ -111,4 +111,49 @@ ctrl.addVehicle = (req, res) => {
     })
 }
 
+ctrl.updateVehicle = (req, res) => {
+    var id = req.params.client_id;
+    var body = req.body.vehicle;
+    var index = body.index;
+    console.log(body);
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                client.Vehicle[index] = body.Vehicle;
+                //client.Vehicle.push(body);
+
+                client.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+}
+
+ctrl.deleteVehicle = (req, res) => {
+    var id = req.params.client_id;
+    var index = req.body.index;
+    
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                client.Vehicle.splice(index, 1);
+                client.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                    })
+                });
+            }
+        }
+    })
+}
+
 module.exports = ctrl;
