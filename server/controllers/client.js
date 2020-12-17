@@ -123,7 +123,7 @@ ctrl.notifyArrivalVehicle = (req,res) => {
             else {
                 EmailClient = client.Email;
                 Sell.findOne({Client: client}, (err, sell) => {
-                    vehicleStockClient = sell.VehicleSOld.VehicleStock;
+                    vehicleStockClient = sell.VehicleSOld.DeliveryVehicle.VehicleStock;
                     var bodyMail = helper.createMailNotifyArrival(vehicleStockClient, client);
                     Email.sendEmail(EmailClient, 'MyCar',bodyMail);
                 });
@@ -133,5 +133,28 @@ ctrl.notifyArrivalVehicle = (req,res) => {
     })
 }
 
+
+ctrl.notifyEstimatedArrivalVehicle = (req,res) => {
+    var id = req.params.client_id;
+    var date = req.body.date;
+    var EmailClient = '';
+    var DataVehicle;
+    if(req.body.VehicleStock != null){
+        DataVehicle = req.body.VehicleStock;
+    }else{
+        DataVehicle = req.body.PurchaseOrderV;
+    }
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                EmailClien = client.Email;
+                var bodyMail = helperVehicle.notifyEstimatedArrivalVehicle(date, DataVehicle);
+                Mail.sendEmail(EmailClient, 'myCar', bodyMail)
+            }
+        }
+    });
+}
 
 module.exports = ctrl;
