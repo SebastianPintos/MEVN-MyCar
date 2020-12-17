@@ -15,7 +15,9 @@ helperSell.SellVehicle = async (sell) => {
         if(err) {console.log(err)}
         else{
             for(i = 0; i < sellDB.VehicleSold.length; i++){
-                VehicleSold.push(sellDB.VehicleSold[i].VehicleStock);
+                if(sellDB.VehicleSold[i].VehicleStock){
+                    VehicleSold.push(sellDB.VehicleSold[i].VehicleStock);
+                }
             }
         }
     }).populate('VehicleSold');
@@ -43,9 +45,9 @@ helperSell.SellProduct =  async (sell) => {
     
     var productSorted = [];
     for (i = 0; i < sell.ProductStock.length; i++) {
-        if (productSorted.indexOf(sell.ProductStock[i]) === -1) {
+        if (productSorted.indexOf(sell.ProductStock[i].toString()) === -1) {
             console.log('sorteador de productos' + productSorted);
-            productSorted.push(sell.ProductStock[i]);
+            productSorted.push(sell.ProductStock[i].toString());
         }
     }
     console.log(productSorted);
@@ -54,7 +56,7 @@ helperSell.SellProduct =  async (sell) => {
     var arrayProductQuantity = [];
     for (i = 0; i < productSorted.length; i++) {
         for (y = 0; y < sell.ProductStock.length; y++) {
-            if (productSorted[i] === sell.ProductStock[y]) {
+            if (productSorted[i] === sell.ProductStock[y].toString()) {
                 count += 1;
             }
         }
@@ -98,9 +100,9 @@ helperSell.SellProductFromReserve =  async (sell) => {
     
     var productSorted = [];
     for (i = 0; i < sell.ProductStock.length; i++) {
-        if (productSorted.indexOf(sell.ProductStock[i]) === -1) {
+        if (productSorted.indexOf(sell.ProductStock[i].toString()) === -1) {
             console.log('sorteador de productos' + productSorted);
-            productSorted.push(sell.ProductStock[i]);
+            productSorted.push(sell.ProductStock[i].toString());
         }
     }
     console.log(productSorted);
@@ -109,7 +111,7 @@ helperSell.SellProductFromReserve =  async (sell) => {
     var arrayProductQuantity = [];
     for (i = 0; i < productSorted.length; i++) {
         for (y = 0; y < sell.ProductStock.length; y++) {
-            if (productSorted[i] === sell.ProductStock[y]) {
+            if (productSorted[i] === sell.ProductStock[y].toString()) {
                 count += 1;
             }
         }
@@ -141,7 +143,6 @@ helperSell.SellProductFromReserve =  async (sell) => {
                         if (err) { console.log(err) }
                     });
                     
-                    await helperStock.checkMin(productsDB[y]);
 
                 }
             }
