@@ -48,6 +48,8 @@ module.exports = app => {
     router.post('/client/:client_id/update', client.update);
     router.delete('/client/:client_id/delete', client.remove);
     router.post('/client/:client_id/addvehicle', client.addVehicle);
+    router.post('/client/:client_id/updatevehicle', client.updateVehicle);
+    router.post('/client/:client_id/deletevehicle', client.deleteVehicle);
 
     router.get('/vehicle', vehicle.index);
     router.post('/vehicle/add', vehicle.create);
