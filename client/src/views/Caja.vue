@@ -256,7 +256,9 @@ export default {
                     let branchOffice = res.data.branchOffice;
                     branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
                     if (branchOffice != null) {
-                        this.caja = branchOffice.Caja;
+                        if(branchOffice.Caja!=null & branchOffice.Caja!=""){
+                              this.caja = branchOffice.Caja;
+                        }  
                         this.branchOffice = branchOffice;
                         this.iniciar();
                     }
