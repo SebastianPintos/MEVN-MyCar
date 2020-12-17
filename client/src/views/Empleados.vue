@@ -315,10 +315,12 @@ export default {
                     }
                 }
             })
-            .then(() => this.getEmpleados())
+            .then(() => this.getEmployees())
         },
 
         updateEmployee(){
+            console.log(this.editedItem.Password)
+            console.log(this.editedItem.BranchOffice)
             axios.post(urlAPI + 'employee/' + this.selected[0]._id +'/update', {
                 "employee": {
                     "User": this.editedItem.User,
@@ -329,7 +331,7 @@ export default {
                     "Email": this.editedItem.Email,
                     "Hierarchy": this.editedItem.Hierarchy,
                     "StartDate": this.editedItem.StartDate,
-                    "BranchOffice": this.editedItem.Address.BranchOffice,
+                    "BranchOffice": this.editedItem.BranchOffice,
                     "Status": this.editedItem.Address.Status,
                     "Address": {
                         "Country": this.editedItem.Address.Country,
@@ -340,7 +342,15 @@ export default {
                     }
                 }
             })
-            .then(() => this.getEmpleados())
+            .then(() => this.getEmployees())
+        },
+
+        deleteEmpleado(item) {
+            axios.delete(urlAPI + 'employee/' + item._id + '/delete').then(res => {
+                if (res != null) {
+                    this.reset();
+                }
+            })
         },
 
         getPaises() {

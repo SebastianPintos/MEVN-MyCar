@@ -256,7 +256,9 @@ export default {
                     let branchOffice = res.data.branchOffice;
                     branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
                     if (branchOffice != null) {
-                        this.caja = branchOffice.Caja;
+                        if(branchOffice.Caja!=null & branchOffice.Caja!=""){
+                              this.caja = branchOffice.Caja;
+                        }  
                         this.branchOffice = branchOffice;
                         this.iniciar();
                     }
@@ -481,7 +483,7 @@ export default {
                 timeZone: "America/Argentina/Buenos_Aires"
             });
             //16/12/2020 11:51:28 -> 16-12-2020 11:51:28
-            fecha = dateString.replaceAll("/", "-");
+            let fecha = dateString.replaceAll("/", "-");
 
             let change = {
                 "Employee": this.employee._id,
