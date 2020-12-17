@@ -481,7 +481,7 @@ export default {
                 timeZone: "America/Argentina/Buenos_Aires"
             });
             //16/12/2020 11:51:28 -> 16-12-2020 11:51:28
-            fecha = dateString.replaceAll("/", "-");
+            let fecha = dateString.replaceAll("/", "-");
 
             let change = {
                 "Employee": this.employee._id,
