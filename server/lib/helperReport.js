@@ -3,6 +3,7 @@ const PurchaseOrder = require('../models/purchaseOrder');
 const DeliveryVehicle = require('../models/deliveryVehicle');
 const PurchaseOrderV = require('../models/purchaseOrderV');
 const VehicleStock = require('../models/vehicleStock');
+const Service = require('../models/service');
 
 ctrl = {};
 
@@ -90,7 +91,7 @@ ctrl.Expenses = async (Start, Finish) => {
 
 }
 
-ctrl.Discriminated = async (Start, Finish) => {
+/* ctrl.Discriminated = async (Start, Finish) => {
 
     var report = [];
     var dateStart = new Date(Start);
@@ -147,6 +148,19 @@ ctrl.Discriminated = async (Start, Finish) => {
 
     
 
+/* } */ 
+
+ctrl.Discriminated = async (Start, Finish) => {
+
+    var report = [];
+    var dateStart = new Date(Start);
+    var dateFinish = new Date(Finish);
+    dateStart.setHours(00, 00, 00);
+    dateFinish.setHours(23, 00, 00);
+    console.log('funcioin');
+    var sell = await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}).sort('BranchOffice').populate('BranchOffice').exec();
+    console.log(sell);
+    return report;
 }
 
 ctrl.getMoneyfromDelivery  = async (delivery) => {
@@ -167,6 +181,20 @@ ctrl.getMoneyfromDelivery  = async (delivery) => {
     }
     console.log(totalMoney);
     return totalMoney;
+}
+
+ctrl.getMoneyFromService = async (service) => {
+    var money = 0;
+    for(j = 0; j < service.length; j++){
+        await Service.findOne({_id: service[j]}, (err, serviceDB) => {
+            for(i = 0; i < serviceDB.Product.length; i++){
+                money += serviceDB.Product[i].SalePrice;
+            }
+            money += serviceDB.LaborPrice;
+        }).populate('Product');
+    }
+
+    return money;
 }
 
 

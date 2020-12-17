@@ -39,4 +39,12 @@ ctrl.reporte3 = async (req, res) => {
     res.send('asda');
 }
 
+ctrl.reporte4 = async (req, res) => {
+    var service = req.body.service;
+
+    var report = await helperReport.getMoneyFromService(service);
+    console.log('money ',report);
+    res.send('asda');
+}
+
 module.exports = ctrl;
