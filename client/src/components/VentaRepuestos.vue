@@ -150,6 +150,7 @@ export default {
             axios.get(urlAPI + 'branchOffice').then(res => {
                 if (res != null) {
                     let branchOffice = res.data.branchOffice;
+                    
                     branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
                     if (branchOffice != null) {
                         this.caja = branchOffice.Caja;
@@ -170,6 +171,7 @@ export default {
         },
         iniciar() {
             this.getRepuestos();
+            this.getCaja();
         },
 
         async getRepuestos() {
@@ -178,10 +180,9 @@ export default {
             let cont = 0;
             await axios.get(urlAPI + "productStock")
                 .then(res => {
-
                     repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
                     if (this.employee != null & this.employee.BranchOffice != null) {
-                        repuestos = repuestos.filter(r => r.BranchOffice._id == this.employee.BranchOffice);
+                    repuestos = repuestos.filter(r => r.BranchOffice!=null && r.BranchOffice._id == this.employee.BranchOffice);
                     }
 
                     if (repuestos != null) {
