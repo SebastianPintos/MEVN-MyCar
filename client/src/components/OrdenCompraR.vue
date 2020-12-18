@@ -493,7 +493,8 @@ export default {
                     "Type": "RECIBIDA",
                     "Status": "ACTIVE",
                     "Info": this.mensaje,
-                    "Employee": this.employee._id
+                    "Employee": this.employee._id,
+                    "BranchOffice": this.employee.BranchOffice
                 }
             }
         },

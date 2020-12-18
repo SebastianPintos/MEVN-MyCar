@@ -492,7 +492,7 @@ export default {
                 "Date": fecha,
                 "Description": "CAJA: " + this.caja
             }
-            let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? arrChange = [] : this.branchOffice.ChangeStatus;
+            let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? [] : this.branchOffice.ChangeStatus;
             arrChange.push(change);
             axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/setCaja', {
                 "Caja": this.caja
