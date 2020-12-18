@@ -15,7 +15,7 @@
             </v-toolbar>
         </template>
 
-        <template v-slot:item.Factura.PrecioNeto="{ item }">
+        <template v-if="Factura!=null" v-slot:item.Factura.PrecioNeto="{ item }">
             {{ formatPrice(item.Factura.PrecioNeto) }}
         </template>   
           <template v-slot:item.Date="{ item }">

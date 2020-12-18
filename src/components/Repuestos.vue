@@ -69,7 +69,7 @@
                 {{ formatPrice(item.SalePrice) }}
             </template>
             <template v-slot:item.LastPurchasePrice="{ item }">
-                {{ formatPrice(item.LastPurchaseSalePrice) }}
+                {{ formatPrice(item.LastPurchasePrice) }}
             </template>
             <template v-slot:top>
                 <v-toolbar flat>

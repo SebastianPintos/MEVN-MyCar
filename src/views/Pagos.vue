@@ -440,7 +440,7 @@ export default {
             await axios.get(urlAPI + 'product')
                 .then(res => {
                     if(res.data.product!=null){
-                    this.products = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                    this.products = res.data.product.filter(aClient => aClient.Status === "ACTIVE")
                     }
                 });
         },
@@ -485,7 +485,7 @@ export default {
                     let documentation = res.data.documentation.filter(d => d.Status == "ACTIVE");
                     documentation.forEach(d => {
                         let document = {
-                            "Documentation": d._id,
+                            "DocumentationID": d._id,
                             "Completed": false
                         };
                         this.allDocuments.push(d);

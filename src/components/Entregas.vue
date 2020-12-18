@@ -189,7 +189,7 @@ export default {
                     entregas.forEach(v => {
                         if (v.VehicleSold != null) {
                             v.VehicleSold.forEach(delivery => {
-                                delivery = this.delivery.find(d => d._id == delivery);
+                                delivery = this.delivery.find(d => d._id == delivery._id);
                                 if (delivery != null && this.employee!=null) {
                                     if (delivery != null && delivery.Status == "ACTIVE") {
                                         let documentos = this.getDocumentosObligatorios(delivery.Documentation);
