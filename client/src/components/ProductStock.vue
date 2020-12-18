@@ -23,7 +23,7 @@
                             <v-icon>mdi-delete</v-icon>
                         </v-btn>
 
-                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Repuesto'">
+                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Repuesto';">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </div>
@@ -145,8 +145,8 @@ export default {
             OutOfService: 0,
             Expiration: null,
             Price: 0,
-            Product: "",
-            BranchOffice: ""
+            Product: null,
+            BranchOffice: null
         },
         reglaNumero: [
             value => {
@@ -282,7 +282,6 @@ export default {
                 if (this.nuevo == true) {
                     axios.post(urlAPI + "productStock/add", auxRepuesto).then(res => {
                         if (res != null) {
-                            this.editedItem = this.defaultItem;
                             this.productsStock = [];
                             this.getRepuestosStock(this.branchOffice);
                             this.reset();
@@ -293,7 +292,6 @@ export default {
                     axios.post(urlAPI + "productStock/" + this.selected[0]._id + "/update", auxRepuesto).then(res => {
                         if (res != null) {
                             this.productsStock = [];
-                            this.editedItem = this.defaultItem;
                             this.getRepuestosStock(this.branchOffice);
                             this.reset();
                         }
@@ -346,7 +344,7 @@ export default {
             if (this.dialogNuevo) {
                 this.$refs.form.resetValidation();
             }
-            this.editedItem = this.defaultItem;
+            this.editedItem = Object.assign({}, this.defaultItem)
             this.dialogNuevo = false;
             this.nuevo = false;
         }
