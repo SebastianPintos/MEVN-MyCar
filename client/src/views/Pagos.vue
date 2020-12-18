@@ -955,6 +955,54 @@ export default {
         },
 
         calcularTotal() {
+            if (this.reserva != null) {
+                    let precioNeto = 0.0;
+                    let impuesto = 0.0;
+                    let descuento = 0.0;
+                    let descontado = 0.0;
+                    let precio = this.reserva.Price;
+                    this.reserva.Service.forEach(r=>{
+                        precio+= r.LaborPrice;
+                    })
+                    
+                    let nombre = "Pago de Reserva. Precio: " + precio;
+
+                    //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                    //IMPUESTOS: PRECIO NETO + 21% 
+                    if (this.Factura.Kind == "A") {
+                        precioNeto = precio;
+                        impuesto = precio + (21 * precio / 100);
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.impuestoReserva += impuesto;
+                        this.Factura.TotalNeto += precioNeto;
+                        this.Factura.TotalImpuesto += impuesto;
+                    }
+
+                    //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                    else if (this.Factura.Kind == "B") {
+                        precioNeto = precio + (21 * precio / 100);
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.TotalNeto += precioNeto;
+                    }
+
+                    //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                    else {
+                        precioNeto = precio;
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.TotalNeto += precioNeto;
+                    }
+
+                    this.Factura.Elements.push({
+                        "Name": nombre,
+                        "PrecioNeto": precioNeto,
+                        "Impuesto": impuesto,
+                        "Descuento": descuento,
+                        "PrecioConDescuento": descontado
+                    })
+                //});
+            }
+            
+            
             this.vehiculosStock.forEach(v => {
                 let precioNeto = 0.0;
                 let impuesto = 0.0;
@@ -1006,53 +1054,6 @@ export default {
                     "PrecioConDescuento": descontado
                 })
             });
-
-            if (this.reserva != null) {
-                this.reserva.Service.forEach(v => {
-                    let precioNeto = 0.0;
-                    let impuesto = 0.0;
-                    let descuento = 0.0;
-                    let descontado = 0.0;
-                    let precio = v.LaborPrice;
-                    v.Product.forEach(p => {
-                        precio += p.SalePrice;
-                    })
-                    let nombre = v.Description + " Precio: " + precio;
-
-                    //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                    //IMPUESTOS: PRECIO NETO + 21% 
-                    if (this.Factura.Kind == "A") {
-                        precioNeto = precio;
-                        impuesto = precio + (21 * precio / 100);
-                        this.Factura.NetoReserva += precioNeto;
-                        this.Factura.impuestoReserva += impuesto;
-                        this.Factura.TotalNeto += precioNeto;
-                        this.Factura.TotalImpuesto += impuesto;
-                    }
-
-                    //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
-                    else if (this.Factura.Kind == "B") {
-                        precioNeto = precio + (21 * precio / 100);
-                        this.Factura.NetoReserva += precioNeto;
-                        this.Factura.TotalNeto += precioNeto;
-                    }
-
-                    //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                    else {
-                        precioNeto = precio;
-                        this.Factura.NetoReserva += precioNeto;
-                        this.Factura.TotalNeto += precioNeto;
-                    }
-
-                    this.Factura.Elements.push({
-                        "Name": nombre,
-                        "PrecioNeto": precioNeto,
-                        "Impuesto": impuesto,
-                        "Descuento": descuento,
-                        "PrecioConDescuento": descontado
-                    })
-                });
-            }
 
             this.repuestos.forEach(r => {
                 let precioNeto = 0.0;
@@ -1157,13 +1158,24 @@ export default {
             });
 
             if (this.Factura.Kind == 'A') {
-                this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
-                    this.Factura.impuestoVEncargados +
-                    this.Factura.impuestoVStock + this.Factura.impuestoReserva;
+                if(this.Factura.impuestoRepuestos!=null){
+                    this.Factura.TotalImpuesto+=this.Factura.impuestoRepuestos;
+                }
+                if(this.Factura.impuestoVEncargados!=null){
+                    this.Factura.TotalImpuesto+=this.Factura.impuestoVEncargados;
+                }
+                if(this.Factura.impuestoVStock!=null){
+                    this.Factura.TotalImpuesto+=this.Factura.impuestoVStock;
+                }
+
+                if(this.Factura.impuestoReserva!=null){
+                    this.Factura.TotalImpuesto+=this.Factura.impuestoReserva;
+                }
                 this.Factura.Total = this.Factura.TotalImpuesto;
             } else {
                 this.Factura.Total = this.Factura.TotalNeto;
             }
+               
         },
 
         reiniciarFactura() {

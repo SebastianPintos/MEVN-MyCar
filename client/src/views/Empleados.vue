@@ -411,6 +411,7 @@ export default {
                 }
                 this.editedIndex = this.empleados.indexOf(item);
                 this.formTitle = "Editar Empleado";
+                this.localidades = this.getLocalidades(item.Address.Province.Name);
                 this.editedItem = Object.assign({}, item)
                 this.dialog = true;
             }
