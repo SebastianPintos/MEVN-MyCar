@@ -963,10 +963,7 @@ export default {
                     let precio = this.reserva.Price;
                     this.reserva.Service.forEach(r=>{
                         precio+= r.LaborPrice;
-                    })
-                    
-                    let nombre = "Pago de Reserva. Precio: " + precio;
-
+                        let nombre = "Servicio: " + r.Description;
                     //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
                     //IMPUESTOS: PRECIO NETO + 21% 
                     if (this.Factura.Kind == "A") {
@@ -999,7 +996,8 @@ export default {
                         "Descuento": descuento,
                         "PrecioConDescuento": descontado
                     })
-                //});
+                    })
+                    
             }
             
             
