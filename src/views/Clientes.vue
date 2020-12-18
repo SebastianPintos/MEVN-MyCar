@@ -844,14 +844,12 @@ export default {
             this.selected = [];
             this.indexV = -1;
             if (this.nuevoVehiculo) {
-                this.$refs.asociarVehiculo.resetValidation();
                 this.nuevoVehiculo = false;
             }
             this.reset();
         },
 
         asociarVehiculo(item) {
-            if (this.$refs.asociarVehiculo.validate()) {
                 if (this.editarVehiculo == false) {
                     axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle", this.getJSONVehicle(item))
                         .then(res => {
@@ -879,7 +877,6 @@ export default {
                                 this.snackbar = true
                             }
                         })
-                }
             }
         },
         editV(item) {
