@@ -47,4 +47,12 @@ ctrl.reporte4 = async (req, res) => {
     res.send('asda');
 }
 
+ctrl.reporte5 = async (req, res) => {
+    var dateStart = req.body.dateStart;
+    var dateFinish = req.body.dateFinish;
+
+    var report = await helperReport.bestSeller(dateStart, dateFinish);
+    res.send('asda');
+}
+
 module.exports = ctrl;
