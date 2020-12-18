@@ -37,15 +37,26 @@ helperVehicle.createMailNotifyArrival = (vehicleStock, client) => {
 
 helperVehicle.createMailNotifyCalculatedArrival = (date, client, vehicleStock) => {
     var body = '';
-    body += '\n Cálculo Estimado de llegada de su vehículo\n';
-    body += 'Tiempo estimado: ' + date + ' días \n';
-    body += 'Cliente: ' + client.Name + ' ' + client.LastName + '\n';
+    if(vehicleStock.Vehicle.Brand==null){
+        body += '\n Orden de compra enviada:\n';
+        body += 'Hola ' + client.Name + ' ' + client.LastName + '\n';
+        body += 'Le informamos que la orden de compra para la compra de su vehículo ya ha sido enviada.\n';
+        body += 'En breve nos estaremos comunicando con usted para avisarle cuándo estará en nuestra sucursal.\n';
+        body += 'Una vez recibido, deberá esperar aproximadamente unos: '+date+' días para poder retirarlo\n';
+        body += 'Gracias por su compra!!';        
+    }
+    else{
+    body += '\n Compra Exitosa: \n';
+    body += 'Hola ' + client.Name + ' ' + client.LastName + '\n';
+    body += 'Le informamos que la compra de su vehículo ya ha sido procesada.\n';
+    body += 'Tiempo estimado de entrega: ' + date + ' días \n';
     body += 'Marca: ' + vehicleStock.Vehicle.Brand + '\n';
     body += 'Modelo: ' + vehicleStock.Vehicle.Model + '\n';
     body += 'N°Chasis: ' + vehicleStock.ChasisNum + '\n';
     body += 'N°de Motor: ' + vehicleStock.EngineNum + '\n';
     body += 'Color: ' + vehicleStock.Color + '\n';
-    
+    body += 'Gracias por su compra!!';        
+    }
     return body;
 }
 
