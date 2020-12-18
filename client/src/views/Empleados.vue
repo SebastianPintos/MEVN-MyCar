@@ -60,7 +60,7 @@
                                                     <v-text-field v-model="editedItem.User" label="Usuario" :rules="requerido"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="4">
-                                                    <v-text-field v-model="editedItem.Password" type="password" label="Contraseña" :rules="requerido"></v-text-field>
+                                                    <v-text-field v-model="editedItem.Password" type="password" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :rules="requerido" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Contraseña" counter @click:append="show1 = !show1"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="4">
                                                     <v-select v-model="editedItem.Address.Country" :items="paises" item-text="Name" item-value="Name" label="Pais" :rules="requerido"></v-select>
@@ -189,7 +189,9 @@ import urlAPI from "../config/config.js"
 
 export default {
     data: () => ({
+
         expanded: [],
+        show1: false,
         editedIndex: -1,
         selected: [],
         search: '',
@@ -391,7 +393,6 @@ export default {
 
         getLocalidades(nombre) {
             let localidades = this.allLocalidades.filter(l => l.Provincia == nombre);
-            console.log("localidades: " + JSON.stringify(this.localidades))
             return localidades;
         },
 
@@ -479,19 +480,18 @@ export default {
         },
 
         save() {
-            
-                if(this.editedItem.Address!=null){
-                    if(this.editedItem.Address.Country!='Argentina'){
-                        if(this.CityNL=='' || this.ProvinceNL==''){
-                            return;
-                        }
-                        else{
-                            this.editedItem.Address.Province = this.ProvinceNL;
-                            this.editedItem.Address.City = this.CityNL;
-                           
-                        }
+
+            if (this.editedItem.Address != null) {
+                if (this.editedItem.Address.Country != 'Argentina') {
+                    if (this.CityNL == '' || this.ProvinceNL == '') {
+                        return;
+                    } else {
+                        this.editedItem.Address.Province = this.ProvinceNL;
+                        this.editedItem.Address.City = this.CityNL;
+
                     }
                 }
+            }
             if (this.editedIndex > -1) {
                 if (this.validate()) {
                     Object.assign(this.empleados[this.editedIndex], this.editedItem)
