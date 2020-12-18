@@ -106,6 +106,7 @@ ctrl.Discriminated = async (Start, Finish) => {
                 }
             }
         }
+        console.log('Branch linea 109',branch[i]);
         var branchService = {id: branch[i]._id, name: branch[i].Name, Service: moneyService};
         reportService.push(branchService);
     }
@@ -182,23 +183,17 @@ ctrl.bestSeller = async (Start, Finish) => {
 ctrl.getMoneyfromDelivery  = async (delivery) => {
     var totalMoney = 0;
     for(q = 0; q < delivery.length; q++){
-
-        console.log(delivery[q]);
-
         if(delivery[q].VehicleStock){
             await VehicleStock.findOne({_id: delivery[q].VehicleStock}, (err, vehicle)=> {
                 totalMoney += vehicle.Vehicle.SuggestedPrice;
             }).populate('Vehicle');
         }
-    
         if(delivery[q].PurchaseOrderV){
             await PurchaseOrderV.findOne({_id: delivery[q].PurchaseOrderV}, (err, order) => {
                 totalMoney += order.Price;
             })
         }
     }
-    
-    console.log(totalMoney);
     return totalMoney;
 }
 
