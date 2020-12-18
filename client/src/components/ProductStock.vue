@@ -232,7 +232,7 @@ export default {
                     if (productsStock != null) {
                         this.productsStock = productsStock.filter(r => r.Status == "ACTIVE");
                         if (branchOffice != "") {
-                            this.productsStock = this.productsStock.filter(r => r.BranchOffice._idTabla == branchOffice);
+                            this.productsStock = this.productsStock.filter(r => r.BranchOffice._id == branchOffice);
                         }
                     }
                 })
