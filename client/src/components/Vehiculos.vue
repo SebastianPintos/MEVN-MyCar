@@ -30,7 +30,7 @@
                                     <v-select v-model="filtros.Fuel" :items="fuelsList" label="Combustible"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                                    <v-select v-model="editedItem.Type" :items="typeList" label="Tipo"></v-select>
+                                    <v-select v-model="editedItem.Type" :items="typeList" label="Tipo"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.transmission" :items="transmissionsList" label="Transmision"></v-select>
@@ -362,8 +362,8 @@ export default {
         nuevoUsado: ['NUEVO', 'USADO'],
         filtroNuevoUsado: ['TODOS', 'NUEVO', 'USADO'],
         fuelsList: ['Nafta', 'Diesel', 'Hibrido'],
-        categoriesList: ['Sedan 3ptas', 'Sedan 5ptas' , 'Sedan 4ptas', 'SUV', 'PickUp 2ptas', 'PickUp 4ptas'],
-        typeList: ['Furgon','Automovil','PickUp','SUV'],
+        categoriesList: ['Sedan 3ptas', 'Sedan 5ptas', 'Sedan 4ptas', 'SUV', 'PickUp 2ptas', 'PickUp 4ptas'],
+        typeList: ['Furgon', 'Automovil', 'PickUp', 'SUV'],
         transmissionsList: ['Automatica', 'Manual'],
         brandsList: [],
         modelsList: [],
@@ -715,41 +715,56 @@ export default {
             })
         },
 
-        async updateManyVehicles() {
-            await this.selected.forEach(vehicle => {
-                let suggestedPrice = this.deshabilitarPorcentaje ? vehicle.SuggestedPrice : this.editedItem.SuggestedPrice;
-                let dealer = this.deshabilitarProveedor ? vehicle.Dealer : this.editedItem.Dealer;
+        updateManyVehicles() {
+            for (let i = 0; i < this.selected.length; i++) {
+                let suggestedPrice = this.deshabilitarPorcentaje ? this.selected[i].SuggestedPrice : this.editedItem.SuggestedPrice;
+                let dealer = this.deshabilitarProveedor ? this.selected[i].Dealer : this.editedItem.Dealer;
 
-                if (suggestedPrice != vehicle.SuggestedPrice) {
-                    let porcentaje = (vehicle.SuggestedPrice * suggestedPrice) / 100;
+                if (suggestedPrice != this.selected[i].SuggestedPrice) {
+                    let porcentaje = (this.selected[i].SuggestedPrice * suggestedPrice) / 100;
 
                     if (this.toggle_none === 1) {
-                        suggestedPrice = vehicle.SuggestedPrice - porcentaje;
+                        suggestedPrice = this.selected[i].SuggestedPrice - porcentaje;
                     } else {
-                        suggestedPrice = vehicle.SuggestedPrice + porcentaje;
+                        suggestedPrice = this.selected[i].SuggestedPrice + porcentaje;
                     }
                 }
 
-                axios.post(urlAPI + 'vehicle/' + vehicle._id + '/update', {
+                axios.post(urlAPI + 'vehicle/' + this.selected[i]._id + '/update', {
                     "vehicle": {
-                        "Brand": vehicle.Brand,
-                        "Model": vehicle.Model,
-                        "Type": vehicle.Type,
-                        "Category": vehicle.Category,
-                        "Fuel": vehicle.Fuel,
-                        "transmission": vehicle.transmission,
-                        "origin": vehicle.origin,
-                        "year": vehicle.year,
+                        "Brand": this.selected[i].Brand,
+                        "Model": this.selected[i].Model,
+                        "Type": this.selected[i].Type,
+                        "Category": this.selected[i].Category,
+                        "Fuel": this.selected[i].Fuel,
+                        "transmission": this.selected[i].transmission,
+                        "origin": this.selected[i].origin,
+                        "year": this.selected[i].year,
                         "Dealer": dealer,
                         "SuggestedPrice": suggestedPrice,
                         "Status": "ACTIVE"
                     }
                 })
                 if (i == this.selected.length - 1) {
-                    this.reset();
+                    this.selected = []
+                    this.$nextTick(() => {
+                        this.editedItem = Object.assign({}, this.defaultItem)
+                        this.editedIndex = -1
+                    })
+                    this.toggle_none = null;
+                    this.nombrePorcentaje = this.textoBoton[0];
+                    this.nombreProveedor = this.textoBoton[0];
+                    this.classBotonPorcentaje = this.classBoton[0];
+                    this.classBotonProveedor = this.classBoton[0];
+                    this.deshabilitarPorcentaje = true;
+                    this.deshabilitarProveedor = true;
+                    this.reglaEditarPorcentaje = [];
+                    this.reglaEditarProveedor = [];
+                    this.dialog = false;
+                    this.dialogDelete = false;
                     this.getVehicles();
                 }
-            })
+            }
         },
 
         async createVehicle() {
