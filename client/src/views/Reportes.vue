@@ -1,7 +1,6 @@
 <template>
   <v-container fluid class="bkg-reportes">
       <v-container fluid>
-          <v-btn @click="getValues()"></v-btn>
           <v-row justify="space-around">
         <v-col cols="12" md="3">
             <v-card
@@ -10,7 +9,7 @@
                 <v-card-title>Ingresos</v-card-title>
                 <v-card-text class="pt-0">
                 
-                    <h1 class="cardValue">$ 19.5K</h1>
+                    <h1 class="cardValue">$ {{totalIncomes.toFixed(2)}}M</h1>
 
                <v-divider class="my-2"></v-divider>
                 <span class="caption grey--text font-weight-light">Valores del ultimo mes</span>
@@ -25,7 +24,7 @@
                 <v-card-title>Egresos</v-card-title>
                 <v-card-text class="pt-0">
                 
-                    <h1 class="cardValue">$ 12.2K</h1>
+                    <h1 class="cardValue">$ {{totalExpenses.toFixed(2)}}M</h1>
 
                 
                 <v-divider class="my-2"></v-divider>
@@ -50,7 +49,6 @@
                 >
                     mdi-clock
                 </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard2}} segundos</span>
                 </v-card-text>
             </v-card>
         </v-col>
@@ -70,7 +68,6 @@
                 >
                     mdi-clock
                 </v-icon>
-                <span class="caption grey--text font-weight-light">Actualizado hace {{tiempoCard2}} segundos</span>
                 </v-card-text>
             </v-card>
         </v-col>
@@ -88,7 +85,7 @@
                 max-width="calc(100% - 10px)"
                 >
                 <div class="chart">   
-                    <BarChart/>
+                    <BarChart :labelsList="['Label3','Label3','Label3']" />
                 </div>
                 </v-sheet>
             </v-container>
@@ -192,17 +189,30 @@ export default {
         StackedChart
     },
     data: () => ({
+        totalIncomes: 0,
+        totalExpenses: 0,
     }),
+    mounted() {
+        this.getValues()
+    },
     methods: {
-        getValues(){
-            console.log("Test")
+         getValues(){
+            let date = new Date();
+            date.setDate(date.getDate() -  date.getDate()+1);
             axios.post(urlAPI + 'report/incomeExpenses',{
-              "dateStart": new Date(),
+              "dateStart": date,
               "dateFinish": new Date()
          })
-         .then(data => console.log(data))
-        }
-      
+         .then(data => {
+             data.data.income.forEach( branch => {
+                 this.totalIncomes += branch.money})
+            if(data.data.expenses.length > 0){
+             data.data.expenses.forEach( branchExpenses => this.totalExpenses += branchExpenses.money)
+            }
+             this.totalIncomes /= 1000000;
+             this.totalExpenses /= 1000000;
+         })
+         }
     }
 }
 </script>

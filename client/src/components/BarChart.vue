@@ -6,23 +6,9 @@ import urlAPI from "../config/config.js"
 export default {
   extends: Bar,
   data: () => ({
-    chartdata: {
-      labels: ['San Miguel', 'Olivos','Microcentro', 'Quilmes','Cordoba'],
-      fontColor: "white",
-      datasets: [
-        {   
-            label: "Total Ingresos",
-            backgroundColor: "#F5F5F5",
-            data: [20,40,50,50,70],
-            
-        },
-        {
-            label: "Total Ingresos",
-            backgroundColor: "#B1B1B1",
-            data: [10,20,30,40,50]
-        }
-      ]
-    },
+    incomesList: [],
+    expensesList: [],
+    labelsList: [],
     options: {
         barValueSpacing: 20,
         responsive: true,
@@ -58,18 +44,47 @@ export default {
             },
         }
   }),
-
-  mounted () {
-    this.renderChart(this.chartdata, this.options)
+  create () {
+      
   },
-  methods (){
-      axios.post(urlAPI + 'report/incomeExpenses',{
-          "report":{
-              "dateStart": new Date(),
+  mounted(){
+      this.getValues()
+  },
+  methods: {
+        getValues(){
+            let date = new Date();
+            date.setDate(date.getDate() -  date.getDate()+1);
+            axios.post(urlAPI + 'report/incomeExpenses',{
+              "dateStart": date,
               "dateFinish": new Date()
-          }
-      })
-  }
+         })
+         .then(data => {
+             data.data.income.forEach( branch => {
+                 this.labelsList.push(branch.name)
+                 this.incomesList.push(branch.money)})
+             data.data.expenses.forEach( branch => this.expensesList.push(branch.money))
+
+         })
+         .then(() => this.renderChart({
+                labels: this.labelsList,
+                fontColor: "white",
+                datasets: [
+                    {   
+                        label: "Total Ingresos",
+                        backgroundColor: "#F5F5F5",
+                        data: this.incomesList
+                        
+                    },
+                    {
+                        label: "Total Egresos",
+                        backgroundColor: "#B1B1B1",
+                        data: this.expensesList
+                    }
+                ]
+                }, this.options))
+        }
+      
+    }
 }
 </script>
 
