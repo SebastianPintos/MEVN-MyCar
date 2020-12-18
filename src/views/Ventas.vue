@@ -4,7 +4,7 @@
         <v-tab @click="vistaVehiculos = true; vistaRepuestos = false; ventasRealizadas=false">Vehículos</v-tab>
         <v-tab @click=" vistaVehiculos = false; vistaRepuestos = true;ventasRealizadas=false">Repuestos</v-tab>
         <v-tab @click=" vistaVehiculos = false; vistaRepuestos = false;ventasRealizadas=true">Ventas Realizadas</v-tab>
-        <v-btn color="grey" style="height: 100%" @click="mostrarCarrito">
+        <v-btn color="#00ced1" style="height: 100%" @click="mostrarCarrito">
             <v-icon>mdi-cart-outline</v-icon>
         </v-btn>
     </v-tabs>
@@ -14,7 +14,7 @@
     <VentasRealizadas v-show="ventasRealizadas" />
 
 
-    <v-dialog v-model="dialogDetalle">
+    <v-dialog v-model="dialogDetalle" persistent>
         <v-card>
             <v-flex class="text-center">
                 <v-card-title>Detalle del Carrito</v-card-title>
@@ -57,14 +57,16 @@
                             </v-row>
 
                             <v-row>
+                            <div v-if="vehiculo.Domain!=null & vehiculo.Domain!=''">
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field v-if="vehiculo.Domain!=null" readonly value="Dominio:"></v-text-field>
+                                        <v-text-field readonly value="Dominio:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field readonly :value="vehiculo.Domain"></v-text-field>
                                 </v-col>
+                            </div>
                             </v-row>
 
                             <v-row>
@@ -195,9 +197,10 @@
                                 </v-row>
                             </div>
                         </li>
-                    </ol>
+                    
 
                     <ol>
+                
                         <h3 v-if="repuestos.length>0">Repuestos: </h3>
                         <li v-for="(repuesto,index) in repuestos" :key="index">
                             <v-row>
@@ -327,6 +330,14 @@ export default {
             totalVehiculos: 0,
             total: 0
         },
+        
+        carritoCompletoD: {
+            repuestosCarrito: [],
+            vehiculosCarrito: [],
+            totalRepuestos: 0,
+            totalVehiculos: 0,
+            total: 0
+        },
         vehiculos: [],
         encargados: [],
         repuestos: []
@@ -338,6 +349,7 @@ export default {
     },
     methods: {
         getVehiculos() {
+            this.vehiculos = [];
             let length = 0;
             try {
                 length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
@@ -355,6 +367,7 @@ export default {
 
 
         getEncargados() {
+            this.encargados = [];
             let length = 0;
             try {
                 length = parseInt(JSON.parse(localStorage.getItem("lengthvM")));
@@ -370,6 +383,7 @@ export default {
         },
 
         getRepuestos() {
+            this.repuestos = [];
             let length = 0;
             try {
                 length = parseInt(JSON.parse(localStorage.getItem("lengthr")));
@@ -428,6 +442,7 @@ export default {
         },
         
         mostrarCarrito() {
+            this.carritoCompleto = this.carritoCompletoD;
             this.getVehiculos();
             this.getEncargados();
             this.getRepuestos();

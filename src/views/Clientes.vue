@@ -15,7 +15,7 @@
                 <td :colspan="headers.length">
 
                     <v-chip-group>
-                        <v-chip color="success" small v-for="v in item.Vehicle"  :key="v._id">Vehículo: {{v.Domain}}</v-chip>
+                        <v-chip color="success" small v-for="v in item.Vehicle" :key="v._id">Vehículo: {{v.Domain}}</v-chip>
                     </v-chip-group>
                 </td>
             </template>
@@ -27,7 +27,7 @@
                     <v-divider class="mx-4" dark vertical></v-divider>
                     <v-spacer></v-spacer>
 
-                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="agregarVehiculo=true">
+                    <v-btn color="grey" dark class="mb-2" v-bind="attrs" v-on="on" @click="mostrarDialogVehiculo">
                         <v-icon>mdi-car-outline</v-icon>
                     </v-btn>
 
@@ -58,7 +58,7 @@
 
                                         <v-row>
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="client.Nationality" :items="paises" item-text="name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
+                                                <v-select v-model="client.Nationality" :items="paises" item-text="Name" item-value="Name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field :rules="reglaNombre" hide-details="auto" v-model="client.Name" label="Nombre"></v-text-field>
@@ -107,12 +107,14 @@
 
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="mb-2 info" text @click="close">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
-                                    <v-btn class="mb-2 info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
+                                    <v-flex class="text-right">
+                                        <v-btn class="mb-2 info" text @click="reset">
+                                            <v-icon>mdi-cancel</v-icon>
+                                        </v-btn>
+                                        <v-btn class="mb-2 info" text @click="save(selected[0]!=null? selected[0]._id:-1)">
+                                            <v-icon>mdi-check</v-icon>
+                                        </v-btn>
+                                    </v-flex>
                                 </v-card-actions>
                             </v-form>
                         </v-card>
@@ -126,9 +128,33 @@
                             </v-col>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="closeDelete">Cancelar</v-btn>
-                                <v-btn color="blue darken-1" text @click="deleteItemConfirm">Confirmar</v-btn>
+
+                                <v-btn class="info mb-2" text @click="reset">
+                                    <v-icon>mdi-cancel</v-icon>
+                                </v-btn>
+                                <v-btn class="info mb-2" text @click="deleteItemConfirm">
+                                    <v-icon>mdi-check</v-icon>
+                                </v-btn>
                                 <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+
+                    <v-dialog v-model="dialogDeleteV" max-width="500px" persistent>
+                        <v-card>
+                            <h2>¿Estás seguro de que deseas eliminar el vehículo?</h2>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-flex class="text-right">
+                                    <v-btn class="info mb-2" text @click="resetVehicle();dialogDeleteV=false">
+                                        <v-icon>mdi-cancel</v-icon>
+                                    </v-btn>
+                                    <v-btn class="info mb-2" text @click="eliminarVehiculoConfirm">
+                                        <v-icon>mdi-check</v-icon>
+                                    </v-btn>
+                                </v-flex>
+                                <v-spacer></v-spacer>
+
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -137,13 +163,65 @@
             </template>
         </v-data-table>
 
-        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo" persistent>
+        <v-dialog ref="asociarVehiculo" v-model="nuevoVehiculo">
             <v-card>
-                <v-form ref="asociarVehiculo" v-model="valid" lazy-validation>
-                    <v-card-title>
-                        Asociar Vehículo
-                    </v-card-title>
-                    <v-card-text>
+                <v-card-title>Asociar Vehículo</v-card-title>
+                <v-card-text>
+                    <v-select label="Vehículo" :items="vehicles" v-model="vehiculoNuevo.VehicleID" item-text="Brand" item-value="_id" :rules="requerido">
+                        <template slot="item" slot-scope="data">
+                            {{ data.item.Brand }}-{{ data.item.Model }}-{{data.item.year}}-{{data.item.origin}}-{{data.item.transmission}}-{{data.item.Category}}-{{data.item.Fuel}}-{{data.item.Type}}-{{data.item.Kind}}
+                        </template>
+                    </v-select>
+                    <v-text-field label="Dominio" :rules="reglaDominio" v-model="vehiculoNuevo.Domain"></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-flex class="text-rigth">
+                        <v-btn class="info mb-2" text @click="vehiculoNuevo.Domain='';vehiculoNuevo.VehicleID='',nuevoVehiculo=false">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn class="info mb-2" text @click="asociarVehiculo">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                    </v-flex>
+                    <v-spacer></v-spacer>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-if="selected.length>0" v-model="agregarVehiculo" persistent>
+            <!--v-card-->
+            <v-form v-model="valid" lazy-validation>
+
+                <!--v-card-text-->
+                <h1 class="text-center" style="background-color:indigo; padding-top: 10px; padding-bottom: 10px; color:white">
+                    VEHÍCULO/S <v-btn color="green" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoVehiculo=true; editarVehiculo=false">
+                        <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                </h1>
+
+                <v-data-table v-model="selected[0].Vehicle" :single-select="true" :headers="headersV" :items="vehicleClient" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+                    <template v-slot:[`item.actions`]="{ item }">
+                        <v-row>
+                            <v-col cols="12" md="6">
+                                <v-btn fab small color="success" class="mb-0" @click="editV(item)">
+                                    <v-icon class="text-center">
+                                        mdi-pencil</v-icon>
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="12" md="6">
+
+                                <v-btn fab small color="error" class="mb-0" @click="eliminarVehiculo(item)">
+                                    <v-icon class="text-center">
+                                        mdi-delete</v-icon>
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </template>
+
+                </v-data-table>
+                <!--/v-card-text-->
+                <!--v-card-text>
                         <v-row>
                             <v-col cols="12" md="6">
                                 <v-text-field disabled label="ID del Cliente: "></v-text-field>
@@ -166,25 +244,35 @@
                                 <v-text-field disabled v-model="selected[0].LastName"></v-text-field>
                             </v-col>
                         </v-row>
+
+                        <div v-for="(v,index) in selected[0].Vehicle" :key="index">
+                            <v-text-field label="Marca">{{v.VehicleID.Vehicle.Brand}}</v-text-field>
+                            <v-text-field label="Dominio">{{v.Domain}}</v-text-field>
+                            <v-text-field label="Dominio">AAA</v-text-field>
+
+                        </div>
                         <v-select v-model="vehiculo" label="Vehiculo" :items="vehicles" item-text="Model" item-value="_id" :rules="requerido">
                             <template slot="item" slot-scope="data">
                                 {{ data.item.Brand }} {{ data.item.Model }} - {{ data.item.year }}
                             </template>
                         </v-select>
                         <v-text-field label="Dominio" v-model="dominio" :rules="reglaDominio"></v-text-field>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-flex class="text-right">
-                            <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''">
-                                <v-icon>mdi-cancel</v-icon>
-                            </v-btn>
-                            <v-btn class="info mb-2" @click="asociarVehiculo">
-                                <v-icon>mdi-check</v-icon>
-                            </v-btn>
-                        </v-flex>
-                    </v-card-actions>
-                </v-form>
-            </v-card>
+                    </v-card-text-->
+                <!--v-card-actions-->
+                <div style="background-color:white">
+                    <v-flex class="text-right">
+                        <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''">
+                            <v-icon>mdi-cancel</v-icon>
+                        </v-btn>
+                        <v-btn class="info mb-2" @click="asociarVehiculo">
+                            <v-icon>mdi-check</v-icon>
+                        </v-btn>
+                    </v-flex>
+                </div>
+                <!--/v-card-actions-->
+
+            </v-form>
+            <!--/v-card-->
         </v-dialog>
 
         <v-snackbar v-model="snackbar">
@@ -214,7 +302,6 @@ class client {
         this.Nationality = Nationality;
         this.TaxCategory = TaxCategory;
     }
-
 }
 
 import axios from "axios";
@@ -224,11 +311,18 @@ import urlAPI from "../config/config.js"
 export default {
     data: () => ({
         client: new client(),
+        vehiculoNuevo: {
+            VehicleID: "",
+            Domain: ""
+        },
         editedIndex: -1,
+        vehicleClient: [],
+        vehicleDefault: [],
         defaultClient: new client(),
         selected: [],
+        selectedV: [],
         expanded: [],
-        categorias: ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
+        categorias: ['AUTÓNOMO', 'CONSUMIDOR FINAL', 'EXENTO', 'MONOTRIBUTISTA', 'RESPONSABLE INSCRIPTO'],
         search: '',
         poblacion: '',
         valid: true,
@@ -237,6 +331,7 @@ export default {
         dialog: false,
         agregarVehiculo: false,
         dialogDelete: false,
+        dialogDeleteV: false,
         requerido: [
             value => !!value || 'Requerido.',
         ],
@@ -281,7 +376,55 @@ export default {
             },
 
         ],
-        vehiculo: {},
+
+        headersV: [{
+                text: 'Marca',
+                value: 'VehicleID.Brand',
+                align: 'start',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'Modelo',
+                value: 'VehicleID.Model',
+                class: 'indigo white--text'
+            },
+            {
+                text: 'Año',
+                value: 'VehicleID.year',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'Origen',
+                value: 'VehicleID.origin',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'Transmisión',
+                value: 'VehicleID.transmission',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'Tipo',
+                value: 'VehicleID.type',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'NUEVO/USADO',
+                value: 'VehicleID.Kind',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'Dominio',
+                value: 'Domain',
+                class: 'indigo white--text',
+            },
+            {
+                text: 'Acciones',
+                value: 'actions',
+                class: 'indigo white--text',
+            },
+        ],
+
         dominio: "",
         vehicles: [],
         clients: [],
@@ -385,18 +528,15 @@ export default {
         ],
         attrs: '',
         on: '',
+        alta: false,
+        baja: false,
+        modificacion: false,
         motivos: '',
         formTitle: '',
+        nuevoVehiculo: false,
+        employee: null,
+        indexV: -1,
     }),
-
-    watch: {
-        dialog(val) {
-            val || this.reiniciar()
-        },
-        dialogDelete(val) {
-            val || this.closeDelete()
-        },
-    },
 
     created() {
         this.iniciar();
@@ -404,6 +544,9 @@ export default {
 
     methods: {
         iniciar() {
+            this.employee = localStorage.getItem("employee");
+            this.employee = JSON.parse(this.employee);
+
             this.getClients();
             this.getPaises();
             this.getVehicles();
@@ -417,14 +560,15 @@ export default {
         },
 
         getPaises() {
-            axios.get('https://restcountries.eu/rest/v2/all')
+            axios.get(urlAPI+"paises")
                 .then(res => {
-                    this.paises = res.data;
+                    this.paises = res.data.paises;
+                    this.paises.sort();
                 });
 
         },
-        getClients() {
-            axios.get(urlAPI + 'client')
+        async getClients() {
+            await axios.get(urlAPI + 'client')
                 .then(res => {
                     this.clients = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
                 });
@@ -449,9 +593,9 @@ export default {
         obtenerDatosPorNacion(value) {
             let datos = ['', ''];
             for (let i = 0; i < this.paises.length; i++) {
-                if (this.paises[i] && this.paises[i].name == value) {
-                    datos[0] = this.paises[i].callingCodes;
-                    datos[1] = this.paises[i].population;
+                if (this.paises[i] && this.paises[i].Name == value) {
+                    datos[0] = this.paises[i].CodePhone;
+                    datos[1] = this.paises[i].Population;
                 }
             }
             return datos;
@@ -510,30 +654,36 @@ export default {
         },
 
         deleteItemConfirm() {
+            this.baja = true;
             for (let i = 0; i < this.selected.length; i++) {
-                this.editar("INACTIVE", this.selected[i]);
+                this.editar("INACTIVE", this.selected[i], false);
+                if (i == this.selected.length - 1) {
+                    this.reset();
+                }
                 this.clients.splice(this.clients.indexOf(this.selected[i]), 1);
             }
-            this.closeDelete()
         },
 
         reset() {
+            if (this.dialog) {
+                this.$refs.form.resetValidation();
+            }
+            this.dialogDelete = false;
+            this.dialog = false;
             this.selected = [];
             this.motivos = '';
             this.$nextTick(() => {
-                this.client = Object.assign({}, this.defaultItem)
+                //this.client = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
             })
-        },
-
-        close() {
-            this.dialog = false
-            this.reset()
-        },
-
-        closeDelete() {
-            this.dialogDelete = false
-            this.reset()
+            this.client = new client();
+            this.prefijo = '';
+            this.num = '';
+            this.principioEmail = '';
+            this.finEmail = '';
+            this.alta = false;
+            this.baja = false;
+            this.modificacion = false;
         },
 
         validate() {
@@ -548,6 +698,35 @@ export default {
         },
 
         getJSONClient(selected) {
+            /*     ChangeStatus: [{
+            Motive: {type: String},
+            EmployerID: {type: Schema.Types.ObjectId, required: true}
+        },{timestamps: true}]*/
+            let changeStatus = [];
+            let idEmployee = this.employee != null ? this.employee._id : null;
+            let time = new Date();
+            if (this.alta) {
+                changeStatus.push({
+                    "Motive": "ALTA",
+                    "EmployerID": idEmployee,
+                    "Time": new Date()
+                })
+            } else if (this.baja) {
+                changeStatus = selected.ChangeStatus;
+                changeStatus.push({
+                    "Motive": "BAJA " + (this.motivos != "" ? this.motivos : ""),
+                    "EmployerID": idEmployee,
+                    "Time": new Date()
+                })
+            } else {
+                changeStatus = selected.ChangeStatus;
+                changeStatus.push({
+                    "Motive": "MODIFICACIÓN ",
+                    "EmployerID": idEmployee,
+                    "Time": new Date()
+                })
+            }
+
             return {
                 "client": {
                     "Name": selected.Name,
@@ -560,6 +739,7 @@ export default {
                     "CompanyName": selected.CompanyName,
                     "Nationality": selected.Nationality,
                     "TaxCategory": selected.TaxCategory,
+                    "ChangeStatus": changeStatus
                 }
             };
         },
@@ -568,6 +748,10 @@ export default {
                     headers: {
                         "Accept": "application/json",
                         "Content-Type": "application/json; charset=utf-8"
+                    }
+                }).then(res => {
+                    if (res != null) {
+                        this.reset();
                     }
                 })
                 .catch(err => {
@@ -578,37 +762,26 @@ export default {
         save(id) {
             //Cliente Nuevo
             if (id === -1) {
+                this.alta = true;
                 this.client = this.getClient(this.client);
                 if (this.validate()) {
                     this.post(urlAPI + 'client/add', JSON.stringify(this.getJSONClient(this.client)));
                     this.clients.push(this.client);
-                    this.reiniciar();
                 }
             }
             //Editar Cliente
             else {
+                this.modificacion = true;
                 if (this.validate()) {
                     Object.assign(this.clients[this.editedIndex], this.client)
-                    this.editar("ACTIVE", this.client);
-                    this.reiniciar();
+                    this.editar("ACTIVE", this.client, true);
                 }
             }
         },
 
-        editar(estado, selected) {
+        editar(estado, selected, reset) {
             selected.Status = estado;
-            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)));
-        },
-
-        reiniciar() {
-            this.close();
-            this.selected = [];
-            this.client = new client();
-            this.prefijo = '';
-            this.num = '';
-            this.principioEmail = '';
-            this.finEmail = '';
-            this.$refs.form.resetValidation();
+            this.post(urlAPI + 'client/' + selected._id + '/update', JSON.stringify(this.getJSONClient(selected)))
         },
 
         separarTel(value) {
@@ -634,27 +807,117 @@ export default {
             this.separarEmail(value)
         },
 
+        mostrarDialogVehiculo() {
+            if (this.selected.length == 1) {
+                this.vehicleClient = this.selected[0].Vehicle;
+                console.log("VEHICULO: " + JSON.stringify(this.vehicleClient))
+                this.agregarVehiculo = true;
+            } else if (this.selected.length == 0) {
+                this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
+                this.selected = [];
+            } else {
+                this.mensaje = "Sólo puede seleccionar un cliente a la vez para esta acción!";
+                this.snackbar = true;
+                this.selected = [];
+            }
+        },
+
         format(value) {
             return value == null ? "S/D" : String(value);
         },
 
-        getJSONVehicle(){
+        getJSONVehicle(item) {
             return {
-                "vehicle":{
-                    "VehicleID":this.vehiculo,
-                    "Domain": this.dominio
+                "vehicle": {
+                    "VehicleID": item.VehicleID,
+                    "Domain": item.Domain
                 }
             }
         },
 
-        asociarVehiculo() {
-            if (this.$refs.asociarVehiculo.validate()) {     
-                axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle",this.getJSONVehicle())
-            .then(res=>{
-                if(res!=null){
-                    this.vehiculo = null; this.dominio = ""; this.agregarVehiculo = false;this.selected=[];this.mensaje="Vehículo asociado con éxito"; this.snackbar=true}})
-         }
+        resetVehicle() {
+            this.vehiculoNuevo.Domain = "";
+            this.vehiculoNuevo.VehicleID = "";
+            this.dominio = "";
+            this.agregarVehiculo = false;
+            this.selected = [];
+            this.indexV = -1;
+            if (this.nuevoVehiculo) {
+                this.$refs.asociarVehiculo.resetValidation();
+                this.nuevoVehiculo = false;
+            }
+            this.reset();
         },
+
+        asociarVehiculo(item) {
+            if (this.$refs.asociarVehiculo.validate()) {
+                if (this.editarVehiculo == false) {
+                    axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle", this.getJSONVehicle(item))
+                        .then(res => {
+                            if (res != null) {
+                                this.resetVehicle();
+                                this.mensaje = "Vehículo asociado con éxito";
+                                this.snackbar = true
+                            }
+                        })
+                } else {
+                    let vehiculo = {
+                        "vehicle": {
+                            "Vehicle": {
+                                "VehicleID": this.vehiculoNuevo.VehicleID,
+                                "Domain": this.vehiculoNuevo.Domain
+                            },
+                            "index": this.indexV
+                        }
+                    };
+                    axios.post(urlAPI + "client/" + this.selected[0]._id + "/updateVehicle", vehiculo)
+                        .then(res => {
+                            if (res != null) {
+                                this.resetVehicle();
+                                this.mensaje = "Vehículo actualizado con éxito";
+                                this.snackbar = true
+                            }
+                        })
+                }
+            }
+        },
+        editV(item) {
+            console.log("AGREANDO V");
+            if (item == null) {
+                this.mensaje = "No ha seleccionado ningún elemento";
+                this.snackbar = true;
+                return;
+            }
+            this.indexV = this.selected[0].Vehicle.indexOf(item);
+            this.editarVehiculo = true;
+            let vehiculo = item;
+            this.vehiculoNuevo.Domain = vehiculo.Domain;
+            this.vehiculoNuevo.VehicleID = vehiculo.VehicleID;
+            this.nuevoVehiculo = true;
+        },
+
+        eliminarVehiculo(item) {
+            if (item == null) {
+                this.mensaje = "No ha seleccionado ningún elemento!";
+                this.snackbar = true;
+                return;
+            }
+            this.vehiculoNuevo = item;
+            this.dialogDeleteV = true;
+        },
+
+        eliminarVehiculoConfirm() {
+            let index = this.selected[0].Vehicle.indexOf(this.vehiculoNuevo);
+            this.selectedV.splice(index, 1);
+            axios.post(urlAPI + "client/" + this.selected[0]._id + "/deletevehicle", {
+                "index": index
+            });
+            this.dialogDeleteV=false;
+            this.resetVehicle();
+            this.mensaje="Vehículo eliminado con éxito";
+            this.snackbar=true;
+        }
     },
 };
 </script>

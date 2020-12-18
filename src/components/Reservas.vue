@@ -5,6 +5,11 @@
         <v-expansion-panels>
             <v-expansion-panel>
                 <v-expansion-panel-header class="indigo darken-4 white--text">
+                    <template v-slot:actions>
+                        <v-icon color="white">
+                            $expand
+                        </v-icon>
+                    </template>
                     Ver filtros Disponibles
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -215,6 +220,7 @@
 </template>
 
 <script>
+
 import axios from "axios"
 import urlAPI from "../config/config.js"
 export default {
@@ -392,8 +398,11 @@ export default {
         },
 
         async confirmarReserva(event) {
-            await axios.delete(urlAPI + 'reservation/' + event.id + '/delete');
-            this.events.splice(this.events.indexOf(event), 1)
+           // await axios.delete(urlAPI + 'reservation/' + event.id + '/delete');
+           //this.events.splice(this.events.indexOf(event), 1)
+             this.getReserva(event.id);
+             localStorage.setItem("reserva",JSON.stringify(this.editedReserva));
+             location.href="/pagos";
         },
 
         async eliminarReserva(event) {
@@ -576,7 +585,7 @@ export default {
         },
         crearReserva() {
             console.log(this.cliente.cliente);
-            
+
             console.log(JSON.stringify(this.cliente));
             if (!this.validate()) {
                 return;
@@ -736,6 +745,7 @@ export default {
             val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
         },
     },
+ 
 
 }
 </script>

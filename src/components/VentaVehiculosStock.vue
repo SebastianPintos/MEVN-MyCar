@@ -1,17 +1,20 @@
 <template>
 <div>
     <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
+        <template v-slot:item.PurchasedPrice="{ item }">
+            {{ formatPrice(item.PurchasedPrice) }}
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
-
-            <v-btn v-if="item.carrito == false" fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(item);aplicarDescuento=true">
+            <div v-if="caja=='ABIERTA'">
+            <v-btn v-if="item.carrito == false" fab small color="success" @click="agregarAlCarrito(item);aplicarDescuento=true">
+                <v-icon class="text-center" >
                     mdi-cart-plus</v-icon>
             </v-btn>
-            <v-btn v-else fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
+            <v-btn v-else fab small color="error" @click="eliminarDelCarrito(item)">
+                <v-icon class="text-center" >
                     mdi-cart-remove</v-icon>
             </v-btn>
-
+            </div>
         </template>
     </v-data-table>
     <v-dialog v-model="aplicarDescuento" max-width="300px" persistent>
@@ -54,6 +57,7 @@ export default {
         descuento: 0,
         descontado: 0,
         attrs: '',
+        employee: null,
         valid: true,
         requerido: [
             value => {
@@ -93,22 +97,43 @@ export default {
                 sortable: false
             },
         ],
+        caja: 'CERRADA',
     }),
     created() {
-        this.iniciar();
+        let employee = localStorage.getItem("employee");
+        if (employee != null) {
+            this.employee = JSON.parse(employee);
+            this.iniciar();
+        }
     },
     methods: {
+        getCaja() {
+            axios.get(urlAPI + 'branchOffice').then(res => {
+                if (res != null) {
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
+                    if (branchOffice != null) {
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
+        },
+
         iniciar() {
             this.getVehiculos();
+            this.getCaja();
         },
 
         async getVehiculos() {
             let vehiculos = [];
             let vehiculoAGuardar = {};
             let cont = 0;
-            await axios.get(urlAPI + "vehiclestock")
+            await axios.get(urlAPI + "vehicleStock")
                 .then(res => {
                     vehiculos = res.data.vehicle.filter(v => v.Status === "AVAILABLE");
+                   if (this.employee != null & this.employee.BranchOffice != null) {
+                        vehiculos = vehiculos.filter(v => v.BranchOffice == this.employee.BranchOffice);
+                    }
                     if (vehiculos != null) {
                         for (let i = 0; i < vehiculos.length; i++) {
                             let item = JSON.parse(localStorage.getItem(String("v" + i)));
@@ -118,11 +143,11 @@ export default {
                             if (item != null) {
                                 carrito = item.carrito;
                             }
-                            if (item!=null && item.descuento!=null) {
-                                    descuento = item.descuento;
+                            if (item != null && item.descuento != null) {
+                                descuento = item.descuento;
                             }
-                            if (item!=null && item.descontado!=null) {
-                                    descontado = item.descontado;
+                            if (item != null && item.descontado != null) {
+                                descontado = item.descontado;
                             }
                             vehiculoAGuardar = {
                                 "_id": vehiculos[i]._id,
@@ -179,16 +204,16 @@ export default {
         confirmarElemento() {
             if (this.$refs.form.validate()) {
                 let index = this.vehiculos.indexOf(this.ultimoEnCarrito);
-                if(index!=-1){
-                    
-                let item = JSON.parse(localStorage.getItem("v" + String(index)));
-                if (item != null) {
-                    item.descuento = this.descuento;
-                    let valorDescuento = (item.PurchasedPrice*this.descuento)/100;
-                    item.descontado =item.PurchasedPrice-valorDescuento;
-                    localStorage.setItem(String("v" + String(index)), JSON.stringify(item));
+                if (index != -1) {
+
+                    let item = JSON.parse(localStorage.getItem("v" + String(index)));
+                    if (item != null) {
+                        item.descuento = this.descuento;
+                        let valorDescuento = (item.PurchasedPrice * this.descuento) / 100;
+                        item.descontado = item.PurchasedPrice - valorDescuento;
+                        localStorage.setItem(String("v" + String(index)), JSON.stringify(item));
+                    }
                 }
-                }   
                 this.descuento = 0;
                 this.descontado = 0;
                 this.aplicarDescuento = false;
@@ -197,6 +222,9 @@ export default {
         cancelarCarrito() {
             this.eliminarDelCarrito(this.ultimoEnCarrito);
             this.aplicarDescuento = false
+        },
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
 
     }

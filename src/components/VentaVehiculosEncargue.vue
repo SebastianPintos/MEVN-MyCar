@@ -1,16 +1,21 @@
 <template>
 <div>
     <v-data-table v-model="selected" :single-select="singleSelect" :headers="headers" :items="vehiculos" :search="search" item-key="_idTabla" class="elevation-1">
-        <template v-slot:[`item.actions`]="{ item }">
+        <template v-slot:item.SuggestedPrice="{ item }">
+            {{ formatPrice(item.SuggestedPrice) }}
+        </template>
 
-            <v-btn v-if="item.carrito == false" fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(item);aplicarDescuento=true">
+        <template v-slot:[`item.actions`]="{ item }">
+            <div v-if="caja=='ABIERTA'">
+            <v-btn v-if="item.carrito == false" fab small color="success" @click="agregarAlCarrito(item);aplicarDescuento=true">
+                <v-icon class="text-center" >
                     mdi-cart-plus</v-icon>
             </v-btn>
-            <v-btn v-else fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
+            <v-btn v-else fab small color="error" @click="eliminarDelCarrito(item)">
+                <v-icon class="text-center" >
                     mdi-cart-remove</v-icon>
             </v-btn>
+            </div>
 
         </template>
     </v-data-table>
@@ -19,7 +24,7 @@
             <v-card-title>Descuento</v-card-title>
             <v-form ref="form" v-model="valid" lazy-validation>
                 <v-card-text>
-                    <v-select v-model="colorElegido" :items="colores" label="Color"></v-select>
+                    <v-select v-model="colorElegido" :items="colores" label="Color" :rules="obligatorio"></v-select>
                     <v-text-field type="number" v-model="descuento" suffix="%" label="Descuento" :rules="requerido"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
@@ -51,9 +56,10 @@ export default {
         vehiculosFiltrados: [],
         search: '',
         on: '',
+        caja: 'CERRADA',
         ultimoEnCarrito: null,
         colorElegido: '',
-        colores: ['Amarillo','Azul','Blanco','Gris','Negro','Rojo','Verde'],
+        colores: ['Amarillo', 'Azul', 'Blanco', 'Gris', 'Negro', 'Rojo', 'Verde'],
         descuento: 0,
         descontado: 0,
         attrs: '',
@@ -64,6 +70,9 @@ export default {
                 return pattern.test(value) || 'Requerido.'
             },
             value => parseFloat(value) < 100 || 'El máximo es 100%!'
+        ],
+        obligatorio: [
+            value => !!value || 'Requerido.',
         ],
         headers: [{
                 text: 'Marca',
@@ -90,7 +99,7 @@ export default {
                 text: 'Combustible',
                 value: 'Fuel',
             },
-            
+
             {
                 text: 'Transmision',
                 value: 'transmission',
@@ -106,13 +115,31 @@ export default {
                 sortable: false
             },
         ],
+        employee: null,
     }),
     created() {
-        this.iniciar();
+        let employee = localStorage.getItem("employee");
+        if (employee != null) {
+            this.employee = JSON.parse(employee);
+            this.iniciar();
+        }
     },
     methods: {
         iniciar() {
             this.getVehiculos();
+            this.getCaja();
+        },
+
+           getCaja() {
+            axios.get(urlAPI+'branchOffice').then(res=>{
+                if(res!=null){
+                    let branchOffice = res.data.branchOffice;
+                    branchOffice = branchOffice.find(b=>b._id == this.employee.BranchOffice);
+                    if(branchOffice!=null){
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
         },
 
         async getVehiculos() {
@@ -132,14 +159,14 @@ export default {
                             if (item != null) {
                                 carrito = item.carrito;
                             }
-                            if (item!=null && item.descuento!=null) {
-                                    descuento = item.descuento;
+                            if (item != null && item.descuento != null) {
+                                descuento = item.descuento;
                             }
-                            if (item!=null && item.Color!=null) {
-                                    color = item.Color;
+                            if (item != null && item.Color != null) {
+                                color = item.Color;
                             }
-                            if (item!=null && item.descontado!=null) {
-                                    descontado = item.descontado;
+                            if (item != null && item.descontado != null) {
+                                descontado = item.descontado;
                             }
                             vehiculoAGuardar = {
                                 "_id": vehiculos[i]._id,
@@ -195,17 +222,17 @@ export default {
         confirmarElemento() {
             if (this.$refs.form.validate()) {
                 let index = this.vehiculos.indexOf(this.ultimoEnCarrito);
-                if(index!=-1){
-                    
-                let item = JSON.parse(localStorage.getItem("vM" + String(index)));
-                if (item != null) {
-                    item.descuento = this.descuento;
-                    item.Color = this.colorElegido;
-                    let valorDescuento = (item.SuggestedPrice*this.descuento)/100;
-                    item.descontado =item.SuggestedPrice-valorDescuento;
-                    localStorage.setItem(String("vM" + String(index)), JSON.stringify(item));
+                if (index != -1) {
+
+                    let item = JSON.parse(localStorage.getItem("vM" + String(index)));
+                    if (item != null) {
+                        item.descuento = this.descuento;
+                        item.Color = this.colorElegido;
+                        let valorDescuento = (item.SuggestedPrice * this.descuento) / 100;
+                        item.descontado = item.SuggestedPrice - valorDescuento;
+                        localStorage.setItem(String("vM" + String(index)), JSON.stringify(item));
+                    }
                 }
-                }   
                 this.descuento = 0;
                 this.descontado = 0;
                 this.aplicarDescuento = false;
@@ -216,6 +243,9 @@ export default {
             this.aplicarDescuento = false
         },
 
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
+        },
     }
 }
 </script>
