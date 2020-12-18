@@ -18,6 +18,7 @@ helperSell.SellVehicle = async (sell) => {
         else{
             for(i = 0; i < sellDB.VehicleSold.length; i++){
                 if(sellDB.VehicleSold[i].VehicleStock){
+                    console.log('vehicle', sellDB.VehicleSold[i].VehicleStock);
                     VehicleSold.push(sellDB.VehicleSold[i].VehicleStock);
                 }
             }
@@ -27,8 +28,8 @@ helperSell.SellVehicle = async (sell) => {
     console.log(VehicleSold);
 
     for(i = 0; i < VehicleSold.length; i++){
-        if(VehicleSold[i].VehicleStock){
-            VehicleStock.findOne({_id: VehicleSold[i].VehicleStock}, async (err, vehicleDB) => {
+        if(VehicleSold[i]){
+            VehicleStock.findOne({_id: VehicleSold[i]}, async (err, vehicleDB) => {
                 if(err) {return console.log(err)}
                 else{
                     vehicleDB.Status = 'RESERVED';

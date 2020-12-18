@@ -4,6 +4,8 @@ const DeliveryVehicle = require('../models/deliveryVehicle');
 const PurchaseOrderV = require('../models/purchaseOrderV');
 const VehicleStock = require('../models/vehicleStock');
 const Service = require('../models/service');
+const BranchOffice = require('../models/branchOffice');
+const ProductStock = require('../models/productStock');
 
 ctrl = {};
 
@@ -153,43 +155,100 @@ ctrl.Expenses = async (Start, Finish) => {
 
 ctrl.Discriminated = async (Start, Finish) => {
 
-    var report = [];
     var dateStart = new Date(Start);
     var dateFinish = new Date(Finish);
     dateStart.setHours(00, 00, 00);
     dateFinish.setHours(23, 00, 00);
     console.log('funcioin');
-    var sell = await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}).sort('BranchOffice').populate('BranchOffice').exec();
+    var sell = await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}).populate('BranchOffice').populate('ProductStock').populate('VehicleSold').exec();
+    var branch = await BranchOffice.find().select('Name').exec();
     console.log(sell);
-    return report;
+    console.log(branch);
+    var reportService = [];
+    for(i= 0; i < branch.length; i++){
+        var moneyService = 0;
+        for(y= 0; y < sell.length; y++){
+            if(sell[y].BranchOffice._id.toString() === branch[i]._id.toString()){
+                moneyService += await ctrl.getMoneyFromService(sell[y].Service); 
+            }
+        }
+        var branchService = {id: branch[i]._id, name: branch[i].Name, Service: moneyService};
+        reportService.push(branchService);
+    }
+    console.log(reportService);
+
+    var reportProduct = [];
+    for(p = 0; p < reportService.length; p++){
+        var moneyProduct = 0;
+        for(t= 0; t < sell.length; t++){
+            if(sell[t].BranchOffice._id.toString() === reportService[p].id.toString()){
+                moneyProduct += await ctrl.getMoneyFromProduct(sell[t].ProductStock);
+            }
+        }
+        var branchProduct = {id: reportService[p].id, name: reportService[p].name, service: reportService[p].Service, product: moneyProduct};
+        reportProduct.push(branchProduct);
+    }
+    console.log(reportProduct);
+
+    var reportVehicle = [];
+    for(r = 0; r < reportProduct.length; r++){
+        var moneyVehicle = 0;
+        for(e = 0; e < sell.length; e++){
+            if(sell[e].BranchOffice._id.toString() === reportProduct[r].id.toString()){
+                moneyVehicle += await ctrl.getMoneyfromDelivery(sell[e].VehicleSold);
+                console.log(moneyVehicle);
+            }
+        }
+        var branchVehicle = {id: reportProduct[r].id, name: reportProduct[r].name, service: reportProduct[r].service, product: reportProduct[r].product, vehicle: moneyVehicle};
+        reportVehicle.push(branchVehicle);
+    }
+
+    return reportVehicle;
+
 }
 
 ctrl.getMoneyfromDelivery  = async (delivery) => {
     var totalMoney = 0;
-    if(delivery.VehicleStock){
-        await VehicleStock.findOne({_id: delivery.VehicleStock}, (err, vehicle)=> {
-            console.log('vehiculo', vehicle);
-            totalMoney += vehicle.Vehicle.SuggestedPrice;
-        }).populate('Vehicle');
-        console.log('vehicle stock', totalMoney);
-    }
+    for(q = 0; q < delivery.length; q++){
 
-    if(delivery.PurchaseOrderV){
-        await PurchaseOrderV.findOne({_id: delivery.PurchaseOrderV}, (err, order) => {
-            console.log('order', order);
-            totalMoney += order.Price;
-        })
+        console.log(delivery[q]);
+
+        if(delivery[q].VehicleStock){
+            await VehicleStock.findOne({_id: delivery[q].VehicleStock}, (err, vehicle)=> {
+                console.log('vehiculo', vehicle);
+                totalMoney += vehicle.Vehicle.SuggestedPrice;
+            }).populate('Vehicle');
+            console.log('vehicle stock', totalMoney);
+        }
+    
+        if(delivery[q].PurchaseOrderV){
+            await PurchaseOrderV.findOne({_id: delivery[q].PurchaseOrderV}, (err, order) => {
+                console.log('order', order);
+                totalMoney += order.Price;
+            })
+        }
     }
+    
     console.log(totalMoney);
     return totalMoney;
+}
+
+ctrl.getMoneyFromProduct =  async (products) => {
+    var money = 0;
+    for(k = 0; k < products.length; k++){
+        await ProductStock.findOne({_id: products[k]}, (err, productDB) => {
+            money += productDB.Product.SalePrice;
+        }).populate('Product');
+    }
+    return money;
 }
 
 ctrl.getMoneyFromService = async (service) => {
     var money = 0;
     for(j = 0; j < service.length; j++){
         await Service.findOne({_id: service[j]}, (err, serviceDB) => {
-            for(i = 0; i < serviceDB.Product.length; i++){
-                money += serviceDB.Product[i].SalePrice;
+            for(x = 0; x < serviceDB.Product.length; x++){
+                money += serviceDB.Product[x].SalePrice;
             }
             money += serviceDB.LaborPrice;
         }).populate('Product');

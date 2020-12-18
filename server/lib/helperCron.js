@@ -13,7 +13,6 @@ helper.EmailRemainder1 = async () => {
     var title = '';
     var body = '';
     
-    console.log(dateStartDay);
     await Remainder.find((err, remainder) => {
         console.log(remainder);
         hoursBefore = remainder[0].Interval.Days * 24 + remainder[0].Interval.Hours;
@@ -21,7 +20,6 @@ helper.EmailRemainder1 = async () => {
         body = remainder[0].Body;
     }).limit(2);
 
-    console.log(hoursBefore);
 
     await Reservation.find({AppointmentTime: {'$gte': dateStartDay}, Remainder1: false}, async (err, reserDB) => {
         if(err){console.log(err)}
@@ -55,7 +53,6 @@ helper.EmailRemainder2 = async () => {
     var title = '';
     var body = '';
     
-    console.log(dateStartDay);
     Remainder.find((err, remainder) => {
         hoursBefore = remainder[1].Interval.Days * 24 + remainder[1].Interval.Hours;
         title =  remainder[1].Title;
@@ -68,7 +65,6 @@ helper.EmailRemainder2 = async () => {
             for(i = 0; i < reserDB.length; i++){
                 //calcula la diferencia entre la fecha de hoy y la de la reserva, en horas.
                 var diffDay = Math.abs(reserDB[i].AppointmentTime - dateStartDay) / (60 * 60 * 1000);
-                console.log(diffDay);
                 if(diffDay < hoursBefore){
                     var services = await helperProduct.getServices(reserDB[i]);
                     var bodyReservation = helperProduct.CreateMail(reserDB[i], services);
