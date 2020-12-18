@@ -30,7 +30,7 @@
                                     <v-select v-model="filtros.Fuel" :items="fuelsList" label="Combustible"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-text-field v-model="filtros.Type" label="Tipo"></v-text-field>
+                                                    <v-select v-model="editedItem.Type" :items="typeList" label="Tipo"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.transmission" :items="transmissionsList" label="Transmision"></v-select>
@@ -119,7 +119,7 @@
                                                     <v-select v-model="editedItem.Category" :items="categoriesList" label="Categoria" :rules="requerido"></v-select>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="4">
-                                                    <v-text-field v-model="editedItem.Type" label="Tipo" :rules="requerido"></v-text-field>
+                                                    <v-select v-model="editedItem.Type" :items="typeList" label="Tipo" :rules="requerido"></v-select>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="4">
                                                     <v-select v-model="editedItem.Fuel" :items="fuelsList" label="Combustible" :rules="requerido"></v-select>
@@ -362,7 +362,8 @@ export default {
         nuevoUsado: ['NUEVO', 'USADO'],
         filtroNuevoUsado: ['TODOS', 'NUEVO', 'USADO'],
         fuelsList: ['Nafta', 'Diesel', 'Hibrido'],
-        categoriesList: ['Sedan 3prts', 'Sedan 5prts', 'SUV', 'HatchBack 3ptrs', 'HatchBack 5ptrs'],
+        categoriesList: ['Sedan 3ptas', 'Sedan 5ptas' , 'Sedan 4ptas', 'SUV', 'PickUp 2ptas', 'PickUp 4ptas'],
+        typeList: ['Furgon','Automovil','PickUp','SUV'],
         transmissionsList: ['Automatica', 'Manual'],
         brandsList: [],
         modelsList: [],
