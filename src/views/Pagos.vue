@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="Factura.BranchOffice!=''">
 
     <v-form v-if="aceptoCliente==false" ref="formCliente" v-model="valid" lazy-validation>
         <v-card>
@@ -15,7 +15,7 @@
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
-                    <v-btn block class="success" @click="comprobarFormCliente">
+                    <v-btn block class="success" @click="comprobarFormCliente();">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                     <v-btn block class="warning" to="/clientes">
@@ -26,10 +26,12 @@
         </v-card>
     </v-form>
 
-    <v-form v-if="aceptoCliente" ref="formPagar" v-model="validPagos" lazy-validation>
+    <v-form v-show="aceptoCliente" ref="formPagar" v-model="validPagos" lazy-validation>
         <v-card>
-
-            <v-form v-if="aceptoCliente" ref="formTarjeta" v-model="valid" lazy-validation>
+            <v-card-title class="text-center">
+                <h2 class="text-center" style="background-color:green;width:100%">Total a Abonar: ${{Factura.Total}}</h2>
+            </v-card-title>
+            <v-form v-show="aceptoCliente" ref="formTarjeta" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Tarjeta</h2>
@@ -52,7 +54,7 @@
                 </v-card>
             </v-form>
 
-            <v-form v-if="aceptoCliente" ref="formTransferencia" v-model="valid" lazy-validation>
+            <v-form v-show="aceptoCliente" ref="formTransferencia" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Transferencia</h2>
@@ -76,7 +78,7 @@
                 </v-card>
             </v-form>
 
-            <v-form v-if="aceptoCliente" ref="formEfectivo" v-model="valid" lazy-validation>
+            <v-form v-show="aceptoCliente" ref="formEfectivo" v-model="valid" lazy-validation>
                 <v-card>
                     <v-card-title>
                         <h2>Efectivo</h2>
@@ -94,10 +96,10 @@
                     </v-card-text>
                 </v-card>
             </v-form>
+            <!--/v-card-text-->
 
-            </v-card-text>
             <v-card-actions>
-                <v-btn class="success" block @click="mostrarDetalleFactura">
+                <v-btn class="success" block @click="mostrarMsjMontoNoCoincide">
                     <v-icon>mdi-check</v-icon>
                 </v-btn>
             </v-card-actions>
@@ -240,7 +242,7 @@
                     <v-btn class="info mb-2" @click="dialogDetalle=false;">
                         <v-icon>mdi-cancel</v-icon>
                     </v-btn>
-                    <v-btn class="info mb-2" @click="agregarPagos();dialogDetalle=false;">
+                    <v-btn class="info mb-2" @click="agregarFactura();dialogDetalle=false;">
                         <v-icon>mdi-check</v-icon>
                     </v-btn>
                 </v-flex>
@@ -264,6 +266,11 @@
     </v-dialog>
 
 </div>
+<div v-else>
+    <v-card>
+        <h1 class="text-center" width="100%" height="100%">Aún no pertenece a ninguna sucursal!</h1>
+    </v-card>
+</div>
 </template>
 
 <script>
@@ -274,8 +281,13 @@ export default {
         detalleFactura: false,
         dialogMensaje: false,
         tituloMensaje: "",
+        documentosNacionales: [],
+        documentosImportados: [],
+        products:[],
+        documentosUsados: [],
         pago: false,
         mensaje: "",
+        reserva: null,
         clientes: [],
         dialogDetalle: false,
         tarjetas: ["American Express", "Visa", "MasterCard"],
@@ -283,6 +295,7 @@ export default {
         monedas: [],
         cliente: null,
         aceptoCliente: false,
+        allDocuments: [],
         validPagos: true,
         valid: true,
         desTarjeta: true,
@@ -342,6 +355,7 @@ export default {
                 ExchangeRate: '',
             },
         },
+        totalAPagar: 0,
         Factura: {
             Client: "",
             Kind: "",
@@ -353,40 +367,136 @@ export default {
             NetoRepuestos: 0,
             NetoVStock: 0,
             NetoVEncargados: 0,
+            NetoReserva: 0,
             impuestoRepuestos: 0,
             impuestoVStock: 0,
+            impuestoReserva: 0,
             impuestoVEncargados: 0,
             TotalNeto: 0,
+            Total: 0,
             TotalImpuesto: 0,
         },
         vehiculosStock: [],
         vehiculosSold: [],
         encargados: [],
+        vMaestros: [],
+        vStock: [],
         repuestos: [],
         requerido: [
             value => !!value || 'Requerido.',
         ],
+        employee: null,
+        ordenes: [],
+        stockVehiculos: [],
     }),
     created() {
-        this.getClientes();
-        this.getMonedas();
-        this.getVehiculosStock();
-        this.getEncargados();
-        this.getRepuestos();
+
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        if (employee != null & employee.BranchOffice != null & employee.BranchOffice != '') {
+            this.Factura.BranchOffice = employee.BranchOffice;
+            this.employee = employee;
+            this.getReserva();
+            if (this.reserva != null) {
+                this.cliente = this.reserva.Client._id;
+                this.aceptoCliente = true;
+                this.buscarTipoFactura();
+
+            }
+            this.getClientes();
+            this.getMonedas();
+            this.getVehiculosStock();
+            this.getEncargados();
+            this.getRepuestos();
+            this.getProducts();
+            this.getDocumentos();
+        }
     },
     methods: {
+        getReserva() {
+            let reserva = localStorage.getItem("reserva");
+            if (reserva != null) {
+                this.reserva = JSON.parse(reserva);
+            }
+        },
         aceptarMensaje() {
             if (this.pago) {
                 this.dialogMensaje = false;
                 location.href = "/";
                 return;
-            } 
+            }
             this.dialogMensaje = false;
         },
         async getClientes() {
             await axios.get(urlAPI + 'client')
                 .then(res => {
+                    if(res.data.client!=null){
                     this.clientes = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                    }
+                });
+        },
+        
+        async getProducts() {
+            await axios.get(urlAPI + 'product')
+                .then(res => {
+                    if(res.data.product!=null){
+                    this.products = res.data.client.filter(aClient => aClient.Status === "ACTIVE")
+                    }
+                });
+        },
+
+        async getOrdenes(id, estimado) {
+            await axios.get(urlAPI + 'purchaseOrderV')
+                .then(res => {
+                    let ordenes = res.data.purchaseOrderV;
+                    if (ordenes != null) {
+                        let orden = ordenes.find(o => o._id == id);
+                        if (orden != null) {
+                            axios.post(urlAPI + "client/" + this.cliente + "/notifyEstimatedArrival", {
+                                "Date": estimado,
+                                "VehicleStock": null,
+                                "PurchaseOrderV": orden
+                            });
+                        }
+                    }
+                });
+        },
+
+        async getStockVehiculos(id, estimado) {
+            await axios.get(urlAPI + 'vehicleStock')
+                .then(res => {
+                    let stockVehiculos = res.data.vehicle;
+                    if (stockVehiculos != null) {
+                        let vehiculo = stockVehiculos.find(v => v._id == id);
+                        if (vehiculo != null) {
+                            axios.post(urlAPI + "client/" + this.cliente + "/notifyEstimatedArrival", {
+                                "Date": estimado,
+                                "VehicleStock": vehiculo,
+                                "PurchaseOrderV": null
+                            });
+                        }
+                    }
+
+                });
+        },
+        async getDocumentos() {
+            await axios.get(urlAPI + 'documentation')
+                .then(res => {
+                    let documentation = res.data.documentation.filter(d => d.Status == "ACTIVE");
+                    documentation.forEach(d => {
+                        let document = {
+                            "Documentation": d._id,
+                            "Completed": false
+                        };
+                        this.allDocuments.push(d);
+                        if (d.Origin == "IMPORTADO" || d.Origin == "GENERAL") {
+                            this.documentosImportados.push(document);
+                        } else if (d.Origin == "NACIONAL" || d.Origin == "GENERAL") {
+                            this.documentosNacionales.push(document);
+                        } else if (d.Origin == "USADO" || d.Origin == "GENERAL") {
+                            this.documentosUsados.push(document);
+                        }
+                    })
                 });
         },
 
@@ -405,7 +515,26 @@ export default {
         editarEfectivo() {
             this.desEfectivo = !this.desEfectivo;
         },
-        mostrarDetalleFactura() {
+
+        mostrarMsjMontoNoCoincide() {
+            this.totalAPagar = this.calcularTotalPagos();
+
+            if (this.totalAPagar != this.Factura.Total) {
+                this.tituloMensaje = "Monto ingresado inválido";
+                this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.Total;
+                this.dialogMensaje = true;
+                this.pago = false;
+                return;
+            }
+            this.detalleFactura = true;
+
+        },
+
+        getClienteAsociado() {
+            return this.reserva != null ? this.reserva.Client : this.clientes.find(c => c._id == this.cliente);
+        },
+
+        CalcularTipoFactura() {
             /*
             ['AUTÓNOMO','CONSUMIDOR FINAL','EXENTO', 'MONOTRIBUTISTA','RESPONSABLE INSCRIPTO'],
             */
@@ -413,42 +542,28 @@ export default {
             if (this.$refs.formTarjeta.validate() &
                 this.$refs.formTransferencia.validate() &
                 this.$refs.formEfectivo.validate()) {
-                let categoriaFiscal = "";
-                let cliente = this.clientes.filter(c => c._id == this.cliente);
+                this.buscarTipoFactura();
+            }
+        },
 
-                if (cliente != null) {
-                    categoriaFiscal = cliente[0].TaxCategory;
-                    if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
-                        this.Factura.Kind = 'A';
-                    } else if (categoriaFiscal == 'EXENTO') {
-                        this.Factura.Kind = 'E';
-                    } else {
-                        this.Factura.Kind = 'B';
-                    }
-                    let totalAPagar = this.calcularTotalPagos();
-                    this.generarFactura();
-                    if (this.Factura.Kind == 'A' & totalAPagar != this.Factura.TotalImpuesto) {
-                        this.tituloMensaje = "Monto ingresado inválido";
-                        this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.TotalImpuesto;
-                        this.dialogMensaje = true;
-                        this.pago = false;
-                        return;
-                    } else {
-                        if (totalAPagar != this.Factura.TotalNeto) {
-                            this.tituloMensaje = "Monto ingresado inválido";
-                            this.mensaje = "El total a pagar no coincide con los valores ingresados, debe abonar: " + this.Factura.TotalNeto;
-                            this.dialogMensaje = true;
-                            this.pago = false;
-                            return;
-                        }
-                    }
-                    this.detalleFactura = true;
+        buscarTipoFactura() {
+            let cliente = this.getClienteAsociado();
+            if (cliente != null) {
+                let categoriaFiscal = cliente.TaxCategory;
+                if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
+                    this.Factura.Kind = 'A';
+                } else if (categoriaFiscal == 'EXENTO') {
+                    this.Factura.Kind = 'E';
+                } else {
+                    this.Factura.Kind = 'B';
                 }
+                this.calcularTotal();
             }
         },
         comprobarFormCliente() {
             if (this.$refs.formCliente.validate()) {
                 this.aceptoCliente = true;
+                this.CalcularTipoFactura();
             }
         },
 
@@ -515,12 +630,6 @@ export default {
             }
         },
 
-        //Sumar todos los repuestos y vehículos
-        generarFactura() {
-            this.reiniciarFactura();
-            this.calcularTotal();
-        },
-
         agregarFactura() {
             //FALTA BRANCHOFFICE
             axios.post(urlAPI + 'factura/add', {
@@ -530,11 +639,12 @@ export default {
                     "Status": this.Factura.Status,
                     "Elements": this.Factura.Elements,
                     "PrecioNeto": this.Factura.TotalNeto,
-                    "Impuesto": this.Factura.Impuesto
+                    "Impuesto": this.Factura.Impuesto,
+                    "BranchOffice": this.Factura.BranchOffice
                 }
             }).then(res => {
                 if (res != null) {
-                    this.agregarPagos();
+                    this.agregarPagos(res.data.factura._id);
                 }
             });
         },
@@ -588,6 +698,7 @@ export default {
         },
 
         agregarMedios() {
+            this.medios = [];
             let tarjeta = this.getTarjeta();
             let transferencia = this.getTransferencia();
             let efectivo = this.getEfectivo();
@@ -602,7 +713,7 @@ export default {
             };
         },
 
-        async agregarPagos() {
+        async agregarPagos(idFactura) {
             let repuestos = [];
             this.repuestos.forEach(r => {
                 repuestos.push(r._id);
@@ -613,54 +724,174 @@ export default {
 
             this.vehiculosStock.forEach(v => {
                 this.vehiculosSold.push({
-                    "VehicleStock": v._id,
+                    "VehicleStock": v,
                     "PurchaseOrderV": null
                 });
             });
-
-            //FALTA AGREGAR SUCURSAL
-            await this.agregarEncargados().then(res => {
-                if (res != null) {
-                    let sell = this.getSell(repuestos);
-                    return;
-                }
-            });
-
-            let sell = setTimeout(this.getSell(repuestos), 3000);
-
+            if (this.encargados.length > 0) {
+                //FALTA AGREGAR SUCURSAL
+                this.agregarEncargados(repuestos, idFactura);
+            } else {
+                this.guardar(repuestos, idFactura);
+            }
         },
-
-        getSell(repuestos) {
-            let sell = {
-                "sell": {
-                    "PriceFreeTax": this.Factura.TotalNeto,
-                    "Tax": this.Factura.Impuesto,
-                    "Client": this.cliente,
-                    "ProductStock": repuestos,
-                    "VehicleSold": this.vehiculosSold,
-                    "PaymentType": this.medios
+        getJSONDelivery(vehicle, stock) {
+            let documentation;
+            if (vehicle.Kind == "USADO") {
+                documentation = this.documentosUsados;
+            } else if (vehicle.Vehicle.origin == this.employee.Address.Country) {
+                documentation = this.documentosNacionales;
+            } else {
+                documentation = this.documentosImportados;
+            }
+            documentation = documentation.length == 0 ? null : documentation;
+            return {
+                "deliveryVehicle": {
+                    "Documentation": documentation,
+                    "Employee": this.employee._id,
+                    "Date": new Date(),
+                    "Status": "ACTIVE",
+                    "VehicleStock": stock ? vehicle._id : null,
+                    "PurchaseOrderV": stock == false ? vehicle._id : null
                 }
             }
-            this.guardar(sell);
-        },
-        guardar(sell) {
-            axios.post(urlAPI + 'sellVehicle/add', sell).then(res => {
-                if (res != null) {
-                    this.tituloMensaje = "Operación exitosa";
-                    this.mensaje = "Compra realizada con éxito";
-                    this.dialogMensaje = true;
-                    this.pago = true;
-                    this.reiniciarFactura();
-                }
-            });
         },
 
-        async agregarEncargados() {
+        async guardar(repuestos, idFactura) {
+            this.agregarMedios();
+            let cliente = this.getClienteAsociado();
+            cliente = cliente.length > 0 ? cliente.CUIT : "";
+            let employee = this.employee != null ? this.employee._id : null;
+            var idsVehiculos = [];
+
+            let cont = 0;
+            if (this.vehiculosSold.length > 0) {
+                for (let i = 0; i < this.vehiculosSold.length; i++) {
+                    if (this.vehiculosSold[i].VehicleStock != null) {
+                        await axios.post(urlAPI + 'deliveryVehicle/add', this.getJSONDelivery(this.vehiculosSold[i].VehicleStock, true))
+                            .then(res => {
+                                if (res != null) {
+                                    idsVehiculos[cont] = res.data.deliveryVehicle._id;
+                                    cont++;
+                                    let estimado = this.calcularEstimado(res.data.deliveryVehicle);
+                                    this.getStockVehiculos(this.vehiculosSold[i].VehicleStock._id, estimado);
+                                }
+                            });
+                    } else if (this.vehiculosSold[i].PurchaseOrderV != null) {
+                        await axios.post(urlAPI + 'deliveryVehicle/add', this.getJSONDelivery(this.vehiculosSold[i].PurchaseOrderV, false))
+                            .then(res => {
+                                if (res != null) {
+                                    idsVehiculos[cont] = res.data.deliveryVehicle._id;
+                                    cont++;
+                                    let estimado = this.calcularEstimado(res.data.deliveryVehicle);
+                                    this.getOrdenes(this.vehiculosSold[i].PurchaseOrderV._id, estimado);
+
+                                }
+                            });
+                    }
+                    if (cont == this.vehiculosSold.length) {
+                        this.agregarSell(repuestos, idsVehiculos, idFactura, employee, cliente);
+                    }
+                }
+            } else {
+                this.agregarSell(repuestos, idsVehiculos, idFactura, employee, cliente);
+            }
+        },
+        agregarSell(repuestos, idsVehiculos, idFactura, employee, cliente) {
+            let servicios = [];
+            if (this.reserva != null) {
+                repuestos = null;
+                idsVehiculos = null;
+                servicios = this.reserva.Service;
+            } else {
+                servicios = null;
+            }
+
+            let sell = {
+                "sell": {
+                    "Client": this.cliente,
+                    "ProductStock": repuestos,
+                    "VehicleSold": idsVehiculos,
+                    "PaymentType": this.medios,
+                    "Factura": idFactura,
+                    "Date": new Date(),
+                    "Employee": employee,
+                    "CUIT": cliente,
+                    "Service": servicios,
+                    "BranchOffice": this.employee.BranchOffice
+                }
+            };
+
+            if (this.reserva == null) {
+                this.venderVehiculo(sell);
+            } else {
+                this.venderServicio(sell);
+            }
+        },
+
+        venderVehiculo(sell) {
+            axios.post(urlAPI + 'sellVehicle/add', sell)
+                .then(
+                    res => {
+                        if (res != null)
+                            this.resetItems();
+                    }
+                );
+        },
+        venderServicio(sell) {
+            axios.post(urlAPI + 'sell/reservation', sell)
+                .then(
+                    res => {
+                        if (res != null)
+                            axios.delete(urlAPI + 'reservation/' + this.reserva._id + '/delete').then(res => {
+                                if (res != null) {
+                                    this.resetItems();
+                                }
+                            });
+                    });
+        },
+        resetItems() {
+            this.tituloMensaje = "Operación exitosa";
+            this.mensaje = "Compra realizada con éxito";
+            this.dialogMensaje = true;
+            this.pago = true;
+            this.descuento = 0;
+            for (let i = 0; i < this.encargados.length; i++) {
+                let item = JSON.parse(localStorage.getItem("vM" + i));
+                if (item != null) {
+                    item.carrito = false;
+                    item.descuento = 0;
+                    item.descontado = 0;
+                    localStorage.setItem(String("vM" + i), JSON.stringify(item));
+                }
+            }
+            for (let i = 0; i < this.vehiculosStock.length; i++) {
+                let item = JSON.parse(localStorage.getItem("v" + i));
+                if (item != null) {
+                    item.carrito = false;
+                    item.descuento = 0;
+                    item.descontado = 0;
+                    localStorage.setItem(String("v" + i), JSON.stringify(item));
+                }
+            }
+            for (let i = 0; i < this.repuestos.length; i++) {
+                let item = JSON.parse(localStorage.getItem("r" + i));
+                if (item != null) {
+                    item.carrito = false;
+                    item.descuento = 0;
+                    item.descontado = 0;
+                    localStorage.setItem(String("r" + i), JSON.stringify(item));
+                }
+            }
+            localStorage.removeItem("reserva");
+        },
+        async agregarEncargados(repuestos, idFactura) {
             for (let i = 0; i < this.encargados.length; i++) {
                 await axios.post(urlAPI + 'purchaseOrderV/add', {
                     "purchaseOrderV": {
                         "OrderDate": new Date(),
                         "Price": this.encargados[i].SuggestedPrice,
+                        "Venta": true,
                         "Vehicle": [{
                             "ChasisNum": "0",
                             "EngineNum": "0",
@@ -670,22 +901,22 @@ export default {
                         }],
                         "Dealer": this.encargados[i].Dealer,
                         "BranchOffice": this.encargados[i].BranchOffice,
-                        "Status": "ACTIVE"
+                        "Status": "ACTIVE",
+                        "Type": "RECIBIDA",
+                        "Employee": this.employee._id
                     }
                 }).then(res => {
                     if (res != null) {
                         this.vehiculosSold.push({
-                            "PurchaseOrderV": res.data.purchaseOrderV._id,
+                            "PurchaseOrderV": res.data.purchaseOrderV,
                             "VehicleStock": null
                         });
                     }
-                    if (i == this.encargados[i].length - 1) {
-                        return res.data;
+                    if (i == this.encargados.length - 1) {
+                        this.guardar(repuestos, idFactura);
                     }
                 });
-
             }
-
         },
 
         getVehiculosStock() {
@@ -736,7 +967,47 @@ export default {
             }
         },
 
-        calcularTotal() {
+            calcularTotal() {
+            if (this.reserva != null) {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                this.reserva.Service.forEach(r => {
+                    precio += r.LaborPrice;
+                    let nombre = "Servicio: " + r.Description;
+                    //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                    //IMPUESTOS: PRECIO NETO + 21% 
+                    if (this.Factura.Kind == "A") {
+                        precioNeto = precio;
+                        impuesto = precio + (21 * precio / 100);
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.impuestoReserva += impuesto;
+                        this.Factura.TotalNeto += precioNeto;
+                        this.Factura.TotalImpuesto += impuesto;
+                    }
+                    //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                    else if (this.Factura.Kind == "B") {
+                        precioNeto = precio + (21 * precio / 100);
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.TotalNeto += precioNeto;
+                    }
+                    //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                    else {
+                        precioNeto = precio;
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.TotalNeto += precioNeto;
+                    }
+                    this.Factura.Elements.push({
+                        "Name": nombre,
+                        "PrecioNeto": precioNeto,
+                        "Impuesto": impuesto,
+                        "Descuento": descuento,
+                        "PrecioConDescuento": descontado
+                    })
+                })
+            }
             this.vehiculosStock.forEach(v => {
                 let precioNeto = 0.0;
                 let impuesto = 0.0;
@@ -765,21 +1036,18 @@ export default {
                     this.Factura.TotalNeto += precioNeto;
                     this.Factura.TotalImpuesto += impuesto;
                 }
-
                 //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
                 else if (this.Factura.Kind == "B") {
                     precioNeto = precio + (21 * precio / 100);
                     this.Factura.NetoVStock += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
-
                 //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
                 else {
                     precioNeto = precio;
                     this.Factura.NetoVStock += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
-
                 this.Factura.Elements.push({
                     "Name": nombre,
                     "PrecioNeto": precioNeto,
@@ -788,7 +1056,6 @@ export default {
                     "PrecioConDescuento": descontado
                 })
             });
-
             this.repuestos.forEach(r => {
                 let precioNeto = 0.0;
                 let impuesto = 0.0;
@@ -816,21 +1083,18 @@ export default {
                     this.Factura.TotalNeto += precioNeto;
                     this.Factura.TotalImpuesto += impuesto;
                 }
-
                 //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
                 else if (this.Factura.Kind == "B") {
                     precioNeto = precio + (21 * precio / 100);
                     this.Factura.NetoRepuestos += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
-
                 //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
                 else {
                     precioNeto = precio;
                     this.Factura.NetoRepuestos += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
-
                 this.Factura.Elements.push({
                     "Name": nombre,
                     "PrecioNeto": precioNeto,
@@ -839,7 +1103,6 @@ export default {
                     "PrecioConDescuento": descontado
                 })
             });
-
             this.encargados.forEach(r => {
                 let precioNeto = 0.0;
                 let impuesto = 0.0;
@@ -867,21 +1130,18 @@ export default {
                     this.Factura.TotalNeto += precioNeto;
                     this.Factura.TotalImpuesto += impuesto;
                 }
-
                 //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
                 else if (this.Factura.Kind == "B") {
                     precioNeto = precio + (21 * precio / 100);
                     this.Factura.NetoVEncargados += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
-
                 //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
                 else {
                     precioNeto = precio;
                     this.Factura.NetoVEncargados += precioNeto;
                     this.Factura.TotalNeto += precioNeto;
                 }
-
                 this.Factura.Elements.push({
                     "Name": nombre,
                     "PrecioNeto": precioNeto,
@@ -890,11 +1150,22 @@ export default {
                     "PrecioConDescuento": descontado
                 })
             });
-
             if (this.Factura.Kind == 'A') {
-                this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
-                    this.Factura.impuestoVEncargados +
-                    this.Factura.impuestoVStock;
+                if (this.Factura.impuestoRepuestos != null) {
+                    this.Factura.TotalImpuesto += this.Factura.impuestoRepuestos;
+                }
+                if (this.Factura.impuestoVEncargados != null) {
+                    this.Factura.TotalImpuesto += this.Factura.impuestoVEncargados;
+                }
+                if (this.Factura.impuestoVStock != null) {
+                    this.Factura.TotalImpuesto += this.Factura.impuestoVStock;
+                }
+                if (this.Factura.impuestoReserva != null) {
+                    this.Factura.TotalImpuesto += this.Factura.impuestoReserva;
+                }
+                this.Factura.Total = this.Factura.TotalImpuesto;
+            } else {
+                this.Factura.Total = this.Factura.TotalNeto;
             }
         },
 
@@ -910,7 +1181,40 @@ export default {
             this.Factura.impuestoVStock = 0;
             this.Factura.TotalNeto = 0;
             this.Factura.TotalImpuesto = 0;
-        }
+        },
+
+        vender() {
+            this.mostrarMsjMontoNoCoincide();
+        },
+
+        calcularEstimado(delivery) {
+            let documentos = this.getDocumentosObligatorios(delivery.Documentation);
+            let max = 0;
+            if (documentos.length > 0) {
+                for (let i = 0; i < documentos.length; i++) {
+                    if (documentos[i].EstimatedTime > max) {
+                        max = documentos[i].EstimatedTime;
+                    }
+                }
+
+                return String(max);
+            }
+            return String(max);
+        },
+
+        getDocumentosObligatorios(documentos) {
+            let ret = [];
+            if (documentos != null) {
+                documentos.forEach(d => {
+                    let doc = this.allDocuments.find(document => document.id == d.DocumentationID);
+                    if (doc != null) {
+                        ret.push(doc);
+                    }
+                })
+
+            }
+            return ret;
+        },
     }
 };
 </script>

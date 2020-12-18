@@ -5,18 +5,22 @@
             {{ format(item.BatchNum) }}
         </template>
         <template v-slot:item.Expiration="{ item }">
-            {{ format(item.Expiration) }}
+            {{ formatDate(item.Expiration) }}
+        </template>
+        <template v-slot:item.Product.SalePrice="{ item }">
+            {{ formatPrice(item.Product.SalePrice) }}
         </template>
         <template v-slot:[`item.actions`]="{ item }">
-
-            <v-btn v-if="item.carrito == false" fab small color="success">
-                <v-icon class="text-center" @click="agregarAlCarrito(item)">
-                    mdi-cart-plus</v-icon>
-            </v-btn>
-            <v-btn v-else fab small color="error">
-                <v-icon class="text-center" @click="eliminarDelCarrito(item)">
-                    mdi-cart-remove</v-icon>
-            </v-btn>
+            <div v-if="caja=='ABIERTA'">
+                <v-btn v-if="item.carrito == false" fab small color="success"  @click="agregarAlCarrito(item)">
+                    <v-icon class="text-center">
+                        mdi-cart-plus</v-icon>
+                </v-btn>
+                <v-btn v-else fab small color="error" @click="eliminarDelCarrito(item)">
+                    <v-icon class="text-center" >
+                        mdi-cart-remove</v-icon>
+                </v-btn>
+            </div>
         </template>
     </v-data-table>
     <v-dialog v-model="dialogCantidad" persistent max-width="600">
@@ -70,6 +74,7 @@ export default {
         selected: [],
         descuento: 0,
         descontado: 0,
+        caja: 'CERRADA',
         singleSelect: true,
         repuestos: [],
         repuestosFiltrados: [],
@@ -79,6 +84,7 @@ export default {
         ultimoEnCarrito: null,
         attrs: '',
         max: 0,
+        employee: null,
         cantidad: 0,
         dialogCantidad: false,
         headers: [{
@@ -121,7 +127,7 @@ export default {
                 sortable: false
             },
         ],
-   requerido: [
+        requerido: [
             value => {
                 const pattern = /^[0-9]{1,}([,]{1}[0-9]{1,}){0,1}([.]{1}[0-9]{1,}){0,1}$/
                 return pattern.test(value) || 'Requerido.'
@@ -129,10 +135,30 @@ export default {
             value => parseFloat(value) < 100 || 'El máximo es 100%!'
         ],
     }),
+
     created() {
-        this.iniciar();
+        let employee = localStorage.getItem("employee");
+        if (employee != null) {
+            this.employee = JSON.parse(employee);
+            this.iniciar();
+        }
+
     },
     methods: {
+
+        getCaja() {
+            axios.get(urlAPI + 'branchOffice').then(res => {
+                if (res != null) {
+                    let branchOffice = res.data.branchOffice;
+                    
+                    branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
+                    if (branchOffice != null) {
+                        this.caja = branchOffice.Caja;
+                    }
+                }
+            })
+        },
+
         cancelarCantidad() {
             this.eliminarDelCarrito(this.ultimoEnCarrito);
             this.dialogCantidad = false;
@@ -145,6 +171,7 @@ export default {
         },
         iniciar() {
             this.getRepuestos();
+            this.getCaja();
         },
 
         async getRepuestos() {
@@ -154,6 +181,10 @@ export default {
             await axios.get(urlAPI + "productStock")
                 .then(res => {
                     repuestos = res.data.productStock.filter(v => v.Status === "ACTIVE");
+                    if (this.employee != null & this.employee.BranchOffice != null) {
+                    repuestos = repuestos.filter(r => r.BranchOffice!=null && r.BranchOffice._id == this.employee.BranchOffice);
+                    }
+
                     if (repuestos != null) {
                         for (let i = 0; i < repuestos.length; i++) {
                             let item = JSON.parse(localStorage.getItem(String("r" + i)));
@@ -252,6 +283,17 @@ export default {
 
         format(value) {
             return value == null ? "S/D" : String(value);
+        },
+        formatDate(value) {
+            if (value == null) {
+                return "N/A";
+            }
+            value = String(value);
+            value = value.slice(0, 10);
+            return value;
+        },
+        formatPrice(value) {
+            return value == null ? "$0" : "$" + value;
         },
     },
 

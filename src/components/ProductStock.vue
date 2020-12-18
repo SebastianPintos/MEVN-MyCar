@@ -3,7 +3,7 @@
     <div>
         <v-data-table v-model="selected" :single-select="true" show-select :headers="headers" :items="productsStock" :search="search" item-key="_id" sort-by="Brand" class="elevation-1">
             <template v-slot:item.Expiration="{ item }">
-                {{ formatDate(item.Expiration,'N/A')}}
+                {{ formatDate(item.Expiration)}}
             </template>
             <template v-slot:item.Price="{ item }">
                 {{ formatPrice(item.Price) }}
@@ -16,14 +16,14 @@
 
                     <div v-if="validateUsers('Administrativo')">
                         <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on" @click="editar">
-                        <v-icon>mdi-pencil</v-icon>
+                            <v-icon>mdi-pencil</v-icon>
                         </v-btn>
 
                         <v-btn color="error" dark class="mb-2" v-bind="attrs" v-on="on" @click="corroborarSeleccionado">
                             <v-icon>mdi-delete</v-icon>
                         </v-btn>
 
-                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Repuesto'">
+                        <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on" @click="dialogNuevo=true; nuevo=true; titulo='Nuevo Repuesto';">
                             <v-icon>mdi-plus</v-icon>
                         </v-btn>
                     </div>
@@ -41,17 +41,7 @@
                 </v-btn>
             </template>
         </v-snackbar>
-        <!--  BatchNum: {type: String},
-  Reserved: {type: Number},
-  Available: {type: Number},
-  OutOfService: {type: Number},
-  Expiration: {type: Date},
-  Price: {type: Number, required: true},
-  Product: {type: Schema.Types.ObjectId,required: true,ref: 'Product'},
-  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
-  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
--->
-        <v-dialog v-model="dialogNuevo" max-width="600px">
+        <v-dialog v-model="dialogNuevo" max-width="600px" persistent>
             <v-card>
                 <v-card-title>{{titulo}}</v-card-title>
                 <v-form ref="form" v-model="valid" lazy-validation>
@@ -84,7 +74,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-flex class="text-right">
-                            <v-btn class="mb-2 info" @click="editedItem=defaultItem;dialogNuevo=false">
+                            <v-btn class="mb-2 info" @click="reset">
                                 <v-icon>mdi-cancel</v-icon>
                             </v-btn>
                             <v-btn class="mb-2 info" @click="guardar">
@@ -155,8 +145,8 @@ export default {
             OutOfService: 0,
             Expiration: null,
             Price: 0,
-            Product: "",
-            BranchOffice: ""
+            Product: null,
+            BranchOffice: null
         },
         reglaNumero: [
             value => {
@@ -201,11 +191,15 @@ export default {
         editedIndex: -1,
         attrs: '',
         on: '',
+        branchOffice: "",
 
     }),
 
     created() {
-        this.getRepuestosStock();
+        let employee = localStorage.getItem("employee");
+        employee = JSON.parse(employee);
+        this.branchOffice = employee != null & employee.BranchOffice != null ? employee.BranchOffice : "";
+        this.getRepuestosStock(this.branchOffice);
         this.getRepuestos();
         this.getSucursales();
     },
@@ -214,9 +208,9 @@ export default {
         save() {
             this.$refs.menu.save(this.editedItem.Expiration)
         },
-        validateUsers(...authorizedUsers){
-            if(localStorage.getItem('userType') != null){
-                return (authorizedUsers.includes(localStorage.getItem('userType')))? true: false
+        validateUsers(...authorizedUsers) {
+            if (localStorage.getItem('userType') != null) {
+                return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
             }
             return false;
         },
@@ -231,16 +225,15 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
-        async getRepuestosStock() {
+        async getRepuestosStock(branchOffice) {
             await axios.get(urlAPI + 'productStock')
                 .then(res => {
                     let productsStock = res.data.productStock;
                     if (productsStock != null) {
-                        productsStock.forEach(r => {
-                            if (r.Status == "ACTIVE") {
-                                this.productsStock.push(r);
-                            }
-                        })
+                        this.productsStock = productsStock.filter(r => r.Status == "ACTIVE");
+                        if (branchOffice != "") {
+                            this.productsStock = this.productsStock.filter(r => r.BranchOffice._id == branchOffice);
+                        }
                     }
                 })
         },
@@ -289,25 +282,21 @@ export default {
                 if (this.nuevo == true) {
                     axios.post(urlAPI + "productStock/add", auxRepuesto).then(res => {
                         if (res != null) {
-                            this.editedItem = this.defaultItem;
                             this.productsStock = [];
-                            this.getRepuestosStock();
+                            this.getRepuestosStock(this.branchOffice);
+                            this.reset();
                         }
                     })
-                    this.nuevo = false;
-                    this.dialogNuevo = false;
 
                 } else {
                     axios.post(urlAPI + "productStock/" + this.selected[0]._id + "/update", auxRepuesto).then(res => {
                         if (res != null) {
                             this.productsStock = [];
-                            this.editedItem = this.defaultItem;
-                            this.getRepuestosStock();
+                            this.getRepuestosStock(this.branchOffice);
+                            this.reset();
                         }
                     })
-                    this.nuevo = false;
                 }
-                this.dialogNuevo = false;
             }
         },
 
@@ -315,13 +304,14 @@ export default {
             axios.delete(urlAPI + "productStock/" + this.selected[0]._id + "/delete").then(res => {
                 if (res != null) {
                     this.productsStock.splice(this.productsStock.indexOf(this.selected[0]), 1)
-                    this.selected=[];
-                    this.dialogDelete=false;
+                    this.selected = [];
+                    this.dialogDelete = false;
+                    this.reset();
                 }
             })
 
         },
-        corroborarSeleccionado(){
+        corroborarSeleccionado() {
             if (this.selected.length != 1) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
                 this.snackbar = true;
@@ -349,6 +339,15 @@ export default {
         validate() {
             return this.$refs.form.validate();
         },
+
+        reset() {
+            if (this.dialogNuevo) {
+                this.$refs.form.resetValidation();
+            }
+            this.editedItem = Object.assign({}, this.defaultItem)
+            this.dialogNuevo = false;
+            this.nuevo = false;
+        }
     },
 
 };

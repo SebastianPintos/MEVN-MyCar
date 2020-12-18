@@ -93,6 +93,7 @@ export default {
         .then(data => {
           localStorage.setItem("userType",data.data.Hierarchy)
           localStorage.setItem("userName",data.data.Name + " " + data.data.LastName)
+          localStorage.setItem("employee",JSON.stringify(data.data))
           })
     }
   }
@@ -103,9 +104,5 @@ export default {
 .md-2 {
   width: 40%;
   padding-left: 10%;
-}
-h2 {
-  text-align: center;
-  color: white;
 }
 </style>
