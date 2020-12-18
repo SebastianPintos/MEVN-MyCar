@@ -842,12 +842,13 @@ export default {
             this.mensaje = "Compra realizada con éxito";
             this.dialogMensaje = true;
             this.pago = true;
+            this.descuento = 0;
             for (let i = 0; i < this.encargados.length; i++) {
                 let item = JSON.parse(localStorage.getItem("vM" + i));
                 if (item != null) {
                     item.carrito = false;
-                    this.descuento = 0;
                     item.descuento = 0;
+                    item.descontado = 0;
                     localStorage.setItem(String("vM" + i), JSON.stringify(item));
                 }
             }
@@ -855,8 +856,8 @@ export default {
                 let item = JSON.parse(localStorage.getItem("v" + i));
                 if (item != null) {
                     item.carrito = false;
-                    this.descuento = 0;
                     item.descuento = 0;
+                    item.descontado = 0;
                     localStorage.setItem(String("v" + i), JSON.stringify(item));
                 }
             }
@@ -864,8 +865,8 @@ export default {
                 let item = JSON.parse(localStorage.getItem("r" + i));
                 if (item != null) {
                     item.carrito = false;
-                    this.descuento = 0;
                     item.descuento = 0;
+                    item.descontado = 0;
                     localStorage.setItem(String("r" + i), JSON.stringify(item));
                 }
             }

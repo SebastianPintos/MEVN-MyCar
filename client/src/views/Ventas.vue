@@ -57,14 +57,16 @@
                             </v-row>
 
                             <v-row>
+                            <div v-if="vehiculo.Domain!=null & vehiculo.Domain!=''">
                                 <v-col cols="12" md="6">
                                     <strong>
-                                        <v-text-field v-if="vehiculo.Domain!=null" readonly value="Dominio:"></v-text-field>
+                                        <v-text-field readonly value="Dominio:"></v-text-field>
                                     </strong>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field readonly :value="vehiculo.Domain"></v-text-field>
                                 </v-col>
+                            </div>
                             </v-row>
 
                             <v-row>
