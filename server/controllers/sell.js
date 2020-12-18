@@ -57,7 +57,7 @@ ctrl.sellVehicle = async (req, res) => {
     sell.save(async (err, sellDB) => {
         if(err) {console.log(err)}
         else{ 
-            console.log(sellDB);
+            console.log( 'sell', sellDB);
             await helperSell.SellVehicle(sellDB);
             await helperSell.SellProduct(sellDB);
             res.status(200).json(sellDB);
