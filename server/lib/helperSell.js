@@ -11,9 +11,12 @@ const Service = require('../models/service');
 
 
 helperSell.SellVehicle = async (sell) => {
-
+    
     var VehicleSold = [];
     await Sell.findOne({_id: sell._id}, (err, sellDB) => {
+        if(sellDB.VehicleSold==null){
+            return;
+        }
         if(err) {console.log(err)}
         else{
             for(i = 0; i < sellDB.VehicleSold.length; i++){
@@ -47,12 +50,14 @@ helperSell.SellVehicle = async (sell) => {
 helperSell.SellProduct =  async (sell) => {
     
     var productSorted = [];
+    if(sell.ProductStock!=null){
     for (i = 0; i < sell.ProductStock.length; i++) {
         if (productSorted.indexOf(sell.ProductStock[i].toString()) === -1) {
             console.log('sorteador de productos' + productSorted);
             productSorted.push(sell.ProductStock[i].toString());
         }
     }
+   }
     console.log(productSorted);
 
     var count = 0;

@@ -46,6 +46,13 @@
                     <v-list-item-title>Inicio</v-list-item-title>
                 </v-list-item>
 
+                <v-list-item :to="'/reportes'">
+                    <v-list-item-icon>
+                        <v-icon>mdi-chart-line</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>Reportes</v-list-item-title>
+                </v-list-item>
+
                 <v-list-item v-if="validateUsers('Vendedor','Supervisor')" :to="'/clientes'">
                     <v-list-item-icon>
                         <v-icon>mdi-account</v-icon>

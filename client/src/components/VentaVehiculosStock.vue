@@ -131,7 +131,7 @@ export default {
             await axios.get(urlAPI + "vehicleStock")
                 .then(res => {
                     vehiculos = res.data.vehicle.filter(v => v.Status === "AVAILABLE");
-                    if (this.employee != null & this.employee.BranchOffice != null) {
+                   if (this.employee != null & this.employee.BranchOffice != null) {
                         vehiculos = vehiculos.filter(v => v.BranchOffice == this.employee.BranchOffice);
                     }
                     if (vehiculos != null) {

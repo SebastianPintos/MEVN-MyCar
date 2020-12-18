@@ -54,11 +54,11 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
-                                                    <v-select v-model="DealerProvince" :items="provincias" label="Provincia" @change=" prov => localidades = getLocalidades(prov)" :rules="requerido"></v-select>
+                                                    <v-select v-model="DealerProvince" :items="provincias" label="Provincia" item-text="Name" item-value="Name" @change=" prov => localidades = getLocalidades(prov)" :rules="requerido"></v-select>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
-                                                    <v-select v-model="DealerCity" :items="localidades" label="Ciudad" :rules="requerido"></v-select>
+                                                    <v-select v-model="DealerCity" :items="localidades" label="Ciudad" item-text="Name" item-value="Name" :rules="requerido"></v-select>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="5" md="6">
@@ -241,6 +241,7 @@ export default {
         formTitle: '',
         provincias: [],
         localidades: [],
+        allLocalidades: [],
     }),
 
     watch: {
@@ -260,7 +261,9 @@ export default {
         iniciar() {
             this.getDealers();
             this.getProvincias();
+            this.getAllLocalidades();
         },
+
         validateUsers(...authorizedUsers) {
             if (localStorage.getItem('userType') != null) {
                 return (authorizedUsers.includes(localStorage.getItem('userType'))) ? true : false
@@ -274,26 +277,38 @@ export default {
                     this.dealers = res.data.dealer.filter(aDealer => aDealer.Status == "ACTIVE" & aDealer.Kind == this.tipo)
                 });
         },
-
-        async getProvincias() {
-            await axios.get('https://apis.datos.gob.ar/georef/api/provincias?campos=nombre')
+        
+        getProvincias() {
+            axios.get(urlAPI + "provincias")
                 .then(res => {
                     this.provincias = res.data.provincias;
-                    this.provincias.forEach(prov =>
-                        this.provincias.push(prov.nombre));
                     this.provincias.sort();
                 });
         },
 
-        getLocalidades(nombre) {
-            axios.get('https://apis.datos.gob.ar/georef/api/localidades?provincia=' + nombre + '&campos=nombre&max=5000')
+        getAllLocalidades() {
+            axios.get(urlAPI + "localidades")
                 .then(res => {
-                    this.localidades = res.data.localidades;
-                    this.localidades.forEach(localidad =>
-                        this.localidades.push(localidad.nombre));
-                    this.localidades.sort();
+                    this.allLocalidades = res.data.localidades;
+                    this.allLocalidades.sort();
                 });
         },
+
+        getLocalidades(nombre) {
+            return this.allLocalidades.filter(l => l.Provincia == nombre);
+        },
+
+        async getPaises() {
+            await axios.get(urlAPI + 'paises')
+                .then(res => {
+                    this.paises = res.data.paises;
+                    if(this.paises!=null){
+                        this.paises.sort();
+                    }
+                });
+
+        },
+
 
         haySeleccionado() {
             return this.selected.length > 0;

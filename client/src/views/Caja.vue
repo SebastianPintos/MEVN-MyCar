@@ -4,48 +4,47 @@
         <h1 class="text-center" style="background-color:DimGray;color:white">INGRESOS/EGRESOS {{fecha}}</h1>
         <h4 class="text-center" style="background-color:DimGray;color:white">ESTADO: {{caja}}</h4>
         <template>
-        <v-expansion-panels>
-            <v-expansion-panel>
-                <v-expansion-panel-header class="indigo darken-4 white--text">
-                    <template v-slot:actions>
-                        <v-icon color="white">
-                            $expand
-                        </v-icon>
-                    </template>
-                    Ver filtros Disponibles
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    <v-container>
-                        <h2>Filtros</h2>
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <v-select label="Tipo" v-model="filtros.Type" :items="['INGRESO','EGRESO']"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-select label="Responsable" v-model="filtros.Employee" :items="empleados" item-text="User" item-value="User"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-select label="Desde" v-model="filtros.Desde" :items="horarios"></v-select>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-select label="Hasta" v-model="filtros.Hasta" :items="horarios"></v-select>
-                            </v-col>
+            <v-expansion-panels>
+                <v-expansion-panel>
+                    <v-expansion-panel-header class="indigo darken-4 white--text">
+                        <template v-slot:actions>
+                            <v-icon color="white">
+                                $expand
+                            </v-icon>
+                        </template>
+                        Ver filtros Disponibles
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                        <v-container>
+                            <h2>Filtros</h2>
+                            <v-row>
+                                <v-col cols="12" md="6">
+                                    <v-select label="Tipo" v-model="filtros.Type" :items="['INGRESO','EGRESO']"></v-select>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-select label="Responsable" v-model="filtros.Employee" :items="empleados" item-text="User" item-value="User"></v-select>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-select label="Desde" v-model="filtros.Desde" :items="horarios"></v-select>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-select label="Hasta" v-model="filtros.Hasta" :items="horarios"></v-select>
+                                </v-col>
 
-                            
-                            <v-col cols="12" sm="6" md="6">
-                                <v-btn class="success" @click="aplicarFiltros">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
-                                <v-btn class="warning" @click="reiniciarFiltros">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-        </v-expansion-panels>
-    </template>
+                                <v-col cols="12" sm="6" md="6">
+                                    <v-btn class="success" @click="aplicarFiltros">
+                                        <v-icon>mdi-check</v-icon>
+                                    </v-btn>
+                                    <v-btn class="warning" @click="reiniciarFiltros">
+                                        <v-icon>mdi-cancel</v-icon>
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        </template>
 
         <v-data-table v-model="selected" :headers="headers" :items="movimientos" :search="search" item-key="_id" sort-by="Type" class="elevation-1">
 
@@ -130,11 +129,11 @@ export default {
         snackbar: false,
         titulo: '',
         menu: false,
-        filtros:{
-            Type:'',
-            Responsable:'',
-            Desde:'',
-            Hasta:''
+        filtros: {
+            Type: '',
+            Responsable: '',
+            Desde: '',
+            Hasta: ''
         },
         selected: [],
         egresos: [],
@@ -201,11 +200,11 @@ export default {
             this.getIngresos();
             this.getHorarios();
         },
-        aplicarFiltros(){
-            let desde = this.filtros.Desde !="";
-            let hasta = this.filtros.Hasta !="";
-            let responsable= this.filtros.Responsable!="";
-            let type = this.filtros.Type!="";
+        aplicarFiltros() {
+            let desde = this.filtros.Desde != "";
+            let hasta = this.filtros.Hasta != "";
+            let responsable = this.filtros.Responsable != "";
+            let type = this.filtros.Type != "";
 
             if (!desde && !hasta && !responsable && !type) {
                 return
@@ -219,8 +218,8 @@ export default {
             let cant = 0
             for (var i = 0; i < this.allMovimientos.length; i++) {
                 TypeMatches = type ? this.allMovimientos[i].Type === this.filtros.Type : TypeMatches
-                DesdeMatches = desde ? this.allMovimientos[i].Date.slice(11,19) >= this.filtros.Desde : DesdeMatches
-                HastaMatches = hasta ? this.allMovimientos[i].Date.slice(11,19) <= this.filtros.Hasta : HastaMatches
+                DesdeMatches = desde ? this.allMovimientos[i].Date.slice(11, 19) >= this.filtros.Desde : DesdeMatches
+                HastaMatches = hasta ? this.allMovimientos[i].Date.slice(11, 19) <= this.filtros.Hasta : HastaMatches
                 ResponsableMatches = responsable ? this.allMovimientos[i].Responsable === this.filtros.Responsable : ResponsableMatches
 
                 if (TypeMatches & DesdeMatches & HastaMatches & ResponsableMatches) {
@@ -229,18 +228,18 @@ export default {
             }
         },
 
-        reiniciarFiltros(){
+        reiniciarFiltros() {
             this.movimientos = this.allMovimientos;
             this.filtros.Desde = "";
             this.filtros.Hasta = "";
-            this.filtros.Responsable="";
-            this.filtros.Type="";
+            this.filtros.Responsable = "";
+            this.filtros.Type = "";
         },
-        
-        getHorarios(){
-            for(let i=9; i< 23; i++){
-                let hora = i<10 ? "0"+i:i;
-                this.horarios.push(hora+":00");
+
+        getHorarios() {
+            for (let i = 9; i < 23; i++) {
+                let hora = i < 10 ? "0" + i : i;
+                this.horarios.push(hora + ":00");
             }
         },
         validateUsers(...authorizedUsers) {
@@ -256,7 +255,9 @@ export default {
                     let branchOffice = res.data.branchOffice;
                     branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
                     if (branchOffice != null) {
-                        this.caja = branchOffice.Caja;
+                        if (branchOffice.Caja != null & branchOffice.Caja != "") {
+                            this.caja = branchOffice.Caja;
+                        }
                         this.branchOffice = branchOffice;
                         this.iniciar();
                     }
@@ -303,11 +304,12 @@ export default {
                     if (ventas != null) {
                         if (this.branchOffice != "") {
                             ventas.forEach(e => {
-                                let date = "";
+                                let fString="";
                                 if (e.Date != null) {
-                                    let date = String(e.Date).slice(0, 10);;
-                                }
-                                if (e.BranchOffice != null && e.BranchOffice._id == this.branchOffice._id && this.fecha == date) {
+                                    let date = String(e.Date).slice(0, 10).split("-");
+                                    fString = date[2]+"-"+date[1]+"-"+date[0]; 
+                                 }
+                                if (e.BranchOffice != null && e.BranchOffice == this.branchOffice._id && this.fecha == fString) {
                                     this.ventas.push({
                                         "Date": e.Date,
                                         "Responsable": e.Employee.User,
@@ -423,8 +425,10 @@ export default {
                     let empleados = res.data.employee;
                     if (empleados != null) {
                         empleados.forEach(s => {
-                            if (s.Status === "ACTIVE" & s.BranchOffice._id == this.employee.BranchOffice) {
-                                this.empleados.push(s);
+                            if (s.Status === "ACTIVE" & s.BranchOffice != null) {
+                                if (s.BranchOffice._id == this.employee.BranchOffice) {
+                                    this.empleados.push(s);
+                                }
                             }
                         })
                     }
@@ -481,14 +485,14 @@ export default {
                 timeZone: "America/Argentina/Buenos_Aires"
             });
             //16/12/2020 11:51:28 -> 16-12-2020 11:51:28
-            fecha = dateString.replaceAll("/", "-");
+            let fecha = dateString.replaceAll("/", "-");
 
             let change = {
                 "Employee": this.employee._id,
                 "Date": fecha,
                 "Description": "CAJA: " + this.caja
             }
-            let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? arrChange = [] : this.branchOffice.ChangeStatus;
+            let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? [] : this.branchOffice.ChangeStatus;
             arrChange.push(change);
             axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/setCaja', {
                 "Caja": this.caja

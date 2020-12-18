@@ -286,6 +286,7 @@ export default {
         documentosUsados: [],
         pago: false,
         mensaje: "",
+        reserva: null,
         clientes: [],
         dialogDetalle: false,
         tarjetas: ["American Express", "Visa", "MasterCard"],
@@ -293,6 +294,7 @@ export default {
         monedas: [],
         cliente: null,
         aceptoCliente: false,
+        allDocuments: [],
         validPagos: true,
         valid: true,
         desTarjeta: true,
@@ -364,8 +366,10 @@ export default {
             NetoRepuestos: 0,
             NetoVStock: 0,
             NetoVEncargados: 0,
+            NetoReserva: 0,
             impuestoRepuestos: 0,
             impuestoVStock: 0,
+            impuestoReserva: 0,
             impuestoVEncargados: 0,
             TotalNeto: 0,
             Total: 0,
@@ -380,23 +384,39 @@ export default {
         requerido: [
             value => !!value || 'Requerido.',
         ],
-        employee: null
+        employee: null,
+        ordenes: [],
+        stockVehiculos: [],
     }),
     created() {
+
         let employee = localStorage.getItem("employee");
         employee = JSON.parse(employee);
         if (employee != null & employee.BranchOffice != null & employee.BranchOffice != '') {
             this.Factura.BranchOffice = employee.BranchOffice;
             this.employee = employee;
+            this.getReserva();
+            if (this.reserva != null) {
+                this.cliente = this.reserva.Client._id;
+                this.aceptoCliente = true;
+                this.buscarTipoFactura();
+
+            }
+            this.getClientes();
+            this.getMonedas();
+            this.getVehiculosStock();
+            this.getEncargados();
+            this.getRepuestos();
+            this.getDocumentos();
         }
-        this.getClientes();
-        this.getMonedas();
-        this.getVehiculosStock();
-        this.getEncargados();
-        this.getRepuestos();
-        this.getDocumentos();
     },
     methods: {
+        getReserva() {
+            let reserva = localStorage.getItem("reserva");
+            if (reserva != null) {
+                this.reserva = JSON.parse(reserva);
+            }
+        },
         aceptarMensaje() {
             if (this.pago) {
                 this.dialogMensaje = false;
@@ -412,6 +432,32 @@ export default {
                 });
         },
 
+        async getOrdenes(id,estimado) {
+            await axios.get(urlAPI + 'purchaseOrderV')
+                .then(res => {
+                    let ordenes = res.data.purchaseOrderV;
+                    if(ordenes!=null){    
+                        let orden = ordenes.find(o=>o._id == id);
+                        if(orden!=null){
+                        axios.post(urlAPI+"client/"+this.cliente+"/notifyEstimatedArrival",{"Date":estimado,"VehicleStock":null,"PurchaseOrderV":orden});             
+                        }
+                    }
+                });
+        },
+
+        
+        async getStockVehiculos(id,estimado) {
+            await axios.get(urlAPI + 'vehicleStock')
+                .then(res => {
+                    let stockVehiculos = res.data.vehicle;
+                    if(stockVehiculos!=null){
+                        let vehiculo = stockVehiculos.find(v=>v._id == id);
+                        if(vehiculo!=null){
+                        axios.post(urlAPI+"client/"+this.cliente+"/notifyEstimatedArrival",{"Date":estimado,"VehicleStock":vehiculo,"PurchaseOrderV":null});             
+                        }
+                    }
+                });
+        },
         async getDocumentos() {
             await axios.get(urlAPI + 'documentation')
                 .then(res => {
@@ -421,12 +467,12 @@ export default {
                             "Documentation": d._id,
                             "Completed": false
                         };
+                        this.allDocuments.push(d);
                         if (d.Origin == "IMPORTADO" || d.Origin == "GENERAL") {
                             this.documentosImportados.push(document);
                         } else if (d.Origin == "NACIONAL" || d.Origin == "GENERAL") {
                             this.documentosNacionales.push(document);
-                        }
-                        else if (d.Origin == "USADO" || d.Origin == "GENERAL") {
+                        } else if (d.Origin == "USADO" || d.Origin == "GENERAL") {
                             this.documentosUsados.push(document);
                         }
                     })
@@ -464,7 +510,7 @@ export default {
         },
 
         getClienteAsociado() {
-            return this.clientes.filter(c => c._id == this.cliente);
+            return this.reserva != null ? this.reserva.Client : this.clientes.find(c => c._id == this.cliente);
         },
 
         CalcularTipoFactura() {
@@ -475,20 +521,22 @@ export default {
             if (this.$refs.formTarjeta.validate() &
                 this.$refs.formTransferencia.validate() &
                 this.$refs.formEfectivo.validate()) {
-                let categoriaFiscal = "";
-                let cliente = this.getClienteAsociado();
+                this.buscarTipoFactura();
+            }
+        },
 
-                if (cliente != null) {
-                    categoriaFiscal = cliente[0].TaxCategory;
-                    if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
-                        this.Factura.Kind = 'A';
-                    } else if (categoriaFiscal == 'EXENTO') {
-                        this.Factura.Kind = 'E';
-                    } else {
-                        this.Factura.Kind = 'B';
-                    }
-                    this.calcularTotal();
+        buscarTipoFactura() {
+            let cliente = this.getClienteAsociado();
+            if (cliente != null) {
+                let categoriaFiscal = cliente.TaxCategory;
+                if (categoriaFiscal == 'RESPONSABLE INSCRIPTO') {
+                    this.Factura.Kind = 'A';
+                } else if (categoriaFiscal == 'EXENTO') {
+                    this.Factura.Kind = 'E';
+                } else {
+                    this.Factura.Kind = 'B';
                 }
+                this.calcularTotal();
             }
         },
         comprobarFormCliente() {
@@ -629,6 +677,7 @@ export default {
         },
 
         agregarMedios() {
+            this.medios = [];
             let tarjeta = this.getTarjeta();
             let transferencia = this.getTransferencia();
             let efectivo = this.getEfectivo();
@@ -667,10 +716,9 @@ export default {
         },
         getJSONDelivery(vehicle, stock) {
             let documentation;
-            if (vehicle.Vehicle.Kind == "USADO") {
+            if (vehicle.Kind == "USADO") {
                 documentation = this.documentosUsados;
-            }
-            else if (vehicle.Vehicle.origin == this.employee.Address.Country) {
+            } else if (vehicle.Vehicle.origin == this.employee.Address.Country) {
                 documentation = this.documentosNacionales;
             } else {
                 documentation = this.documentosImportados;
@@ -679,6 +727,8 @@ export default {
             return {
                 "deliveryVehicle": {
                     "Documentation": documentation,
+                    "Employee": this.employee._id,
+                    "Date": new Date(),
                     "Status": "ACTIVE",
                     "VehicleStock": stock ? vehicle._id : null,
                     "PurchaseOrderV": stock == false ? vehicle._id : null
@@ -689,10 +739,10 @@ export default {
         async guardar(repuestos, idFactura) {
             this.agregarMedios();
             let cliente = this.getClienteAsociado();
-            cliente = cliente.length > 0 ? cliente[0].CUIT : "";
+            cliente = cliente.length > 0 ? cliente.CUIT : "";
             let employee = this.employee != null ? this.employee._id : null;
             var idsVehiculos = [];
-            // this.vehiculosSold.forEach(v=>{idsVehiculos.push(null)});
+          
             let cont = 0;
             if (this.vehiculosSold.length > 0) {
                 for (let i = 0; i < this.vehiculosSold.length; i++) {
@@ -702,7 +752,9 @@ export default {
                                 if (res != null) {
                                     idsVehiculos[cont] = res.data.deliveryVehicle._id;
                                     cont++;
-                                }
+                                    let estimado = this.calcularEstimado(res.data.deliveryVehicle);
+                                    this.getStockVehiculos(this.vehiculosSold[i].VehicleStock._id,estimado);
+                                   }
                             });
                     } else if (this.vehiculosSold[i].PurchaseOrderV != null) {
                         await axios.post(urlAPI + 'deliveryVehicle/add', this.getJSONDelivery(this.vehiculosSold[i].PurchaseOrderV, false))
@@ -710,10 +762,14 @@ export default {
                                 if (res != null) {
                                     idsVehiculos[cont] = res.data.deliveryVehicle._id;
                                     cont++;
+                                    let estimado = this.calcularEstimado(res.data.deliveryVehicle);
+                                    this.getOrdenes(this.vehiculosSold[i].PurchaseOrderV._id,estimado);
+                                    
+                            
                                 }
                             });
                     }
-                    if (cont == this.vehiculosSold) {
+                    if (cont == this.vehiculosSold.length) {
                         this.agregarSell(repuestos, idsVehiculos, idFactura, employee, cliente);
                     }
                 }
@@ -722,318 +778,432 @@ export default {
             }
         },
         agregarSell(repuestos, idsVehiculos, idFactura, employee, cliente) {
-            axios.post(urlAPI + 'sellVehicle/add', 
-                   {
-                    "sell": {
-                        "Client": this.cliente,
-                        "ProductStock": repuestos,
-                        "VehicleSold": idsVehiculos,
-                        "PaymentType": this.mediosPago,
-                        "Factura": idFactura,
-                        "Date": new Date(),
-                        "Employee": employee,
-                        "CUIT": cliente,
-                        "BranchOffice": employee.BranchOffice
-                    }
-                }).then(
+            let servicios = [];
+            if (this.reserva != null) {
+                repuestos = null;
+                idsVehiculos = null;
+                servicios = this.reserva.Service;
+            } else {
+                servicios = null;
+            }
+            
+            let sell = {
+                "sell": {
+                    "Client": this.cliente,
+                    "ProductStock": repuestos,
+                    "VehicleSold": idsVehiculos,
+                    "PaymentType": this.medios,
+                    "Factura": idFactura,
+                    "Date": new Date(),
+                    "Employee": employee,
+                    "CUIT": cliente,
+                    "Service": servicios,
+                    "BranchOffice": this.employee.BranchOffice
+                }
+            };
+
+            if (this.reserva == null) {
+                this.venderVehiculo(sell);
+            } else {
+                this.venderServicio(sell);
+            }
+        },
+
+        venderVehiculo(sell) {
+            axios.post(urlAPI + 'sellVehicle/add', sell)
+                .then(
                     res => {
-                        if (res != null) {
-                            this.tituloMensaje = "Operación exitosa";
-                            this.mensaje = "Compra realizada con éxito";
-                            this.dialogMensaje = true;
-                            this.pago = true;
-                            for (let i = 0; i < this.encargados.length; i++) {
-                                let item = JSON.parse(localStorage.getItem("vM" + i));
-                                if (item != null) {
-                                    item.carrito = false;
-                                    this.descuento = 0;
-                                    item.descuento = 0;
-                                    localStorage.setItem(String("vM" + i), JSON.stringify(item));
-                                }
-                            }
-                            for (let i = 0; i < this.vehiculosStock.length; i++) {
-                                let item = JSON.parse(localStorage.getItem("v" + i));
-                                if (item != null) {
-                                    item.carrito = false;
-                                    this.descuento = 0;
-                                    item.descuento = 0;
-                                    localStorage.setItem(String("v" + i), JSON.stringify(item));
-                                }
-                            }
-                            for (let i = 0; i < this.repuestos.length; i++) {
-                                let item = JSON.parse(localStorage.getItem("r" + i));
-                                if (item != null) {
-                                    item.carrito = false;
-                                    this.descuento = 0;
-                                    item.descuento = 0;
-                                    localStorage.setItem(String("r" + i), JSON.stringify(item));
-                                }
-                            }
-                        }});
-                },
-                async agregarEncargados(repuestos, idFactura) {
-                        for (let i = 0; i < this.encargados.length; i++) {
-                            await axios.post(urlAPI + 'purchaseOrderV/add', {
-                                "purchaseOrderV": {
-                                    "OrderDate": new Date(),
-                                    "Price": this.encargados[i].SuggestedPrice,
-                                    "Venta": true,
-                                    "Vehicle": [{
-                                        "ChasisNum": "0",
-                                        "EngineNum": "0",
-                                        "Color": this.encargados[i].Color,
-                                        "VehicleID": this.encargados[i]._id,
-                                        "Price": this.encargados[i].SuggestedPrice
-                                    }],
-                                    "Dealer": this.encargados[i].Dealer,
-                                    "BranchOffice": this.encargados[i].BranchOffice,
-                                    "Status": "ACTIVE",
-                                    "Type": "RECIBIDA"
-                                }
-                            }).then(res => {
+                        if (res != null)
+                            this.resetItems();
+                    }
+                );
+        },
+        venderServicio(sell) {
+            axios.post(urlAPI + 'sell/reservation', sell)
+                .then(
+                    res => {
+                        if (res != null)
+                            axios.delete(urlAPI + 'reservation/' + this.reserva._id + '/delete').then(res => {
                                 if (res != null) {
-                                    this.vehiculosSold.push({
-                                        "PurchaseOrderV": res.data.purchaseOrderV,
-                                        "VehicleStock": null
-                                    });
-                                }
-                                if (i == this.encargados.length - 1) {
-                                    this.guardar(repuestos, idFactura);
+                                    this.resetItems();
                                 }
                             });
-                        }
-                    },
-
-                    getVehiculosStock() {
-                        let length = 0;
-                        this.vehiculoStock = [];
-                        try {
-                            length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
-                        } catch (e) {
-                            return;
-                        }
-                        for (let i = 0; i < length; i++) {
-                            let vehiculoStock = JSON.parse(localStorage.getItem(String("v" + i)));
-                            if (vehiculoStock != null && vehiculoStock.carrito) {
-                                this.vehiculosStock.push(vehiculoStock);
-                            }
-                        }
-                    },
-
-                    getEncargados() {
-                        let length = 0;
-                        this.encargados = [];
-                        try {
-                            length = parseInt(JSON.parse(localStorage.getItem("lengthvM")));
-                        } catch (e) {
-                            return;
-                        }
-                        for (let i = 0; i < length; i++) {
-                            let encargado = JSON.parse(localStorage.getItem(String("vM" + i)));
-                            if (encargado != null && encargado.carrito) {
-                                this.encargados.push(encargado);
-                            }
-                        }
-                    },
-
-                    getRepuestos() {
-                        let length = 0;
-                        this.repuestos = [];
-                        try {
-                            length = parseInt(JSON.parse(localStorage.getItem("lengthr")));
-                        } catch (e) {
-                            return;
-                        }
-                        for (let i = 0; i < length; i++) {
-                            let repuesto = JSON.parse(localStorage.getItem(String("r" + i)));
-                            if (repuesto != null && repuesto.carrito) {
-                                this.repuestos.push(repuesto);
-                            }
-                        }
-                    },
-
-                    calcularTotal() {
-                        this.vehiculosStock.forEach(v => {
-                            let precioNeto = 0.0;
-                            let impuesto = 0.0;
-                            let descuento = 0.0;
-                            let descontado = 0.0;
-                            let precio = 0.0;
-                            let nombre = v.Vehicle.Brand + " " + v.Vehicle.Model +
-                                " " + v.Vehicle.year + " " + v.Vehicle.Type +
-                                " " + v.Vehicle.Kind + " " + v.Color;
-                            if (v.PurchasedPrice != null) {
-                                if (v.descontado > 0) {
-                                    descuento = v.descuento;
-                                    descontado = v.descontado;
-                                    precio = descontado;
-                                } else {
-                                    precio = v.PurchasedPrice;
-                                }
-                            }
-                            //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                            //IMPUESTOS: PRECIO NETO + 21% 
-                            if (this.Factura.Kind == "A") {
-                                precioNeto = precio;
-                                impuesto = precio + (21 * precio / 100);
-                                this.Factura.NetoVStock += precioNeto;
-                                this.Factura.impuestoVStock += impuesto;
-                                this.Factura.TotalNeto += precioNeto;
-                                this.Factura.TotalImpuesto += impuesto;
-                            }
-
-                            //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
-                            else if (this.Factura.Kind == "B") {
-                                precioNeto = precio + (21 * precio / 100);
-                                this.Factura.NetoVStock += precioNeto;
-                                this.Factura.TotalNeto += precioNeto;
-                            }
-
-                            //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                            else {
-                                precioNeto = precio;
-                                this.Factura.NetoVStock += precioNeto;
-                                this.Factura.TotalNeto += precioNeto;
-                            }
-
-                            this.Factura.Elements.push({
-                                "Name": nombre,
-                                "PrecioNeto": precioNeto,
-                                "Impuesto": impuesto,
-                                "Descuento": descuento,
-                                "PrecioConDescuento": descontado
-                            })
-                        });
-
-                        this.repuestos.forEach(r => {
-                            let precioNeto = 0.0;
-                            let impuesto = 0.0;
-                            let descuento = 0.0;
-                            let descontado = 0.0;
-                            let precio = 0.0;
-                            let nombre = r.Product.Brand + " " + r.Product.Category +
-                                " " + r.Product.SubCategory;
-                            if (r.Price != null) {
-                                if (r.descontado > 0) {
-                                    descuento = r.descuento;
-                                    descontado = r.descontado;
-                                    precio = descontado;
-                                } else {
-                                    precio = r.Price;
-                                }
-                            }
-                            //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                            //IMPUESTOS: PRECIO NETO + 21% 
-                            if (this.Factura.Kind == "A") {
-                                precioNeto = precio;
-                                impuesto = precio + (21 * precio / 100);
-                                this.Factura.NetoRepuestos += precioNeto;
-                                this.Factura.impuestoRepuestos += impuesto;
-                                this.Factura.TotalNeto += precioNeto;
-                                this.Factura.TotalImpuesto += impuesto;
-                            }
-
-                            //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
-                            else if (this.Factura.Kind == "B") {
-                                precioNeto = precio + (21 * precio / 100);
-                                this.Factura.NetoRepuestos += precioNeto;
-                                this.Factura.TotalNeto += precioNeto;
-                            }
-
-                            //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                            else {
-                                precioNeto = precio;
-                                this.Factura.NetoRepuestos += precioNeto;
-                                this.Factura.TotalNeto += precioNeto;
-                            }
-
-                            this.Factura.Elements.push({
-                                "Name": nombre,
-                                "PrecioNeto": precioNeto,
-                                "Impuesto": impuesto,
-                                "Descuento": descuento,
-                                "PrecioConDescuento": descontado
-                            })
-                        });
-
-                        this.encargados.forEach(r => {
-                            let precioNeto = 0.0;
-                            let impuesto = 0.0;
-                            let descuento = 0.0;
-                            let descontado = 0.0;
-                            let precio = 0.0;
-                            let nombre = r.Brand + " " + r.Model +
-                                " " + r.year + " " + r.Type + " " + r.Category;
-                            if (r.SuggestedPrice != null) {
-                                if (r.descontado > 0) {
-                                    descuento = r.descuento;
-                                    descontado = r.descontado;
-                                    precio = descontado;
-                                } else {
-                                    precio = r.SuggestedPrice;
-                                }
-                            }
-                            //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                            //IMPUESTOS: PRECIO NETO + 21% 
-                            if (this.Factura.Kind == "A") {
-                                precioNeto = precio;
-                                impuesto = precio + (21 * precio / 100);
-                                this.Factura.NetoVEncargados += precioNeto;
-                                this.Factura.impuestoVEncargados += impuesto;
-                                this.Factura.TotalNeto += precioNeto;
-                                this.Factura.TotalImpuesto += impuesto;
-                            }
-
-                            //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
-                            else if (this.Factura.Kind == "B") {
-                                precioNeto = precio + (21 * precio / 100);
-                                this.Factura.NetoVEncargados += precioNeto;
-                                this.Factura.TotalNeto += precioNeto;
-                            }
-
-                            //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
-                            else {
-                                precioNeto = precio;
-                                this.Factura.NetoVEncargados += precioNeto;
-                                this.Factura.TotalNeto += precioNeto;
-                            }
-
-                            this.Factura.Elements.push({
-                                "Name": nombre,
-                                "PrecioNeto": precioNeto,
-                                "Impuesto": impuesto,
-                                "Descuento": descuento,
-                                "PrecioConDescuento": descontado
-                            })
-                        });
-
-                        if (this.Factura.Kind == 'A') {
-                            this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
-                                this.Factura.impuestoVEncargados +
-                                this.Factura.impuestoVStock;
-                            this.Factura.Total = this.Factura.TotalImpuesto;
-                        } else {
-                            this.Factura.Total = this.Factura.TotalNeto;
-                        }
-                    },
-
-                    reiniciarFactura() {
-                        this.Factura.Elements = [];
-                        this.Factura.PrecioNeto = 0;
-                        this.Factura.Impuesto = 0;
-                        this.Factura.NetoRepuestos = 0;
-                        this.Factura.NetoVStock = 0;
-                        this.Factura.NetoVEncargados = 0;
-                        this.Factura.impuestoRepuestos = 0;
-                        this.Factura.impuestoVEncargados = 0;
-                        this.Factura.impuestoVStock = 0;
-                        this.Factura.TotalNeto = 0;
-                        this.Factura.TotalImpuesto = 0;
-                    },
-
-                    vender() {
-                        this.mostrarMsjMontoNoCoincide();
+                    });
+        },
+        resetItems() {
+            this.tituloMensaje = "Operación exitosa";
+            this.mensaje = "Compra realizada con éxito";
+            this.dialogMensaje = true;
+            this.pago = true;
+            for (let i = 0; i < this.encargados.length; i++) {
+                let item = JSON.parse(localStorage.getItem("vM" + i));
+                if (item != null) {
+                    item.carrito = false;
+                    this.descuento = 0;
+                    item.descuento = 0;
+                    localStorage.setItem(String("vM" + i), JSON.stringify(item));
+                }
+            }
+            for (let i = 0; i < this.vehiculosStock.length; i++) {
+                let item = JSON.parse(localStorage.getItem("v" + i));
+                if (item != null) {
+                    item.carrito = false;
+                    this.descuento = 0;
+                    item.descuento = 0;
+                    localStorage.setItem(String("v" + i), JSON.stringify(item));
+                }
+            }
+            for (let i = 0; i < this.repuestos.length; i++) {
+                let item = JSON.parse(localStorage.getItem("r" + i));
+                if (item != null) {
+                    item.carrito = false;
+                    this.descuento = 0;
+                    item.descuento = 0;
+                    localStorage.setItem(String("r" + i), JSON.stringify(item));
+                }
+            }
+            localStorage.removeItem("reserva");
+        },
+        async agregarEncargados(repuestos, idFactura) {
+            for (let i = 0; i < this.encargados.length; i++) {
+                await axios.post(urlAPI + 'purchaseOrderV/add', {
+                    "purchaseOrderV": {
+                        "OrderDate": new Date(),
+                        "Price": this.encargados[i].SuggestedPrice,
+                        "Venta": true,
+                        "Vehicle": [{
+                            "ChasisNum": "0",
+                            "EngineNum": "0",
+                            "Color": this.encargados[i].Color,
+                            "VehicleID": this.encargados[i]._id,
+                            "Price": this.encargados[i].SuggestedPrice
+                        }],
+                        "Dealer": this.encargados[i].Dealer,
+                        "BranchOffice": this.encargados[i].BranchOffice,
+                        "Status": "ACTIVE",
+                        "Type": "RECIBIDA",
+                        "Employee": this.employee._id
                     }
-        }
-    };
+                }).then(res => {
+                    if (res != null) {
+                        this.vehiculosSold.push({
+                            "PurchaseOrderV": res.data.purchaseOrderV,
+                            "VehicleStock": null
+                        });
+                    }
+                    if (i == this.encargados.length - 1) {
+                        this.guardar(repuestos, idFactura);
+                    }
+                });
+            }
+        },
+
+        getVehiculosStock() {
+            let length = 0;
+            this.vehiculoStock = [];
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthv")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let vehiculoStock = JSON.parse(localStorage.getItem(String("v" + i)));
+                if (vehiculoStock != null && vehiculoStock.carrito) {
+                    this.vehiculosStock.push(vehiculoStock);
+                }
+            }
+        },
+
+        getEncargados() {
+            let length = 0;
+            this.encargados = [];
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthvM")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let encargado = JSON.parse(localStorage.getItem(String("vM" + i)));
+                if (encargado != null && encargado.carrito) {
+                    this.encargados.push(encargado);
+                }
+            }
+        },
+
+        getRepuestos() {
+            let length = 0;
+            this.repuestos = [];
+            try {
+                length = parseInt(JSON.parse(localStorage.getItem("lengthr")));
+            } catch (e) {
+                return;
+            }
+            for (let i = 0; i < length; i++) {
+                let repuesto = JSON.parse(localStorage.getItem(String("r" + i)));
+                if (repuesto != null && repuesto.carrito) {
+                    this.repuestos.push(repuesto);
+                }
+            }
+        },
+
+        calcularTotal() {
+            this.vehiculosStock.forEach(v => {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                let nombre = v.Vehicle.Brand + " " + v.Vehicle.Model +
+                    " " + v.Vehicle.year + " " + v.Vehicle.Type +
+                    " " + v.Vehicle.Kind + " " + v.Color;
+                if (v.PurchasedPrice != null) {
+                    if (v.descontado > 0) {
+                        descuento = v.descuento;
+                        descontado = v.descontado;
+                        precio = descontado;
+                    } else {
+                        precio = v.PurchasedPrice;
+                    }
+                }
+                //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                //IMPUESTOS: PRECIO NETO + 21% 
+                if (this.Factura.Kind == "A") {
+                    precioNeto = precio;
+                    impuesto = precio + (21 * precio / 100);
+                    this.Factura.NetoVStock += precioNeto;
+                    this.Factura.impuestoVStock += impuesto;
+                    this.Factura.TotalNeto += precioNeto;
+                    this.Factura.TotalImpuesto += impuesto;
+                }
+
+                //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                else if (this.Factura.Kind == "B") {
+                    precioNeto = precio + (21 * precio / 100);
+                    this.Factura.NetoVStock += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                else {
+                    precioNeto = precio;
+                    this.Factura.NetoVStock += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                this.Factura.Elements.push({
+                    "Name": nombre,
+                    "PrecioNeto": precioNeto,
+                    "Impuesto": impuesto,
+                    "Descuento": descuento,
+                    "PrecioConDescuento": descontado
+                })
+            });
+
+            if (this.reserva != null) {
+                this.reserva.Service.forEach(v => {
+                    let precioNeto = 0.0;
+                    let impuesto = 0.0;
+                    let descuento = 0.0;
+                    let descontado = 0.0;
+                    let precio = v.LaborPrice;
+                    v.Product.forEach(p => {
+                        precio += p.SalePrice;
+                    })
+                    let nombre = v.Description + " Precio: " + precio;
+
+                    //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                    //IMPUESTOS: PRECIO NETO + 21% 
+                    if (this.Factura.Kind == "A") {
+                        precioNeto = precio;
+                        impuesto = precio + (21 * precio / 100);
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.impuestoReserva += impuesto;
+                        this.Factura.TotalNeto += precioNeto;
+                        this.Factura.TotalImpuesto += impuesto;
+                    }
+
+                    //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                    else if (this.Factura.Kind == "B") {
+                        precioNeto = precio + (21 * precio / 100);
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.TotalNeto += precioNeto;
+                    }
+
+                    //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                    else {
+                        precioNeto = precio;
+                        this.Factura.NetoReserva += precioNeto;
+                        this.Factura.TotalNeto += precioNeto;
+                    }
+
+                    this.Factura.Elements.push({
+                        "Name": nombre,
+                        "PrecioNeto": precioNeto,
+                        "Impuesto": impuesto,
+                        "Descuento": descuento,
+                        "PrecioConDescuento": descontado
+                    })
+                });
+            }
+
+            this.repuestos.forEach(r => {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                let nombre = r.Product.Brand + " " + r.Product.Category +
+                    " " + r.Product.SubCategory;
+                if (r.Price != null) {
+                    if (r.descontado > 0) {
+                        descuento = r.descuento;
+                        descontado = r.descontado;
+                        precio = descontado;
+                    } else {
+                        precio = r.Price;
+                    }
+                }
+                //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                //IMPUESTOS: PRECIO NETO + 21% 
+                if (this.Factura.Kind == "A") {
+                    precioNeto = precio;
+                    impuesto = precio + (21 * precio / 100);
+                    this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.impuestoRepuestos += impuesto;
+                    this.Factura.TotalNeto += precioNeto;
+                    this.Factura.TotalImpuesto += impuesto;
+                }
+
+                //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                else if (this.Factura.Kind == "B") {
+                    precioNeto = precio + (21 * precio / 100);
+                    this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                else {
+                    precioNeto = precio;
+                    this.Factura.NetoRepuestos += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                this.Factura.Elements.push({
+                    "Name": nombre,
+                    "PrecioNeto": precioNeto,
+                    "Impuesto": impuesto,
+                    "Descuento": descuento,
+                    "PrecioConDescuento": descontado
+                })
+            });
+
+            this.encargados.forEach(r => {
+                let precioNeto = 0.0;
+                let impuesto = 0.0;
+                let descuento = 0.0;
+                let descontado = 0.0;
+                let precio = 0.0;
+                let nombre = r.Brand + " " + r.Model +
+                    " " + r.year + " " + r.Type + " " + r.Category;
+                if (r.SuggestedPrice != null) {
+                    if (r.descontado > 0) {
+                        descuento = r.descuento;
+                        descontado = r.descontado;
+                        precio = descontado;
+                    } else {
+                        precio = r.SuggestedPrice;
+                    }
+                }
+                //SI ES FACTURA A =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                //IMPUESTOS: PRECIO NETO + 21% 
+                if (this.Factura.Kind == "A") {
+                    precioNeto = precio;
+                    impuesto = precio + (21 * precio / 100);
+                    this.Factura.NetoVEncargados += precioNeto;
+                    this.Factura.impuestoVEncargados += impuesto;
+                    this.Factura.TotalNeto += precioNeto;
+                    this.Factura.TotalImpuesto += impuesto;
+                }
+
+                //SI ES FACTURA B =>  PRECIO NETO ES EL PRECIO + 21%
+                else if (this.Factura.Kind == "B") {
+                    precioNeto = precio + (21 * precio / 100);
+                    this.Factura.NetoVEncargados += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                //SI ES FACTURA E =>  PRECIO NETO ES EL PRECIO SIN IMPUESTOS
+                else {
+                    precioNeto = precio;
+                    this.Factura.NetoVEncargados += precioNeto;
+                    this.Factura.TotalNeto += precioNeto;
+                }
+
+                this.Factura.Elements.push({
+                    "Name": nombre,
+                    "PrecioNeto": precioNeto,
+                    "Impuesto": impuesto,
+                    "Descuento": descuento,
+                    "PrecioConDescuento": descontado
+                })
+            });
+
+            if (this.Factura.Kind == 'A') {
+                this.Factura.TotalImpuesto = this.Factura.impuestoRepuestos +
+                    this.Factura.impuestoVEncargados +
+                    this.Factura.impuestoVStock + this.Factura.impuestoReserva;
+                this.Factura.Total = this.Factura.TotalImpuesto;
+            } else {
+                this.Factura.Total = this.Factura.TotalNeto;
+            }
+        },
+
+        reiniciarFactura() {
+            this.Factura.Elements = [];
+            this.Factura.PrecioNeto = 0;
+            this.Factura.Impuesto = 0;
+            this.Factura.NetoRepuestos = 0;
+            this.Factura.NetoVStock = 0;
+            this.Factura.NetoVEncargados = 0;
+            this.Factura.impuestoRepuestos = 0;
+            this.Factura.impuestoVEncargados = 0;
+            this.Factura.impuestoVStock = 0;
+            this.Factura.TotalNeto = 0;
+            this.Factura.TotalImpuesto = 0;
+        },
+
+        vender() {
+            this.mostrarMsjMontoNoCoincide();
+        },
+
+        calcularEstimado(delivery) {
+            let documentos = this.getDocumentosObligatorios(delivery.Documentation);
+            let max = 0;
+            if (documentos.length > 0) {
+                for (let i = 0; i < documentos.length; i++) {
+                    if (documentos[i].EstimatedTime > max) {
+                        max = documentos[i].EstimatedTime;
+                    }
+                }
+        
+                return String(max);
+            }
+            return String(max);
+        },
+
+        getDocumentosObligatorios(documentos) {
+            let ret = [];
+            if (documentos != null) {
+                documentos.forEach(d=>{
+                    let doc = this.allDocuments.find(document=>document.id == d.DocumentationID);
+                    if(doc!=null){
+                        ret.push(doc);
+                    }
+                })
+              
+            }
+            return ret;
+        },
+    }
+};
 </script>

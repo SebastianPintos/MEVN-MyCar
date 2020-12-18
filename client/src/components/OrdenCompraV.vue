@@ -515,8 +515,8 @@ export default {
                     "Info": this.mensaje,
                     "Type": "RECIBIDA",
                     "Code": this.output[12][1],
-                    "Employee": this.employee._id
-
+                    "Employee": this.employee._id,
+                    "BranchOffice": this.employee.BranchOffice
                 }
             }
 
