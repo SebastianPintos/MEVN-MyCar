@@ -18,8 +18,8 @@ var EmployeeSchema = new Schema({
         Number: {type: Number},
         City: {type: String}
     },
-    BranchOffice: {type: String},
-    Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+  BranchOffice: {type: Schema.Types.ObjectId, ref: 'BranchOffice'},
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
 });
 
 var employee = mongoose.model('Employee', EmployeeSchema);

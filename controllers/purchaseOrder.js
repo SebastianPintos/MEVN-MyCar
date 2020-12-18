@@ -22,13 +22,22 @@ ctrl.index = (req, res) => {
         res.send({
             purchaseOrder: purchaseOrder
         })
-    }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice');
+    }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice').populate('Employee');
 };
 
-ctrl.create = (req, res) => {
+ctrl.create = async (req, res) => {
     var body = req.body.purchaseOrder;
-   // console.log(req.body.purchaseOrder); 
+   // console.log(req.body.purchaseOrder);
+
+    let countPO = 0;
+    await PurchaseOrder.estimatedDocumentCount((err, count) => {
+        if (err) { console.log(err) }
+        else { countPO = count + 1}
+    });
+
     var purchaseOrder = new PurchaseOrder({
+        Type : body.Type,
+        Code: countPO,
         OrderDate: body.OrderDate,
         ArrivalDate: body.ArrivalDate,
         Price: body.Price,
@@ -36,7 +45,11 @@ ctrl.create = (req, res) => {
         Dealer : body.Dealer, 
         Status: "ACTIVE", 
         BranchOffice: body.BranchOffice,
+        Info: body.Info,
+        Employee: body.Employee
     });
+
+
     
     purchaseOrder.save((err) => {
         if(err) {console.log(err)}
@@ -54,14 +67,18 @@ ctrl.update = (req, res) => {
         else {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
+                purchaseOrder.Type = body.Type;
+                purchaseOrder.Code = body.Code;
                 purchaseOrder.OrderDate= body.OrderDate;
                 purchaseOrder.ArrivalDate= body.ArrivalDate;
                 purchaseOrder.Price= body.Price;
                 purchaseOrder.Product= body.Product;
                 purchaseOrder.Dealer = body.Dealer;
                 purchaseOrder.BranchOffice= body.BranchOffice;
-                purchaseOrder.Status = body.Status
-                
+                purchaseOrder.Status = body.Status;
+                purchaseOrder.Info = body.Info;
+                purchaseOrder.Employee = body.Employee;
+
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -101,7 +118,31 @@ ctrl.setArrival = (req, res) => {
         else {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
-                purchaseOrder.ArrivalDate = new Date();
+                let date = new Date();
+                date = new Date(date.setTime(date.getTime()));
+            
+                purchaseOrder.ArrivalDate = date;
+
+                purchaseOrder.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+                        
+                    })
+                });
+            }
+        }
+    });
+};
+
+ctrl.setEstado = (req, res) => {
+    var id = req.params.purchaseOrder_id;
+    PurchaseOrder.findOne({_id: id}, (err, purchaseOrder) => {
+        if(err) {console.log(err)}
+        else {
+            if(!purchaseOrder) {console.log('No se encontró el producto específico')}
+            else {
+                purchaseOrder.Type = "RECIBIDA";
 
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}

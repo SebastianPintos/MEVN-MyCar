@@ -7,7 +7,7 @@ ctrl.index = (req, res) => {
         res.send({
             model: model
         })
-    }).populate('Model');
+    }).populate('Brand');
 };
 
 ctrl.create = (req, res) => {

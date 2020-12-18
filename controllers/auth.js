@@ -20,6 +20,7 @@ ctrl.signup = async (req, res) => {
         StartDate: body.StartDate,
         DischargeDate: body.DischargeDate,
         Address: body.Address,
+        BranchOffice: body.BranchOffice
     });
 
     employee.save((err) => {
@@ -54,7 +55,7 @@ ctrl.login = async (req, res) => {
                 }
             }
         }
-    })
+    }).populate('BranchOffice');
 }
 
 ctrl.changePassword = async (req, res) => {
@@ -90,7 +91,7 @@ ctrl.changePassword = async (req, res) => {
                         });
                     }
                 }
-            })
+            }).populate('BranchOffice');
         }
     })
 }
