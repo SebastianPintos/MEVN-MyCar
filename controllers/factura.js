@@ -26,7 +26,11 @@ ctrl.create = (req, res) => {
     factura.save((err) => {
         if(err) {console.log(err)}
         res.send({
+<<<<<<< HEAD
             factura
+=======
+            success: true
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
         })
     });
 };

@@ -20,7 +20,10 @@ ctrl.signup = async (req, res) => {
         StartDate: body.StartDate,
         DischargeDate: body.DischargeDate,
         Address: body.Address,
+<<<<<<< HEAD
         BranchOffice: body.BranchOffice
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
     });
 
     employee.save((err) => {
@@ -55,7 +58,11 @@ ctrl.login = async (req, res) => {
                 }
             }
         }
+<<<<<<< HEAD
     }).populate('BranchOffice');
+=======
+    })
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 }
 
 ctrl.changePassword = async (req, res) => {
@@ -91,7 +98,11 @@ ctrl.changePassword = async (req, res) => {
                         });
                     }
                 }
+<<<<<<< HEAD
             }).populate('BranchOffice');
+=======
+            })
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
         }
     })
 }

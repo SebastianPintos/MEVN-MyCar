@@ -5,7 +5,10 @@ const Service = require('../models/service');
 const Client = require('../models/client');
 const email = require('../lib/Email');
 const helper = require('../lib/helperProduct');
+<<<<<<< HEAD
 const helperStock = require('../lib/helperStock');
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
 
 ctrl.index = (req, res) => {

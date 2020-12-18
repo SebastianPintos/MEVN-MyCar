@@ -1,11 +1,16 @@
 const Sell = require('../models/sell');
+<<<<<<< HEAD
 const helperSell = require('../lib/helperSell');
+=======
+const helperVehicle = require('../lib/helperVehicle');
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 const helperProduct = require('../lib/helperProduct');
 const ctrl = {};
 
 ctrl.listVehicle = (req, res) => {
     Sell.find((err, sell) => {
         if (err) { console.log(err) }
+<<<<<<< HEAD
         console.log(sell);
         res.send({
             sell: sell
@@ -14,6 +19,14 @@ ctrl.listVehicle = (req, res) => {
 
 };
  
+=======
+        res.send({
+            Sell: sell
+        })
+    }).populate('VehicleSell').populate('PaymentType');
+};
+
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 /* {
     "sell": {
         "PriceFreeTax": "2000000",
@@ -38,18 +51,32 @@ ctrl.sellVehicle = async (req, res) => {
     console.log(body);
     
     var sell = new Sell({
+<<<<<<< HEAD
         CUIT: body.CUIT,
         Date: body.Date,
         RewarderDiscount: body.RewarderDiscount,
+=======
+        PriceFreeTax: body.PriceFreeTax,
+        Tax: body.Tax,
+        Discount: body.Discount,
+        RewarderDiscount: body.RewarderDiscount,
+        CompanyName: body.CompanyName,
+        CUIT: body.CUIT,
+        TaxCategory: body.TaxCategory,
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
         Client: body.Client,
         Employee: body.Employee,
         Service: body.Service,
         ProductStock: body.ProductStock,
         VehicleSold: body.VehicleSold,
+<<<<<<< HEAD
         PaymentType: body.PaymentType,
         BranchOffice: body.BranchOffice,
         Factura: body.Factura
 
+=======
+        PaymentType: body.PaymentType
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
     })
 
     console.log(sell);
@@ -57,6 +84,7 @@ ctrl.sellVehicle = async (req, res) => {
     sell.save(async (err, sellDB) => {
         if(err) {console.log(err)}
         else{ 
+<<<<<<< HEAD
             console.log( 'sell', sellDB);
             await helperSell.SellVehicle(sellDB);
             await helperSell.SellProduct(sellDB);
@@ -88,6 +116,11 @@ ctrl.sellReservation = async (req, res) => {
             console.log(sellDB);
             await helperSell.SellProductFromReserve(sellDB);
             res.status(200).json(sellDB);
+=======
+            console.log(sellDB);
+            await helperVehicle.SellVehicle(sellDB);
+            res.status(200).json({title: 'Venta generada correctamente'});
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
         }
     });
 }

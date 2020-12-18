@@ -7,7 +7,11 @@ ctrl.index = (req, res) => {
         res.send({
             model: model
         })
+<<<<<<< HEAD
     }).populate('Brand');
+=======
+    }).populate('Model');
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 };
 
 ctrl.create = (req, res) => {

@@ -30,7 +30,10 @@ BatchNum: {type: String},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
     */ 
 var PurchaseOrderSchema = new Schema({
+<<<<<<< HEAD
   Code: {type: String},
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
   OrderDate: {type: Date},
   ArrivalDate: {type: Date},
   Price: {type: Number, required: true},
@@ -42,6 +45,7 @@ var PurchaseOrderSchema = new Schema({
     Price: {type: Number, required: true}
   }],
   Dealer : {type: Schema.Types.ObjectId, required: true, ref: 'Dealer'},  
+<<<<<<< HEAD
   BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
   Type: {type: String, enum: ['ENVIADA', 'RECIBIDA'], required: true},
@@ -49,6 +53,11 @@ var PurchaseOrderSchema = new Schema({
   Employee: {type: Schema.Types.ObjectId, ref: 'Employee'},
 
 },{timestamps: true});
+=======
+  BranchOffice: {type: Schema.Types.ObjectId,required: true,ref: 'BranchOffice'},
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
+});
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
 var PurchaseOrder = mongoose.model("PurchaseOrder", PurchaseOrderSchema);
 module.exports = PurchaseOrder;

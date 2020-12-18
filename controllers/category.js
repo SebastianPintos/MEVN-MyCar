@@ -7,14 +7,21 @@ ctrl.index = (req, res) => {
         res.send({
             category: category
         })
+<<<<<<< HEAD
     }).populate("BranchOffice");
+=======
+    }).populate('Category');
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 };
 
 ctrl.create = (req, res) => {
     var body = req.body.category;
     var category = new Category({
         Name: body.Name,
+<<<<<<< HEAD
         Brand: body.Brand,
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
         Status: "ACTIVE"
        });
 
@@ -36,8 +43,11 @@ ctrl.update = (req, res) => {
             else {
                 category.Name = body.Name;
                 category.Status = body.Status;
+<<<<<<< HEAD
                 category.Brand = body.Brand;
 
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
                 category.save((err) => {
                     if(err) {console.log(err)}
                     res.send({

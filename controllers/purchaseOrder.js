@@ -22,6 +22,7 @@ ctrl.index = (req, res) => {
         res.send({
             purchaseOrder: purchaseOrder
         })
+<<<<<<< HEAD
     }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice').populate('Employee');
 };
 
@@ -38,6 +39,15 @@ ctrl.create = async (req, res) => {
     var purchaseOrder = new PurchaseOrder({
         Type : body.Type,
         Code: countPO,
+=======
+    }).populate('Product.ProductID').populate('Dealer').populate('BranchOffice');
+};
+
+ctrl.create = (req, res) => {
+    var body = req.body.purchaseOrder;
+   // console.log(req.body.purchaseOrder); 
+    var purchaseOrder = new PurchaseOrder({
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
         OrderDate: body.OrderDate,
         ArrivalDate: body.ArrivalDate,
         Price: body.Price,
@@ -45,11 +55,15 @@ ctrl.create = async (req, res) => {
         Dealer : body.Dealer, 
         Status: "ACTIVE", 
         BranchOffice: body.BranchOffice,
+<<<<<<< HEAD
         Info: body.Info,
         Employee: body.Employee
     });
 
 
+=======
+    });
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
     
     purchaseOrder.save((err) => {
         if(err) {console.log(err)}
@@ -67,18 +81,26 @@ ctrl.update = (req, res) => {
         else {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
+<<<<<<< HEAD
                 purchaseOrder.Type = body.Type;
                 purchaseOrder.Code = body.Code;
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
                 purchaseOrder.OrderDate= body.OrderDate;
                 purchaseOrder.ArrivalDate= body.ArrivalDate;
                 purchaseOrder.Price= body.Price;
                 purchaseOrder.Product= body.Product;
                 purchaseOrder.Dealer = body.Dealer;
                 purchaseOrder.BranchOffice= body.BranchOffice;
+<<<<<<< HEAD
                 purchaseOrder.Status = body.Status;
                 purchaseOrder.Info = body.Info;
                 purchaseOrder.Employee = body.Employee;
 
+=======
+                purchaseOrder.Status = body.Status
+                
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -118,6 +140,7 @@ ctrl.setArrival = (req, res) => {
         else {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
+<<<<<<< HEAD
                 let date = new Date();
                 date = new Date(date.setTime(date.getTime()));
             
@@ -143,6 +166,9 @@ ctrl.setEstado = (req, res) => {
             if(!purchaseOrder) {console.log('No se encontró el producto específico')}
             else {
                 purchaseOrder.Type = "RECIBIDA";
+=======
+                purchaseOrder.ArrivalDate = new Date();
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
                 purchaseOrder.save((err) => {
                     if(err) {console.log(err)}

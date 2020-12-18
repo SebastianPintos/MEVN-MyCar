@@ -21,6 +21,7 @@ const sell = require('../controllers/sell');
 const paymentType = require('../controllers/PaymentType');
 const factura = require('../controllers/factura');
 const monedas = require('../controllers/monedas');
+<<<<<<< HEAD
 const documentation = require('../controllers/documentation');
 const deliveryVehicle = require('../controllers/deliveryVehicle');
 const report = require('../controllers/report');
@@ -29,16 +30,23 @@ const paises = require('../controllers/paises');
 const provincias = require('../controllers/provincias');
 const localidades = require('../controllers/localidades');
 
+=======
+
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 const category = require('../controllers/category');
 const subcategory = require('../controllers/subcategory');
 
 const controlStock = require('../controllers/controlStock');
+<<<<<<< HEAD
 
 const egreso = require('../controllers/egreso');
 const ingreso = require('../controllers/ingreso');
 const Email = require('../lib/Email');
 
 const pruebas = require('../controllers/pruebas');
+=======
+const Email = require('../lib/Email')
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
 module.exports = app => {
     router.get('/', home.index);
@@ -101,12 +109,21 @@ module.exports = app => {
     router.post('/factura/:factura_id/update', factura.update);
     router.delete('/factura/:factura_id/delete', factura.remove);
     
+<<<<<<< HEAD
     
     router.get('/monedas', monedas.index);
     router.post('/monedas/add', monedas.create);
     router.post('/monedas/:monedas_id/update', monedas.update);
     router.delete('/monedas/:monedas_id/delete', monedas.remove);
     
+=======
+    
+    router.get('/monedas', monedas.index);
+    router.post('/monedas/add', monedas.create);
+    router.post('/monedas/:monedas_id/update', monedas.update);
+    router.delete('/monedas/:monedas_id/delete', monedas.remove);
+    
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
     router.get('/category', category.index);
     router.post('/category/add', category.create);
     router.post('/category/:category_id/update', category.update);
@@ -135,7 +152,10 @@ module.exports = app => {
     router.post('/purchaseOrder/:purchaseOrder_id/update', purchaseOrder.update);
     router.delete('/purchaseOrder/:purchaseOrder_id/delete', purchaseOrder.remove);
     router.post('/purchaseOrder/:purchaseOrder_id/setArrival', purchaseOrder.setArrival);
+<<<<<<< HEAD
     router.post('/purchaseOrder/:purchaseOrder_id/setEstado', purchaseOrder.setEstado);
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
     
     router.get('/purchaseOrderV', purchaseOrderV.index);
@@ -143,7 +163,10 @@ module.exports = app => {
     router.post('/purchaseOrderV/:purchaseOrderV_id/update', purchaseOrderV.update);
     router.delete('/purchaseOrderV/:purchaseOrderV_id/delete', purchaseOrderV.remove);
     router.post('/purchaseOrderV/:purchaseOrderV_id/setArrival', purchaseOrderV.setArrival);
+<<<<<<< HEAD
     router.post('/purchaseOrderV/:purchaseOrderV_id/setEstado', purchaseOrderV.setEstado);
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
     router.get('/product', product.index);
     router.post('/product/add', product.create);
@@ -167,6 +190,7 @@ module.exports = app => {
     router.post('/reservation/checkHour', reservation.checkHour);
     
     router.post('/reservation/prueba', reservation.pruebas);
+<<<<<<< HEAD
 
     router.post('/prueba/sellproduct', pruebas.sellProduct);
     router.post('/prueba/reporte', pruebas.reporte);
@@ -175,6 +199,8 @@ module.exports = app => {
     router.post('/prueba/reporte4', pruebas.reporte4);  
     router.post('/prueba/reporte5', pruebas.reporte5);    
 
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);
@@ -187,7 +213,10 @@ module.exports = app => {
 
     router.post('/sellVehicle/add', sell.sellVehicle);
     router.get('/sellVehicle', sell.listVehicle);
+<<<<<<< HEAD
     router.post('/sell/reservation', sell.sellReservation);
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
 
     router.get('/paymentType', paymentType.index);
@@ -205,6 +234,7 @@ module.exports = app => {
     router.post('/vehicleControl/:vehicleControl_id/delete', controlStock.removeCV);
     router.post('/vehicleControl/add', controlStock.createCV);
     
+<<<<<<< HEAD
     router.get('/paises', paises.index);
     router.post('/paises/add', paises.create);
     router.post('/paises/:paises_id/update', paises.update);
@@ -232,6 +262,8 @@ module.exports = app => {
     router.get('/ingreso', ingreso.index);
     router.post('/ingreso/add', ingreso.create);
     router.post('/ingreso/:ingreso_id/update', ingreso.update);
+=======
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
 
     app.use(router);
 }

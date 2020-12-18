@@ -56,7 +56,11 @@ ctrl.update = (req, res) => {
                 productStock.BranchOffice = body.BranchOffice,
                 
                 
+<<<<<<< HEAD
                 //helper.checkMin(body);
+=======
+                helper.checkMin(body);
+>>>>>>> 47f02b7f15a63ff96d6cd7da8da8e33336841998
                 
                 productStock.save((err) => {
                     if(err) {console.log(err)}
