@@ -49,7 +49,7 @@ export default {
   }),
 
   mounted () {
-    this.getValues()
+    setTimeout(() => { this.getValues()}, 2500);
   },
   methods: {
         getValues(){
@@ -60,7 +60,6 @@ export default {
               "dateFinish": new Date()
          })
          .then(data => {
-             console.log(data)
              data.data.incomeDiscriminated.forEach(branch => {
                  this.labelsList.push(branch.name)
                  this.vehiclesIncomes.push(branch.vehicle)
