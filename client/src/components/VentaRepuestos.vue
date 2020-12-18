@@ -12,12 +12,12 @@
         </template>
         <template v-slot:[`item.actions`]="{ item }">
             <div v-if="caja=='ABIERTA'">
-                <v-btn v-if="item.carrito == false" fab small color="success">
-                    <v-icon class="text-center" @click="agregarAlCarrito(item)">
+                <v-btn v-if="item.carrito == false" fab small color="success"  @click="agregarAlCarrito(item)">
+                    <v-icon class="text-center">
                         mdi-cart-plus</v-icon>
                 </v-btn>
-                <v-btn v-else fab small color="error">
-                    <v-icon class="text-center" @click="eliminarDelCarrito(item)">
+                <v-btn v-else fab small color="error" @click="eliminarDelCarrito(item)">
+                    <v-icon class="text-center" >
                         mdi-cart-remove</v-icon>
                 </v-btn>
             </div>
