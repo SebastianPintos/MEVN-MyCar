@@ -16,10 +16,10 @@
                         <v-textarea :disabled="desPrimero" v-model="primero.descripcion" :rules="requerido"></v-textarea>
                         <v-row>
                             <v-col cols="12" md="6">
-                                <v-select label="Frecuencia en Días" :disabled="desPrimero" :items="dias" v-model="primero.dias" :rules="numeroRequerido"></v-select>
+                                <v-select label="Frecuencia en Días" :disabled="desPrimero" :items="dias" v-model="primero.dias" ></v-select>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-select label="Frecuencia en Horas" :disabled="desPrimero" :items="horas" v-model="primero.horas" :rules="numeroRequerido"></v-select>
+                                <v-select label="Frecuencia en Horas" :disabled="desPrimero" :items="horas" v-model="primero.horas" ></v-select>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -47,10 +47,10 @@
                         <v-textarea :disabled="desSegundo" v-model="segundo.descripcion" label="Descripción" :rules="requerido"></v-textarea>
                         <v-row>
                             <v-col cols="12" md="6">
-                                <v-select label="Frecuencia en Días" :disabled="desSegundo" :items="dias" v-model="segundo.dias" :rules="numeroRequerido"></v-select>
+                                <v-select label="Frecuencia en Días" :disabled="desSegundo" :items="dias" v-model="segundo.dias"></v-select>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-select label="Frecuencia en Horas" :disabled="desSegundo" :items="horas" v-model="segundo.horas" :rules="numeroRequerido"></v-select>
+                                <v-select label="Frecuencia en Horas" :disabled="desSegundo" :items="horas" v-model="segundo.horas" ></v-select>
                             </v-col>
                         </v-row>
                     </v-card-text>
