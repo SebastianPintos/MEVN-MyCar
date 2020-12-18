@@ -461,12 +461,6 @@ export default {
                                 "VehicleStock": vehiculo,
                                 "PurchaseOrderV": null
                             });
-                            axios.post(urlAPI + "vehiclestock/" + id + "/vender", {
-                                "ChangeStatus": {
-                                    "Motive": "VENTA VEHÍCULO",
-                                    "EmployerID": this.employee._id
-                                }
-                            })
                         }
                     }
 
