@@ -294,6 +294,7 @@ export default {
         monedas: [],
         cliente: null,
         aceptoCliente: false,
+        allDocuments: [],
         validPagos: true,
         valid: true,
         desTarjeta: true,
@@ -383,7 +384,9 @@ export default {
         requerido: [
             value => !!value || 'Requerido.',
         ],
-        employee: null
+        employee: null,
+        ordenes: [],
+        stockVehiculos: [],
     }),
     created() {
 
@@ -417,7 +420,7 @@ export default {
         aceptarMensaje() {
             if (this.pago) {
                 this.dialogMensaje = false;
-                location.href = "/";
+                //location.href = "/";
                 return;
             }
             this.dialogMensaje = false;
@@ -429,6 +432,32 @@ export default {
                 });
         },
 
+        async getOrdenes(id,estimado) {
+            await axios.get(urlAPI + 'purchaseOrderV')
+                .then(res => {
+                    let ordenes = res.data.purchaseOrderV;
+                    if(ordenes!=null){    
+                        let orden = ordenes.find(o=>o._id == id);
+                        if(orden!=null){
+                        axios.post(urlAPI+"client/"+this.cliente+"/notifyEstimatedArrival",{"Date":estimado,"VehicleStock":null,"PurchaseOrderV":orden});             
+                        }
+                    }
+                });
+        },
+
+        
+        async getStockVehiculos(id,estimado) {
+            await axios.get(urlAPI + 'vehicleStock')
+                .then(res => {
+                    let stockVehiculos = res.data.vehicle;
+                    if(stockVehiculos!=null){
+                        let vehiculo = stockVehiculos.find(v=>v._id == id);
+                        if(vehiculo!=null){
+                        axios.post(urlAPI+"client/"+this.cliente+"/notifyEstimatedArrival",{"Date":estimado,"VehicleStock":vehiculo,"PurchaseOrderV":null});             
+                        }
+                    }
+                });
+        },
         async getDocumentos() {
             await axios.get(urlAPI + 'documentation')
                 .then(res => {
@@ -438,6 +467,7 @@ export default {
                             "Documentation": d._id,
                             "Completed": false
                         };
+                        this.allDocuments.push(d);
                         if (d.Origin == "IMPORTADO" || d.Origin == "GENERAL") {
                             this.documentosImportados.push(document);
                         } else if (d.Origin == "NACIONAL" || d.Origin == "GENERAL") {
@@ -686,7 +716,7 @@ export default {
         },
         getJSONDelivery(vehicle, stock) {
             let documentation;
-            if (vehicle.Vehicle.Kind == "USADO") {
+            if (vehicle.Kind == "USADO") {
                 documentation = this.documentosUsados;
             } else if (vehicle.Vehicle.origin == this.employee.Address.Country) {
                 documentation = this.documentosNacionales;
@@ -723,8 +753,8 @@ export default {
                                     idsVehiculos[cont] = res.data.deliveryVehicle._id;
                                     cont++;
                                     let estimado = this.calcularEstimado(res.data.deliveryVehicle);
-                                    //AGREGAR REMAINDER
-                                }
+                                    this.getStockVehiculos(this.vehiculosSold[i].VehicleStock._id,estimado);
+                                   }
                             });
                     } else if (this.vehiculosSold[i].PurchaseOrderV != null) {
                         await axios.post(urlAPI + 'deliveryVehicle/add', this.getJSONDelivery(this.vehiculosSold[i].PurchaseOrderV, false))
@@ -733,7 +763,9 @@ export default {
                                     idsVehiculos[cont] = res.data.deliveryVehicle._id;
                                     cont++;
                                     let estimado = this.calcularEstimado(res.data.deliveryVehicle);
-                                    //AGREGAR REMAINDER
+                                    this.getOrdenes(this.vehiculosSold[i].PurchaseOrderV._id,estimado);
+                                    
+                            
                                 }
                             });
                     }
@@ -1146,27 +1178,29 @@ export default {
 
         calcularEstimado(delivery) {
             let documentos = this.getDocumentosObligatorios(delivery.Documentation);
+            let max = 0;
             if (documentos.length > 0) {
-                let date = new Date(delivery.Date);
-                let max = 0;
                 for (let i = 0; i < documentos.length; i++) {
-                    if (documentos[i].DocumentationID.EstimatedTime > max) {
-                        max = documentos[i].DocumentationID.EstimatedTime;
+                    if (documentos[i].EstimatedTime > max) {
+                        max = documentos[i].EstimatedTime;
                     }
                 }
-                return new Date(date.setDate(date.getDate() + max));
+        
+                return String(max);
             }
-            return 0;
+            return String(max);
         },
 
         getDocumentosObligatorios(documentos) {
             let ret = [];
             if (documentos != null) {
-                documentos.forEach(d => {
-                    if (d.DocumentationID != null) {
-                        ret.push(d);
+                documentos.forEach(d=>{
+                    let doc = this.allDocuments.find(document=>document.id == d.DocumentationID);
+                    if(doc!=null){
+                        ret.push(doc);
                     }
                 })
+              
             }
             return ret;
         },

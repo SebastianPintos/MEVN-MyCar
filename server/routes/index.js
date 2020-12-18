@@ -50,6 +50,7 @@ module.exports = app => {
     router.post('/client/:client_id/addvehicle', client.addVehicle);
     router.post('/client/:client_id/updatevehicle', client.updateVehicle);
     router.post('/client/:client_id/deletevehicle', client.deleteVehicle);
+    router.post('/client/:client_id/notifyEstimatedArrival', client.notifyEstimatedArrivalVehicle)
 
     router.get('/vehicle', vehicle.index);
     router.post('/vehicle/add', vehicle.create);

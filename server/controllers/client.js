@@ -1,6 +1,8 @@
 const ctrl = {};
 
+var helper = require('../lib/helperVehicle');
 var Client = require("../models/client");
+var Email = require('../lib/Email');
 
 ctrl.index = (req, res) => {
     Client.find((err, client) => {
@@ -154,6 +156,30 @@ ctrl.deleteVehicle = (req, res) => {
             }
         }
     })
+}
+
+ctrl.notifyEstimatedArrivalVehicle = (req,res) => {
+    var id = req.params.client_id;
+    var date = req.body.Date;
+    var EmailClient = '';
+    var DataVehicle = null;
+    if(req.body.VehicleStock != null){
+        DataVehicle = req.body.VehicleStock;
+    }else{
+        DataVehicle = req.body.PurchaseOrderV;
+    }
+    Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+            if(!client) {console.log(' no se encontro')}
+            else {
+                EmailClient = client.Email;
+                var bodyMail = helperVehicle.createMailNotifyCalculatedArrival(date, client, DataVehicle);
+                Email.sendEmail(EmailClient, 'myCar', bodyMail)
+                res.send({succes:true})
+            }
+        }
+    });
 }
 
 module.exports = ctrl;
