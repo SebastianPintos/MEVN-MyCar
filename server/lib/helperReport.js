@@ -62,7 +62,8 @@ ctrl.Expenses = async (Start, Finish) => {
     await PurchaseOrder.find({createdAt: {'$gte': dateStart, '$lte': dateFinish }}, (err, purchaseDB) => {
         if(err){console.log(err)}
         else{
-            console.log(purchaseDB);
+            console.log(purchaseDB[0]);
+            console.log(purchaseDB[0].BranchOffice);
             var office = purchaseDB[0].BranchOffice._id.toString();
             var officeName = purchaseDB[0].BranchOffice.Name;
             var totalMoney = 0;
