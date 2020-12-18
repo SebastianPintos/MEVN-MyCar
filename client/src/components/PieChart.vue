@@ -6,7 +6,7 @@ import urlAPI from "../config/config.js"
 export default {
   extends: Pie,
   data: () => ({
-    incomesList: [],
+    incomesList: [0,0,0],
     options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -23,7 +23,7 @@ export default {
   }),
 
   mounted () {
-    this.getValues()
+    setTimeout(() => { this.getValues()}, 1000);
   },
   methods: {
         getValues(){
@@ -41,7 +41,7 @@ export default {
              })
          })
          .then(() => this.renderChart({
-                labels: this.labelsList,
+                labels: ["Vehículos","Servicios", "Productos"],
                 fontColor: "white",
                 datasets: [
                 {   

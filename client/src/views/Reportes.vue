@@ -192,7 +192,6 @@ export default {
          })
          .then(data => 
          {
-             console.log(data)
              this.bestSellerName = data.data.bestSeller.name + " " + data.data.bestSeller.lastName
              this.bestSellerTotal = data.data.bestSeller.sells
          })
