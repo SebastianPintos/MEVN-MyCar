@@ -354,7 +354,6 @@ export default {
         },
 
         guardar() {
-            console.log("GUARDAR")
             if (this.validate()) {
                 this.obtenerEstadoIng();
                 let auxVehiculo = {
@@ -379,7 +378,6 @@ export default {
                 if (this.nuevo == true) {
                     axios.post(urlAPI + "vehicleStock/add", auxVehiculo).then(res => {
                         if (res != null) {
-                            console.log("AGREGADO");
                             this.reset();
                         }
                     })
