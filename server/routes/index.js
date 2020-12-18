@@ -171,7 +171,10 @@ module.exports = app => {
     router.post('/prueba/sellproduct', pruebas.sellProduct);
     router.post('/prueba/reporte', pruebas.reporte);
     router.post('/prueba/reporte2', pruebas.reporte2);
-    router.post('/prueba/reporte3', pruebas.reporte3);    
+    router.post('/prueba/reporte3', pruebas.reporte3);  
+    router.post('/prueba/reporte4', pruebas.reporte4);  
+    router.post('/prueba/reporte5', pruebas.reporte5);    
+
 
     router.get('/remainder', remainder.index);
     router.post('/remainder/add', remainder.create);
@@ -217,6 +220,8 @@ module.exports = app => {
 
 
     router.post('/report/incomeExpenses', report.IncomeExpenses);
+    router.post('/report/incomeDiscriminated', report.IncomeDiscriminated);
+    router.post('/report/bestSeller', report.BestSeller);
 
     
     router.get('/egreso', egreso.index);

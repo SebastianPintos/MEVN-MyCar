@@ -46,7 +46,8 @@ var PurchaseOrderSchema = new Schema({
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE'], required: true},
   Type: {type: String, enum: ['ENVIADA', 'RECIBIDA'], required: true},
   Info: {type: String},
-  Employee: {type: Schema.Types.ObjectId,  ref: 'Employee'},
+  Employee: {type: Schema.Types.ObjectId, ref: 'Employee'},
+
 },{timestamps: true});
 
 var PurchaseOrder = mongoose.model("PurchaseOrder", PurchaseOrderSchema);
