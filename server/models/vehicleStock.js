@@ -22,7 +22,7 @@ var VehicleStockSchema = new Schema({
     Kind: {type: String, enum: ['NUEVO', 'USADO'], required: true},
     ChangeStatus: [{
       Motive: {type: String},
-      EmployerID: {type: Schema.Types.ObjectId, required: true}
+      EmployerID: {type: Schema.Types.ObjectId}
     },{timestamps: true}]
 
 });

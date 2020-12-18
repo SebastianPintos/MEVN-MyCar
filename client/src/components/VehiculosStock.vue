@@ -321,7 +321,7 @@ export default {
                 .then(res => {
                     let vehicleStock = res.data.vehicle;
                     if (branchOffice != "" & vehicleStock!=null) {
-                        this.vehicleStock = vehicleStock.filter(v => v.BranchOffice._id == branchOffice && v.Status=="AVAILABLE");
+                        this.vehicleStock = vehicleStock.filter(v => v.BranchOffice == branchOffice);
                     }
                 })
         },
@@ -354,6 +354,7 @@ export default {
         },
 
         guardar() {
+            console.log("GUARDAR")
             if (this.validate()) {
                 this.obtenerEstadoIng();
                 let auxVehiculo = {
@@ -378,6 +379,7 @@ export default {
                 if (this.nuevo == true) {
                     axios.post(urlAPI + "vehicleStock/add", auxVehiculo).then(res => {
                         if (res != null) {
+                            console.log("AGREGADO");
                             this.reset();
                         }
                     })
@@ -399,7 +401,7 @@ export default {
             this.editedItem = this.defaultItem;
             this.vehicleStock = [];
             this.selected = [];
-            this.getVehicleStock(this.branchOffice == null ? "" : this.branchOffice);
+            this.getVehicleStock(this.branchOffice);
             this.nuevo = false;
             this.dialogNuevo = false;
         },
