@@ -524,7 +524,7 @@ export default {
                     this.mensaje += "<h4>El código SKU es obligatorio</h4>";
                     return false;
                 } else {
-                    if (this.orden != null && this.orden.Product != null & this.orden.Product.filter(o => o.ProductID.SKU == this.output[0][i]).length == 0) {
+                    if (this.orden != null && this.orden.Product != null & this.orden.Product.filter(o => o.ProductID!=null && o.ProductID.SKU == this.output[0][i]).length == 0) {
                         this.mensaje += "<h4>No existe un producto con SKU: " + this.output[0][i] + " en la orden original</h4>";
                     }
                 }
