@@ -216,7 +216,7 @@ module.exports = app => {
 
 
     router.post('/report/incomeExpenses', report.IncomeExpenses);
-
+    router.post('/report/incomeDiscriminated', report.IncomeDiscriminated);
     
     router.get('/egreso', egreso.index);
     router.post('/egreso/add', egreso.create);

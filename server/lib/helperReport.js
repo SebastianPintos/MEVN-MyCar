@@ -159,11 +159,8 @@ ctrl.Discriminated = async (Start, Finish) => {
     var dateFinish = new Date(Finish);
     dateStart.setHours(00, 00, 00);
     dateFinish.setHours(23, 00, 00);
-    console.log('funcioin');
     var sell = await Sell.find({createdAt: {'$gte': dateStart, '$lte': dateFinish}}).populate('BranchOffice').populate('ProductStock').populate('VehicleSold').exec();
     var branch = await BranchOffice.find().select('Name').exec();
-    console.log(sell);
-    console.log(branch);
     var reportService = [];
     for(i= 0; i < branch.length; i++){
         var moneyService = 0;
@@ -196,7 +193,6 @@ ctrl.Discriminated = async (Start, Finish) => {
         for(e = 0; e < sell.length; e++){
             if(sell[e].BranchOffice._id.toString() === reportProduct[r].id.toString()){
                 moneyVehicle += await ctrl.getMoneyfromDelivery(sell[e].VehicleSold);
-                console.log(moneyVehicle);
             }
         }
         var branchVehicle = {id: reportProduct[r].id, name: reportProduct[r].name, service: reportProduct[r].service, product: reportProduct[r].product, vehicle: moneyVehicle};
@@ -204,7 +200,6 @@ ctrl.Discriminated = async (Start, Finish) => {
     }
 
     return reportVehicle;
-
 }
 
 ctrl.getMoneyfromDelivery  = async (delivery) => {
