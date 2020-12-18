@@ -102,7 +102,7 @@
             <div class="card-text">
                 <v-card-text class="pt-0">
                 <div class="title font-weight-light mb-2">
-                    Ingresos/Egresos por tipo
+                    Ingresos por tipo por sucursal
                 </div>
                 <v-divider class="my-2"></v-divider>
                 <span class="caption grey--text font-weight-light">Valores del mes actual</span>
@@ -131,7 +131,7 @@
             <div class="card-text">
                 <v-card-text class="pt-0">
                 <div class="title font-weight-light mb-2">
-                    Ingresos/Egresos por tipo <b>intersucursal</b> 
+                    Ingresos por tipo <b>intersucursal</b> 
                 </div>
                 <v-divider class="my-2"></v-divider>
                 <span class="caption grey--text font-weight-light">Valores del mes actual</span>
