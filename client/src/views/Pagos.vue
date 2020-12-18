@@ -420,7 +420,7 @@ export default {
         aceptarMensaje() {
             if (this.pago) {
                 this.dialogMensaje = false;
-                //location.href = "/";
+                location.href = "/";
                 return;
             }
             this.dialogMensaje = false;
