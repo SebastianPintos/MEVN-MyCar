@@ -233,30 +233,9 @@
                         <v-card>
                             <h1 class="text-center">Stock</h1>
                             <v-card-text>
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled label="Disponibles:"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="disponibles"></v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled label="Reservados:"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="reservados"></v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled label="Fuera de Servicio:"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="fueraDeServicio"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                                <v-text-field readonly :value="'Disponibles: '+disponibles"></v-text-field>
+                                <v-text-field readonly :value="'Reservados: '+reservados"></v-text-field>
+                                <v-text-field readonly :value="'Fuera de Servicio: '+fueraDeServicio"></v-text-field>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>

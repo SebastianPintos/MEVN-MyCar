@@ -69,12 +69,12 @@
                             <ul>
                                 <li v-for="(vehiculo, r) in selected[0].Vehicle" :key="r">
 
-                                    <v-text-field disabled :value="'Marca: '+vehiculo.VehicleID.Brand"></v-text-field>
-                                    <v-text-field disabled :value="' Modelo: '+vehiculo.VehicleID.Model"></v-text-field>
-                                    <v-text-field disabled :value="'Año: '+vehiculo.VehicleID.year"></v-text-field>
-                                    <v-text-field disabled :value="'Color: '+vehiculo.Color"></v-text-field>
-                                    <v-text-field disabled :value="'N° de Chasis: '+vehiculo.ChasisNum"></v-text-field>
-                                    <v-text-field disabled :value="'N° de Motor: '+vehiculo.EngineNum"></v-text-field>
+                                    <v-text-field readonly :value="'Marca: '+vehiculo.VehicleID.Brand"></v-text-field>
+                                    <v-text-field readonly :value="' Modelo: '+vehiculo.VehicleID.Model"></v-text-field>
+                                    <v-text-field readonly :value="'Año: '+vehiculo.VehicleID.year"></v-text-field>
+                                    <v-text-field readonly :value="'Color: '+vehiculo.Color"></v-text-field>
+                                    <v-text-field readonly :value="'N° de Chasis: '+vehiculo.ChasisNum"></v-text-field>
+                                    <v-text-field readonly :value="'N° de Motor: '+vehiculo.EngineNum"></v-text-field>
 
                                     <v-row>
                                         <v-radio-group mandatory class="text-align: left" v-model="recibidos[r]" row :rules="requerido">

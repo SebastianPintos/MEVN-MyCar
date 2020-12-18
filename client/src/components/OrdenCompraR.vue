@@ -69,13 +69,13 @@
                             <ul>
                                 <li v-for="(repuesto, r) in selected[0].Product" :key="r">
 
-                                    <v-text-field disabled :value="'SKU: '+repuesto.ProductID.SKU"></v-text-field>
-                                    <v-text-field disabled :value="' Marca: '+repuesto.ProductID.Brand"></v-text-field>
-                                    <v-text-field disabled :value="'Categoría: '+repuesto.ProductID.Category"></v-text-field>
-                                    <v-text-field v-if="repuesto.ProductID.SubCategory!=null" disabled :value="'Sub-Categoría: '+repuesto.ProductID.SubCategory"></v-text-field>
+                                    <v-text-field readonly :value="'SKU: '+repuesto.ProductID.SKU"></v-text-field>
+                                    <v-text-field readonly :value="' Marca: '+repuesto.ProductID.Brand"></v-text-field>
+                                    <v-text-field readonly :value="'Categoría: '+repuesto.ProductID.Category"></v-text-field>
+                                    <v-text-field v-if="repuesto.ProductID.SubCategory!=null" readonly :value="'Sub-Categoría: '+repuesto.ProductID.SubCategory"></v-text-field>
 
-                                    <v-text-field v-if="repuesto.ProductID.BatchNum!=null" disabled :value="'N°Lote: '+repuesto.ProductID.BatchNum"></v-text-field>
-                                    <v-text-field disabled :value="'Cantidad: '+repuesto.TotalOrdered"></v-text-field>
+                                    <v-text-field v-if="repuesto.ProductID.BatchNum!=null" readonly :value="'N°Lote: '+repuesto.ProductID.BatchNum"></v-text-field>
+                                    <v-text-field readonly :value="'Cantidad: '+repuesto.TotalOrdered"></v-text-field>
 
                                     <v-row>
                                         <v-col cols="12" sm="6" md="6">

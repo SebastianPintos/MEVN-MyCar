@@ -246,16 +246,16 @@
                     <v-card-text>
                         <h2>Nuevos</h2>
                         <h3 v-if="stockNuevos.disponibles==0">-Sin Stock-</h3>
-                        <v-text-field disabled :label="'Disponibles: '+stockNuevos.disponibles"></v-text-field>
-                        <v-text-field disabled :label="'No Disponibles: '+stockNuevos.noDisponibles"></v-text-field>
-                        <v-text-field disabled :label="'Reservados: '+stockNuevos.reservados"></v-text-field>
-                        <v-text-field disabled :label="'Vendidos: '+stockNuevos.vendidos"></v-text-field>
+                        <v-text-field readonly :label="'Disponibles: '+stockNuevos.disponibles"></v-text-field>
+                        <v-text-field readonly :label="'No Disponibles: '+stockNuevos.noDisponibles"></v-text-field>
+                        <v-text-field readonly :label="'Reservados: '+stockNuevos.reservados"></v-text-field>
+                        <v-text-field readonly :label="'Vendidos: '+stockNuevos.vendidos"></v-text-field>
                         <h2>Usados</h2>
                         <h3 v-if="stockUsados.disponibles==0">-Sin Stock-</h3>
-                        <v-text-field disabled :label="'Disponibles: '+stockUsados.disponibles"></v-text-field>
-                        <v-text-field disabled :label="'No Disponibles: '+stockUsados.noDisponibles"></v-text-field>
-                        <v-text-field disabled :label="'Reservados: '+stockUsados.reservados"></v-text-field>
-                        <v-text-field disabled :label="'Vendidos: '+stockUsados.vendidos"></v-text-field>
+                        <v-text-field readonly :label="'Disponibles: '+stockUsados.disponibles"></v-text-field>
+                        <v-text-field readonly :label="'No Disponibles: '+stockUsados.noDisponibles"></v-text-field>
+                        <v-text-field readonly :label="'Reservados: '+stockUsados.reservados"></v-text-field>
+                        <v-text-field readonly :label="'Vendidos: '+stockUsados.vendidos"></v-text-field>
                     </v-card-text>
                 </v-flex>
                 <v-card-actions>
