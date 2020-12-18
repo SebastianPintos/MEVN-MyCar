@@ -319,8 +319,6 @@ export default {
         },
 
         updateEmployee(){
-            console.log(this.editedItem.Password)
-            console.log(this.editedItem.BranchOffice)
             axios.post(urlAPI + 'employee/' + this.selected[0]._id +'/update', {
                 "employee": {
                     "User": this.editedItem.User,
@@ -378,7 +376,9 @@ export default {
         },
 
         getLocalidades(nombre) {
-            return this.allLocalidades.filter(l => l.Provincia == nombre);
+            let localidades=  this.allLocalidades.filter(l => l.Provincia == nombre);
+               console.log("localidades: "+JSON.stringify(this.localidades))
+            return localidades;
         },
 
 
@@ -411,8 +411,13 @@ export default {
                 }
                 this.editedIndex = this.empleados.indexOf(item);
                 this.formTitle = "Editar Empleado";
-                this.localidades = this.getLocalidades(item.Address.Province.Name);
                 this.editedItem = Object.assign({}, item)
+                this.editedItem.Address.City = item.Address.City;
+                 this.localidades = this.getLocalidades(item.Address.Province);
+             
+                this.editedItem.Address.Province = item.Address.Province;
+                this.editedItem.Address.Country = item.Address.Country;
+
                 this.dialog = true;
             }
         },
