@@ -50,11 +50,11 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
-                                                    <v-select v-model="editedItem.Country" :items="paises" item-text="name" label="País" @change="(value) => changeState(value)" :rules="requerido"></v-select>
+                                                    <v-select v-model="editedItem.Country" :items="paises" item-text="Name" item-value="Name" label="País" @change="(value) => changeState(value)" :rules="requerido"></v-select>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
-                                                    <v-select v-model="editedItem.Province" v-if="editedItem.Country=='Argentina'" :items="provincias" label="Provincia" @change=" prov => localidades = getLocalidades(prov)" :rules="requerido"></v-select>
+                                                    <v-select v-model="editedItem.Province" v-if="editedItem.Country=='Argentina'" item-text="Name" item-value="Name" :items="provincias" label="Provincia" @change=" prov => localidades = getLocalidades(prov)" :rules="requerido"></v-select>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12" v-if="editedItem.Country!='Argentina'">
@@ -62,7 +62,7 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
-                                                    <v-select v-model="editedItem.City" v-if="editedItem.Country=='Argentina'" :items="localidades" label="Localidad" :rules="requerido"></v-select>
+                                                    <v-select v-model="editedItem.City" v-if="editedItem.Country=='Argentina'" :items="localidades" label="Localidad" :rules="requerido" item-text="Name" item-value="Name"></v-select>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="12" md="12">
@@ -543,6 +543,7 @@ export default {
         on: '',
         motivos: '',
         formTitle: '',
+        allLocalidades: [],
     }),
 
     created() {
@@ -554,6 +555,7 @@ export default {
             this.getsucursales();
             this.getPaises();
             this.getProvincias();
+            this.getAllLocalidades();
             this.getEmpleados();
         },
         validateUsers(...authorizedUsers) {
@@ -563,28 +565,32 @@ export default {
             return false;
         },
         getProvincias() {
-            axios.get('https://apis.datos.gob.ar/georef/api/provincias?campos=nombre')
+            axios.get(urlAPI + "provincias")
                 .then(res => {
                     this.provincias = res.data.provincias;
-                    this.provincias.forEach(prov =>
-                        this.provincias.push(prov.nombre));
                     this.provincias.sort();
                 });
         },
 
-        getLocalidades(nombre) {
-            axios.get('https://apis.datos.gob.ar/georef/api/localidades?provincia=' + nombre + '&campos=nombre&max=5000')
+        getAllLocalidades() {
+            axios.get(urlAPI + "localidades")
                 .then(res => {
-                    this.localidades = res.data.localidades;
-                    this.localidades.forEach(localidad =>
-                        this.localidades.push(localidad.nombre));
-                    this.localidades.sort();
+                    this.allLocalidades = res.data.localidades;
+                    this.allLocalidades.sort();
                 });
         },
+
+        getLocalidades(nombre) {
+            return this.allLocalidades.filter(l => l.Provincia == nombre);
+        },
+
         async getPaises() {
-            await axios.get('https://restcountries.eu/rest/v2/all')
+            await axios.get(urlAPI + 'paises')
                 .then(res => {
-                    this.paises = res.data;
+                    this.paises = res.data.paises;
+                    if(this.paises!=null){
+                        this.paises.sort();
+                    }
                 });
 
         },
@@ -605,8 +611,8 @@ export default {
         obtenerPrefijo(value) {
             let prefijo = "";
             for (let i = 0; i < this.paises.length; i++) {
-                if (this.paises[i] && this.paises[i].name == value) {
-                    prefijo = this.paises[i].callingCodes;
+                if (this.paises[i] && this.paises[i].Name == value) {
+                    prefijo = this.paises[i].CodePhone;
                 }
             }
             return prefijo;

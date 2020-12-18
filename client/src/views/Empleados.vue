@@ -66,7 +66,7 @@
                                                 <v-select v-model="editedItem.Address.Country" :items="paises" item-text="Name" item-value="Name" label="Pais" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Address.Province" :items="provincias" item-text="Name" item-value="Name" label="Provincia" :rules="requerido"></v-select>
+                                                <v-select v-model="editedItem.Address.Province" :items="provincias" item-text="Name" item-value="Name" label="Provincia" @change="value=> localidades=getLocalidades(value)" :rules="requerido"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-select v-model="editedItem.Address.City" :items="localidades" item-text="Name" item-value="Name" label="Ciudad" :rules="requerido"></v-select>
@@ -259,6 +259,7 @@ export default {
         ],
 
         empleados: [],
+        allLocalidades: [],
         formTitle: "Nuevo Empleado",
 
     }),
@@ -281,6 +282,7 @@ export default {
             this.getEmployees();
             this.getPaises();
             this.getProvincias();
+            this.getAllLocalidades();
             this.getLocalidades();
             this.getBranchOffices();
         },
@@ -367,13 +369,18 @@ export default {
                 });
         },
 
-        getLocalidades(nombre) {
+        getAllLocalidades() {
             axios.get(urlAPI + 'localidades')
                 .then(res => {
-                    this.localidades = res.data.localidades;
-                    this.localidades.sort();
+                    this.allLocalidades = res.data.localidades;
+                    this.allLocalidades.sort();
                 });
         },
+
+        getLocalidades(nombre) {
+            return this.allLocalidades.filter(l => l.Provincia == nombre);
+        },
+
 
         getBranchOffices() {
             axios.get(urlAPI + 'branchoffice')

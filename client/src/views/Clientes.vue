@@ -58,7 +58,7 @@
 
                                         <v-row>
                                             <v-col cols="12" sm="12" md="12">
-                                                <v-select v-model="client.Nationality" :items="paises" item-text="name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
+                                                <v-select v-model="client.Nationality" :items="paises" item-text="Name" item-value="Name" label="Nacionalidad" @change="(value) => changeState(value)"></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-text-field :rules="reglaNombre" hide-details="auto" v-model="client.Name" label="Nombre"></v-text-field>
@@ -560,9 +560,10 @@ export default {
         },
 
         getPaises() {
-            axios.get('https://restcountries.eu/rest/v2/all')
+            axios.get(urlAPI+"paises")
                 .then(res => {
-                    this.paises = res.data;
+                    this.paises = res.data.paises;
+                    this.paises.sort();
                 });
 
         },
@@ -592,9 +593,9 @@ export default {
         obtenerDatosPorNacion(value) {
             let datos = ['', ''];
             for (let i = 0; i < this.paises.length; i++) {
-                if (this.paises[i] && this.paises[i].name == value) {
-                    datos[0] = this.paises[i].callingCodes;
-                    datos[1] = this.paises[i].population;
+                if (this.paises[i] && this.paises[i].Name == value) {
+                    datos[0] = this.paises[i].CodePhone;
+                    datos[1] = this.paises[i].Population;
                 }
             }
             return datos;

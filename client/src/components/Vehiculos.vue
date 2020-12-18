@@ -36,7 +36,7 @@
                                     <v-select v-model="filtros.transmission" :items="transmissionsList" label="Transmision"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
-                                    <v-select v-model="filtros.origin" :items="paises" item-text="name" label="Origen"></v-select>
+                                    <v-select v-model="filtros.origin" :items="paises" item-text="Name" item-value="Name" label="Origen"></v-select>
                                 </v-col>
                                 <v-col cols="12" sm="4" md="3">
                                     <v-select v-model="filtros.year" :items="años" label="Año"></v-select>
@@ -128,7 +128,7 @@
                                                     <v-select v-model="editedItem.transmission" :items="transmissionsList" label="Transmision" :rules="requerido"></v-select>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="4">
-                                                    <v-select v-model="editedItem.origin" :items="paises" item-text="name" label="Origen" :rules="requerido"></v-select>
+                                                    <v-select v-model="editedItem.origin" :items="paises" item-text="Name" item-value="Name" label="Origen" :rules="requerido"></v-select>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="4">
                                                     <v-select v-model="editedItem.year" :items="años" item-text="year" item-value="year" label="Año" :rules="requerido"></v-select>
@@ -445,9 +445,9 @@ export default {
         },
 
         getPaises() {
-            axios.get('https://restcountries.eu/rest/v2/all')
+            axios.get(urlAPI+"paises")
                 .then(res => {
-                    this.paises = res.data;
+                    this.paises = res.data.paises;
                 });
 
         },
