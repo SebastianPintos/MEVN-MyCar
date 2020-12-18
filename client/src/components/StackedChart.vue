@@ -60,6 +60,7 @@ export default {
               "dateFinish": new Date()
          })
          .then(data => {
+             console.log(data)
              data.data.incomeDiscriminated.forEach(branch => {
                  this.labelsList.push(branch.name)
                  this.vehiclesIncomes.push(branch.vehicle)
