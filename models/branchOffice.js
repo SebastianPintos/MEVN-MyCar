@@ -13,10 +13,10 @@ var BranchOfficeSchema = new Schema({
     City: {type: String},
     Province: {type: String}
   },
-  Status: {type: String},
+  Status: {type: String, enum: ['ACTIVE', 'INACTIVE']},
+  Caja: {type: String, enum: ['ABIERTA', 'CERRADA']},
   Employee: [{
     type: Schema.Types.ObjectId,
-    required: true,
     ref: 'Employee'
   }],
   Hours: {//Las horas de apertura y cierre se guardan en minutos desde que empezo el dia. Ejemplo si abre a las 9:00hs y cierra 17:00hs, se guardaria Open: 540, Close: 1020.
@@ -27,7 +27,12 @@ var BranchOfficeSchema = new Schema({
     Friday: {Open: {type: Number}, Close: {type: Number}},
     Saturday: {Open: {type: Number},Close: {type: Number}},
     Sunday: {Open: {type: Number},Close: {type: Number}}
-  }
+  },
+  ChangeStatus: [{Employee: {
+    type: Schema.Types.ObjectId,
+    ref: 'Employee'
+  }, Date: {type: String},
+Description: {type: String}},]
 });
 
 var branchOffice = mongoose.model("BranchOffice", BranchOfficeSchema);

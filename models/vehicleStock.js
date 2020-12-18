@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var VehicleStockSchema = new Schema({
     ChasisNum: {type: String, required: true},
     EngineNum: {type: String, required: true},
-    Domain: {type: String, required: true},
+    Domain: {type: String},
     Color: {type: String, required: true}, 
     PurchasedPrice: {type: Number, required: true},
     Detail: {type: String},
@@ -17,10 +17,12 @@ var VehicleStockSchema = new Schema({
         Detail: {type: String},
         PriceModifier: {type: Number}
     }],
+    BranchOffice: {type: Schema.Types.ObjectId,ref: 'BranchOffice'},
     Status: {type: String, enum: ['AVAILABLE', 'RESERVED', 'SOLD', 'NOT AVAILABLE'], required: true},
+    Kind: {type: String, enum: ['NUEVO', 'USADO'], required: true},
     ChangeStatus: [{
       Motive: {type: String},
-      EmployerID: {type: Schema.Types.ObjectId, required: true}
+      EmployerID: {type: Schema.Types.ObjectId}
     },{timestamps: true}]
 
 });

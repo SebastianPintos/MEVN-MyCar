@@ -1,27 +1,30 @@
 const ctrl = {};
-
-
 const Product = require('../models/product');
-var Reservation = require('../models/reservation');
-var Service = require('../models/service');
+const Reservation = require('../models/reservation');
+const Service = require('../models/service');
+const Client = require('../models/client');
+const email = require('../lib/Email');
 const helper = require('../lib/helperProduct');
+const helperStock = require('../lib/helperStock');
+
+
 ctrl.index = (req, res) => {
     Reservation.find((err, reservation) => {
-        if (err) {console.log(err)}
+        if (err) { console.log(err) }
         res.send({
             reservation: reservation
         })
     }).populate('Service').populate('Vehicle').populate('BranchOffice').populate('Client');
 };
 
-ctrl.create = async (req, res) => {    
+ctrl.create = async (req, res) => {
     var body = req.body.reservation;
     var services = await helper.getServices(body);
     var productNot = await helper.checkAvailable(services);
     console.log("service :" + services);
     console.log("productos no disponibles " + productNot);
 
-    if(productNot.length === 0){
+    if (productNot.length === 0) {
         await helper.reserveProduct(services);
         var reservation = new Reservation({
             Duration: body.Duration,
@@ -37,66 +40,95 @@ ctrl.create = async (req, res) => {
             Remainder1: false,
             Remainder2: false,
         });
-    
+
         reservation.save((err) => {
-            if(err) {console.log(err)}
+            if (err) { console.log(err) }
             res.send({
                 success: true
             })
         });
-    }else{
+
+        var emailClient = '';
+        await Client.findOne({ _id: body.Client }, (err, client) => {
+            if (err) { console.log(err) }
+            else {
+                emailClient = client.Email;
+                var bodyEmail = helper.CreateMail(reservation, services);
+                console.log(bodyEmail);
+                console.log(emailClient);
+                email.sendEmail(emailClient, 'Reserva', bodyEmail);
+            }
+        });
+    } else {
         res.send(productNot);
     }
 };
 
-ctrl.update = (req, res) => {
+ctrl.update = async (req, res) => {
     var id = req.params.reservation_id;
     var body = req.body.reservation;
-    Reservation.findOne({_id: id}, (err, reservation) => {
-        if(err) {console.log(err)}
-        else {
-            if(!reservation) {console.log('No se encontró el producto específico')}
+    var services = await helper.getServices(body);
+    var productNot = await helper.checkAvailable(services);
+
+    if (productNot.length === 0) {
+        Reservation.findOne({ _id: id }, async (err, reservation) => {
+            if (err) { console.log(err) }
             else {
-                reservation.Duration= body.Duration;
-                reservation.Price= body.Price;
-                reservation.Status= Body.Status;
-                reservation.Domain= body.Domain;
-                reservation.AppointmentTime= body.AppointmentTime;
-                reservation.Client= body.Client;
-                reservation.BranchOffice= body.BranchOffice;
-                reservation.Details= body.Details;
-                reservation.Service= body.Service;
-                reservation.Vehicle= body.Vehicle;
-               
-                reservation.save((err) => {
+                if (!reservation) { console.log('No se encontró el producto específico') }
+                else {
+                    reservation.Duration = body.Duration;
+                    reservation.Price = body.Price;
+                    reservation.Status = body.Status;
+                    reservation.AppointmentTime = body.AppointmentTime;
+                    reservation.Client = body.Client;
+                    reservation.BranchOffice = body.BranchOffice;
+                    reservation.Details = body.Details;
+                    reservation.Service = body.Service;
+                    reservation.Vehicle = body.Vehicle;
 
-                    if(err) {console.log(err)}
-                    res.send({
-                        success: true
-                    })
-                });
+                    reservation.save((err) => {
+                        if (err) { console.log(err) }
+                        res.send({
+                            success: true
+                        })
+                    });
+
+                    var emailClient = '';
+                    await Client.findOne({ _id: body.Client }, (err, client) => {
+                        if (err) { console.log(err) }
+                        else {
+                            emailClient = client.Email;
+                            var bodyEmail = helper.CreateMail(reservation, services);
+                            console.log(bodyEmail);
+                            console.log(emailClient);
+                            email.sendEmail(emailClient, 'Reserva', bodyEmail);
+                        }
+                    });
+                }
             }
-        }
-
-    });
+        });
+    }
+    else {
+        res.send(productNot);
+    }
 }
 
 
 ctrl.remove = (req, res) => {
     var id = req.params.reservation_id;
-    Reservation.findOne({_id: id}, (err, reservation) => {
-        if(err) {console.log(err)}
+    Reservation.findOne({ _id: id }, (err, reservation) => {
+        if (err) { console.log(err) }
         else {
 
-            if(!reservation) {console.log('No se encontró el producto específico')}
+            if (!reservation) { console.log('No se encontró el producto específico') }
             else {
                 reservation.Status = 'CLOSED';
 
                 reservation.save((err) => {
-                    if(err) {console.log(err)}
+                    if (err) { console.log(err) }
                     res.send({
                         success: true
-                        
+
                     })
                 });
             }
@@ -107,18 +139,18 @@ ctrl.remove = (req, res) => {
 
 ctrl.cancel = (req, res) => {
     var id = req.params.reservation_id;
-    Reservation.findOne({_id: id}, (err, reservation) => {
-        if(err) {console.log(err)}
+    Reservation.findOne({ _id: id }, (err, reservation) => {
+        if (err) { console.log(err) }
         else {
-            if(!reservation) {console.log('No se encontró el producto específico')}
+            if (!reservation) { console.log('No se encontró el producto específico') }
             else {
                 reservation.Status = 'CANCEL';
 
                 reservation.save((err) => {
-                    if(err) {console.log(err)}
+                    if (err) { console.log(err) }
                     res.send({
                         success: true
-                        
+
                     })
                 });
             }
@@ -131,7 +163,7 @@ ctrl.checkProduct = async (req, res) => {
     //console.log(services);
     var productNot = await helper.checkAvailable(services);
     //console.log(productNot);
-    res.send({productNot});
+    res.send({ productNot });
 }
 
 ctrl.reserveProduct = async (req, res) => {
@@ -143,15 +175,15 @@ ctrl.reserveProduct = async (req, res) => {
 }
 
 ctrl.pruebas = async (req, res) => {
-    var body = req.body.reservation;
-    await helper.checkReservationTime(body);
+    var body = req.body.productControl;
+    await helperStock.checkMinCreation(body);
     res.send("asas");
 }
 
 ctrl.checkHour = async (req, res) => {
     var body = req.body.reservation;
     var occupied = await helper.checkReservationTime(body);
-    res.send({occupied}); 
+    res.send({ occupied });
 }
 
 module.exports = ctrl;

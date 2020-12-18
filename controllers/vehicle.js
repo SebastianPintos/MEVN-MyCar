@@ -15,7 +15,7 @@ ctrl.index = (req, res) => {
 
 ctrl.create = (req, res) => {
     var body = req.body.vehicle;
-    console.log(req.body.vehicle);
+  //  console.log(req.body.vehicle);
     var vehicle = new Vehicle({
         Brand: body.Brand,
         Model: body.Model,
@@ -27,10 +27,11 @@ ctrl.create = (req, res) => {
         year: body.year,
         SuggestedPrice: body.SuggestedPrice,
         Detail: body.Detail,
-        Status: 'ACTIVE',
-        Dealer: body.Dealer,
-        Kind: body.Kind,
+        Status: "ACTIVE",
+        Dealer: body.Dealer
     });
+
+    
 
     vehicle.save((err) => {
         if(err) {console.log(err)}
@@ -59,9 +60,7 @@ ctrl.update = (req, res) => {
                 vehicle.SuggestedPrice= body.SuggestedPrice;
                 vehicle.Detail= body.Detail;
                 vehicle.Status = body.Status;
-                vehicle.Dealer = body.Dealer;
-                vehicle.Kind = body.Kind;
-
+                vehicle.Dealer = body.Dealer
                 vehicle.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -102,13 +101,13 @@ ctrl.indexStock = (req, res) => {
         })
     }).populate('Vehicle',(err, story) =>{
         if (err) {console.log(err)}
-        else {console.log(story)}
+        
     })
 };
 
 ctrl.createStock = (req, res) => {
     var body = req.body.vehicleStock;
-    console.log(req.body.vehicleStock);
+    //console.log(req.body.vehicleStock);
     var vehicleStock = new VehicleStock({
         ChasisNum: body.ChasisNum,
         EngineNum: body.EngineNum,
@@ -118,13 +117,16 @@ ctrl.createStock = (req, res) => {
         Detail: body.Detail,
         Vehicle: body.Vehicle,
         UsedDetail: body.UsedDetail,
-        Status: 'AVAILABLE',
+        Status: body.Status,
+        Kind: body.Kind,
+        BranchOffice: body.BranchOffice
     });
 
+  
     vehicleStock.save((err) => {
         if(err) {console.log(err)}
         res.send({
-            success: true
+            vehicleStock
         })
     });
 };
@@ -148,7 +150,10 @@ ctrl.updateStock = (req, res) => {
                 vehicleStock.UsedDetail = body.UsedDetail;
                 vehicleStock.Status = body.Status;
                 vehicleStock.ChangeStatus.push(body.ChangeStatus)
-
+                vehicleStock.BranchOffice = body.BranchOffice,
+                vehicleStock.Kind = body.Kind,
+                
+              
                 vehicleStock.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -157,6 +162,7 @@ ctrl.updateStock = (req, res) => {
                 });
             }
         }
+
     })
 
 };
@@ -180,6 +186,30 @@ ctrl.removeStock = (req, res) => {
             if(!vehicleStock) {console.log(' no se encontro')}
             else {
                 vehicleStock.Status = 'NOT AVAILABLE';
+                if(ChangeStatus){
+                    vehicleStock.ChangeStatus.push(ChangeStatus);
+                }
+                vehicleStock.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+
+                    })
+                });
+            }
+        }
+    })
+};
+
+ctrl.vender = (req, res) => {
+    var id = req.params.vehicleStock_id;
+    var ChangeStatus = req.body.ChangeStatus;
+    VehicleStock.findOne({_id: id}, (err, vehicleStock) => {
+        if(err) {console.log(err)}
+        else {
+            if(!vehicleStock) {console.log(' no se encontro')}
+            else {
+                vehicleStock.Status = 'SOLD';
                 if(ChangeStatus){
                     vehicleStock.ChangeStatus.push(ChangeStatus);
                 }
