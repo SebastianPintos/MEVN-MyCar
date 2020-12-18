@@ -432,30 +432,44 @@ export default {
                 });
         },
 
-        async getOrdenes(id,estimado) {
+        async getOrdenes(id, estimado) {
             await axios.get(urlAPI + 'purchaseOrderV')
                 .then(res => {
                     let ordenes = res.data.purchaseOrderV;
-                    if(ordenes!=null){    
-                        let orden = ordenes.find(o=>o._id == id);
-                        if(orden!=null){
-                        axios.post(urlAPI+"client/"+this.cliente+"/notifyEstimatedArrival",{"Date":estimado,"VehicleStock":null,"PurchaseOrderV":orden});             
+                    if (ordenes != null) {
+                        let orden = ordenes.find(o => o._id == id);
+                        if (orden != null) {
+                            axios.post(urlAPI + "client/" + this.cliente + "/notifyEstimatedArrival", {
+                                "Date": estimado,
+                                "VehicleStock": null,
+                                "PurchaseOrderV": orden
+                            });
                         }
                     }
                 });
         },
 
-        
-        async getStockVehiculos(id,estimado) {
+        async getStockVehiculos(id, estimado) {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
                     let stockVehiculos = res.data.vehicle;
-                    if(stockVehiculos!=null){
-                        let vehiculo = stockVehiculos.find(v=>v._id == id);
-                        if(vehiculo!=null){
-                        axios.post(urlAPI+"client/"+this.cliente+"/notifyEstimatedArrival",{"Date":estimado,"VehicleStock":vehiculo,"PurchaseOrderV":null});             
+                    if (stockVehiculos != null) {
+                        let vehiculo = stockVehiculos.find(v => v._id == id);
+                        if (vehiculo != null) {
+                            axios.post(urlAPI + "client/" + this.cliente + "/notifyEstimatedArrival", {
+                                "Date": estimado,
+                                "VehicleStock": vehiculo,
+                                "PurchaseOrderV": null
+                            });
+                            axios.post(urlAPI + "vehiclestock/" + id + "/vender", {
+                                "ChangeStatus": {
+                                    "Motive": "VENTA VEHÍCULO",
+                                    "EmployerID": this.employee._id
+                                }
+                            })
                         }
                     }
+
                 });
         },
         async getDocumentos() {
@@ -742,7 +756,7 @@ export default {
             cliente = cliente.length > 0 ? cliente.CUIT : "";
             let employee = this.employee != null ? this.employee._id : null;
             var idsVehiculos = [];
-          
+
             let cont = 0;
             if (this.vehiculosSold.length > 0) {
                 for (let i = 0; i < this.vehiculosSold.length; i++) {
@@ -753,8 +767,8 @@ export default {
                                     idsVehiculos[cont] = res.data.deliveryVehicle._id;
                                     cont++;
                                     let estimado = this.calcularEstimado(res.data.deliveryVehicle);
-                                    this.getStockVehiculos(this.vehiculosSold[i].VehicleStock._id,estimado);
-                                   }
+                                    this.getStockVehiculos(this.vehiculosSold[i].VehicleStock._id, estimado);
+                                }
                             });
                     } else if (this.vehiculosSold[i].PurchaseOrderV != null) {
                         await axios.post(urlAPI + 'deliveryVehicle/add', this.getJSONDelivery(this.vehiculosSold[i].PurchaseOrderV, false))
@@ -763,9 +777,8 @@ export default {
                                     idsVehiculos[cont] = res.data.deliveryVehicle._id;
                                     cont++;
                                     let estimado = this.calcularEstimado(res.data.deliveryVehicle);
-                                    this.getOrdenes(this.vehiculosSold[i].PurchaseOrderV._id,estimado);
-                                    
-                            
+                                    this.getOrdenes(this.vehiculosSold[i].PurchaseOrderV._id, estimado);
+
                                 }
                             });
                     }
@@ -786,7 +799,7 @@ export default {
             } else {
                 servicios = null;
             }
-            
+
             let sell = {
                 "sell": {
                     "Client": this.cliente,
@@ -1185,7 +1198,7 @@ export default {
                         max = documentos[i].EstimatedTime;
                     }
                 }
-        
+
                 return String(max);
             }
             return String(max);
@@ -1194,13 +1207,13 @@ export default {
         getDocumentosObligatorios(documentos) {
             let ret = [];
             if (documentos != null) {
-                documentos.forEach(d=>{
-                    let doc = this.allDocuments.find(document=>document.id == d.DocumentationID);
-                    if(doc!=null){
+                documentos.forEach(d => {
+                    let doc = this.allDocuments.find(document => document.id == d.DocumentationID);
+                    if (doc != null) {
                         ret.push(doc);
                     }
                 })
-              
+
             }
             return ret;
         },

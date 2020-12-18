@@ -201,4 +201,28 @@ ctrl.removeStock = (req, res) => {
     })
 };
 
+ctrl.vender = (req, res) => {
+    var id = req.params.vehicleStock_id;
+    var ChangeStatus = req.body.ChangeStatus;
+    VehicleStock.findOne({_id: id}, (err, vehicleStock) => {
+        if(err) {console.log(err)}
+        else {
+            if(!vehicleStock) {console.log(' no se encontro')}
+            else {
+                vehicleStock.Status = 'SOLD';
+                if(ChangeStatus){
+                    vehicleStock.ChangeStatus.push(ChangeStatus);
+                }
+                vehicleStock.save((err) => {
+                    if(err) {console.log(err)}
+                    res.send({
+                        success: true
+
+                    })
+                });
+            }
+        }
+    })
+};
+
 module.exports = ctrl;

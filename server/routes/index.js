@@ -60,6 +60,7 @@ module.exports = app => {
     router.get('/vehiclestock', vehicle.indexStock);
     router.post('/vehiclestock/add', vehicle.createStock);
     router.post('/vehiclestock/:vehicleStock_id/update', vehicle.updateStock);
+    router.post('/vehiclestock/:vehicleStock_id/vender', vehicle.vender);
     router.delete('/vehiclestock/:vehicleStock_id/delete', vehicle.removeStock);
 
     router.get('/dealer', dealer.index);

@@ -319,9 +319,9 @@ export default {
         async getVehicleStock(branchOffice) {
             await axios.get(urlAPI + 'vehicleStock')
                 .then(res => {
-                    this.vehicleStock = res.data.vehicle;
-                    if (branchOffice != "") {
-                        this.vehicleStock = this.vehicleStock.filter(v => v.BranchOffice._id == branchOffice);
+                    vehicleStock = res.data.vehicle;
+                    if (branchOffice != "" & vehicleStock!=null) {
+                        this.vehicleStock = vehicleStock.filter(v => v.BranchOffice._id == branchOffice && v.Status=="AVAILABLE");
                     }
                 })
         },
