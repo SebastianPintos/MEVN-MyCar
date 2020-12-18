@@ -101,7 +101,9 @@ ctrl.Discriminated = async (Start, Finish) => {
         var moneyService = 0;
         for(y= 0; y < sell.length; y++){
             if(sell[y].BranchOffice._id.toString() === branch[i]._id.toString()){
-                moneyService += await ctrl.getMoneyFromService(sell[y].Service); 
+                if(sell[y].Service){
+                    moneyService += await ctrl.getMoneyFromService(sell[y].Service); 
+                }
             }
         }
         var branchService = {id: branch[i]._id, name: branch[i].Name, Service: moneyService};
@@ -114,7 +116,9 @@ ctrl.Discriminated = async (Start, Finish) => {
         var moneyProduct = 0;
         for(t= 0; t < sell.length; t++){
             if(sell[t].BranchOffice._id.toString() === reportService[p].id.toString()){
-                moneyProduct += await ctrl.getMoneyFromProduct(sell[t].ProductStock);
+                if(sell[t].ProductStock){
+                    moneyProduct += await ctrl.getMoneyFromProduct(sell[t].ProductStock);
+                }
             }
         }
         var branchProduct = {id: reportService[p].id, name: reportService[p].name, service: reportService[p].Service, product: moneyProduct};
@@ -127,7 +131,9 @@ ctrl.Discriminated = async (Start, Finish) => {
         var moneyVehicle = 0;
         for(e = 0; e < sell.length; e++){
             if(sell[e].BranchOffice._id.toString() === reportProduct[r].id.toString()){
-                moneyVehicle += await ctrl.getMoneyfromDelivery(sell[e].VehicleSold);
+                if(sell[e].VehicleSold){
+                    moneyVehicle += await ctrl.getMoneyfromDelivery(sell[e].VehicleSold);
+                }
             }
         }
         var branchVehicle = {id: reportProduct[r].id, name: reportProduct[r].name, service: reportProduct[r].service, product: reportProduct[r].product, vehicle: moneyVehicle};
