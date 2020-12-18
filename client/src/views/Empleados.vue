@@ -12,151 +12,157 @@
                     <v-spacer></v-spacer>
 
                     <div>
-                    <v-btn color="primary" dark class="mb-2" @click="editItem(selected[0])">
-                        <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
+                        <v-btn color="primary" dark class="mb-2" @click="editItem(selected[0])">
+                            <v-icon>mdi-pencil</v-icon>
+                        </v-btn>
 
-                    <v-btn color="error" dark class="mb-2" @click="deleteItem()">
-                        <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                        <v-btn color="error" dark class="mb-2" @click="deleteItem()">
+                            <v-icon>mdi-delete</v-icon>
+                        </v-btn>
 
-                    <v-dialog v-model="dialog" max-width="500px" persistent>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
-                                <v-icon>mdi-plus</v-icon>
-                            </v-btn>
-                        </template>
-                        <v-card>
-                            <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
+                        <v-dialog v-model="dialog" max-width="500px" persistent>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn color="success" dark class="mb-2" v-bind="attrs" v-on="on">
+                                    <v-icon>mdi-plus</v-icon>
+                                </v-btn>
+                            </template>
+                            <v-card>
+                                <v-form ref="form" v-if="selected.length <= 1" v-model="valid" lazy-validation>
 
-                                <v-card-title>
-                                    <span class="headline">{{ formTitle }}</span>
-                                </v-card-title>
+                                    <v-card-title>
+                                        <span class="headline">{{ formTitle }}</span>
+                                    </v-card-title>
 
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="editedItem.Name" label="Nombre" :rules="requerido"></v-text-field>
+                                                </v-col>
+
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="editedItem.LastName" label="Apellido" :rules="requerido"></v-text-field>
+                                                </v-col>
+
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-text-field v-model="editedItem.DNI" label="DNI" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-text-field v-model="editedItem.Email" label="Email" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.Hierarchy" :items="roles" label="Jerarquía" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.BranchOffice" :items="branchOffices" item-text="Name" item-value="_id" label="Sucursal" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-text-field v-model="editedItem.User" label="Usuario" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-text-field v-model="editedItem.Password" type="password" label="Contraseña" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="4">
+                                                    <v-select v-model="editedItem.Address.Country" :items="paises" item-text="Name" item-value="Name" label="Pais" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6" v-if="editedItem.Address.Country=='Argentina'">
+                                                    <v-select v-model="editedItem.Address.Province" :items="provincias" item-text="Name" item-value="Name" label="Provincia" @change="value=> localidades=getLocalidades(value)" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col v-if="editedItem.Address.Country!='Argentina'" cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="ProvinceNL" label="Provincia" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col v-if="editedItem.Address.Country=='Argentina'" cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Address.City" :items="localidades" item-text="Name" item-value="Name" label="Ciudad" :rules="requerido"></v-select>
+                                                </v-col>
+                                                <v-col v-if="editedItem.Address.Country!='Argentina'" cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="CityNL" label="Ciudad" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="editedItem.Address.Street" label="Calle" :rules="requerido"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field v-model="editedItem.Address.Number" type="number" label="Numero" :rules="requerido"></v-text-field>
+                                                </v-col>
+
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn class="info" text @click="reset();close()">
+                                            <v-icon>mdi-cancel</v-icon>
+                                        </v-btn>
+                                        <v-btn class="info" text @click="save">
+                                            <v-icon>mdi-check</v-icon>
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
+
+                            <v-card>
+                                <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
+
+                                    <v-card-title>
+                                        <span class="headline">Editar varios</span>
+                                    </v-card-title>
+
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <v-btn-toggle v-model="toggle_none">
+                                                        <v-btn fab dark small class="warning">
+                                                            <v-icon>mdi-plus</v-icon>
+                                                        </v-btn>
+                                                        <v-btn fab dark small class="warning">
+                                                            <v-icon>mdi-minus</v-icon>
+                                                        </v-btn>
+                                                    </v-btn-toggle>
+                                                </v-col>
+
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-select v-model="editedItem.Hierarchy" :items="jerarquias" label="Jerarquía" :rules="requerido"></v-select>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-flex class="text-right">
+                                            <v-btn class="mb-2 info" text @click="reset();close()">
+                                                <v-icon>mdi-cancel</v-icon>
+                                            </v-btn>
+                                            <v-btn class="mb-2 info" text @click="save">
+                                                <v-icon>mdi-check</v-icon>
+                                            </v-btn>
+                                        </v-flex>
+                                    </v-card-actions>
+                                </v-form>
+                            </v-card>
+
+                        </v-dialog>
+
+                        <v-dialog v-model="dialogDelete" max-width="500px" persistent>
+                            <v-card>
+                                <v-card-title>Confirmación</v-card-title>
                                 <v-card-text>
-                                    <v-container>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Name" label="Nombre" :rules="requerido"></v-text-field>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.LastName" label="Apellido" :rules="requerido"></v-text-field>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.DNI" label="DNI" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Email" label="Email" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.Hierarchy" :items="roles" label="Jerarquía" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.BranchOffice" :items="branchOffices" item-text="Name" item-value="_id" label="Sucursal" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.User" label="Usuario" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedItem.Password" type="password" label="Contraseña" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-select v-model="editedItem.Address.Country" :items="paises" item-text="Name" item-value="Name" label="Pais" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Address.Province" :items="provincias" item-text="Name" item-value="Name" label="Provincia" @change="value=> localidades=getLocalidades(value)" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Address.City" :items="localidades" item-text="Name" item-value="Name" label="Ciudad" :rules="requerido"></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Address.Street" label="Calle" :rules="requerido"></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-text-field v-model="editedItem.Address.Number" type="number" label="Numero" :rules="requerido"></v-text-field>
-                                            </v-col>
-
-                                        </v-row>
-                                    </v-container>
+                                    <h3>¿Estás seguro de que deseas eliminar este usuario?</h3>
                                 </v-card-text>
-
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn class="info" text @click="reset();close()">
+                                    <v-btn class="info" text @click="closeDelete">
                                         <v-icon>mdi-cancel</v-icon>
                                     </v-btn>
-                                    <v-btn class="info" text @click="save">
+                                    <v-btn class="info" text @click="deleteItemConfirm">
                                         <v-icon>mdi-check</v-icon>
                                     </v-btn>
-                                </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                        <v-card>
-                            <v-form ref="editarVarios" v-if="selected.length > 1" v-model="valid" lazy-validation>
-
-                                <v-card-title>
-                                    <span class="headline">Editar varios</span>
-                                </v-card-title>
-
-                                <v-card-text>
-                                    <v-container>
-                                        <v-row>
-
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-btn-toggle v-model="toggle_none">
-                                                    <v-btn fab dark small class="warning">
-                                                        <v-icon>mdi-plus</v-icon>
-                                                    </v-btn>
-                                                    <v-btn fab dark small class="warning">
-                                                        <v-icon>mdi-minus</v-icon>
-                                                    </v-btn>
-                                                </v-btn-toggle>
-                                            </v-col>
-
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-select v-model="editedItem.Hierarchy" :items="jerarquias" label="Jerarquía" :rules="requerido"></v-select>
-                                            </v-col>
-                                        </v-row>
-                                    </v-container>
-                                </v-card-text>
-
-                                <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-flex class="text-right">
-                                    <v-btn class="mb-2 info" text @click="reset();close()">
-                                        <v-icon>mdi-cancel</v-icon>
-                                    </v-btn>
-                                    <v-btn class="mb-2 info"  text @click="save">
-                                        <v-icon>mdi-check</v-icon>
-                                    </v-btn>
-                                    </v-flex>
                                 </v-card-actions>
-                            </v-form>
-                        </v-card>
-
-                    </v-dialog>
-
-                    <v-dialog v-model="dialogDelete" max-width="500px" persistent>
-                        <v-card>
-                            <v-card-title>Confirmación</v-card-title>
-                            <v-card-text>
-                                <h3>¿Estás seguro de que deseas eliminar este usuario?</h3>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn class="info" text @click="closeDelete">
-                                    <v-icon>mdi-cancel</v-icon>
-                                </v-btn>
-                                <v-btn class="info" text @click="deleteItemConfirm">
-                                    <v-icon>mdi-check</v-icon>
-                                </v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+                            </v-card>
+                        </v-dialog>
                     </div>
 
                 </v-toolbar>
@@ -218,6 +224,8 @@ export default {
             },
             StartDate: '',
         },
+        CityNL: '',
+        ProvinceNL: '',
 
         defaultItem: {
             Name: '',
@@ -228,7 +236,7 @@ export default {
             User: '',
             Address: {},
             StartDate: '',
-            
+
         },
         headers: [{
                 text: 'Nombre y Apellido',
@@ -293,54 +301,60 @@ export default {
                     this.empleados = res.data.employee.filter(s => s.Status === "ACTIVE")
                 });
         },
-        createEmployee(){
+        createEmployee() {
             axios.post(urlAPI + 'signup', {
-                "employee": {
-                    "User": this.editedItem.User,
-                    "Password": this.editedItem.Password,
-                    "Name": this.editedItem.Name,
-                    "LastName": this.editedItem.LastName,
-                    "DNI": this.editedItem.DNI,
-                    "Email": this.editedItem.Email,
-                    "Hierarchy": this.editedItem.Hierarchy,
-                    "StartDate": new Date(),
-                    "BranchOffice": this.editedItem.BranchOffice,
-                    "Status": this.editedItem.Address.Status,
-                    "Address": {
-                        "Country": this.editedItem.Address.Country,
-                        "Province": this.editedItem.Address.Province,
-                        "Street": this.editedItem.Address.Street,
-                        "Number": this.editedItem.Address.Number,
-                        "City": this.editedItem.Address.City,
+                    "employee": {
+                        "User": this.editedItem.User,
+                        "Password": this.editedItem.Password,
+                        "Name": this.editedItem.Name,
+                        "LastName": this.editedItem.LastName,
+                        "DNI": this.editedItem.DNI,
+                        "Email": this.editedItem.Email,
+                        "Hierarchy": this.editedItem.Hierarchy,
+                        "StartDate": new Date(),
+                        "BranchOffice": this.editedItem.BranchOffice,
+                        "Status": this.editedItem.Address.Status,
+                        "Address": {
+                            "Country": this.editedItem.Address.Country,
+                            "Province": this.editedItem.Address.Province,
+                            "Street": this.editedItem.Address.Street,
+                            "Number": this.editedItem.Address.Number,
+                            "City": this.editedItem.Address.City,
+                        }
                     }
-                }
-            })
-            .then(() => {this.getEmployees(); this.reset()})
+                })
+                .then(() => {
+                    this.getEmployees();
+                    this.reset()
+                })
         },
 
-        updateEmployee(){
-            axios.post(urlAPI + 'employee/' + this.selected[0]._id +'/update', {
-                "employee": {
-                    "User": this.editedItem.User,
-                    "Password": this.editedItem.Password,
-                    "Name": this.editedItem.Name,
-                    "LastName": this.editedItem.LastName,
-                    "DNI": this.editedItem.DNI,
-                    "Email": this.editedItem.Email,
-                    "Hierarchy": this.editedItem.Hierarchy,
-                    "StartDate": this.editedItem.StartDate,
-                    "BranchOffice": this.editedItem.BranchOffice,
-                    "Status": this.editedItem.Address.Status,
-                    "Address": {
-                        "Country": this.editedItem.Address.Country,
-                        "Province": this.editedItem.Address.Province,
-                        "Street": this.editedItem.Address.Street,
-                        "Number": this.editedItem.Address.Number,
-                        "City": this.editedItem.Address.City,
+        updateEmployee() {
+            axios.post(urlAPI + 'employee/' + this.selected[0]._id + '/update', {
+                    "employee": {
+                        "User": this.editedItem.User,
+                        "Password": this.editedItem.Password,
+                        "Name": this.editedItem.Name,
+                        "LastName": this.editedItem.LastName,
+                        "DNI": this.editedItem.DNI,
+                        "Email": this.editedItem.Email,
+                        "Hierarchy": this.editedItem.Hierarchy,
+                        "StartDate": this.editedItem.StartDate,
+                        "BranchOffice": this.editedItem.BranchOffice,
+                        "Status": this.editedItem.Address.Status,
+                        "Address": {
+                            "Country": this.editedItem.Address.Country,
+                            "Province": this.editedItem.Address.Province,
+                            "Street": this.editedItem.Address.Street,
+                            "Number": this.editedItem.Address.Number,
+                            "City": this.editedItem.Address.City,
+                        }
                     }
-                }
-            })
-            .then(() => {this.getEmployees(); this.reset()})
+                })
+                .then(() => {
+                    this.getEmployees();
+                    this.reset()
+                })
         },
 
         deleteEmpleado(item) {
@@ -376,11 +390,10 @@ export default {
         },
 
         getLocalidades(nombre) {
-            let localidades=  this.allLocalidades.filter(l => l.Provincia == nombre);
-               console.log("localidades: "+JSON.stringify(this.localidades))
+            let localidades = this.allLocalidades.filter(l => l.Provincia == nombre);
+            console.log("localidades: " + JSON.stringify(this.localidades))
             return localidades;
         },
-
 
         getBranchOffices() {
             axios.get(urlAPI + 'branchoffice')
@@ -413,17 +426,18 @@ export default {
                 this.formTitle = "Editar Empleado";
                 this.editedItem = Object.assign({}, item)
                 this.editedItem.Address.City = item.Address.City;
-                 this.localidades = this.getLocalidades(item.Address.Province);
-             
-                this.editedItem.Address.Province = item.Address.Province;
-                this.editedItem.Address.Country = item.Address.Country;
+                if (this.provincias.find(p => p.Name == item.Address.Province) != null) {
+                    this.localidades = this.getLocalidades(item.Address.Province);
+                    this.editedItem.Address.Province = item.Address.Province;
+                    this.editedItem.Address.Country = item.Address.Country;
+                }
 
                 this.dialog = true;
             }
         },
 
         deleteItem() {
-            if(this.selected.length==0){
+            if (this.selected.length == 0) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
                 this.snackbar = true;
                 return;
@@ -441,7 +455,7 @@ export default {
 
         reset() {
             this.selected = [];
-            if(this.dialog){
+            if (this.dialog) {
                 this.$refs.form.resetValidation()
             }
             this.formTitle = "Nuevo Empleado";
@@ -465,21 +479,34 @@ export default {
         },
 
         save() {
+            
+                if(this.editedItem.Address!=null){
+                    if(this.editedItem.Address.Country!='Argentina'){
+                        if(this.CityNL=='' || this.ProvinceNL==''){
+                            return;
+                        }
+                        else{
+                            this.editedItem.Address.Province = this.ProvinceNL;
+                            this.editedItem.Address.City = this.CityNL;
+                           
+                        }
+                    }
+                }
             if (this.editedIndex > -1) {
                 if (this.validate()) {
                     Object.assign(this.empleados[this.editedIndex], this.editedItem)
-                       this.formTitle ="Editar Empleado";
+                    this.formTitle = "Editar Empleado";
                     this.updateEmployee();
                 }
             } else {
                 if (this.selected.length > 1) {
                     if (this.$refs.editarVarios.validate()) {
-                        this.formTitle ="Editar Empleado";
+                        this.formTitle = "Editar Empleado";
                         this.updateManyEmployees()
                     }
                 } else {
                     if (this.validate()) {
-                        this.formTitle ="Nuevo Empleado";
+                        this.formTitle = "Nuevo Empleado";
                         this.empleados.push(this.editedItem);
                         this.createEmployee();
                     }
@@ -487,15 +514,15 @@ export default {
 
             }
             this.close()
-            }
-        },
+        }
+    },
 
-        reiniciar() {
-            this.close();
-            this.selected = [];
-            this.editedItem = this.defaultItem;
-            this.$refs.form.resetValidation();
-        },
+    reiniciar() {
+        this.close();
+        this.selected = [];
+        this.editedItem = this.defaultItem;
+        this.$refs.form.resetValidation();
+    },
 
 }
 </script>
@@ -517,4 +544,3 @@ p,
     font-size: 4%;
 }
 </style>
-
