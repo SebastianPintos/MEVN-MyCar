@@ -43,7 +43,7 @@
                     <h1 class="cardValue">{{bestSellerName}}</h1>
 
                 <div class="subheading font-weight-light grey--text">
-                    <b>Total vendido: ${{bestSellerTotal}}</b>
+                    <b>Total vendido: ${{bestSellerTotal.toFixed(2)}}M</b>
                 </div>
                 
                 <v-divider class="my-2"></v-divider>
@@ -64,8 +64,8 @@
                 elevation="12"
                 max-width="calc(100% - 10px)"
                 >
-                <div class="chart">   
-                    <BarChart :labelsList="['Label3','Label3','Label3']" />
+                <div v-if="ready" class="chart">   
+                    <BarChart :incomesList=this.incomesListBar :expensesList=this.expensesList :labelsList=this.labelsListBar />
                 </div>
                 </v-sheet>
             </v-container>
@@ -93,8 +93,12 @@
                 elevation="12"
                 max-width="calc(100% - 10px)"
                 >
-                <div class="chart">   
-                    <StackedChart/>
+                <div v-if="ready" class="chart">   
+                    <StackedChart 
+                    :labelsList=this.labelsListStacked
+                    :vehiclesIncomes=this.vehiclesIncomes
+                    :servicesIncomes=this.servicesIncomes
+                    :productsIncomes=this.productsIncomes  />
                 </div>
                 </v-sheet>
             </v-container>
@@ -122,8 +126,8 @@
                 elevation="12"
                 max-width="calc(100% - 10px)"
                 >
-                <div class="chart">   
-                    <PieChart/>
+                <div v-if="ready" class="chart">   
+                    <PieChart :incomesList=this.incomesListPie />
                 </div>
                 </v-sheet>
             </v-container>
@@ -164,6 +168,15 @@ export default {
         totalExpenses: 0,
         bestSellerName: "",
         bestSellerTotal: "",
+        incomesListPie: [0,0,0],
+        incomesListBar: [],
+        expensesList:[],
+        labelsListBar:[],
+        labelsListStacked:[],
+        vehiclesIncomes: [],
+        servicesIncomes: [],
+        productsIncomes: [],
+        ready: false
     }),
     mounted() {
         this.getValues()
@@ -178,10 +191,16 @@ export default {
          })
          .then(data => {
              data.data.income.forEach( branch => {
-                 this.totalIncomes += branch.money})
+                 this.totalIncomes += branch.money
+                 this.labelsListBar.push(branch.name)
+                 this.incomesListBar.push(branch.money)
+                 })
             if(data.data.expenses.length > 0){
-             data.data.expenses.forEach( branchExpenses => this.totalExpenses += branchExpenses.money)
+             data.data.expenses.forEach( branchExpenses => {
+                this.totalExpenses += branchExpenses.money
+                this.expensesList.push(branchExpenses.money)})
             }
+
              this.totalIncomes /= 1000000;
              this.totalExpenses /= 1000000;
          })
@@ -193,8 +212,31 @@ export default {
          .then(data => 
          {
              this.bestSellerName = data.data.bestSeller.name + " " + data.data.bestSeller.lastName
-             this.bestSellerTotal = data.data.bestSeller.sells
+             this.bestSellerTotal = data.data.bestSeller.sells/1000000
          })
+
+            axios.post(urlAPI + 'report/incomeDiscriminated',{
+              "dateStart": date,
+              "dateFinish": new Date()
+         })
+         .then(data => {
+             data.data.incomeDiscriminated.forEach(branch => {
+                 this.incomesListPie[0] += branch.vehicle
+                 this.incomesListPie[1] += branch.service
+                 this.incomesListPie[2] += branch.product
+
+                 this.labelsListStacked.push(branch.name)
+                 this.vehiclesIncomes.push(branch.vehicle)
+                 this.servicesIncomes.push(branch.service)
+                 this.productsIncomes.push(branch.product)
+             })
+             this.ready = true
+             console.log(this.ready)
+             console.log(data)
+             console.log(this.incomesListPie)
+         })
+
+
          }
     }
 }

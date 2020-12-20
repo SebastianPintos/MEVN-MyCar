@@ -5,10 +5,12 @@ import urlAPI from "../config/config.js"
 
 export default {
   extends: Bar,
+  props:[
+      'incomesList',
+      'expensesList',
+      'labelsList'
+  ],
   data: () => ({
-    incomesList: [],
-    expensesList: [],
-    labelsList: [],
     options: {
         barValueSpacing: 20,
         responsive: true,
@@ -52,20 +54,7 @@ export default {
   },
   methods: {
         getValues(){
-            let date = new Date();
-            date.setDate(date.getDate() -  date.getDate()+1);
-            axios.post(urlAPI + 'report/incomeExpenses',{
-              "dateStart": date,
-              "dateFinish": new Date()
-         })
-         .then(data => {
-             data.data.income.forEach( branch => {
-                 this.labelsList.push(branch.name)
-                 this.incomesList.push(branch.money)})
-             data.data.expenses.forEach( branch => this.expensesList.push(branch.money))
-
-         })
-         .then(() => this.renderChart({
+                this.renderChart({
                 labels: this.labelsList,
                 fontColor: "white",
                 datasets: [
@@ -81,7 +70,7 @@ export default {
                         data: this.expensesList
                     }
                 ]
-                }, this.options))
+                }, this.options)
         }
       
     }

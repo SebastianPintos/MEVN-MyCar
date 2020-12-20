@@ -5,11 +5,13 @@ import urlAPI from "../config/config.js"
 
 export default {
   extends: Bar,
+  props:[
+      'vehiclesIncomes',
+      'productsIncomes',
+      'servicesIncomes',
+      'labelsList',
+  ],
   data: () => ({
-    vehiclesIncomes: [],
-    productsIncomes: [],
-    servicesIncomes: [],
-    labelsList: [],
     options: {
         barValueSpacing: 20,
         responsive: true,
@@ -49,25 +51,10 @@ export default {
   }),
 
   mounted () {
-    setTimeout(() => { this.getValues()}, 2500);
+    this.getValues();
   },
   methods: {
-        getValues(){
-            let date = new Date();
-            date.setDate(date.getDate() -  date.getDate()+1);
-            axios.post(urlAPI + 'report/incomeDiscriminated',{
-              "dateStart": date,
-              "dateFinish": new Date()
-         })
-         .then(data => {
-             data.data.incomeDiscriminated.forEach(branch => {
-                 this.labelsList.push(branch.name)
-                 this.vehiclesIncomes.push(branch.vehicle)
-                 this.servicesIncomes.push(branch.service)
-                 this.productsIncomes.push(branch.product)
-             })
-         })
-         .then(() => this.renderChart({
+        getValues(){this.renderChart({
                 barPercentage: 0.5,
                 barThickness: 2,
                 maxBarThickness: 2,
@@ -91,7 +78,7 @@ export default {
                     data: this.productsIncomes
                 }
             ]
-                }, this.options))
+                }, this.options)
         }
       
     }

@@ -332,6 +332,7 @@ export default {
         },
 
         updateEmployee() {
+            console.log(this.editedItem)
             axios.post(urlAPI + 'employee/' + this.selected[0]._id + '/update', {
                     "employee": {
                         "User": this.editedItem.User,
