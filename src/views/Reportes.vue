@@ -42,7 +42,7 @@
                 
                     <h1 class="cardValue">{{bestSellerName}}</h1>
 
-                <div class="subheading font-weight-light grey--text">
+                <div v-if="ready" class="subheading font-weight-light grey--text">
                     <b>Total vendido: ${{bestSellerTotal.toFixed(2)}}M</b>
                 </div>
                 
