@@ -71,6 +71,19 @@ ctrl.update = (req, res) => {
     })
 };
 
+ctrl.getClient = (req, res) => {
+    var id = req.params.client_id;
+     Client.findOne({_id: id}, (err, client) => {
+        if(err) {console.log(err)}
+        else {
+                    res.send({
+                         client
+                    })
+            }
+        
+    })
+};
+
 ctrl.remove = (req, res) => {
     var id = req.params.client_id;
     Client.findOne({_id: id}, (err, client) => {

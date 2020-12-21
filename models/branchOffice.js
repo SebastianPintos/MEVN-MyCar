@@ -14,7 +14,9 @@ var BranchOfficeSchema = new Schema({
     Province: {type: String}
   },
   Status: {type: String, enum: ['ACTIVE', 'INACTIVE']},
-  Caja: {type: String, enum: ['ABIERTA', 'CERRADA']},
+  Caja: {Estado:{type: String, enum: ['ABIERTA', 'CERRADA']},
+        Date:{type: String},
+      SaldoInicial:{type:Number}},
   Employee: [{
     type: Schema.Types.ObjectId,
     ref: 'Employee'

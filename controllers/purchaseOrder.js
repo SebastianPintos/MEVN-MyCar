@@ -32,31 +32,31 @@ ctrl.create = async (req, res) => {
     let countPO = 0;
     await PurchaseOrder.estimatedDocumentCount((err, count) => {
         if (err) { console.log(err) }
-        else { countPO = count + 1}
+        else { countPO = count + 1;
+            var purchaseOrder = new PurchaseOrder({
+                Type : body.Type,
+                Code: countPO,
+                OrderDate: body.OrderDate,
+                ArrivalDate: body.ArrivalDate,
+                Price: body.Price,
+                Product: body.Product,
+                Dealer : body.Dealer, 
+                Status: "ACTIVE", 
+                BranchOffice: body.BranchOffice,
+                Info: body.Info,
+                Employee: body.Employee
+            });}
+
+            purchaseOrder.save((err) => {
+                if(err) {console.log(err)}
+                console.log(purchaseOrder);
+                res.send({
+                    purchaseOrder
+                });
+            });
     });
 
-    var purchaseOrder = new PurchaseOrder({
-        Type : body.Type,
-        Code: countPO,
-        OrderDate: body.OrderDate,
-        ArrivalDate: body.ArrivalDate,
-        Price: body.Price,
-        Product: body.Product,
-        Dealer : body.Dealer, 
-        Status: "ACTIVE", 
-        BranchOffice: body.BranchOffice,
-        Info: body.Info,
-        Employee: body.Employee
-    });
-
-
-    
-    purchaseOrder.save((err) => {
-        if(err) {console.log(err)}
-        res.send({
-            success: true
-        });
-    });
+   
 };
 
 ctrl.update = (req, res) => {

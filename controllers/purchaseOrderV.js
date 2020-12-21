@@ -25,12 +25,17 @@ ctrl.index = (req, res) => {
     }).populate('Vehicle.VehicleID').populate('Dealer').populate('BranchOffice').populate('Employee');
 };
 
-ctrl.create = (req, res) => {
+ctrl.create = async (req, res) => {
+    let countPO = 0;
+    await PurchaseOrderV.estimatedDocumentCount((err, count) => {
+        if (err) { console.log(err) }
+        else { countPO = count + 1;
+ 
     var body = req.body.purchaseOrderV;
    // console.log(req.body.purchaseOrderV); 
     var purchaseOrderV = new PurchaseOrderV({
         Type: body.Type,
-        Code: body.Code,
+        Code: countPO,
         OrderDate: body.OrderDate,
         ArrivalDate: body.ArrivalDate,
         Price: body.Price,
@@ -47,6 +52,8 @@ ctrl.create = (req, res) => {
         if(err) {console.log(err)}
         res.send({purchaseOrderV});
     });
+}
+});
 };
 
 ctrl.update = (req, res) => {

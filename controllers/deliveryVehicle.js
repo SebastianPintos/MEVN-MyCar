@@ -15,9 +15,11 @@ ctrl.create = (req, res) => {
     console.log(req.body.deliveryVehicle); 
     var deliveryVehicle = new DeliveryVehicle({
         Documentation: body.Documentation,
+        Date: body.Date,
         Status: body.Status,
         VehicleStock: body.VehicleStock,
-        PurchaseOrderV : body.PurchaseOrderV
+        PurchaseOrderV : body.PurchaseOrderV,
+        Employee: body.Employee
     });
 
     deliveryVehicle.save((err) => {

@@ -49,7 +49,7 @@ ctrl.create = (req, res) => {
         Employee: body.Employee,
         Hours: body.Hours,
         Caja: body.Caja,
-        ChangeStatus: body.ChangeStatus
+        ChangeStatus: body.ChangeStatus,
     });
 
     branchOffice.save((err) => {
@@ -78,7 +78,7 @@ ctrl.update = (req, res) => {
                 branchOffice.Employee = body.Employee;
                 branchOffice.Hours = body.Hours;
                 branchOffice.ChangeStatus = body.ChangeStatus;
-
+               
                 branchOffice.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
@@ -121,11 +121,11 @@ ctrl.setCaja = (req, res) => {
             if(!branchOffice) {console.log('No se encontró el producto específico')}
             else {
                 branchOffice.Caja = caja;
-
+                console.log(branchOffice);
                 branchOffice.save((err) => {
                     if(err) {console.log(err)}
                     res.send({
-                        success: true
+                        branchOffice
                         
                     })
                 });
