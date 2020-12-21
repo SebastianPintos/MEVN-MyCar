@@ -210,7 +210,8 @@ export default {
             },
             {
                 text: 'Precio',
-                value: 'PurchasedPrice'
+                value: 'PurchasedPrice',
+                align: 'right'
             },
 
             {

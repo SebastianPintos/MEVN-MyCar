@@ -244,6 +244,7 @@ export default {
             {
                 text: 'Precio',
                 value: 'LaborPrice',
+                align: 'right'
             },
             {
                 text: 'Sucursal',

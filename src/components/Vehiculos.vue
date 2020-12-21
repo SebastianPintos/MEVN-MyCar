@@ -355,7 +355,8 @@ export default {
             },
             {
                 text: 'Precio Sugerido',
-                value: 'SuggestedPrice'
+                value: 'SuggestedPrice',
+                align: 'right'
             },
 
         ],

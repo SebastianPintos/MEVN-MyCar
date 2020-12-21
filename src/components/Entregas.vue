@@ -176,6 +176,7 @@ export default {
             this.getDelivery();
             this.getVehiculos();
             this.getOrdenes();
+            this.getDocumentos();
         },
 
         async getentregas() {
@@ -189,19 +190,23 @@ export default {
                     entregas.forEach(v => {
                         if (v.VehicleSold != null) {
                             v.VehicleSold.forEach(delivery => {
+                                //console.log("DELIVERY: "+JSON.stringify(delivery));
                                 delivery = this.delivery.find(d => d._id == delivery._id);
+                                
+                               // console.log("DELIVERY: "+JSON.stringify(delivery));
                                 if (delivery != null && this.employee!=null) {
                                     if (delivery != null && delivery.Status == "ACTIVE") {
+                                        //console.log("delivery: "+JSON.stringify(delivery))
                                         let documentos = this.getDocumentosObligatorios(delivery.Documentation);
                                         let estimado = this.calcularEstimado(documentos, v.Date);
-                                        if (delivery.VehicleStock != null && delivery.VehicleStock.BranchOffice == this.employee.BranchOffice) {
+                                        if (delivery.VehicleStock != null && v.BranchOffice == this.employee.BranchOffice) {
                                             let vehiculo = this.vehiculos.find(v => v._id == delivery.VehicleStock.Vehicle);
-
+                                            //console.log("DOCUMENTOS: "+JSON.stringify(documentos))
                                             if (vehiculo != null) {
                                                 this.agregarEntrega(v, vehiculo, documentos, delivery.VehicleStock.Color, estimado, delivery.VehicleStock._id, null, delivery);
                                             }
                                         }
-                                        else if (delivery.PurchaseOrderV != null && delivery.PurchaseOrderV.BranchOffice == this.employee.BranchOffice) {
+                                        else if (delivery.PurchaseOrderV != null && v.BranchOffice == this.employee.BranchOffice) {
                                             let vehiculo = this.vehiculos.find(v => v._id == delivery.PurchaseOrderV.Vehicle[0].VehicleID);
                                             if (vehiculo != null) {
                                                 this.agregarEntrega(v, vehiculo, documentos, delivery.PurchaseOrderV.Vehicle[0].Color, estimado, null, delivery.PurchaseOrderV._id, delivery);
@@ -234,11 +239,13 @@ export default {
         async getDelivery() {
             await axios.get(urlAPI + 'deliveryVehicle').then(res => {
                 if (res != null) {
-                    this.delivery = res.data.deliveryVehicle.filter(o => o.Status == "ACTIVE");
+                    this.delivery = res.data.deliveryVehicle;
+                    this.delivery = this.delivery.filter(o => o.Status == "ACTIVE");
                     this.getentregas();
                 }
             })
         },
+    
         async getDocumentos() {
             await axios.get(urlAPI + 'documentation').then(res => {
                 if (res != null) {
@@ -248,7 +255,6 @@ export default {
         },
 
         agregarEntrega(venta, vehiculo, documentos, color, estimated, idStock, idOrden, delivery) {
-            estimated = estimated.getDate() == null ? "N/A" : estimated.getDate() + "-" + estimated.getMonth() + "-" + parseInt(estimated.getYear() + 1900);
             let date = new Date(venta.Date);
             date = date != null ? date.getDate() + "-" + date.getMonth() + "-" + parseInt(date.getYear() + 1900) : null
             if (documentos.length > 0) {
@@ -276,6 +282,16 @@ export default {
         formatPrice(value) {
             return value == null ? "$0" : "$" + value;
         },
+           getStringDate(value) {
+            if (value == null || new Date(value)==null) {
+                return "Sin Definir";
+            }
+            let date = new Date(value);
+            let dia = date.getDate().length==1? "0"+date.getDate():date.getDate();
+            let mes = String(date.getMonth()+1);
+            mes = mes.length==1? "0"+mes: mes;
+            return dia+"-"+mes+"-"+(1900+date.getYear());
+           },
         formatDate(value) {
             if (value == null) {
                 return "N/A";
@@ -295,9 +311,11 @@ export default {
         },
         getDocumentosObligatorios(documentos) {
             let ret = [];
+            let doc = null;
+            //console.log("DOCUMENTOs : "+JSON.stringify(documentos))
             documentos.forEach(d => {
-                if (d.DocumentationID != null) {
-                    ret.push(d);
+                if(d.DocumentationID!=null){
+                        ret.push(d);
                 }
             })
             return ret;
@@ -311,7 +329,8 @@ export default {
                     max = documentos[i].DocumentationID.EstimatedTime;
                 }
             }
-            return new Date(date.setDate(date.getDate() + max));
+            let dateString = new Date(date.setDate(date.getDate() + max));
+            return this.getStringDate(date);
         },
 
         guardar() {

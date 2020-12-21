@@ -197,6 +197,7 @@ export default {
             {
                 text: 'Precio',
                 value: 'Price',
+                align: 'right'
             },
         ],
 
@@ -271,13 +272,12 @@ export default {
         },
 
         formatDate(value) {
-            if (value == null) {
+            if (value == null || new Date(value)==null) {
                 return "Sin Definir";
             }
-            value = String(value);
-            value = value.slice(0, 10);
-            return value;
-        },
+            let date = new Date(value);
+            return date.getDate()+"-"+date.getMonth()+"-"+(1900+date.getYear());
+           },
 
         validate() {
             return this.$refs.form.validate();
@@ -448,19 +448,21 @@ export default {
         },
         getJSONOrder() {
             /* 0-SKU, 1-LOTE, 2-VENCIMIENTO, 3-TOTAL, 4-PRECIO, 5-CODIGO*/
+            
+             console.log("NEW DATE : "+new Date())
             let precio = 0;
             let product = [];
             let mensaje = this.mensaje;
             this.mensaje = "";
             for (let i = 1; i < this.output[1].length; i++) {
-                let productID = this.repuestos.filter(r => r.SKU == this.output[0][i]);
-                if (productID != null & productID.length > 0) {
+                let productID = this.repuestos.find(r => r.SKU == this.output[0][i]);
+                if (productID != null) {
                     let expiration = new Date(this.output[2][i]) != null ? new Date(this.output[2][i]) : null;
                     let total = Number(this.output[3][i]);
                     let precioUnitario = Number(this.output[4][i]);
                     precio += precioUnitario * total;
                     product.push({
-                        "ProductID": productID[0],
+                        "ProductID": productID._id,
                         "BatchNum": this.output[1][i],
                         "Expiration": expiration,
                         "TotalOrdered": total,
@@ -479,14 +481,12 @@ export default {
             }
 
             this.mensaje = mensaje + this.mensaje;
-            //ACÁ FALTA LA PARTE DE BRANCHOFFICE    "BranchOffice": "5fb3d83987565231fcd5a756",
-             let date = new Date();
-             date = new Date(date.setTime(date.getTime()));
-            
+            // date = new Date(date.setTime(date.getTime()));
+       
             return {
                 "purchaseOrder": {
                     "Code": this.output[5][1],
-                    "OrderDate": date,
+                    "OrderDate":new Date(),
                     "Price": precio,
                     "Product": product,
                     "Dealer": this.proveedor,
@@ -498,7 +498,6 @@ export default {
                 }
             }
         },
-
         getOrden() {
             let orden = this.allOrders.filter(o =>
                 o.Code == this.output[5][1] && o.Type == "ENVIADA"

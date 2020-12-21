@@ -55,9 +55,10 @@ export default {
                 align: 'start',
                 sortable: false,
             },
+            
             {
-                text: 'ID empleado',
-                value: 'Employee.DNI'
+                text: 'ID del Empleado',
+                value: 'Employee.DNI',
             },
             {
                 text: 'ID del Cliente',
@@ -98,6 +99,7 @@ export default {
         ],
 
         vehiculos: [],
+        empleados: [],
         ordenesCompra: [],
         delivery: [],
         documentation: [],
@@ -110,8 +112,9 @@ export default {
         ],
         employee: null,
         editedItem: {
-            Documentation: [],
-        }
+            Documentation: []
+        },
+        vehiculosStock:[],
 
     }),
     created() {
@@ -123,7 +126,9 @@ export default {
         iniciar() {
             this.getDelivery();
             this.getVehiculos();
+            this.getVehiculosStock();
             this.getOrdenes();
+            this.getEmpleados();
         },
 
         async getentregas() {
@@ -137,26 +142,23 @@ export default {
                     entregas.forEach(v => {
                         if (v.VehicleSold != null) {
                             v.VehicleSold.forEach(delivery => {
-                                delivery = this.delivery.find(d => d._id == delivery._id);
-                                if (delivery != null && this.employee!=null) {
-                                    if (delivery != null && delivery.Documentation!=null){
-                                    if (delivery.VehicleStock != null && delivery.VehicleStock.BranchOffice == this.employee.BranchOffice) {
-                                            let vehiculo = this.vehiculos.find(v => v._id == delivery.VehicleStock.Vehicle);
-
+                                if (delivery != null && this.employee!=null) {  
+                                    if (delivery.VehicleStock != null) {
+                                            let vehiculo = this.vehiculosStock.find(v => v._id == delivery.VehicleStock);
                                             if (vehiculo != null) {
-                                                this.agregarEntrega(v, vehiculo, delivery.VehicleStock.Color,delivery);
+                                                this.agregarEntrega(v, vehiculo.Vehicle, vehiculo.Color,delivery);
                                             }
                                         }
-                                        else if (delivery.PurchaseOrderV != null && delivery.PurchaseOrderV.BranchOffice == this.employee.BranchOffice) {
+                                        else if (delivery.PurchaseOrderV != null  && delivery.PurchaseOrderV.ArrivalDate!=null) {
                                             let vehiculo = this.vehiculos.find(v => v._id == delivery.PurchaseOrderV.Vehicle[0].VehicleID);
                                             if (vehiculo != null) {
                                                 this.agregarEntrega(v, vehiculo, delivery.PurchaseOrderV.Vehicle[0].Color,delivery);
                                             }
                                         }
-                                    }
+                                    
                                 }
                             })
-                        
+                            
                     }})
                     
                 });
@@ -165,11 +167,18 @@ export default {
         async getVehiculos() {
             await axios.get(urlAPI + 'vehicle').then(res => {
                 if (res != null) {
-                    this.vehiculos = res.data.vehicle.filter(o => o.Status == "ACTIVE");
+                    this.vehiculos = res.data.vehicle;
                 }
             })
         },
 
+        async getVehiculosStock() {
+            await axios.get(urlAPI + 'vehicleStock').then(res => {
+                if (res != null) {
+                    this.vehiculosStock = res.data.vehicle;
+                }
+            })
+        },
         async getOrdenes() {
             await axios.get(urlAPI + 'purchaseOrderV').then(res => {
                 if (res != null) {
@@ -193,11 +202,22 @@ export default {
                 }
             })
         },
+             async getEmpleados() {
+            await axios.get(urlAPI + 'employee').then(res => {
+                if (res != null) {
+                    this.empleados = res.data.employee;
+                   
+                }
+            })
+        },
+        getStringDate(date){
+             let dateAux = new Date(date);
+            return dateAux!=null? dateAux.getDate()+"-"+(dateAux.getMonth()+1)+"-"+(dateAux.getYear()+1900): new Date().getDate()+"-"+(new Date().getMonth()+1)+"-"+(new Date().getYear()+1900);
+        },
 
         agregarEntrega(venta, vehiculo, color, delivery) {
-            let date = new Date(delivery.Date);
-
-            date = date != null ? date.getDate() + "-" + date.getMonth() + "-" + parseInt(date.getYear() + 1900) : null
+           let date = this.getStringDate(delivery.Date);
+             let empleado = this.empleados.find(e=>e._id==delivery.Employee);
                 this.entregas.push({
                     "Marca": vehiculo.Brand,
                     "Model": vehiculo.Model,
@@ -208,8 +228,8 @@ export default {
                     "Type": vehiculo.Type,
                     "Kind": vehiculo.Kind,
                     "Client": venta.Client,
+                     "Employee": {"DNI": empleado==null? "":empleado.DNI},
                     "Date": date,
-                    "Employee": {"DNI": delivery.Employee==null? "":delivery.Employee.DNI}
                    })
             
         },

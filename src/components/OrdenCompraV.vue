@@ -195,6 +195,7 @@ export default {
             {
                 text: 'Precio',
                 value: 'Price',
+                align: 'right'
             },
         ],
 
@@ -282,7 +283,7 @@ export default {
                                 this.allOrdenes.push(orden);
                             }
                         })
-                        this.ordenes = this.allOrdenes.filter(o => o.Type == "RECIBIDA")
+                        this.ordenes = this.allOrdenes.filter(o => o.Type == "RECIBIDA" && o.Code!=null)
                     }
                 })
         },
@@ -291,14 +292,13 @@ export default {
             return value == null ? "$0" : "$" + value;
         },
 
-        formatDate(value) {
-            if (value == null) {
+         formatDate(value) {
+            if (value == null || new Date(value)==null) {
                 return "Sin Definir";
             }
-            value = String(value);
-            value = value.slice(0, 10);
-            return value;
-        },
+            let date = new Date(value);
+            return date.getDate()+"-"+date.getMonth()+"-"+(1900+date.getYear());
+           },
 
         validate() {
             return this.$refs.form.validate();
@@ -502,13 +502,10 @@ export default {
                 this.dialogMensaje = true;
                 return null;
             }
-            let date = new Date();
-            date = new Date(date.setTime(date.getTime()));
-
+    
             //ACA FALTA LA PARTE DE LA SUCURSAL    "BranchOffice": "5fb3d83987565231fcd5a756",
             return {
                 "purchaseOrderV": {
-                    "OrderDate": date,
                     "Price": precio,
                     "Vehicle": vehicle,
                     "Dealer": this.proveedor,
