@@ -1,7 +1,7 @@
 <template>
 <v-img src="../assets/Sun-Tornado.svg" gradient="to top right, rgba(20,20,20,.2), rgba(25,32,72,.35)" class="bkg-img">
     <div>
-        <v-data-table v-model="selected" show-select :headers="headers" :expanded.sync="expanded" show-expand :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+        <v-data-table v-model="selected" show-select :headers="headers" :items="clients" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
             <template v-slot:item.TaxCategory="{ item }">
                 {{ format(item.TaxCategory) }}
             </template>
@@ -10,14 +10,6 @@
             </template>
             <template v-slot:item.CUIT="{ item }">
                 {{ format(item.CUIT) }}
-            </template>
-            <template v-slot:expanded-item="{ headers, item }">
-                <td :colspan="headers.length">
-
-                    <v-chip-group>
-                        <v-chip color="success" small v-for="v in item.Vehicle" :key="v._id">Vehículo: {{v.Domain}}</v-chip>
-                    </v-chip-group>
-                </td>
             </template>
 
             <template v-slot:top>
@@ -163,7 +155,8 @@
             </template>
         </v-data-table>
 
-        <v-dialog ref="asociarVehiculo" v-model="nuevoVehiculo">
+        <v-dialog v-model="nuevoVehiculo" persistent  max-width="800px">
+            <v-form ref="formVehiculo" v-model="validV" lazy-validation>
             <v-card>
                 <v-card-title>Asociar Vehículo</v-card-title>
                 <v-card-text>
@@ -175,32 +168,31 @@
                     <v-text-field label="Dominio" :rules="reglaDominio" v-model="vehiculoNuevo.Domain"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-flex class="text-rigth">
+                    <v-flex class="text-right">
                         <v-btn class="info mb-2" text @click="vehiculoNuevo.Domain='';vehiculoNuevo.VehicleID='',nuevoVehiculo=false">
                             <v-icon>mdi-cancel</v-icon>
                         </v-btn>
-                        <v-btn class="info mb-2" text @click="asociarVehiculo">
+                        <v-btn class="info mb-2" text @click="asociarVehiculo(vehiculoNuevo)">
                             <v-icon>mdi-check</v-icon>
                         </v-btn>
                     </v-flex>
-                    <v-spacer></v-spacer>
                 </v-card-actions>
+                
             </v-card>
+            </v-form>
         </v-dialog>
 
         <v-dialog v-if="selected.length>0" v-model="agregarVehiculo" persistent>
-            <!--v-card-->
+            
             <v-form v-model="valid" lazy-validation>
 
-                <!--v-card-text-->
-                <h1 class="text-center" style="background-color:indigo; padding-top: 10px; padding-bottom: 10px; color:white">
+             <h1 class="text-center" style="background-color:indigo; padding-top: 10px; padding-bottom: 10px; color:white">
                     VEHÍCULO/S <v-btn color="green" dark class="mb-2" v-bind="attrs" v-on="on" @click="nuevoVehiculo=true; editarVehiculo=false">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </h1>
 
-                <v-data-table v-model="selected[0].Vehicle" :single-select="true" :headers="headersV" :items="vehicleClient" :search="search" item-key="_id" sort-by="Name" class="elevation-1">
+                <v-data-table v-model="selected[0].Vehicle" :single-select="true" :headers="headersV" :items="vehicleClient" :search="search" sort-by="Name" class="elevation-1">
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
                             <v-col cols="12" md="6">
@@ -218,47 +210,7 @@
                             </v-col>
                         </v-row>
                     </template>
-
                 </v-data-table>
-                <!--/v-card-text-->
-                <!--v-card-text>
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled label="ID del Cliente: "></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled v-model="selected[0].DNI"></v-text-field>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12" md="3">
-                                <v-text-field disabled label="Nombre: "></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="3">
-                                <v-text-field disabled v-model="selected[0].Name"></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="3">
-                                <v-text-field disabled label="Apellido: "></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="3">
-                                <v-text-field disabled v-model="selected[0].LastName"></v-text-field>
-                            </v-col>
-                        </v-row>
-
-                        <div v-for="(v,index) in selected[0].Vehicle" :key="index">
-                            <v-text-field label="Marca">{{v.VehicleID.Vehicle.Brand}}</v-text-field>
-                            <v-text-field label="Dominio">{{v.Domain}}</v-text-field>
-                            <v-text-field label="Dominio">AAA</v-text-field>
-
-                        </div>
-                        <v-select v-model="vehiculo" label="Vehiculo" :items="vehicles" item-text="Model" item-value="_id" :rules="requerido">
-                            <template slot="item" slot-scope="data">
-                                {{ data.item.Brand }} {{ data.item.Model }} - {{ data.item.year }}
-                            </template>
-                        </v-select>
-                        <v-text-field label="Dominio" v-model="dominio" :rules="reglaDominio"></v-text-field>
-                    </v-card-text-->
-                <!--v-card-actions-->
                 <div style="background-color:white">
                     <v-flex class="text-right">
                         <v-btn class="info mb-2" @click="vehiculo=null;agregarVehiculo=false; dominio=''">
@@ -269,11 +221,9 @@
                         </v-btn>
                     </v-flex>
                 </div>
-                <!--/v-card-actions-->
-
+         
             </v-form>
-            <!--/v-card-->
-        </v-dialog>
+          </v-dialog>
 
         <v-snackbar v-model="snackbar">
             {{ mensaje }}
@@ -326,6 +276,7 @@ export default {
         search: '',
         poblacion: '',
         valid: true,
+        validV:true,
         snackbar: false,
         mensaje: "",
         dialog: false,
@@ -555,7 +506,8 @@ export default {
         getVehicles() {
             axios.get(urlAPI + 'vehicle')
                 .then(res => {
-                    this.vehicles = res.data.vehicle.filter(vehicle => vehicle.Status === "ACTIVE")
+                    this.vehicles = res.data.vehicle;
+                    this.vehicles = this.vehicles.filter(vehicle => vehicle.Status === "ACTIVE");
                 });
         },
 
@@ -686,10 +638,6 @@ export default {
             this.modificacion = false;
         },
 
-        validate() {
-            return this.$refs.form.validate()
-        },
-
         getClient(selected) {
             return new client(selected.Name, selected.LastName, this.prefijo + "-" + this.num,
                 this.principioEmail + "@" + this.finEmail, "ACTIVE", selected.DNI,
@@ -764,7 +712,7 @@ export default {
             if (id === -1) {
                 this.alta = true;
                 this.client = this.getClient(this.client);
-                if (this.validate()) {
+                if (this.$refs.form.validate()) {
                     this.post(urlAPI + 'client/add', JSON.stringify(this.getJSONClient(this.client)));
                     this.clients.push(this.client);
                 }
@@ -772,7 +720,7 @@ export default {
             //Editar Cliente
             else {
                 this.modificacion = true;
-                if (this.validate()) {
+                if (this.$refs.form.validate()) {
                     Object.assign(this.clients[this.editedIndex], this.client)
                     this.editar("ACTIVE", this.client, true);
                 }
@@ -809,8 +757,17 @@ export default {
 
         mostrarDialogVehiculo() {
             if (this.selected.length == 1) {
-                this.vehicleClient = this.selected[0].Vehicle;
-                console.log("VEHICULO: " + JSON.stringify(this.vehicleClient))
+                this.vehicleClient = [];
+                axios.get(urlAPI+"client/"+this.selected[0]._id).then(res=>{
+                    if(res!=null && res.data.client!=null){
+                        res.data.client.Vehicle.forEach(v=>{
+                            let vehiculo = this.vehicles.find(vc=>vc._id==v.VehicleID);
+                            if(vehiculo!=null){
+                                this.vehicleClient.push({"VehicleID":vehiculo,"Domain":v.Domain});
+                            }
+                        }) 
+                    }
+                })
                 this.agregarVehiculo = true;
             } else if (this.selected.length == 0) {
                 this.mensaje = "No ha seleccionado ningún elemento!";
@@ -841,15 +798,23 @@ export default {
             this.vehiculoNuevo.VehicleID = "";
             this.dominio = "";
             this.agregarVehiculo = false;
-            this.selected = [];
             this.indexV = -1;
             if (this.nuevoVehiculo) {
+                this.$refs.formVehiculo.resetValidation();
                 this.nuevoVehiculo = false;
             }
+           /* axios.get(urlAPI+'client/'+this.selected[0]._id).then(res=>{
+                if(res!=null){
+                     this.selected = [];
+                    this.vehicleClient = res.data.client.Vehicle;
+                }
+            })*/
             this.reset();
         },
 
         asociarVehiculo(item) {
+            if (this.nuevoVehiculo && this.$refs.formVehiculo.validate()) {
+                let vehiculo = this.getJSONVehicle(item);
                 if (this.editarVehiculo == false) {
                     axios.post(urlAPI + "client/" + this.selected[0]._id + "/addvehicle", this.getJSONVehicle(item))
                         .then(res => {
@@ -860,6 +825,8 @@ export default {
                             }
                         })
                 } else {
+                    this.indexV = this.selected[0].Vehicle.indexOf(this.selected[0].Vehicle[0]);
+                    
                     let vehiculo = {
                         "vehicle": {
                             "Vehicle": {
@@ -877,16 +844,16 @@ export default {
                                 this.snackbar = true
                             }
                         })
+                }
             }
         },
         editV(item) {
-            console.log("AGREANDO V");
             if (item == null) {
                 this.mensaje = "No ha seleccionado ningún elemento";
                 this.snackbar = true;
                 return;
             }
-            this.indexV = this.selected[0].Vehicle.indexOf(item);
+            this.indexV = this.selected[0].Vehicle.indexOf(this.selected[0].Vehicle[0]); 
             this.editarVehiculo = true;
             let vehiculo = item;
             this.vehiculoNuevo.Domain = vehiculo.Domain;
@@ -905,10 +872,10 @@ export default {
         },
 
         eliminarVehiculoConfirm() {
-            let index = this.selected[0].Vehicle.indexOf(this.vehiculoNuevo);
-            this.selectedV.splice(index, 1);
+           this.indexV = this.selected[0].Vehicle.indexOf(this.selected[0].Vehicle[0]);
+            this.selectedV.splice(this.indexV, 1);
             axios.post(urlAPI + "client/" + this.selected[0]._id + "/deletevehicle", {
-                "index": index
+                "index": this.indexV
             });
             this.dialogDeleteV=false;
             this.resetVehicle();

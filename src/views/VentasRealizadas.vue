@@ -15,11 +15,11 @@
             </v-toolbar>
         </template>
 
-        <template v-if="Factura!=null" v-slot:item.Factura.PrecioNeto="{ item }">
-            {{ formatPrice(item.Factura.PrecioNeto) }}
-        </template>   
           <template v-slot:item.Date="{ item }">
             {{ formatDate(item.Date) }}
+        </template>     
+         <template v-slot:item.Factura.PrecioNeto="{ item }">
+            {{ formatPrice(item.Factura.PrecioNeto) }}
         </template>     
     </v-data-table>
 
@@ -35,95 +35,23 @@
                 <v-container>
                     <ol>
                         <li v-for="(elemento,index) in Factura.Elements" :key="index">
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <strong>
-                                        <v-text-field disabled label="Elemento :"></v-text-field>
-                                    </strong>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="elemento.Name"></v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <strong>
-                                        <v-text-field disabled label="Precio:"></v-text-field>
-                                    </strong>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="elemento.PrecioNeto" prefix="$"></v-text-field>
-                                </v-col>
-                            </v-row>
-                            <div v-if="elemento.Descuento>0">
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <strong>
-                                            <v-text-field disabled label="Descuento:"></v-text-field>
-                                        </strong>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="elemento.Descuento" suffix="%"></v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <strong>
-                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
-                                        </strong>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                          <v-text-field readonly :value="'Elemento :'+elemento.Name"></v-text-field>
+                          <v-text-field readonly :value="'Precio: $'+elemento.PrecioNeto"></v-text-field>
+                         <div v-if="elemento.Descuento>0">
+                               <v-text-field readonly :value="'Descuento: '+elemento.Descuento+'%'"></v-text-field>
+                                <v-text-field readonly :value="'Precio con Descuento: $'+elemento.PrecioConDescuento"></v-text-field>
                             </div>
                             <div v-if="Factura.Kind=='A'">
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <strong>
-                                            <v-text-field disabled label="Impuestos:"></v-text-field>
-                                        </strong>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                                <v-text-field readonly :value="'Impuestos: '+elemento.PrecioConDescuento"></v-text-field>
                             </div>
                         </li>
                     </ol>
                     <div v-if="Factura.Kind!='A'">
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <strong>
-                                    <v-text-field disabled label="Total:"></v-text-field>
-                                </strong>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
-                            </v-col>
-                        </v-row>
+                        <v-text-field readonly :value="'Total: $'+Factura.TotalNeto"></v-text-field>
                     </div>
                     <div v-else>
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <strong>
-                                    <v-text-field disabled label="Total Neto:"></v-text-field>
-                                </strong>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <strong>
-                                    <v-text-field disabled label="Total+IVA:"></v-text-field>
-                                </strong>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled prefix="$" :value="Factura.TotalImpuesto"></v-text-field>
-                            </v-col>
-                        </v-row>
+                        <v-text-field readonly :value="'Total Neto: $'+Factura.TotalNeto"></v-text-field>
+                        <v-text-field readonly :value="'Total+IVA: $'+Factura.TotalImpuesto"></v-text-field>
                     </div>
                 </v-container>
             </v-card-text>
@@ -195,6 +123,7 @@ export default {
             {
                 text: 'Total Neto',
                 value: 'Factura.PrecioNeto',
+                align: 'right'
             },
          
         ],
@@ -220,7 +149,8 @@ export default {
             let cont = 0;
             await axios.get(urlAPI + "sellVehicle")
                 .then(res => {
-                    this.ventas = res.data.sell;});
+                    this.ventas = res.data.sell;
+                    });
         },
          formatPrice(value) {
             return value == null ? "$0" : "$" + value;

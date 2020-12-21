@@ -3,6 +3,7 @@
     <div>
         <h1 class="text-center" style="background-color:DimGray;color:white">INGRESOS/EGRESOS {{fecha}}</h1>
         <h4 class="text-center" style="background-color:DimGray;color:white">ESTADO: {{caja}}</h4>
+        <h4 class="text-center" style="background-color:DimGray;color:white">Saldo: ${{saldoInicial}}</h4>
         <template>
             <v-expansion-panels>
                 <v-expansion-panel>
@@ -51,7 +52,7 @@
             <template v-slot:item.Date="{ item }">
                 {{ formatDate(item.Date) }}
             </template>
-            <template v-slot:item.Monto="{ item }">
+            <template v-slot:item.Monto="{ item }" class="text-right">
                 {{ formatPrice(item.Monto) }}
             </template>
             <template v-slot:item.Description="{ item }">
@@ -91,10 +92,12 @@
 
         <v-dialog v-model="dialogMensaje" max-width="400px" persistent>
             <v-card>
+            <v-form ref="formCaja" v-model="valid" lazy-validation>
                 <v-card-text>
                     <br>
                     <h1 class="text-center">Confirmación</h1><br>
                     <h3>{{mensaje}}</h3>
+                    <v-text-field v-if="caja=='CERRADA'" prefix="$" v-model="saldoEnCaja" :value="saldoEnCaja" label="Saldo Inicial" :rules="reglaPrecio"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-flex class="text-right">
@@ -106,6 +109,7 @@
                         </v-btn>
                     </v-flex>
                 </v-card-actions>
+                </v-form>
             </v-card>
         </v-dialog>
 
@@ -124,8 +128,10 @@ export default {
         ordenesV: [],
         ventas: [],
         horarios: [],
+        valid: true,
         dialogMensaje: false,
         mensaje: '',
+        saldoInicial: 0,
         snackbar: false,
         titulo: '',
         menu: false,
@@ -149,6 +155,7 @@ export default {
             {
                 text: 'Monto',
                 value: 'Monto',
+                align: 'right'
             },
             {
                 text: 'Tipo',
@@ -174,7 +181,15 @@ export default {
         on: '',
         employee: null,
         date: null,
-        ingresos: []
+        ingresos: [],
+        saldoEnCaja: 0,
+        reglaPrecio: [
+            value => !!value || 'Requerido.',
+            value => {
+                const pattern = /^[0-9]{1,}(.[0-9]{1,}){0,1}$/
+                return pattern.test(value) || 'Sólo se permiten números!'
+            },
+        ],
     }),
 
     created() {
@@ -251,12 +266,24 @@ export default {
 
         getCaja() {
             axios.get(urlAPI + 'branchOffice').then(res => {
+                this.saldoInicial =0;
+                this.movimientos = [];
+                this.saldoEnCaja=0;
                 if (res != null) {
                     let branchOffice = res.data.branchOffice;
                     branchOffice = branchOffice.find(b => b._id == this.employee.BranchOffice);
                     if (branchOffice != null) {
                         if (branchOffice.Caja != null & branchOffice.Caja != "") {
-                            this.caja = branchOffice.Caja;
+                            if(branchOffice.Caja.Estado==null){
+                                this.caja="CERRADA";    
+                            }
+                            else{
+                                this.caja = branchOffice.Caja.Estado;
+                            }
+                            if(branchOffice.Caja.SaldoInicial!=null && branchOffice.Caja.Date == this.fecha){
+                                    this.saldoEnCaja += branchOffice.Caja.SaldoInicial;
+                                    this.saldoInicial+=this.saldoEnCaja;
+                            }
                         }
                         this.branchOffice = branchOffice;
                         this.iniciar();
@@ -285,6 +312,7 @@ export default {
                                         "Type": "EGRESO",
                                         "Motivo": e.Type
                                     })
+                                    this.saldoInicial-=e.Monto;
                                 }
                             })
                             this.egresos.forEach(e => {
@@ -318,6 +346,7 @@ export default {
                                         "Type": "INGRESO",
                                         "Motivo": "VENTA"
                                     })
+                                    this.saldoInicial+=e.Factura.PrecioNeto;
                                 }
                             })
                             this.ventas.forEach(v => {
@@ -350,6 +379,7 @@ export default {
                                         "Type": "EGRESO",
                                         "Motivo": "allMovimientos"
                                     })
+                                    this.saldoInicial-=o.Price;
                                 }
                             })
                             this.ordenesR.forEach(o => {
@@ -378,6 +408,7 @@ export default {
                                         "Type": "EGRESO",
                                         "Motivo": "VEHÍCULOS"
                                     })
+                                    this.saldoInicial-=o.Price;
                                 }
                             })
                             this.ordenesV.forEach(o => {
@@ -407,7 +438,14 @@ export default {
                                         "Type": "INGRESO",
                                         "Motivo": "SALDO INICIAL"
                                     })
-                                }
+                                    if(this.saldoEnCaja==0){
+                                        this.saldoEnCaja+=o.Monto;
+                                        this.saldoInicial+=this.saldoEnCaja;
+                                    }
+                                    else{
+                                        this.saldoInicial+=o.Monto;
+                                    }
+                                     }
                             })
                             this.ingresos.forEach(o => {
                                 this.movimientos.push(o)
@@ -449,7 +487,26 @@ export default {
             if (date == null) {
                 return "N/A";
             }
-            return date.slice(11, 19);
+
+            let dateAux = new Date(date);
+            if(String(dateAux).includes("Invalid")){
+                let fecha = String(date);
+                let nD = new Date();
+                if(fecha.length<19){
+                        let horas = nD.getHours()<10? "0"+nD.getHours() : nD.getHours();
+                        let min = nD.getMinutes()-1<10? "0"+nD.getMinutes()-1 : nD.getMinutes()-1;       
+                        let seg = nD.getSeconds()<10? "0"+nD.getSeconds() : nD.getSeconds();
+                        return horas+":"+min+":"+seg;
+                }   
+                return fecha.slice(11,19);
+            }
+            console.log(dateAux)
+            console.log(date)
+            let horas = dateAux.getHours()<10? "0"+dateAux.getHours() : dateAux.getHours();
+            let min = dateAux.getMinutes()<10? "0"+dateAux.getMinutes() : dateAux.getMinutes();       
+            let seg = dateAux.getSeconds()<10? "0"+dateAux.getSeconds() : dateAux.getSeconds();
+            date = horas+":"+min+":"+seg;
+            return date;
         },
 
         formatStringDate(value) {
@@ -475,33 +532,49 @@ export default {
         },
 
         cambiarCaja() {
+            if(this.$refs.formCaja.validate()){
             if (this.caja == 'ABIERTA') {
                 this.caja = 'CERRADA';
             } else {
                 this.caja = 'ABIERTA';
                 localStorage.setItem('caja', 'ABIERTA');
             }
-            let dateString = new Date().toLocaleString("es-AR", {
+            /*let dateString = new Date().toLocaleString("es-AR", {
                 timeZone: "America/Argentina/Buenos_Aires"
-            });
+            });*/
             //16/12/2020 11:51:28 -> 16-12-2020 11:51:28
-            let fecha = dateString.replaceAll("/", "-");
-
+            //this.saldoInicial+=this.saldoEnCaja;
             let change = {
                 "Employee": this.employee._id,
-                "Date": fecha,
+                "Date": this.fecha,
                 "Description": "CAJA: " + this.caja
             }
             let arrChange = this.branchOffice.ChangeStatus == null || this.branchOffice.ChangeStatus != null && this.branchOffice.ChangeStatus.length == 0 ? [] : this.branchOffice.ChangeStatus;
             arrChange.push(change);
             axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/setCaja', {
-                "Caja": this.caja
+                "Caja": {
+                    "Estado": this.caja,
+                    "Date": this.fecha,
+                    "SaldoInicial":this.saldoEnCaja
+                }
             });
-            axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/changeStatus', arrChange);
-
+            axios.post(urlAPI + 'branchOffice/' + this.branchOffice._id + '/changeStatus', arrChange)
+            .then(res=>{
+                if(res!=null){
+                      this.getCaja();
+                }
+            });
             this.mensaje = "";
+            this.$refs.formCaja.resetValidation();
             this.dialogMensaje = false;
-        }
+            }
+            
+        },
+        getStringDate(date){
+             let dateAux = new Date(date);
+            return dateAux!=null? dateAux.getDate()+"-"+(dateAux.getMonth()+1)+"-"+(dateAux.getYear()+1900): new Date().getDate()+"-"+(new Date().getMonth()+1)+"-"+(new Date().getYear()+1900);
+        },
+
     },
 
 };
@@ -513,12 +586,7 @@ export default {
     margin-right: 3px;
 }
 
-.btnMasMenos {
-    margin: -10%;
-}
-
-.izq {
-    align: left;
-    margin-left: -90%;
+.right {
+    text-align: right;
 }
 </style>

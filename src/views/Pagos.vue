@@ -112,7 +112,7 @@
                 <h2>Confirmación</h2>
             </v-card-title>
             <v-card-text>
-                <v-text-field disabled prefix="Se emitirá una Factura: " :value="Factura.Kind"></v-text-field>
+                <v-text-field readonly prefix="Se emitirá una Factura: " :value="Factura.Kind"></v-text-field>
             </v-card-text>
             <v-card-actions>
                 <v-flex class="text-right">
@@ -137,101 +137,29 @@
             </v-card-title>
 
             <v-card-text>
-                <v-container>
+                <v-container v-if="Factura.Elements!=null">
                     <ol>
                         <li v-for="(elemento,index) in Factura.Elements" :key="index">
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <strong>
-                                        <v-text-field disabled label="Elemento :"></v-text-field>
-                                    </strong>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="elemento.Name"></v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12" md="6">
-                                    <strong>
-                                        <v-text-field disabled label="Precio:"></v-text-field>
-                                    </strong>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field disabled :value="elemento.PrecioNeto" prefix="$"></v-text-field>
-                                </v-col>
-                            </v-row>
+                            <v-text-field readonly :value="'Elemento :'+elemento.Name"></v-text-field>
+                             <v-text-field v-if="elemento!=null && Factura!=null" readonly :value="'Precio: $'+elemento.PrecioNeto"></v-text-field>
+                             
                             <div v-if="elemento.Descuento>0">
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <strong>
-                                            <v-text-field disabled label="Descuento:"></v-text-field>
-                                        </strong>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="elemento.Descuento" suffix="%"></v-text-field>
-                                    </v-col>
-                                </v-row>
-
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <strong>
-                                            <v-text-field disabled label="Precio con Descuento:"></v-text-field>
-                                        </strong>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                                <v-text-field readonly :value="'Descuento: '+elemento.Descuento+'%'"></v-text-field>
+                                <v-text-field readonly :value="'Precio con Descuento: $'+elemento.PrecioConDescuento"></v-text-field>
                             </div>
 
                             <div v-if="Factura.Kind=='A'">
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <strong>
-                                            <v-text-field disabled label="Impuestos:"></v-text-field>
-                                        </strong>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field disabled :value="elemento.PrecioConDescuento" prefix="$"></v-text-field>
-                                    </v-col>
-                                </v-row>
+                                  <v-text-field readonly :value="'Impuestos: $'+elemento.PrecioConDescuento"></v-text-field>
                             </div>
                         </li>
                     </ol>
                     <div v-if="Factura.Kind!='A'">
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <strong>
-                                    <v-text-field disabled label="Total:"></v-text-field>
-                                </strong>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
-                            </v-col>
-                        </v-row>
+                        <v-text-field readonly :value="'Total: $'+Factura.TotalNeto"></v-text-field>
                     </div>
 
                     <div v-else>
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <strong>
-                                    <v-text-field disabled label="Total Neto:"></v-text-field>
-                                </strong>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled prefix="$" :value="Factura.TotalNeto"></v-text-field>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12" md="6">
-                                <strong>
-                                    <v-text-field disabled label="Total+IVA:"></v-text-field>
-                                </strong>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field disabled prefix="$" :value="Factura.TotalImpuesto"></v-text-field>
-                            </v-col>
-                        </v-row>
+                        <v-text-field readonly :value="'Total Neto: $'+Factura.TotalNeto"></v-text-field>
+                        <v-text-field readonly :value="'Total+IVA: $'+Factura.TotalImpuesto"></v-text-field>
                     </div>
 
                 </v-container>
@@ -853,7 +781,6 @@ export default {
         resetItems() {
             this.tituloMensaje = "Operación exitosa";
             this.mensaje = "Compra realizada con éxito";
-            this.dialogMensaje = true;
             this.pago = true;
             this.descuento = 0;
             for (let i = 0; i < this.encargados.length; i++) {
@@ -862,6 +789,7 @@ export default {
                     item.carrito = false;
                     item.descuento = 0;
                     item.descontado = 0;
+
                     localStorage.setItem(String("vM" + i), JSON.stringify(item));
                 }
             }
@@ -884,6 +812,7 @@ export default {
                 }
             }
             localStorage.removeItem("reserva");
+            this.dialogMensaje = true;
         },
         async agregarEncargados(repuestos, idFactura) {
             for (let i = 0; i < this.encargados.length; i++) {
@@ -962,7 +891,10 @@ export default {
             for (let i = 0; i < length; i++) {
                 let repuesto = JSON.parse(localStorage.getItem(String("r" + i)));
                 if (repuesto != null && repuesto.carrito) {
-                    this.repuestos.push(repuesto);
+                    for(let j=0;j<repuesto.cantidad;j++){
+                        this.repuestos.push(repuesto);
+                    }
+                    
                 }
             }
         },
@@ -1196,7 +1128,6 @@ export default {
                         max = documentos[i].EstimatedTime;
                     }
                 }
-
                 return String(max);
             }
             return String(max);
@@ -1206,7 +1137,7 @@ export default {
             let ret = [];
             if (documentos != null) {
                 documentos.forEach(d => {
-                    let doc = this.allDocuments.find(document => document.id == d.DocumentationID);
+                    let doc = this.allDocuments.find(document => document._id == d.DocumentationID);
                     if (doc != null) {
                         ret.push(doc);
                     }
