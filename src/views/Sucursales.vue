@@ -345,7 +345,6 @@
 <script>
 import axios from "axios";
 import urlAPI from "../config/config.js"
-
 export default {
     data: () => ({
         expanded: [],
@@ -357,7 +356,6 @@ export default {
         mensaje: "",
         dialog: false,
         dialogDelete: false,
-
         editedItem: {
             Name: '',
             openLunes: "",
@@ -384,7 +382,6 @@ export default {
             CityNL: "",
             taller: false,
         },
-
         defaultItem: {
             Name: '',
             openLunes: "",
@@ -449,9 +446,7 @@ export default {
                 text: 'Numeración',
                 value: 'Address.Number'
             },
-
         ],
-
         sucursales: [],
         empleados: [],
         paises: [],
@@ -517,7 +512,6 @@ export default {
                 return pattern.test(value) || 'Sólo se permiten números!'
             },
         ],
-
         reglaPrincipioEmail: [
             value => !!value || 'Requerido.',
             value => (value || '').length <= 20 || 'Máximo 20 caracteres',
@@ -535,7 +529,6 @@ export default {
                 return pattern.test(value) || 'Email inválido'
             },
         ],
-
         reglaNacionalidad: [
             value => !!value || 'Requerido.',
         ],
@@ -545,11 +538,9 @@ export default {
         formTitle: '',
         allLocalidades: [],
     }),
-
     created() {
         this.iniciar();
     },
-
     methods: {
         iniciar() {
             this.getsucursales();
@@ -571,7 +562,6 @@ export default {
                     this.provincias.sort();
                 });
         },
-
         getAllLocalidades() {
             axios.get(urlAPI + "localidades")
                 .then(res => {
@@ -579,11 +569,9 @@ export default {
                     this.allLocalidades.sort();
                 });
         },
-
         getLocalidades(nombre) {
             return this.allLocalidades.filter(l => l.Provincia == nombre);
         },
-
         async getPaises() {
             await axios.get(urlAPI + 'paises')
                 .then(res => {
@@ -592,7 +580,6 @@ export default {
                         this.paises.sort();
                     }
                 });
-
         },
         getsucursales() {
             axios.get(urlAPI + 'branchOffice')
@@ -600,14 +587,12 @@ export default {
                     this.sucursales = res.data.branchOffice.filter(s => s.Status === "ACTIVE")
                 });
         },
-
         async getEmpleados() {
             await axios.get(urlAPI + 'employee')
                 .then(res => {
                     this.empleados = res.data.employee.filter(s => s.Status === "ACTIVE")
                 });
         },
-
         obtenerPrefijo(value) {
             let prefijo = "";
             for (let i = 0; i < this.paises.length; i++) {
@@ -617,15 +602,12 @@ export default {
             }
             return prefijo;
         },
-
         changeState(value) {
             this.prefijo = this.obtenerPrefijo(value);
         },
-
         haySeleccionado() {
             return this.selected.length > 0;
         },
-
         mensajeNoSelecciono() {
             if (!this.haySeleccionado()) {
                 this.snackbar = true
@@ -634,7 +616,6 @@ export default {
             }
             return false;
         },
-
         parsearAHora(time) {
             if (time != null && time != -1) {
                 var min = time % 60;
@@ -645,7 +626,6 @@ export default {
             }
             return "";
         },
-
         editItem(item) {
             if (!this.mensajeNoSelecciono()) {
                 if (this.selected.length > 1) {
@@ -657,7 +637,6 @@ export default {
                 this.editedItem.Name = item.Name;
                 this.editedItem.Street = item.Address.Street;
                 this.editedItem.Country = item.Address.Country;
-
                 this.separarEmail(this.sucursales[this.editedIndex]);
                 this.separarTel(this.sucursales[this.editedIndex]);
                 if (this.editedItem.Country != "Argentina") {
@@ -673,9 +652,13 @@ export default {
                     }
                 }
                 this.editedItem.Number = item.Address.Number;
-                this.editedItem.employee = item.Employee;
+                if(item.Employee!=null){
+                    item.Employee.forEach(e=>{
+                        this.editedItem.employee.push(e);
+                    })
+                }
+               // this.editedItem.employee = item.Employee;
                 this.editedItem.taller = item.WorkShop;
-
                 this.timeOLunes = item.Hours.Monday.Open;
                 this.timeCLunes = item.Hours.Monday.Close;
                 this.timeOMartes = item.Hours.Tuesday.Open;
@@ -690,7 +673,6 @@ export default {
                 this.timeCSabado = item.Hours.Saturday.Close;
                 this.timeODomingo = item.Hours.Sunday.Open;
                 this.timeCDomingo = item.Hours.Sunday.Close;
-
                 this.timeOLunes = this.parsearAHora(this.timeOLunes);
                 this.timeCLunes = this.parsearAHora(this.timeCLunes);
                 this.timeOMartes = this.parsearAHora(this.timeOMartes);
@@ -705,17 +687,13 @@ export default {
                 this.timeCSabado = this.parsearAHora(this.timeCSabado);
                 this.timeODomingo = this.parsearAHora(this.timeODomingo);
                 this.timeCDomingo = this.parsearAHora(this.timeCDomingo);
-
                 this.formTitle = "Editar editedIteme";
                 this.dialog = true;
-
             }
         },
-
         deleteItem() {
             this.dialogDelete = true;
         },
-
         async deleteItemConfirm() {
             await axios.delete(urlAPI + 'branchOffice/' + this.selected[0]._id + '/delete').then(res => {
                 if (res != null) {
@@ -734,7 +712,6 @@ export default {
             this.sucursales.splice(this.sucursales.indexOf(this.selected[0]), 1);
             this.dialogDelete = false;
         },
-
         reset() {
             if (this.dialog) {
                 this.$refs.form.resetValidation();
@@ -771,11 +748,9 @@ export default {
             this.principioEmail = "";
             this.finEmail = "";
         },
-
         validate() {
             return this.$refs.form.validate()
         },
-
         getJSONSucursal(selected, status) {
             return {
                 "branchOffice": {
@@ -840,7 +815,6 @@ export default {
                     console.log(err)
                 });
         },
-
         transformarAMinutos(tiempo) {
             if (tiempo != null) {
                 tiempo = tiempo.split(":");
@@ -849,7 +823,6 @@ export default {
                 return -1;
             }
         },
-
         save() {
             if (this.validate() && this.editedItem.taller != null) {
                 let Province = "";
@@ -897,7 +870,6 @@ export default {
                 this.editedItem.openViernes = this.transformarAMinutos(this.timeOViernes);
                 this.editedItem.openSabado = this.transformarAMinutos(this.timeOSabado);
                 this.editedItem.openDomingo = this.transformarAMinutos(this.timeODomingo);
-
                 this.editedItem.closeLunes = this.transformarAMinutos(this.timeCLunes);
                 this.editedItem.closeMartes = this.transformarAMinutos(this.timeCMartes);
                 this.editedItem.closeMiercoles = this.transformarAMinutos(this.timeCMiercoles);
@@ -929,7 +901,6 @@ export default {
                                 Employee: this.editedItem.employee
                             });
                             this.sucursales.push(item);
-                            this.reset();
                         }
                     });
                 }
@@ -937,7 +908,7 @@ export default {
                 else {
                     Object.assign(this.sucursales[this.editedIndex], item);
                     this.asignarSucursal({
-                        Sucursal: item._id,
+                        Sucursal: this.selected[0]._id,
                         Employee: this.editedItem.employee
                     });
                     let jsonSucursal = this.getJSONSucursal(this.editedItem, "ACTIVE");
@@ -949,19 +920,43 @@ export default {
                 }
             }
         },
-
         asignarSucursal(item) {
-            item.Employee.forEach(e => {
-                axios.post(urlAPI + 'employee/' + e + '/asignarSucursal', {
+            for(let i= 0; i< this.empleados.length; i++){
+                let employee = item.Employee.find(e=> this.empleados[i]._id == e);
+                if(employee!=null && employee!=undefined){
+                       axios.post(urlAPI + 'employee/' + this.empleados[i]._id+ '/asignarSucursal', {
                     "sucursal": item.Sucursal
-                });
-            })
+                }).then(res=>{
+                    if(res!=null & i==this.empleados.length-1){
+                        this.reset();
+                    }
+                })       
+                }
+                else{
+                    if(this.empleados[i].BranchOffice!=null && this.empleados[i].BranchOffice._id == item.Sucursal){
+                       axios.post(urlAPI + 'employee/' + this.empleados[i]._id+ '/asignarSucursal', {
+                    "sucursal": null
+                }).then(res=>{
+                    if(res!=null & i==this.empleados.length-1){
+                        this.reset();
+                    }
+                })       
+                }
+                }
+            }           
+            /*for(let i=0;i< item.Employee.length; i++){
+                axios.post(urlAPI + 'employee/' + item.Employee[i]+ '/asignarSucursal', {
+                    "sucursal": item.Sucursal
+                }).then(res=>{
+                    if(res!=null & i==item.Employee.length-1){
+                        this.reset();
+                    }
+                })
+            }*/
         },
-
         formatTaller(value) {
             return value == true ? "Sí" : "No";
         },
-
         separarTel(value) {
             try {
                 this.prefijo = value.Phone.split("-")[0]
@@ -974,13 +969,11 @@ export default {
             try {
                 this.principioEmail = value.Email.split("@")[0]
                 this.finEmail = value.Email.split("@")[1]
-
             } catch (e) {
                 return
             }
         },
         allowedStep: m => m % 30 === 0,
-
     },
 };
 </script>
@@ -990,12 +983,10 @@ export default {
     margin-left: 3px;
     margin-right: 3px;
 }
-
 .mb-4 {
     width: 12%;
     margin-left: -10%;
 }
-
 p {
     text-align: center;
     font-size: 4%;
