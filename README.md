@@ -1,37 +1,25 @@
-# MEVN
-Proyecto fullstack con Mongo, ExpressJS, VueJS and NodeJS.
+# My Car
 
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOOiKh1Xk5RDZFKPkVXYfi8U-t2cuotiAOR7G_7w_HWXfV02TMnd9wnVM" height="50" /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://i.cloudup.com/zfY6lL7eFa-3000x3000.png" height="50" /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="/docs/Vue.js_Logo.svg.png" height="50" />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Node.js_logo_2015.svg" height="50" /> 
+## Summary
+FullStack Software designed for a Car Dealership as a University project. We could integrate the concepts learned in the last 3 years such as: *Software Design*, *Web Development*, *Srum* and *Teamworking*
 
-Proyecto generado con MEVN stack technologies que utiliza (**VueJS**) para el FrontEnd, (**NodeJS**, **ExpressJS**) como BackEnd y una conexión entre ellos a través de una capa de API.
+### Deploy
+https://mycarungs1.herokuapp.com/ <br>
+User: admin <br>
+Pass: administrator
+## Features
+- Different user roles
+- Stock control
+- Reservations for car services
+- Cars and products sells
+- Manager reports
 
+## Technologies
+- VueJS (with Vuetify)
+- NodeJS
+- ExpressJS
+- MongoDB (Atlas)
+- JWT
+- ChartJS
 
-= Proyecto Profesional I : TP PRINCIPAL
-
-## Puesta en Marcha
-
-### Frontend
-``` bash
-# ingresar al proyecto
-cd client
-
-# instalar dependencias
-npm install
-
-# correr frontend puerto 8080
-npm run serve
-```
-
-
-
-== Introducción
-.
-
-== Descripción
-.
-
-== Implementación
-._
-
-== Conclusiones
-.
+*Demo:* https://vimeo.com/500102464
