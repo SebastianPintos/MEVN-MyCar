@@ -1,7 +1,7 @@
 # My Car
 
 ## Summary
-FullStack Software designed for a Car Dealership as a University project. We could integrate the concepts learned in the last 3 years such as: *Software Design*, *Web Development*, *Srum* and *Teamworking*
+FullStack Software designed for a Car Dealership as a University project. We could integrate the concepts learned in the last 3 years such as: *Software Design*, *Web Development*, *Srum* and *Teamworking*.
 
 ### Deploy
 https://mycarungs1.herokuapp.com/ <br>
@@ -12,7 +12,7 @@ Pass: administrator
 - Stock control
 - Reservations for car services
 - Cars and products sells
-- Manager reports
+- Manager reports.
 
 ## Technologies
 - VueJS (with Vuetify)
